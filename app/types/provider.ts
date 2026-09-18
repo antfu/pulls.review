@@ -3,7 +3,7 @@ import * as v from 'valibot'
 
 export const ProviderCapabilitiesSchema = v.object({
   supportsAuth: v.boolean(),
-  supportsComments: v.boolean(), // false for both github-now and local; flips true when comments phase lands
+  supportsComments: v.boolean(), // true for github only - paste/local have no review lifecycle to talk to
   requiresNetwork: v.boolean(),
   supportsFullFileContent: v.boolean(), // whether a file's full content can be re-fetched at base/head refs (github only - paste has no live source)
 })

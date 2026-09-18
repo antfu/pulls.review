@@ -38,8 +38,10 @@ management product.
 - LLM-powered analysis (richer summaries) as an opt-in alongside the
   always-available rule-based fallback, plus a fully in-browser (`web-llm`)
   option requiring no API key at all.
-- Reviewing PRs interactively from within Diffs: seeing and replying to
-  existing GitHub review comment threads.
+- Reviewing PRs interactively from within Diffs (built): inline review
+  comment threads, replies, and GitHub-style review submission
+  (approve/request changes/comment), degrading to read-only when the token
+  can't write.
 - Sources beyond GitHub: pasted/uploaded raw patches (built early, since
   it's essentially free once a patch parser exists), and eventually a local
   CLI-driven provider for diffing a working tree.
@@ -56,7 +58,5 @@ management product.
 
 - Being a general git hosting/PR management product (no merging, no CI
   integration, no issue tracking).
-- Replacing GitHub's review/approval workflow — formal review submission and
-  merging are out of scope even long-term unless that changes.
 - A dashboard or account system. Diffs is deep-links plus local
   (per-browser) history, not a hosted product with accounts.

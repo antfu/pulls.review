@@ -26,27 +26,27 @@ the `llm` result.
 
 ## Decisions
 
-| Topic | Decision |
-|---|---|
-| Agent runtime | `@earendil-works/pi-agent-core` on `@earendil-works/pi-ai`, replacing the AI SDK for analysis and chat |
-| Agent context | This PR's `DiffsPayload` only; no repository file reads |
-| Progress | Shown in the header while analyzing |
-| Tests placement | Tests, stories, fixtures go with the feature they cover |
-| Output language | Follows the PR title/description language (chat: follows the user's message) |
-| Chat placement | Floating widget, bottom-right |
-| Chat capability | Q&A plus regrouping via a tool |
-| Persistence | Transcript and chat stored in the existing `pr-cache` IndexedDB entry |
+| Topic           | Decision                                                                                               |
+| --------------- | ------------------------------------------------------------------------------------------------------ |
+| Agent runtime   | `@earendil-works/pi-agent-core` on `@earendil-works/pi-ai`, replacing the AI SDK for analysis and chat |
+| Agent context   | This PR's `DiffsPayload` only; no repository file reads                                                |
+| Progress        | Shown in the header while analyzing                                                                    |
+| Tests placement | Tests, stories, fixtures go with the feature they cover                                                |
+| Output language | Follows the PR title/description language (chat: follows the user's message)                           |
+| Chat placement  | Floating widget, bottom-right                                                                          |
+| Chat capability | Q&A plus regrouping via a tool                                                                         |
+| Persistence     | Transcript and chat stored in the existing `pr-cache` IndexedDB entry                                  |
 
 ## Provider mapping (`llm/model.ts`)
 
 `resolveLanguageModel()` becomes `resolveModel(): { model: Model<Api>, apiKey: string } | undefined`,
 building pi-ai custom `Model` objects from Settings. The runtime side (`llm/runtime.ts`, only imported by `agent.ts`/`chat.ts`) registers them through `createModels()` + `createProvider()` with the `api/<id>.lazy` implementations and passes `models.streamSimple` as the loop's `streamFn`; the API key is passed per request:
 
-| Setting | `api` | `baseUrl` |
-|---|---|---|
-| `gateway` | `anthropic-messages` | `https://ai-gateway.vercel.sh` (same as pi-ai's built-in `vercel-ai-gateway` models) |
-| `anthropic` | `anthropic-messages` | `https://api.anthropic.com`; pi-ai's anthropic-messages API sends `anthropic-dangerous-direct-browser-access` |
-| `openai-compatible` | `openai-completions` | `settings.llm.openaiBaseUrl` |
+| Setting             | `api`                | `baseUrl`                                                                                                     |
+| ------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `gateway`           | `anthropic-messages` | `https://ai-gateway.vercel.sh` (same as pi-ai's built-in `vercel-ai-gateway` models)                          |
+| `anthropic`         | `anthropic-messages` | `https://api.anthropic.com`; pi-ai's anthropic-messages API sends `anthropic-dangerous-direct-browser-access` |
+| `openai-compatible` | `openai-completions` | `settings.llm.openaiBaseUrl`                                                                                  |
 
 `contextWindow`/`maxTokens`/`cost` use conservative constants (128k / 16k / 0);
 they are not used for billing here.
@@ -131,13 +131,13 @@ re-validates with valibot.
 
 A per-run `ledger`: `{ turn, charsRead, readPaths: Set<string>, submitAttempts, result }`.
 
-| Hook | Behavior |
-|---|---|
+| Hook                  | Behavior                                                                                                                          |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `getSteeringMessages` | Once, when `charsRead > 200_000` or `turn >= 10`: inject `Reading budget exhausted. Call submit_grouping now with what you have.` |
-| `finishTurn` | `{ action: 'end' }` when `ledger.result` is set or `turn >= 12` (skip error/aborted turns) |
-| `convertToLlm` | Keep `user`, `assistant`, `toolResult`; no custom message types |
-| `transformContext` | None (the budget bounds context size) |
-| Caching | Pass `sessionId` and `cacheRetention: 'short'` |
+| `finishTurn`          | `{ action: 'end' }` when `ledger.result` is set or `turn >= 12` (skip error/aborted turns)                                        |
+| `convertToLlm`        | Keep `user`, `assistant`, `toolResult`; no custom message types                                                                   |
+| `transformContext`    | None (the budget bounds context size)                                                                                             |
+| Caching               | Pass `sessionId` and `cacheRetention: 'short'`                                                                                    |
 
 After the loop: if the last assistant message has `stopReason: 'error'`, throw its
 `errorMessage`. If `ledger.result` is unset, throw `Agent did not submit a grouping`.
@@ -153,11 +153,11 @@ analyze: (diff: DiffsPayload, options?: { onProgress?: (progress: AnalyzeProgres
 
 Other adapters ignore `options`.
 
-| Event | `message` |
-|---|---|
-| `turn_start` | `Thinking… (step n)` |
-| `tool_execution_start` `read_diffs` | `Reading 3 files: src/auth/login.ts, …` |
-| `tool_execution_start` `submit_grouping` | `Organizing groups…` |
+| Event                                    | `message`                               |
+| ---------------------------------------- | --------------------------------------- |
+| `turn_start`                             | `Thinking… (step n)`                    |
+| `tool_execution_start` `read_diffs`      | `Reading 3 files: src/auth/login.ts, …` |
+| `tool_execution_start` `submit_grouping` | `Organizing groups…`                    |
 
 ## Follow-up chat
 
@@ -193,17 +193,19 @@ Other adapters ignore `options`.
 `DiffsStoreLlm` gains:
 
 ```ts
-readonly progress: AnalyzeProgress | undefined
-readonly error: Error | undefined
-readonly chat: {
-  readonly available: boolean
-  readonly messages: AgentMessage[]
-  readonly isStreaming: boolean
+interface DiffsStoreLlm {
+  readonly progress: AnalyzeProgress | undefined
   readonly error: Error | undefined
-  send: (text: string) => Promise<void>
-  retry: () => Promise<void>
-  stop: () => void
-  clear: () => Promise<void>
+  readonly chat: {
+    readonly available: boolean
+    readonly messages: AgentMessage[]
+    readonly isStreaming: boolean
+    readonly error: Error | undefined
+    send: (text: string) => Promise<void>
+    retry: () => Promise<void>
+    stop: () => void
+    clear: () => Promise<void>
+  }
 }
 ```
 
@@ -235,25 +237,25 @@ back to `chatStartIndex`. The bridge lives in `composables/useLlmChat.ts`;
 
 ## Files
 
-| File | Change |
-|---|---|
-| `app/analyze/adapters/llm/model.ts` | Rewrite to pi-ai `Model` |
-| `app/analyze/adapters/llm/runtime.ts` | New: pi-ai `Models` + provider registration, `streamFn` |
-| `app/analyze/adapters/llm/agent.ts` | New |
-| `app/analyze/adapters/llm/chat.ts` | New |
-| `app/analyze/adapters/llm/tools.ts` | New |
-| `app/analyze/adapters/llm/prompt.ts` | Agent prompt + manifest; drop chunk/synthesis prompts |
-| `app/analyze/adapters/llm/schema.ts` | Keep `AnalysisSchema` only |
-| `app/analyze/adapters/llm/index.ts` | Lazy-load agent; remove fallback |
-| `chunk.ts`, `merge.ts`, `valibot-schema.ts` + tests | Delete |
-| `app/types/analyze.ts` | `AnalyzeProgress`, `analyze` options |
-| `app/cache/pr-cache.ts` | `llmSession` field, size accounting, setter |
-| `app/stores/types.ts`, `diffs-store.ts`, `mock-diffs-store.ts` | progress, error, chat |
-| `app/composables/useLlmChat.ts` | New |
-| `app/components/diff/DiffsHeader.vue`, `DiffsPage.vue` | Progress, error, mount widget |
-| `app/components/chat/ChatWidget.vue`, `ChatMessage.vue` + stories | New |
-| `package.json` | Add `@earendil-works/pi-agent-core`, `@earendil-works/pi-ai` |
-| `.agents/01-architecture.md` | Describe the agent pipeline and chat |
+| File                                                              | Change                                                       |
+| ----------------------------------------------------------------- | ------------------------------------------------------------ |
+| `app/analyze/adapters/llm/model.ts`                               | Rewrite to pi-ai `Model`                                     |
+| `app/analyze/adapters/llm/runtime.ts`                             | New: pi-ai `Models` + provider registration, `streamFn`      |
+| `app/analyze/adapters/llm/agent.ts`                               | New                                                          |
+| `app/analyze/adapters/llm/chat.ts`                                | New                                                          |
+| `app/analyze/adapters/llm/tools.ts`                               | New                                                          |
+| `app/analyze/adapters/llm/prompt.ts`                              | Agent prompt + manifest; drop chunk/synthesis prompts        |
+| `app/analyze/adapters/llm/schema.ts`                              | Keep `AnalysisSchema` only                                   |
+| `app/analyze/adapters/llm/index.ts`                               | Lazy-load agent; remove fallback                             |
+| `chunk.ts`, `merge.ts`, `valibot-schema.ts` + tests               | Delete                                                       |
+| `app/types/analyze.ts`                                            | `AnalyzeProgress`, `analyze` options                         |
+| `app/cache/pr-cache.ts`                                           | `llmSession` field, size accounting, setter                  |
+| `app/stores/types.ts`, `diffs-store.ts`, `mock-diffs-store.ts`    | progress, error, chat                                        |
+| `app/composables/useLlmChat.ts`                                   | New                                                          |
+| `app/components/diff/DiffsHeader.vue`, `DiffsPage.vue`            | Progress, error, mount widget                                |
+| `app/components/chat/ChatWidget.vue`, `ChatMessage.vue` + stories | New                                                          |
+| `package.json`                                                    | Add `@earendil-works/pi-agent-core`, `@earendil-works/pi-ai` |
+| `.agents/01-architecture.md`                                      | Describe the agent pipeline and chat                         |
 
 ## Testing
 

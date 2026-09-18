@@ -159,8 +159,9 @@ These are deferred, not rejected — the abstractions above exist so they can
 land later without a rewrite:
 
 - `web-llm` analyze adapter (stub only).
-- Reading/posting GitHub PR review comments, formal review submission,
-  merging — gated behind `Provider.capabilities.supportsComments`.
+- Merging PRs. (Review comment threads and formal review submission are
+  built — see `plans/05-comment-threads.md` — gated behind
+  `Provider.capabilities.supportsComments`, true for `github` only.)
 - `local` CLI provider.
 - Any landing/history dashboard (deep-links only: `/gh/owner/repo/number` and
   nothing else) or social/OG link previews (no backend to render them).

@@ -1,5 +1,6 @@
 import type { GroupedResult } from '../types/analyze'
 import type { LlmSession, PrCacheEntry } from '../types/cache'
+import type { ReviewData } from '../types/comment-threads'
 import type { CacheStorage } from './storage'
 import * as v from 'valibot'
 import { PrCacheEntrySchema } from '../types/cache'
@@ -62,6 +63,13 @@ export async function setLlmSession(storage: CacheStorage, key: string, session:
   next.sizeBytes = computeEntrySizeBytes(next.diff, next.analyzedBy, session)
   await storage.setItem(prKey(key), next)
   await enforceBudget(storage)
+}
+
+export async function setReviewData(storage: CacheStorage, key: string, reviews: ReviewData): Promise<void> {
+  const entry = await getEntry(storage, key)
+  if (!entry)
+    return
+  await storage.setItem(prKey(key), { ...entry, reviews })
 }
 
 async function getAllEntries(storage: CacheStorage): Promise<PrCacheEntry[]> {

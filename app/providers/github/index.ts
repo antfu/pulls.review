@@ -6,7 +6,7 @@ export const GithubProvider: Provider = {
   id: 'github',
   capabilities: {
     supportsAuth: true,
-    supportsComments: false,
+    supportsComments: true,
     requiresNetwork: true,
     supportsFullFileContent: true,
   },

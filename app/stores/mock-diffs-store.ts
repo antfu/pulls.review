@@ -1,9 +1,108 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import type { AnalyzeProgress, GroupedResult, GroupSource } from '../types/analyze'
+import type { CommentThread, PendingReview, ReviewDraftTarget, ReviewSummary, ReviewVerdict } from '../types/comment-threads'
 import type { DiffsPayload } from '../types/diff'
-import type { DiffsStore } from './types'
+import type { DiffsStore, DiffsStoreReviews } from './types'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { resolveGroups } from '../components/diff/group-utils'
+
+export interface MockReviewsInput {
+  threads?: CommentThread[]
+  summaries?: ReviewSummary[]
+  pendingReview?: PendingReview
+  canWrite?: boolean
+  viewerLogin?: string
+  showThreads?: boolean
+  writeBlockedReason?: string
+}
+
+let nextMockCommentId = 1_000_000
+
+/**
+ * In-memory `DiffsStoreReviews` mirroring `createReviewsStore`: mutations edit
+ * local arrays so Storybook stories stay interactive without any network.
+ */
+export function createMockReviewsStore(input: MockReviewsInput = {}): DiffsStoreReviews {
+  const threads = ref(input.threads ?? [])
+  const summaries = ref(input.summaries ?? [])
+  const pendingReview = ref(input.pendingReview)
+  const viewerLogin = input.viewerLogin ?? 'octocat'
+  // A local ref, like the mock's `layout` - stories never touch the persisted singleton.
+  const showThreads = ref(input.showThreads ?? true)
+
+  const pendingCommentCount = computed(() =>
+    threads.value.reduce((count, thread) => count + thread.comments.filter(comment => comment.pending).length, 0))
+
+  function mockComment(body: string, pending: boolean) {
+    return {
+      id: nextMockCommentId++,
+      author: { login: viewerLogin },
+      body,
+      createdAt: new Date().toISOString(),
+      pending,
+    }
+  }
+
+  return reactive({
+    threads,
+    summaries,
+    pendingReview,
+    pendingCommentCount,
+    isLoading: false,
+    viewerLogin,
+    canWrite: input.canWrite ?? true,
+    writeBlockedReason: input.writeBlockedReason,
+    showThreads,
+    setShowThreads: (value: boolean) => { showThreads.value = value },
+    load: async () => {},
+    addComment: async (target: ReviewDraftTarget, body: string, mode: 'single' | 'review') => {
+      if (mode === 'review' && !pendingReview.value)
+        pendingReview.value = { id: 1, nodeId: 'PRR_mock', body: '' }
+      threads.value = [...threads.value, {
+        rootId: nextMockCommentId,
+        path: target.path,
+        side: target.side,
+        line: target.line,
+        startLine: target.startLine,
+        startSide: target.startSide,
+        outdated: false,
+        pending: mode === 'review',
+        comments: [mockComment(body, mode === 'review')],
+      }]
+    },
+    reply: async (rootCommentId: number, body: string) => {
+      threads.value = threads.value.map(thread => thread.rootId === rootCommentId
+        ? { ...thread, comments: [...thread.comments, mockComment(body, false)] }
+        : thread)
+    },
+    editComment: async (commentId: number, body: string) => {
+      threads.value = threads.value.map(thread => ({
+        ...thread,
+        comments: thread.comments.map(comment => comment.id === commentId ? { ...comment, body } : comment),
+      }))
+    },
+    deleteComment: async (commentId: number) => {
+      threads.value = threads.value
+        .map(thread => ({ ...thread, comments: thread.comments.filter(comment => comment.id !== commentId) }))
+        .filter(thread => thread.comments.length > 0)
+    },
+    resolveThread: async (threadId: string) => {
+      threads.value = threads.value.map(thread => thread.threadId === threadId ? { ...thread, resolved: true } : thread)
+    },
+    submitReview: async (_verdict: ReviewVerdict, _body: string) => {
+      threads.value = threads.value.map(thread => ({
+        ...thread,
+        pending: false,
+        comments: thread.comments.map(comment => ({ ...comment, pending: false })),
+      }))
+      pendingReview.value = undefined
+    },
+    discardPendingReview: async () => {
+      threads.value = threads.value.filter(thread => !thread.pending)
+      pendingReview.value = undefined
+    },
+  }) as DiffsStoreReviews
+}
 
 /**
  * In-memory `DiffsStore` for Storybook stories and tests: same interface as
@@ -29,6 +128,8 @@ export function createMockDiffsStore(input: {
   chatAvailable?: boolean
   layout?: 'split' | 'unified'
   isEmbedded?: boolean
+  /** Enables the reviews sub-store (absent = a source with no review lifecycle). */
+  reviews?: MockReviewsInput
 }): DiffsStore {
   const llmEnabled = input.llm ?? true
 
@@ -113,6 +214,7 @@ export function createMockDiffsStore(input: {
           chat,
         })
       : undefined,
+    reviews: input.reviews ? createMockReviewsStore(input.reviews) : undefined,
     load,
     refresh,
     toggleReviewed,

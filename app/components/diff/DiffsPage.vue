@@ -13,6 +13,7 @@ import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffGroup from './DiffGroup.vue'
 import DiffsHeader from './DiffsHeader.vue'
 import { fileContentContextKey } from './file-content-context'
+import ReviewSummaries from './ReviewSummaries.vue'
 
 const props = defineProps<{
   document?: Document | ShadowRoot
@@ -144,6 +145,8 @@ watch(groups, () => nextTick(updateVisibleGroups), { immediate: true })
               </ActionButton>
             </div>
           </slot>
+
+          <ReviewSummaries v-if="store?.reviews" :summaries="store.reviews.summaries" />
 
           <Suspense v-if="grouped?.overallSummary">
             <Markdown :value="grouped?.overallSummary" class="text-sm px-4 pb-2 border-b border-base op-fade" />

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { FileDiffOptions } from '@pierre/diffs'
+import type { DiffLineAnnotation, FileDiffOptions, SelectedLineRange } from '@pierre/diffs'
 import type { DiffsStore } from '../../stores/types'
+import type { CommentThread, DiffSide, ReviewDraftTarget } from '../../types/comment-threads'
 import type { FileChange } from '../../types/diff'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
@@ -12,12 +13,14 @@ import { getDefaultCacheStorage } from '../../cache/storage'
 import { fetchFileContentAtRef } from '../../providers/github/api'
 import { isDark as globalIsDark, isDarkKey } from '../../state/dark'
 import { settings } from '../../state/settings'
+import CommentComposer from './CommentComposer.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffStats from './DiffStats.vue'
 import { fileContentContextKey } from './file-content-context'
 import FileStatus from './FileStatus.vue'
 import { isNoisyFile } from './noisy-files'
 import { ensurePierreDiffsShadowRoot } from './pierre-diffs-shadow'
+import ReviewThreadCard from './ReviewThreadCard.vue'
 
 const props = defineProps<{
   store: DiffsStore
@@ -133,6 +136,96 @@ watch(containerRef, (el, previousEl) => {
 }, { immediate: true })
 onBeforeUnmount(() => resizeObserver?.disconnect())
 
+// --- Review comment threads (github only - `store.reviews` is undefined elsewhere) ---
+
+const reviews = computed(() => props.store.reviews)
+
+// Resolved and outdated threads are hidden by design; the global toggle hides
+// submitted threads but never the viewer's own pending drafts.
+const visibleThreads = computed(() => {
+  const r = reviews.value
+  if (!r)
+    return []
+  return r.threads.filter(thread =>
+    thread.path === props.file.path
+    && thread.line !== undefined
+    && !thread.outdated
+    && thread.resolved !== true
+    && (r.showThreads || thread.pending))
+})
+
+const resolvedCount = computed(() =>
+  reviews.value?.threads.filter(thread => thread.path === props.file.path && thread.resolved === true).length ?? 0)
+
+const draftTarget = ref<ReviewDraftTarget>()
+const draftBusy = ref(false)
+const draftError = ref<string>()
+
+interface AnnotationGroup {
+  side: DiffSide
+  line: number
+  threads: CommentThread[]
+  hasDraft: boolean
+}
+
+// One annotation (and one slotted wrapper) per anchor line: pierre emits one
+// shadow-DOM `<slot>` per annotation, and duplicate slot names would swallow
+// all but the first wrapper - so threads sharing a line stack in one group.
+const annotationGroups = computed<AnnotationGroup[]>(() => {
+  const groups = new Map<string, AnnotationGroup>()
+  function groupFor(side: DiffSide, line: number): AnnotationGroup {
+    const key = `${side}-${line}`
+    let group = groups.get(key)
+    if (!group) {
+      group = { side, line, threads: [], hasDraft: false }
+      groups.set(key, group)
+    }
+    return group
+  }
+  for (const thread of visibleThreads.value)
+    groupFor(thread.side, thread.line!).threads.push(thread)
+  if (draftTarget.value)
+    groupFor(draftTarget.value.side, draftTarget.value.line).hasDraft = true
+  return [...groups.values()]
+})
+
+const lineAnnotations = computed<DiffLineAnnotation[]>(() =>
+  annotationGroups.value.map(group => ({ side: group.side, lineNumber: group.line })))
+
+const canComment = computed(() => (reviews.value?.canWrite ?? false) && !props.file.isBinary)
+
+function openDraft(range: SelectedLineRange) {
+  const side: DiffSide = range.endSide ?? range.side ?? 'additions'
+  const line = Math.max(range.start, range.end)
+  const startLine = Math.min(range.start, range.end)
+  draftTarget.value = {
+    path: props.file.path,
+    side,
+    line,
+    ...(startLine < line ? { startLine, startSide: range.side ?? side } : {}),
+  }
+  draftError.value = undefined
+}
+
+async function submitDraft(body: string, mode: 'single' | 'review') {
+  const target = draftTarget.value
+  const r = reviews.value
+  if (!target || !r)
+    return
+  draftBusy.value = true
+  draftError.value = undefined
+  try {
+    await r.addComment(target, body, mode)
+    draftTarget.value = undefined
+  }
+  catch (err) {
+    draftError.value = err instanceof Error ? err.message : String(err)
+  }
+  finally {
+    draftBusy.value = false
+  }
+}
+
 const MIN_SPLIT_WIDTH_PX = 640
 
 // Forces `unified` regardless of the user's global layout preference when a split view
@@ -152,6 +245,15 @@ const pierreOptions = computed((): FileDiffOptions<undefined, undefined> => ({
   themeType: isDark.value ? 'dark' : 'light',
   disableErrorHandling: false,
   disableFileHeader: true,
+  // The library's built-in hover "+" gutter button and drag line-selection -
+  // the click hands us the hovered line or selected range to anchor a draft on.
+  ...(canComment.value
+    ? {
+        enableGutterUtility: true,
+        enableLineSelection: true,
+        onGutterUtilityClick: openDraft,
+      }
+    : {}),
 }))
 
 function mount() {
@@ -177,6 +279,7 @@ function mount() {
   instance.render({
     fileDiff: fileDiff.value,
     fileContainer: containerRef.value,
+    lineAnnotations: lineAnnotations.value.map(annotation => ({ ...annotation })),
   })
 }
 
@@ -206,9 +309,15 @@ watch(
     instance?.render({
       fileDiff,
       fileContainer: containerRef,
+      lineAnnotations: lineAnnotations.value.map(annotation => ({ ...annotation })),
     })
   },
 )
+
+// Plain clones, not the reactive proxies - pierre compares/caches these objects.
+watch(lineAnnotations, (annotations) => {
+  instance?.setLineAnnotations(annotations.map(annotation => ({ ...annotation })))
+})
 
 watch(isReviewed, (value) => {
   // Auto-collapse a file once it's marked reviewed (and re-expand it if unmarked) - it's
@@ -239,6 +348,7 @@ defineExpose({
         <DisplayFilePath :path="file.path" class="min-w-0" />
       </div>
       <div class="flex shrink-0 gap-2 items-center">
+        <span v-if="resolvedCount" class="text-xs op-fade">{{ resolvedCount }} resolved</span>
         <DiffStats v-if="!file.isBinary" :additions="file.additions" :deletions="file.deletions" />
         <span v-else class="text-xs op-fade">Binary file</span>
         <FileStatus :status="file.status" />
@@ -263,6 +373,39 @@ defineExpose({
     <div v-if="file.isBinary" class="text-sm p-4 op-fade">
       Binary file not shown.
     </div>
-    <div v-else-if="!collapsed" ref="container" />
+    <div v-else-if="!collapsed" ref="container">
+      <!--
+        Light-DOM children projected into pierre's shadow-DOM annotation rows via
+        named slots (`annotation-<side>-<line>`), mirroring the library's own
+        wrapper shape (`data-annotation-slot`, whitespace reset - the slot sits
+        inside a `<pre>`). Keeps the thread UI fully Vue-reactive; pierre only
+        needs the matching `lineAnnotations` entries to emit the slots.
+      -->
+      <!-- eslint-disable vue/no-deprecated-slot-attribute - a native shadow-DOM slot target, not Vue 2 slot syntax -->
+      <div
+        v-for="group in annotationGroups"
+        :key="`${group.side}-${group.line}`"
+        :slot="`annotation-${group.side}-${group.line}`"
+        data-annotation-slot
+        class="font-sans px-2 text-left whitespace-normal"
+      >
+        <ReviewThreadCard
+          v-for="thread in group.threads"
+          :key="thread.rootId"
+          :thread="thread"
+          :reviews="store.reviews!"
+        />
+        <div v-if="group.hasDraft" class="my-1 border border-base rounded-lg bg-base max-w-200 overflow-hidden">
+          <CommentComposer
+            :has-pending-review="!!store.reviews!.pendingReview"
+            :busy="draftBusy"
+            :error="draftError"
+            @submit="submitDraft"
+            @cancel="draftTarget = undefined"
+          />
+        </div>
+      </div>
+      <!-- eslint-enable vue/no-deprecated-slot-attribute -->
+    </div>
   </div>
 </template>

@@ -70,7 +70,9 @@ function remove() {
       </ActionButton>
     </div>
     <template #description>
-      Optional for public repos; required for private repos or to raise the rate limit. Stored only in this browser.
+      Optional for public repos; required for private repos, a higher rate limit, or leaving review comments.
+      Reviews need the <code>repo</code> scope (classic token) or "Pull requests: Read and write" (fine-grained token);
+      read-only tokens still work with reviewing disabled. Stored only in this browser.
       <a
         href="https://github.com/settings/tokens/new?description=Diffs%20%28diffs.antfu.dev%29&scopes=repo"
         target="_blank"

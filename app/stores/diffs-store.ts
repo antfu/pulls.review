@@ -1,5 +1,6 @@
 import type { AnalyzeProgress, GroupedResult, GroupSource } from '../types/analyze'
 import type { LlmSession } from '../types/cache'
+import type { ReviewData } from '../types/comment-threads'
 import type { DiffsPayload } from '../types/diff'
 import type { FetchDiffParams } from '../types/provider'
 import type { DiffsStore } from './types'
@@ -15,6 +16,7 @@ import { useLlmChat } from '../composables/useLlmChat'
 import { useProvider } from '../composables/useProvider'
 import { fetchPullRequest } from '../providers/github/api'
 import { layout } from '../state/layout'
+import { createReviewsStore } from './reviews-store'
 
 /**
  * Creates a `DiffsStore` backed by real providers/cache/adapters - the isomorphic
@@ -40,6 +42,18 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
 
   if (getCurrentScope())
     onScopeDispose(() => llmAbortController?.abort())
+
+  // SWR seed for the reviews sub-store, set when a cached PR entry carries one.
+  let cachedReviewData: ReviewData | undefined
+
+  const reviews = params.kind === 'github-pr' && useProvider('github').capabilities.supportsComments
+    ? createReviewsStore(params, {
+        token: opts.token,
+        getHeadSha: () => diff.value?.head?.sha,
+        getCacheKey: () => cacheKey.value,
+        cachedData: () => cachedReviewData,
+      })
+    : undefined
 
   // Falls back to the always-instant rule-based grouping while the selected mode
   // (currently only `llm` can be in this state) hasn't been analyzed yet for this
@@ -208,6 +222,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
           cacheKey.value = key
           analyzedBy.value = cached.analyzedBy
           llmSession.value = cached.llmSession as LlmSession | undefined
+          cachedReviewData = cached.reviews
           await touchEntry(storage, key)
           await loadReviewed()
           void checkStaleness(cached.headSha)
@@ -215,6 +230,9 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
         else {
           await fetchFresh()
         }
+        // Threads load after (and independently of) the diff - a failure there
+        // never blocks the diff view itself.
+        void reviews?.load()
       }
       else {
         // A paste has no live source: parsing is cheap and local, so always run it, then
@@ -251,6 +269,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
     try {
       await fetchFresh()
       isStale.value = false
+      void reviews?.load()
     }
     catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err))
@@ -288,6 +307,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
           chat: reactive(chat),
         })
       : undefined,
+    reviews,
     load,
     refresh,
     toggleReviewed,

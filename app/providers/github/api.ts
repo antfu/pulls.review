@@ -24,7 +24,15 @@ export interface GithubPullRequestFileJson {
   patch?: string
 }
 
-function buildHeaders(token?: string, accept = 'application/vnd.github+json'): HeadersInit {
+/** A non-ok GitHub response, keeping the status so callers can react to auth/permission failures (401/403). */
+export class GithubApiError extends Error {
+  constructor(readonly status: number, message: string) {
+    super(message)
+    this.name = 'GithubApiError'
+  }
+}
+
+export function buildHeaders(token?: string, accept = 'application/vnd.github+json'): HeadersInit {
   const headers: Record<string, string> = {
     'Accept': accept,
     'X-GitHub-Api-Version': '2022-11-28',
@@ -37,7 +45,7 @@ function buildHeaders(token?: string, accept = 'application/vnd.github+json'): H
 async function githubFetch(url: string, token: string | undefined, accept?: string): Promise<Response> {
   const res = await fetch(url, { headers: buildHeaders(token, accept) })
   if (!res.ok)
-    throw new Error(`GitHub API request failed (${res.status}): ${url}`)
+    throw new GithubApiError(res.status, `GitHub API request failed (${res.status}): ${url}`)
   return res
 }
 

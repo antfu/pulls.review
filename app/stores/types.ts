@@ -1,6 +1,7 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import type { ResolvedGroupWithChildren } from '../components/diff/group-utils'
 import type { AnalyzeProgress, GroupedResult, GroupSource } from '../types/analyze'
+import type { CommentThread, PendingReview, ReviewDraftTarget, ReviewSummary, ReviewVerdict } from '../types/comment-threads'
 import type { DiffsPayload } from '../types/diff'
 
 /**
@@ -35,6 +36,44 @@ export interface DiffsStoreLlm {
     stop: () => void
     clear: () => Promise<void>
   }
+}
+
+/**
+ * GitHub PR review threads and review submission, isolated behind `DiffsStore.reviews`
+ * the same way LLM analysis sits behind `DiffsStore.llm`: components gate the whole
+ * review affordance on its presence (`undefined` = the source has no review lifecycle -
+ * paste, or `supportsComments: false`). Mutations post directly browser -> GitHub with
+ * the user's own PAT; every mutation refetches so the view always reflects GitHub.
+ */
+export interface DiffsStoreReviews {
+  readonly threads: CommentThread[]
+  readonly summaries: ReviewSummary[]
+  /** The viewer's unsubmitted review; new comments attach to it while it exists. */
+  readonly pendingReview: PendingReview | undefined
+  readonly pendingCommentCount: number
+  readonly isLoading: boolean
+  /** Login of the token's user - gates edit/delete to own comments. */
+  readonly viewerLogin: string | undefined
+  /**
+   * Whether write UI shows at all. Classic PATs are gated on their scopes
+   * (`repo`/`public_repo`); fine-grained PATs expose no scopes, so they start
+   * optimistic and flip off on the first 403 (see `writeBlockedReason`).
+   */
+  readonly canWrite: boolean
+  /** Set when a write got a 403 - explains why write UI disappeared mid-session. */
+  readonly writeBlockedReason: string | undefined
+  /** Global persisted toggle: render existing (submitted) threads inline. Pending drafts always render. */
+  readonly showThreads: boolean
+  setShowThreads: (value: boolean) => void
+  load: () => Promise<void>
+  /** `single` posts immediately; `review` starts (or adds to) the pending review. */
+  addComment: (target: ReviewDraftTarget, body: string, mode: 'single' | 'review') => Promise<void>
+  reply: (rootCommentId: number, body: string) => Promise<void>
+  editComment: (commentId: number, body: string) => Promise<void>
+  deleteComment: (commentId: number) => Promise<void>
+  resolveThread: (threadId: string) => Promise<void>
+  submitReview: (verdict: ReviewVerdict, body: string) => Promise<void>
+  discardPendingReview: () => Promise<void>
 }
 
 /**
@@ -76,6 +115,8 @@ export interface DiffsStore {
   readonly ui: DiffsStoreUi
   /** `undefined` = LLM analysis isn't available in this environment (embed, or disabled). */
   readonly llm?: DiffsStoreLlm
+  /** `undefined` = this source has no review threads (paste/local, or capability off). */
+  readonly reviews?: DiffsStoreReviews
   load: () => Promise<void>
   refresh: () => Promise<void>
   toggleReviewed: (sha: string, reviewed: boolean) => Promise<void>

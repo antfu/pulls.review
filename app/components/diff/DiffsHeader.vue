@@ -5,7 +5,8 @@ import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import ActionToggleGroup from '@antfu/design/components/Action/ActionToggleGroup.vue'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
-import { computed } from 'vue'
+import DisplayNumberBadge from '@antfu/design/components/Display/DisplayNumberBadge.vue'
+import { computed, ref } from 'vue'
 import { parseGithubDiffId } from '../../providers/github/diff-id'
 import { settingsModalOpen } from '../../state/settingsModal'
 import GithubAvatar from '../GithubAvatar.vue'
@@ -13,6 +14,7 @@ import NavControls from '../NavControls.vue'
 import DiffStats from './DiffStats.vue'
 import { countGroupFiles } from './group-utils'
 import PrStatusIcon from './PrStatusIcon.vue'
+import ReviewSubmitModal from './ReviewSubmitModal.vue'
 
 const props = defineProps<{
   document?: Document | ShadowRoot
@@ -49,6 +51,9 @@ const analyzeOptions = [
 ]
 
 const githubRef = computed(() => meta.value.provider === 'github' ? parseGithubDiffId(meta.value.id) : undefined)
+
+const reviews = computed(() => props.store.reviews)
+const reviewModalOpen = ref(false)
 
 function scrollToGroup(key: string) {
   (props.document ?? document).getElementById(`group-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -105,6 +110,22 @@ function scrollToGroup(key: string) {
           <span v-else-if="llmError" class="text-xs text-red-500 max-w-80 truncate self-center" :title="`AI analysis failed: ${llmError.message}`">AI analysis failed: {{ llmError.message }}</span>
         </template>
 
+        <template v-if="reviews">
+          <div v-if="reviews.canWrite" class="shrink-0 relative">
+            <ActionButton size="sm" variant="action" icon="i-ph:chat-centered-text-duotone" @click="reviewModalOpen = true">
+              Review changes
+            </ActionButton>
+            <DisplayNumberBadge v-if="reviews.pendingCommentCount > 0" :value="reviews.pendingCommentCount" class="right--2 top--2 absolute" />
+          </div>
+          <ActionIconButton
+            class="shrink-0"
+            :class="reviews.showThreads ? '' : 'op-fade'"
+            :icon="reviews.showThreads ? 'i-ph:chats-duotone' : 'i-ph:chats'"
+            :label="reviews.showThreads ? 'Hide review comments' : 'Show review comments'"
+            :tooltip="reviews.showThreads ? 'Hide review comments' : 'Show review comments'"
+            @click="reviews.setShowThreads(!reviews.showThreads)"
+          />
+        </template>
         <ActionIconButton v-if="meta.provider === 'github'" icon="i-ph:arrows-clockwise-duotone" label="Refresh" tooltip="Refresh" class="shrink-0" @click="store.refresh()" />
         <ActionToggleGroup
           class="shrink-0"
@@ -171,5 +192,12 @@ function scrollToGroup(key: string) {
         <span class="shrink-0 whitespace-nowrap">{{ reviewedCount }} <span class="text-xs opacity-50">/ {{ totalFiles }} reviewed</span></span>
       </div>
     </div>
+
+    <ReviewSubmitModal
+      v-if="reviews"
+      v-model:open="reviewModalOpen"
+      :reviews="reviews"
+      :document="document"
+    />
   </header>
 </template>

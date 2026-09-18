@@ -45,7 +45,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 
 <template>
   <Teleport :to="teleportTarget">
-    <div v-if="open" class="z-modal p-4 flex items-center inset-0 justify-center fixed">
+    <div v-if="open" class="p-4 flex items-center inset-0 justify-center fixed z-modal">
       <div class="bg-[#ddd]/40 inset-0 fixed z-modal-backdrop backdrop-blur-sm dark:bg-black/40" @click="close" />
       <div
         role="dialog"

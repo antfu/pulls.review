@@ -31,6 +31,27 @@ function readCache(): TokenMetaCacheEntry | null {
   }
 }
 
+/**
+ * Meta for a token outside any component scope (e.g. the reviews store needs
+ * the viewer's login and classic scopes): cache hit is free, a miss fetches
+ * and fills the same cache the composable uses. `undefined` on any failure -
+ * callers treat that as "identity unknown", never as an error.
+ */
+export async function resolveStoredTokenMeta(token: string): Promise<StoredGithubTokenMeta | undefined> {
+  try {
+    const hash = await sha256Hex(token)
+    const cached = readCache()
+    if (cached?.hash === hash)
+      return cached.meta
+    const meta: StoredGithubTokenMeta = { ...await fetchGithubTokenMeta(token), setAt: Date.now() }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ hash, meta } satisfies TokenMetaCacheEntry))
+    return meta
+  }
+  catch {
+    return undefined
+  }
+}
+
 export interface UseGithubTokenMetaReturn {
   /** Meta for the currently saved token; `null` while unset or unresolved. */
   meta: Ref<StoredGithubTokenMeta | null>

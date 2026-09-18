@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { mockMultiReplyThread, mockPendingThread, mockThread } from '../../../test/fixtures/mock-reviews'
 import binaryFile from '../../../test/fixtures/synthetic/binary-file.json'
 import hugeFile from '../../../test/fixtures/synthetic/huge-file.json'
 import partiallyReviewed from '../../../test/fixtures/synthetic/partially-reviewed.json'
@@ -37,4 +38,22 @@ export const Binary: Story = {
 
 export const Huge: Story = {
   args: { file: hugeFile.diff.files[0] as any },
+}
+
+export const WithThreads: Story = {
+  args: {
+    file: partiallyReviewed.diff.files[0] as any,
+    store: createMockDiffsStore({
+      reviews: { threads: [mockThread(), mockMultiReplyThread(), mockPendingThread()] },
+    }),
+  },
+}
+
+export const ReadOnlyThreads: Story = {
+  args: {
+    file: partiallyReviewed.diff.files[0] as any,
+    store: createMockDiffsStore({
+      reviews: { threads: [mockThread()], canWrite: false },
+    }),
+  },
 }
