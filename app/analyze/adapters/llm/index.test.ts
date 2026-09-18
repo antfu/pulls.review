@@ -43,20 +43,25 @@ describe('llmAdapter.available', () => {
     expect(llmAdapter.available).toBe(false)
   })
 
-  it('is true once a gateway token is set', () => {
-    settings.value = { ...settings.value, llm: { ...defaultLlmSettings, gatewayToken: 'gw_token' } }
+  it('is true once the selected provider has its token', () => {
+    settings.value = { ...settings.value, llm: { ...defaultLlmSettings, provider: 'gateway', gatewayToken: 'gw_token' } }
     expect(llmAdapter.available).toBe(true)
   })
 
-  it('is true once a vendor key is set', () => {
-    settings.value = { ...settings.value, llm: { ...defaultLlmSettings, anthropicApiKey: 'sk-ant-x' } }
+  it('is true for a selected vendor with its key', () => {
+    settings.value = { ...settings.value, llm: { ...defaultLlmSettings, provider: 'anthropic', anthropicApiKey: 'sk-ant-x' } }
     expect(llmAdapter.available).toBe(true)
+  })
+
+  it('ignores tokens of providers that are not selected', () => {
+    settings.value = { ...settings.value, llm: { ...defaultLlmSettings, provider: 'gateway', anthropicApiKey: 'sk-ant-x' } }
+    expect(llmAdapter.available).toBe(false)
   })
 })
 
 describe('llmAdapter.analyze', () => {
   beforeEach(() => {
-    settings.value = { ...settings.value, llm: { ...defaultLlmSettings, anthropicApiKey: 'sk-ant-x' } }
+    settings.value = { ...settings.value, llm: { ...defaultLlmSettings, provider: 'anthropic', anthropicApiKey: 'sk-ant-x' } }
   })
 
   it('throws when not configured', async () => {

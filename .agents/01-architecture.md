@@ -61,9 +61,10 @@ analysis strategy later never touches the view layer:
     users who just want the plain file list with no classification.
   - `rule-based` — implemented. Deterministic glob-pattern classification,
     flat (1-level) groups, no LLM, no network call.
-  - `llm` — implemented. Uses the Vercel AI SDK, preferring the AI Gateway
-    with vendor-specific keys (OpenAI-compatible + Anthropic) as fallback;
-    falls back to `rule-based` on any network/schema failure.
+  - `llm` — implemented. Uses the Vercel AI SDK with whichever provider is
+    selected in Settings (AI Gateway, Anthropic, or OpenAI-compatible — only
+    the selected one is ever called); falls back to `rule-based` on any
+    network/schema failure.
   - `web-llm` — TODO, stub only. Fully in-browser model inference, no network
     call at analyze time.
   - LLM-sourced groups MAY nest one level (root group -> children, e.g.

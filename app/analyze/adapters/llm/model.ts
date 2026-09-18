@@ -5,33 +5,37 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import { settings } from '../../../state/settings'
 
 /**
- * Resolves the model to call from whatever's configured in Settings, in priority
- * order: gateway token (reaches many vendors through one token) beats a direct
- * vendor key. `undefined` means nothing is configured - the adapter's `available`.
+ * Resolves the model to call from Settings: only the explicitly selected
+ * provider is used, even when several tokens are configured. `undefined` means
+ * the selected provider has no token - the adapter's `available`.
  */
 export function resolveLanguageModel(): LanguageModel | undefined {
   const llm = settings.value.llm
 
-  if (llm.gatewayToken)
-    return createGateway({ apiKey: llm.gatewayToken })(llm.gatewayModel)
+  switch (llm.provider) {
+    case 'gateway':
+      return llm.gatewayToken
+        ? createGateway({ apiKey: llm.gatewayToken })(llm.gatewayModel)
+        : undefined
 
-  if (llm.anthropicApiKey) {
-    return createAnthropic({
-      apiKey: llm.anthropicApiKey,
-      // Anthropic's API otherwise rejects browser-origin requests outright (CORS).
-      // The key is user-supplied and never leaves this browser - this is the
-      // intended zero-backend flow, not a workaround for a mistake.
-      headers: { 'anthropic-dangerous-direct-browser-access': 'true' },
-    })(llm.anthropicModel)
+    case 'anthropic':
+      return llm.anthropicApiKey
+        ? createAnthropic({
+            apiKey: llm.anthropicApiKey,
+            // Anthropic's API otherwise rejects browser-origin requests outright (CORS).
+            // The key is user-supplied and never leaves this browser - this is the
+            // intended zero-backend flow, not a workaround for a mistake.
+            headers: { 'anthropic-dangerous-direct-browser-access': 'true' },
+          })(llm.anthropicModel)
+        : undefined
+
+    case 'openai-compatible':
+      return llm.openaiApiKey
+        ? createOpenAICompatible({
+            name: 'openai-compatible',
+            baseURL: llm.openaiBaseUrl,
+            apiKey: llm.openaiApiKey,
+          }).chatModel(llm.openaiModel)
+        : undefined
   }
-
-  if (llm.openaiApiKey) {
-    return createOpenAICompatible({
-      name: 'openai-compatible',
-      baseURL: llm.openaiBaseUrl,
-      apiKey: llm.openaiApiKey,
-    }).chatModel(llm.openaiModel)
-  }
-
-  return undefined
 }
