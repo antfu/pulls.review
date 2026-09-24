@@ -86,6 +86,9 @@ describe('llmAdapter.analyze', () => {
     expect(result.overallSummary).toBe('Adds a feature.')
     expect(result.groups[0]?.children?.[0]?.filePaths).toEqual(['a.ts'])
     expect(generateTextMock).toHaveBeenCalledTimes(1)
+    expect(generateTextMock.mock.calls[0]?.[0].system).toMatch(/json/i)
+    expect(generateTextMock.mock.calls[0]?.[0].system).toContain('"overallSummary"')
+    expect(generateTextMock.mock.calls[0]?.[0].system).toContain('"groups"')
   })
 
   it('drops file paths the model hallucinated and re-attaches files it dropped', async () => {
@@ -135,6 +138,13 @@ describe('llmAdapter.analyze', () => {
     const result = await llmAdapter.analyze(diff)
 
     expect(generateTextMock).toHaveBeenCalledTimes(3)
+    for (const [request] of generateTextMock.mock.calls)
+      expect(request.system).toMatch(/json/i)
+    for (const [request] of generateTextMock.mock.calls.slice(0, 2)) {
+      expect(request.system).toContain('"summary"')
+      expect(request.system).toContain('"groups"')
+    }
+    expect(generateTextMock.mock.calls[2]?.[0].system).toContain('"overallSummary"')
     expect(result.overallSummary).toBe('Combined summary.')
     expect(result.groups).toHaveLength(1)
     expect(result.groups[0]?.filePaths.sort()).toEqual(['a.ts', 'b.ts'])
