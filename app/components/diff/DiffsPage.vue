@@ -4,10 +4,12 @@ import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyState.vue'
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
 import { Markdown } from '@comark/vue'
+import { Virtualizer } from '@pierre/diffs'
 import { useEventListener } from '@vueuse/core'
-import { computed, nextTick, provide, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue'
 import { useProvider } from '../../composables/useProvider'
 import { parseGithubDiffId } from '../../providers/github/diff-id'
+import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffGroup from './DiffGroup.vue'
 import DiffsHeader from './DiffsHeader.vue'
 import { fileContentContextKey } from './file-content-context'
@@ -39,6 +41,18 @@ const fileContentContext = computed(() => {
   return { owner: ref.owner, repo: ref.repo, baseSha: d.base.sha, headSha: d.head.sha }
 })
 provide(fileContentContextKey, fileContentContext)
+
+// Inside the embed this component's own root is the `overflow-auto` scroller (see
+// `EmbedApp.ce.vue`); on the site the window scrolls. In element mode the virtualizer
+// watches `root.firstElementChild` for scroll-height changes, hence the single inner
+// wrapper. `FileDiff`s mount first and connect early; the virtualizer queues them until `setup()`.
+const virtualizer = new Virtualizer()
+provide(diffVirtualizerKey, virtualizer)
+const rootEl = useTemplateRef<HTMLElement>('root')
+onMounted(() => {
+  virtualizer.setup(props.document && !(props.document instanceof Document) ? rootEl.value! : document)
+})
+onBeforeUnmount(() => virtualizer.cleanUp())
 
 // Each DiffGroup collapses itself (both its tree and its diffs together) - all
 // expanded by default.
@@ -86,72 +100,74 @@ watch(groups, () => nextTick(updateVisibleGroups), { immediate: true })
 </script>
 
 <template>
-  <div class="color-base bg-base">
-    <template v-if="isLoading && !diff">
-      <div class="mxa px-4 py-12 max-w-500 w-full">
-        <slot name="loading">
-          <FeedbackLoading text="Loading…" />
-        </slot>
-      </div>
-    </template>
-    <template v-else-if="error">
-      <div class="mxa px-4 py-12 max-w-500 w-full">
-        <slot name="error" :error="error" :retry="() => store?.load()">
-          <FeedbackEmptyState icon="i-ph:warning-duotone" title="Something went wrong">
-            <template #hint>
-              {{ error.message }}
-            </template>
-            <template #actions>
-              <ActionButton variant="primary" @click="store?.load()">
-                Retry
-              </ActionButton>
-            </template>
-          </FeedbackEmptyState>
-        </slot>
-      </div>
-    </template>
-    <template v-else-if="diff && grouped">
-      <DiffsHeader
-        :document
-        :store="store!"
-        :groups-visable="groupsVisable"
-        :scroll-y="scrollY"
-      />
-
-      <div class="mxa py-4 flex flex-col gap-4 max-w-500 w-full">
-        <slot name="stale" :refresh="() => store?.refresh()">
-          <div v-if="isStale" class="text-sm text-amber-700 mb-4 px-3 py-2 border border-amber:20 rounded-lg bg-amber:10 bg-raised flex gap-3 items-center justify-between dark:text-amber-400">
-            <span>This pull request has new commits since it was cached.</span>
-            <ActionButton size="sm" @click="store?.refresh()">
-              Refresh
-            </ActionButton>
-          </div>
-        </slot>
-
-        <Suspense v-if="grouped?.overallSummary">
-          <Markdown :value="grouped?.overallSummary" class="text-sm px-4 pb-2 border-b border-base op-fade" />
-        </Suspense>
-
-        <DiffGroup
-          v-for="group in groups"
-          :id="`group-${group.key}`"
-          :key="group.key"
+  <div ref="root" class="color-base bg-base">
+    <div>
+      <template v-if="isLoading && !diff">
+        <div class="mxa px-4 py-12 max-w-500 w-full">
+          <slot name="loading">
+            <FeedbackLoading text="Loading…" />
+          </slot>
+        </div>
+      </template>
+      <template v-else-if="error">
+        <div class="mxa px-4 py-12 max-w-500 w-full">
+          <slot name="error" :error="error" :retry="() => store?.load()">
+            <FeedbackEmptyState icon="i-ph:warning-duotone" title="Something went wrong">
+              <template #hint>
+                {{ error.message }}
+              </template>
+              <template #actions>
+                <ActionButton variant="primary" @click="store?.load()">
+                  Retry
+                </ActionButton>
+              </template>
+            </FeedbackEmptyState>
+          </slot>
+        </div>
+      </template>
+      <template v-else-if="diff && grouped">
+        <DiffsHeader
+          :document
           :store="store!"
-          :group="group"
-          :collapsed="collapsedGroups.has(group.key)"
-          @toggle="toggleGroup(group.key)"
+          :groups-visable="groupsVisable"
+          :scroll-y="scrollY"
         />
 
-        <!-- To leave some space at the end of the diff -->
-        <div class="text-xs mt-200 p2 text-center op50 italic">
-          You have reached the end of the diff.
+        <div class="mxa py-4 flex flex-col gap-4 max-w-500 w-full">
+          <slot name="stale" :refresh="() => store?.refresh()">
+            <div v-if="isStale" class="text-sm text-amber-700 mb-4 px-3 py-2 border border-amber:20 rounded-lg bg-amber:10 bg-raised flex gap-3 items-center justify-between dark:text-amber-400">
+              <span>This pull request has new commits since it was cached.</span>
+              <ActionButton size="sm" @click="store?.refresh()">
+                Refresh
+              </ActionButton>
+            </div>
+          </slot>
+
+          <Suspense v-if="grouped?.overallSummary">
+            <Markdown :value="grouped?.overallSummary" class="text-sm px-4 pb-2 border-b border-base op-fade" />
+          </Suspense>
+
+          <DiffGroup
+            v-for="group in groups"
+            :id="`group-${group.key}`"
+            :key="group.key"
+            :store="store!"
+            :group="group"
+            :collapsed="collapsedGroups.has(group.key)"
+            @toggle="toggleGroup(group.key)"
+          />
+
+          <!-- To leave some space at the end of the diff -->
+          <div class="text-xs mt-200 p2 text-center op50 italic">
+            You have reached the end of the diff.
+          </div>
         </div>
-      </div>
-    </template>
-    <template v-else>
-      <div class="mxa px-4 py-12 max-w-500 w-full">
-        <slot name="empty" />
-      </div>
-    </template>
+      </template>
+      <template v-else>
+        <div class="mxa px-4 py-12 max-w-500 w-full">
+          <slot name="empty" />
+        </div>
+      </template>
+    </div>
   </div>
 </template>

@@ -5,13 +5,14 @@ import type { FileChange } from '../../types/diff'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
 import FormCheckbox from '@antfu/design/components/Form/FormCheckbox.vue'
-import { FileDiff as PierreFileDiff, processFile } from '@pierre/diffs'
+import { FileDiff as PierreFileDiff, processFile, VirtualizedFileDiff } from '@pierre/diffs'
 import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { getCachedFileContent, setCachedFileContent } from '../../cache/file-content-cache'
 import { getDefaultCacheStorage } from '../../cache/storage'
 import { fetchFileContentAtRef } from '../../providers/github/api'
 import { isDark as globalIsDark, isDarkKey } from '../../state/dark'
 import { settings } from '../../state/settings'
+import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffStats from './DiffStats.vue'
 import { fileContentContextKey } from './file-content-context'
 import FileStatus from './FileStatus.vue'
@@ -30,6 +31,7 @@ const isReviewed = computed(() => props.store.reviewed.has(props.file.sha))
 const isDark = inject(isDarkKey, globalIsDark)
 // `undefined` for a source that can't refetch full file content (see `file-content-context.ts`).
 const fileContentContext = inject(fileContentContextKey, undefined)
+const virtualizer = inject(diffVirtualizerKey, undefined)
 
 const containerRef = useTemplateRef<HTMLDivElement>('container')
 const collapsed = ref(isReviewed.value || isNoisyFile(props.file.path))
@@ -168,7 +170,9 @@ function mount() {
   // checkbox) above the diff body, so pierre's own file-header row would be redundant.
   // `themeType`: defaults to `'system'` (OS-level `prefers-color-scheme`) otherwise,
   // ignoring our own dark-mode toggle entirely - pin it to the app's actual state.
-  instance = new PierreFileDiff(pierreOptions.value, undefined, true)
+  instance = virtualizer
+    ? new VirtualizedFileDiff(pierreOptions.value, virtualizer, undefined, undefined, true)
+    : new PierreFileDiff(pierreOptions.value, undefined, true)
 
   instance.render({
     fileDiff: fileDiff.value,
