@@ -6,6 +6,7 @@ import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.v
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { Markdown } from '@comark/vue'
 import { computed, nextTick, ref } from 'vue'
+import { useFitText } from '../../composables/useFitText'
 import DiffGroup from './DiffGroup.vue'
 import DiffStats from './DiffStats.vue'
 import FileDiff from './FileDiff.vue'
@@ -56,6 +57,10 @@ function setChildEl(key: string, instance: ComponentPublicInstance | null) {
 function scrollToChild(key: string) {
   childEls.get(key)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
+
+const labelBox = ref<HTMLElement>()
+const labelText = ref<HTMLElement>()
+const labelFontSize = useFitText(labelBox, labelText, () => props.group.label, 14, 20)
 
 const progress = computed(() => totalFiles.value === 0 ? 1 : reviewedCount.value / totalFiles.value)
 
@@ -140,7 +145,14 @@ function navigateToFile(sha: string) {
             <div class="flex flex-1 flex-col gap-1 min-w-0">
               <span v-if="parentLabel" class="text-xs leading-1em op-fade truncate">{{ parentLabel }} ›</span>
               <div class="leading-1em flex gap-1 items-center">
-                <span class="text-xl font-medium">{{ group.label }}</span>
+                <span
+                  ref="labelBox"
+                  class="text-xl font-medium flex-1 min-w-0 truncate"
+                  :style="{ fontSize: `${labelFontSize}px` }"
+                  :title="group.label"
+                >
+                  <span ref="labelText">{{ group.label }}</span>
+                </span>
                 <ActionIconButton
                   compact
                   class="op-mute group-hover:op-100"

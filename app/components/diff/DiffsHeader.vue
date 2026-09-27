@@ -80,6 +80,31 @@ function scrollToGroup(key: string) {
           />
         </div>
 
+        <template v-if="store.llm">
+          <ActionButton
+            v-if="!llmIsSetup"
+            class="text-xs shrink-0 shadow"
+            size="sm"
+            icon="i-ph:key-duotone"
+            variant="primary"
+            @click="settingsModalOpen = true"
+          >
+            Setup API Keys
+          </ActionButton>
+          <ActionButton
+            v-else-if="!llmHasAiResult || llmAnalyzeMode === 'llm'"
+            class="text-xs shrink-0 shadow"
+            :disabled="llmIsAnalyzing"
+            :variant="llmHasAiResult ? 'action' : 'primary'"
+            :icon="llmIsAnalyzing ? 'i-ph:spinner-duotone animate-spin' : 'i-ph-sparkle-duotone'"
+            @click="store.llm.reanalyze()"
+          >
+            {{ llmIsAnalyzing ? 'Analyzing…' : llmHasAiResult ? 'Re-analyze with AI' : 'Analyze with AI' }}
+          </ActionButton>
+          <span v-if="llmIsAnalyzing && llmProgress" class="text-xs op-mute max-w-64 truncate self-center" :title="llmProgress.message">{{ llmProgress.message }}</span>
+          <span v-else-if="llmError" class="text-xs text-red-500 max-w-80 truncate self-center" :title="`AI analysis failed: ${llmError.message}`">AI analysis failed: {{ llmError.message }}</span>
+        </template>
+
         <ActionIconButton v-if="meta.provider === 'github'" icon="i-ph:arrows-clockwise-duotone" label="Refresh" tooltip="Refresh" class="shrink-0" @click="store.refresh()" />
         <ActionToggleGroup
           class="shrink-0"
@@ -124,7 +149,7 @@ function scrollToGroup(key: string) {
       <div class="text-sm pt-2 flex gap-2 items-center">
         <div
           v-if="groups.length > 1"
-          class="text-sm flex flex-wrap gap-1.5 items-center relative"
+          class="text-sm flex flex-1 flex-wrap gap-1.5 min-w-0 items-center relative"
         >
           <button
             v-for="group in groups"
@@ -139,36 +164,11 @@ function scrollToGroup(key: string) {
           </button>
         </div>
 
-        <template v-if="store.llm">
-          <ActionButton
-            v-if="!llmIsSetup"
-            class="text-xs shadow"
-            size="sm"
-            icon="i-ph:key-duotone"
-            variant="primary"
-            @click="settingsModalOpen = true"
-          >
-            Setup API Keys
-          </ActionButton>
-          <ActionButton
-            v-else-if="!llmHasAiResult || llmAnalyzeMode === 'llm'"
-            class="text-xs shadow"
-            :disabled="llmIsAnalyzing"
-            :variant="llmHasAiResult ? 'action' : 'primary'"
-            :icon="llmIsAnalyzing ? 'i-ph:spinner-duotone animate-spin' : 'i-ph-sparkle-duotone'"
-            @click="store.llm.reanalyze()"
-          >
-            {{ llmIsAnalyzing ? 'Analyzing…' : llmHasAiResult ? 'Re-analyze with AI' : 'Analyze with AI' }}
-          </ActionButton>
-          <span v-if="llmIsAnalyzing && llmProgress" class="text-xs op-mute max-w-64 truncate" :title="llmProgress.message">{{ llmProgress.message }}</span>
-          <span v-else-if="llmError" class="text-xs text-red-500 max-w-80 truncate" :title="`AI analysis failed: ${llmError.message}`">AI analysis failed: {{ llmError.message }}</span>
-        </template>
-
         <div class="flex-auto" />
 
         <DiffStats :additions="additions" :deletions="deletions" />
         <DisplayDonut :value="progress" :size="18" :thickness="3" />
-        <span>{{ reviewedCount }} <span class="text-xs opacity-50">/ {{ totalFiles }} reviewed</span></span>
+        <span class="shrink-0 whitespace-nowrap">{{ reviewedCount }} <span class="text-xs opacity-50">/ {{ totalFiles }} reviewed</span></span>
       </div>
     </div>
   </header>
