@@ -129,7 +129,7 @@ watch(groups, () => nextTick(updateVisibleGroups), { immediate: true })
         </slot>
 
         <Suspense v-if="grouped?.overallSummary">
-          <Markdown :value="grouped?.overallSummary" class="text-sm pb-2 border-b border-base op-fade" />
+          <Markdown :value="grouped?.overallSummary" class="text-sm px-4 pb-2 border-b border-base op-fade" />
         </Suspense>
 
         <DiffGroup

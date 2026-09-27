@@ -5,6 +5,7 @@ import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.v
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { Markdown } from '@comark/vue'
 import { computed, nextTick, ref } from 'vue'
+import { useFitText } from '../../composables/useFitText'
 import DiffGroup from './DiffGroup.vue'
 import DiffStats from './DiffStats.vue'
 import FileDiff from './FileDiff.vue'
@@ -41,6 +42,10 @@ function toggleChild(key: string) {
   collapsedChildren.value = next
 }
 
+const labelBox = ref<HTMLElement>()
+const labelText = ref<HTMLElement>()
+const labelFontSize = useFitText(labelBox, labelText, () => props.group.label, 14, 20)
+
 const progress = computed(() => totalFiles.value === 0 ? 1 : reviewedCount.value / totalFiles.value)
 
 const fileDiffRefs = new Map<string, InstanceType<typeof FileDiff>>()
@@ -70,7 +75,7 @@ function navigateToFile(sha: string) {
         <header class="bg-base flex w-full items-center">
           <button
             type="button"
-            class="text-sm px-2 py-1 flex flex-1 min-w-0 items-start"
+            class="text-sm px-2 py-1 text-left flex flex-1 min-w-0 items-start"
             :aria-expanded="!collapsed"
             @click="emit('toggle')"
           >
@@ -83,7 +88,14 @@ function navigateToFile(sha: string) {
             />
             <div class="flex-1 min-w-0">
               <div class="leading-1em flex gap-2 items-center">
-                <span class="text-xl font-medium">{{ group.label }}</span>
+                <span
+                  ref="labelBox"
+                  class="text-xl font-medium flex-1 min-w-0 truncate"
+                  :style="{ fontSize: `${labelFontSize}px` }"
+                  :title="group.label"
+                >
+                  <span ref="labelText">{{ group.label }}</span>
+                </span>
                 <div class="flex shrink-0 items-center" :title="`${reviewedCount} / ${totalFiles} files reviewed`" />
               </div>
               <div class="leading-1em flex gap-2 items-center">
