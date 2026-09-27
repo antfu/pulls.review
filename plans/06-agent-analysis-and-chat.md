@@ -84,7 +84,7 @@ pnpm-lock.yaml         M +300/-20  [generated]
 
 - The manifest is a directory tree with status letter, line counts, at most 3 hunk
   headers per file, and `[generated]` / `[binary]` tags.
-- `---DIFFS---` is included only when `renderFilesAsText(diff.files)` is ≤ 60,000 chars.
+- `---DIFFS---` is included only when `renderFilesAsText(diff.files)` is ≤ 200,000 chars (about 50k tokens).
 
 ### System prompt (`AGENT_SYSTEM_PROMPT`)
 

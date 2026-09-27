@@ -20,7 +20,7 @@ export function renderFilesAsText(files: FileChange[]): string {
   }).join('\n\n')
 }
 
-export const INLINE_DIFF_CHAR_LIMIT = 60_000
+export const INLINE_DIFF_CHAR_LIMIT = 200_000
 
 export const AGENT_SYSTEM_PROMPT = `<role>
 You organize a GitHub pull request's changed files into review groups, so a reviewer can read the PR feature by feature instead of file by file.
