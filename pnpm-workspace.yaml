@@ -28,7 +28,9 @@ overrides:
   workbox-build: 7.4.0
 
 allowBuilds:
+  '@google/genai': false
   esbuild: true
+  protobufjs: false
   unrs-resolver: true
   vue-demi: true
 
@@ -66,6 +68,8 @@ catalogs:
     '@antfu/design': ^0.5.1
     '@antfu/utils': ^9.3.0
     '@comark/vue': ^0.7.0
+    '@earendil-works/pi-agent-core': ^0.87.1
+    '@earendil-works/pi-ai': ^0.87.1
     '@pierre/diffs': ^1.4.2
     '@tanstack/vue-virtual': ^3.13.39
     '@valibot/to-json-schema': ^1.8.0

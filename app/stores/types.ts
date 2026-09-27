@@ -1,5 +1,6 @@
+import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import type { ResolvedGroupWithChildren } from '../components/diff/group-utils'
-import type { GroupedResult, GroupSource } from '../types/analyze'
+import type { AnalyzeProgress, GroupedResult, GroupSource } from '../types/analyze'
 import type { DiffsPayload } from '../types/diff'
 
 /**
@@ -16,12 +17,24 @@ export interface DiffsStoreLlm {
   /** Whether a gateway token or vendor API key is configured (was `llmAvailable`). */
   readonly isSetup: boolean
   readonly isAnalyzing: boolean
+  readonly progress: AnalyzeProgress | undefined
+  readonly error: Error | undefined
   /** Whether the `llm` adapter has already produced a result for the current diff. */
   readonly hasAiResult: boolean
   readonly analyzeMode: GroupSource
   /** Switches the active grouping. `none`/`rule-based` analyze immediately (free, instant); `llm` only switches the view - call `reanalyze` to actually run it. */
   setAnalyzeMode: (mode: GroupSource) => Promise<void>
   reanalyze: () => Promise<void>
+  readonly chat: {
+    readonly available: boolean
+    readonly messages: AgentMessage[]
+    readonly isStreaming: boolean
+    readonly error: Error | undefined
+    send: (text: string) => Promise<void>
+    retry: () => Promise<void>
+    stop: () => void
+    clear: () => Promise<void>
+  }
 }
 
 /**

@@ -32,6 +32,14 @@ export const AiReady: Story = {
   args: { store: createMockDiffsStore({ diff: empty.diff as any, grouped: { ...empty.grouped, source: 'llm' } as any, isSetup: true }) },
 }
 
+export const AiAnalyzing: Story = {
+  args: { store: createMockDiffsStore({ diff: empty.diff as any, grouped: { ...empty.grouped, source: 'llm' } as any, isSetup: true, isAnalyzing: true, llmProgress: { step: 3, message: 'Reading 4 files: app/auth/session.ts, …' } }) },
+}
+
+export const AiFailed: Story = {
+  args: { store: createMockDiffsStore({ diff: empty.diff as any, grouped: { ...empty.grouped, source: 'llm' } as any, isSetup: true, llmError: new Error('401 Unauthorized: invalid x-api-key') }) },
+}
+
 export const Embedded: Story = {
   args: { store: createMockDiffsStore({ diff: empty.diff as any, grouped: empty.grouped as any, llm: false, isEmbedded: true }) },
 }

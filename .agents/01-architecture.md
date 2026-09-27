@@ -61,10 +61,24 @@ analysis strategy later never touches the view layer:
     users who just want the plain file list with no classification.
   - `rule-based` — implemented. Deterministic glob-pattern classification,
     flat (1-level) groups, no LLM, no network call.
-  - `llm` — implemented. Uses the Vercel AI SDK with whichever provider is
-    selected in Settings (AI Gateway, Anthropic, or OpenAI-compatible — only
-    the selected one is ever called); falls back to `rule-based` on any
-    network/schema failure.
+  - `llm` — implemented. A pi-agent-core tool loop against whichever
+    provider is selected in Settings (AI Gateway, Anthropic, or
+    OpenAI-compatible — only the selected one is ever called). The prompt
+    carries a file manifest (plus the full diffs when small); the model pulls
+    diffs on demand with `read_diffs` and finishes with `submit_grouping`,
+    whose coverage check rejects a grouping that misses or invents paths so
+    the model must fix it. A read budget and a turn cap bound the run, and
+    progress (`Reading 4 files: …`) streams to the header. Failures MUST
+    surface as `llm.error` — there is no silent `rule-based` fallback, and
+    nothing but real model output is ever stored under `llm`. The pi runtime
+    (`agent.ts`, `runtime.ts`, `chat.ts`) is only reached via dynamic
+    `import()`, so the embed bundle never ships it.
+  - Follow-up chat reuses the analysis transcript: `llmSession` (`messages`
+    + `chatStartIndex`) is persisted alongside the result in the `pr:*`
+    entry, and `composables/useLlmChat.ts` builds a fresh pi `Agent` from it
+    per message (`read_diffs` plus `update_grouping`, which replaces
+    `analyzedBy.llm` in store and cache). Re-analyze or a refetch replaces
+    the session; results cached without one show `Re-analyze to enable chat`.
   - `web-llm` — TODO, stub only. Fully in-browser model inference, no network
     call at analyze time.
   - LLM-sourced groups MAY nest one level (root group -> children, e.g.
@@ -115,7 +129,8 @@ identical code, no separate IndexedDB-mocking dependency needed.
 One `unstorage` instance, three logical collections via key prefix (unstorage
 is flat key-value, so there's no native "object store" split):
 
-- `pr:*` — raw diff + per-adapter `GroupedResult`s, keyed by
+- `pr:*` — raw diff + per-adapter `GroupedResult`s (+ the `llmSession`
+  chat transcript, counted toward the size budget), keyed by
   `pr:{provider}:{owner}/{repo}#{number}` for github or `pr:paste:{contentHash}`
   for paste (content hash is an internal cache key only, never exposed in a
   URL — see the `paste` provider note above). App-managed LRU eviction

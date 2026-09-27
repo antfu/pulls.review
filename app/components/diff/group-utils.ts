@@ -34,3 +34,7 @@ export function resolveGroups(groups: DiffGroup[], files: FileChange[]): Resolve
     children: (group.children ?? []).map(child => resolveLeaf(child, byPath)),
   }))
 }
+
+export function countGroupFiles(group: ResolvedGroupWithChildren): number {
+  return group.files.length + group.children.reduce((n, child) => n + child.files.length, 0)
+}

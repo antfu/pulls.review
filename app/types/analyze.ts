@@ -25,7 +25,7 @@ export type DiffCategory = v.InferOutput<typeof DiffCategorySchema>
  * which structurally enforces the "max depth 2" decision rather than relying on convention.
  *
  * Field `description`s double as the llm adapter's field-level instructions - the model
- * sees them directly in the response schema (see `toModelSchema`), so `prompt.ts` only
+ * sees them directly in the `submit_grouping` tool's parameter schema, so `prompt.ts` only
  * needs high-level framing, not a restatement of these per-field rules.
  */
 export const DiffGroupLeafSchema = v.object({
@@ -67,8 +67,11 @@ export function normalizeGroupedResult(source: GroupSource, core: GroupedResultC
   return { ...core, source, generatedAt: new Date().toISOString() }
 }
 
+export interface AnalyzeProgress { step: number, message: string }
+export interface AnalyzeOptions { onProgress?: (progress: AnalyzeProgress) => void, signal?: AbortSignal }
+
 export interface AnalyzeAdapter {
   readonly id: GroupSource // 'none' | 'rule-based' | 'llm' | 'web-llm'
   readonly available: boolean // none/rule-based: always true; llm: true once a key is configured; web-llm: true once a local model is loaded
-  analyze: (diff: DiffsPayload) => Promise<GroupedResult>
+  analyze: (diff: DiffsPayload, options?: AnalyzeOptions) => Promise<GroupedResult>
 }

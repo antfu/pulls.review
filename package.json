@@ -24,6 +24,8 @@
     "@antfu/design": "catalog:frontend",
     "@antfu/utils": "catalog:frontend",
     "@comark/vue": "catalog:frontend",
+    "@earendil-works/pi-agent-core": "catalog:frontend",
+    "@earendil-works/pi-ai": "catalog:frontend",
     "@pierre/diffs": "catalog:frontend",
     "@tanstack/vue-virtual": "catalog:frontend",
     "@valibot/to-json-schema": "catalog:frontend",

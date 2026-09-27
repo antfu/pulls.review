@@ -1,5 +1,5 @@
 import type { GroupedResult } from '../types/analyze'
-import type { PrCacheEntry } from '../types/cache'
+import type { LlmSession, PrCacheEntry } from '../types/cache'
 import type { CacheStorage } from './storage'
 import * as v from 'valibot'
 import { PrCacheEntrySchema } from '../types/cache'
@@ -19,8 +19,8 @@ function prKey(key: string): string {
 }
 
 /** Rough approximation of an entry's on-disk footprint, used for LRU budget accounting. */
-export function computeEntrySizeBytes(diff: PrCacheEntry['diff'], analyzedBy: PrCacheEntry['analyzedBy']): number {
-  return new TextEncoder().encode(JSON.stringify({ diff, analyzedBy })).length
+export function computeEntrySizeBytes(diff: PrCacheEntry['diff'], analyzedBy: PrCacheEntry['analyzedBy'], llmSession?: LlmSession): number {
+  return new TextEncoder().encode(JSON.stringify({ diff, analyzedBy, llmSession })).length
 }
 
 export async function getEntry(storage: CacheStorage, key: string): Promise<PrCacheEntry | undefined> {
@@ -50,6 +50,18 @@ export async function setAnalyzedResult(storage: CacheStorage, key: string, sour
   if (!entry)
     return
   await storage.setItem(prKey(key), { ...entry, analyzedBy: { ...entry.analyzedBy, [source]: result } })
+}
+
+export async function setLlmSession(storage: CacheStorage, key: string, session: LlmSession | undefined): Promise<void> {
+  const entry = await getEntry(storage, key)
+  if (!entry)
+    return
+  const next: PrCacheEntry = { ...entry, llmSession: session as PrCacheEntry['llmSession'] }
+  if (session === undefined)
+    delete next.llmSession
+  next.sizeBytes = computeEntrySizeBytes(next.diff, next.analyzedBy, session)
+  await storage.setItem(prKey(key), next)
+  await enforceBudget(storage)
 }
 
 async function getAllEntries(storage: CacheStorage): Promise<PrCacheEntry[]> {

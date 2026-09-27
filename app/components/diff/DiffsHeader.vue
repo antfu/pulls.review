@@ -11,6 +11,7 @@ import { settingsModalOpen } from '../../state/settingsModal'
 import GithubAvatar from '../GithubAvatar.vue'
 import NavControls from '../NavControls.vue'
 import DiffStats from './DiffStats.vue'
+import { countGroupFiles } from './group-utils'
 import PrStatusIcon from './PrStatusIcon.vue'
 
 const props = defineProps<{
@@ -34,6 +35,8 @@ const llmIsSetup = computed(() => props.store.llm?.isSetup ?? false)
 const llmIsAnalyzing = computed(() => props.store.llm?.isAnalyzing ?? false)
 const llmHasAiResult = computed(() => props.store.llm?.hasAiResult ?? false)
 const llmAnalyzeMode = computed(() => props.store.llm?.analyzeMode ?? 'rule-based')
+const llmProgress = computed(() => props.store.llm?.progress)
+const llmError = computed(() => props.store.llm?.error)
 
 const layoutOptions = [
   { value: 'unified', label: 'Unified', icon: 'i-ph:rows-duotone' },
@@ -132,7 +135,7 @@ function scrollToGroup(key: string) {
             @click="scrollToGroup(group.key)"
           >
             {{ group.label }}
-            <span class="font-mono op-mute">{{ group.files.length }}</span>
+            <span class="font-mono op-mute">{{ countGroupFiles(group) }}</span>
           </button>
         </div>
 
@@ -157,6 +160,8 @@ function scrollToGroup(key: string) {
           >
             {{ llmIsAnalyzing ? 'Analyzing…' : llmHasAiResult ? 'Re-analyze with AI' : 'Analyze with AI' }}
           </ActionButton>
+          <span v-if="llmIsAnalyzing && llmProgress" class="text-xs op-mute max-w-64 truncate" :title="llmProgress.message">{{ llmProgress.message }}</span>
+          <span v-else-if="llmError" class="text-xs text-red-500 max-w-80 truncate" :title="`AI analysis failed: ${llmError.message}`">AI analysis failed: {{ llmError.message }}</span>
         </template>
 
         <div class="flex-auto" />

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ComponentPublicInstance } from 'vue'
 import type { DiffsStore } from '../../stores/types'
 import type { ResolvedGroupWithChildren } from './group-utils'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
@@ -9,20 +10,20 @@ import DiffGroup from './DiffGroup.vue'
 import DiffStats from './DiffStats.vue'
 import FileDiff from './FileDiff.vue'
 import FileTree from './FileTree.vue'
+import { countGroupFiles } from './group-utils'
 
 const props = defineProps<{
   store: DiffsStore
   group: ResolvedGroupWithChildren
   collapsed: boolean
-  /** Nested (child) groups render without their own sticky header or further children. */
-  nested?: boolean
+  parentLabel?: string
 }>()
 
 const emit = defineEmits<{
   toggle: []
 }>()
 
-const totalFiles = computed(() => props.group.files.length + props.group.children.reduce((n, c) => n + c.files.length, 0))
+const totalFiles = computed(() => countGroupFiles(props.group))
 const totalAdded = computed(() => props.group.added + props.group.children.reduce((n, c) => n + c.added, 0))
 const totalDeleted = computed(() => props.group.deleted + props.group.children.reduce((n, c) => n + c.deleted, 0))
 const reviewedCount = computed(() => {
@@ -39,6 +40,21 @@ function toggleChild(key: string) {
   else
     next.add(key)
   collapsedChildren.value = next
+}
+
+// A parent with children becomes a full-width band; its children render as ordinary
+// rows at the same x-offset as top-level groups instead of being indented under it.
+const isChapter = computed(() => !props.parentLabel && props.group.children.length > 0)
+
+const childEls = new Map<string, Element>()
+function setChildEl(key: string, instance: ComponentPublicInstance | null) {
+  if (instance)
+    childEls.set(key, instance.$el)
+  else
+    childEls.delete(key)
+}
+function scrollToChild(key: string) {
+  childEls.get(key)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 const progress = computed(() => totalFiles.value === 0 ? 1 : reviewedCount.value / totalFiles.value)
@@ -63,28 +79,75 @@ function navigateToFile(sha: string) {
 
 <template>
   <section class="scroll-mt-45">
-    <div class="p-3 flex flex-col gap-4 lg:grid lg:grid-cols-[1fr_4fr]">
-      <!-- top-40 approximates the page's own sticky DiffsHeader height, so the aside
-           sticks just below it rather than underneath it. -->
-      <aside class="flex shrink-0 flex-col gap-3 min-w-70 top-40 lg:self-start lg:sticky">
-        <header class="bg-base flex w-full items-center">
-          <button
-            type="button"
-            class="text-sm px-2 py-1 flex flex-1 min-w-0 items-start"
-            :aria-expanded="!collapsed"
-            @click="emit('toggle')"
-          >
+    <header v-if="isChapter" class="py-3 border-b border-base flex flex-col gap-2">
+      <div class="flex w-full items-center">
+        <button
+          type="button"
+          class="group text-left flex flex-1 flex-col gap-1 min-w-0"
+          :aria-expanded="!collapsed"
+          @click="emit('toggle')"
+        >
+          <div class="leading-1em flex gap-1 items-center">
+            <span class="text-2xl font-medium">{{ group.label }}</span>
             <ActionIconButton
               compact
-              class="ml--5 py1.5 op-mute hover:op-100"
+              class="op-mute group-hover:op-100"
               :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
               label="Toggle group"
               as="span"
             />
-            <div class="flex-1 min-w-0">
-              <div class="leading-1em flex gap-2 items-center">
+          </div>
+          <div class="leading-1em flex gap-2 items-center">
+            <DiffStats :additions="totalAdded" :deletions="totalDeleted" />
+            <span class="text-xs op-fade">{{ totalFiles }} file{{ totalFiles === 1 ? '' : 's' }}</span>
+            <DisplayDonut :value="progress" :size="12" :thickness="2.5" />
+            <span class="text-xs op-fade">{{ group.children.length }} subgroup{{ group.children.length === 1 ? '' : 's' }}</span>
+          </div>
+        </button>
+        <div v-if="$slots.actions" class="px-2 flex shrink-0 gap-1 items-center">
+          <slot name="actions" />
+        </div>
+      </div>
+      <template v-if="!collapsed">
+        <Suspense v-if="group.summary">
+          <Markdown :value="group.summary" class="text-sm op-fade max-w-200" />
+        </Suspense>
+        <div class="flex flex-wrap gap-1.5">
+          <button
+            v-for="child in group.children"
+            :key="child.key"
+            type="button"
+            class="text-xs px-2 py-0.5 border border-base rounded-full op-fade transition hover:op-100"
+            @click="scrollToChild(child.key)"
+          >
+            {{ child.label }} · {{ child.files.length }}
+          </button>
+        </div>
+      </template>
+    </header>
+
+    <div v-if="!isChapter || (!collapsed && group.files.length)" class="py-3 flex flex-col gap-4 lg:grid lg:grid-cols-[1fr_4fr]">
+      <!-- top-40 approximates the page's own sticky DiffsHeader height, so the aside
+           sticks just below it rather than underneath it. -->
+      <aside class="flex shrink-0 flex-col gap-3 min-w-70 top-40 lg:self-start lg:sticky">
+        <header v-if="!isChapter" class="bg-base flex w-full items-center">
+          <button
+            type="button"
+            class="group text-sm py-1 text-left flex flex-1 min-w-0 items-start"
+            :aria-expanded="!collapsed"
+            @click="emit('toggle')"
+          >
+            <div class="flex flex-1 flex-col gap-1 min-w-0">
+              <span v-if="parentLabel" class="text-xs leading-1em op-fade truncate">{{ parentLabel }} ›</span>
+              <div class="leading-1em flex gap-1 items-center">
                 <span class="text-xl font-medium">{{ group.label }}</span>
-                <div class="flex shrink-0 items-center" :title="`${reviewedCount} / ${totalFiles} files reviewed`" />
+                <ActionIconButton
+                  compact
+                  class="op-mute group-hover:op-100"
+                  :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
+                  label="Toggle group"
+                  as="span"
+                />
               </div>
               <div class="leading-1em flex gap-2 items-center">
                 <DiffStats :additions="totalAdded" :deletions="totalDeleted" />
@@ -98,7 +161,7 @@ function navigateToFile(sha: string) {
           </div>
         </header>
         <template v-if="!collapsed">
-          <Suspense v-if="group.summary">
+          <Suspense v-if="group.summary && !isChapter">
             <Markdown :value="group.summary" class="text-sm pb-2 border-b border-base op-fade" />
           </Suspense>
           <FileTree
@@ -122,14 +185,15 @@ function navigateToFile(sha: string) {
       </div>
     </div>
 
-    <div v-if="!collapsed && !nested && group.children.length" class="ml-3 pl-4 border-l border-base flex flex-col gap-4">
+    <div v-if="isChapter && !collapsed" class="flex flex-col gap-4">
       <DiffGroup
         v-for="child in group.children"
         :key="child.key"
+        :ref="el => setChildEl(child.key, el as ComponentPublicInstance | null)"
         :store="store"
         :group="{ ...child, children: [] }"
         :collapsed="collapsedChildren.has(child.key)"
-        nested
+        :parent-label="group.label"
         @toggle="toggleChild(child.key)"
       />
     </div>

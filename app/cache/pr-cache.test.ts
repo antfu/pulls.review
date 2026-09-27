@@ -1,7 +1,7 @@
-import type { PrCacheEntry } from '../types/cache'
+import type { LlmSession, PrCacheEntry } from '../types/cache'
 import memoryDriver from 'unstorage/drivers/memory'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { computeEntrySizeBytes, enforceBudget, getEntry, listRecentEntries, putEntry, touchEntry } from './pr-cache'
+import { computeEntrySizeBytes, enforceBudget, getEntry, listRecentEntries, putEntry, setLlmSession, touchEntry } from './pr-cache'
 import { getReviewed, setReviewed } from './review-cache'
 import { createCacheStorage } from './storage'
 
@@ -94,5 +94,47 @@ describe('pr-cache', () => {
     await putEntry(storage, makeEntry('a', 'sha-a', 1000))
     await expect(enforceBudget(storage)).resolves.toBeUndefined()
     expect(await getEntry(storage, 'a')).toBeDefined()
+  })
+
+  it('computeEntrySizeBytes counts the llmSession toward the size', () => {
+    const entry = makeEntry('a', 'sha-a', 0)
+    const session: LlmSession = { messages: [{ role: 'user', content: 'hi', timestamp: 0 } as never], chatStartIndex: 1 }
+    const withoutSession = computeEntrySizeBytes(entry.diff, entry.analyzedBy)
+    const withSession = computeEntrySizeBytes(entry.diff, entry.analyzedBy, session)
+    expect(withSession).toBeGreaterThan(withoutSession)
+  })
+
+  it('setLlmSession is a no-op when the entry is missing', async () => {
+    await expect(setLlmSession(storage, 'missing', { messages: [], chatStartIndex: 0 })).resolves.toBeUndefined()
+    expect(await getEntry(storage, 'missing')).toBeUndefined()
+  })
+
+  it('setLlmSession writes the session and updates sizeBytes', async () => {
+    const entry = makeEntry('a', 'sha-a', 1000)
+    await putEntry(storage, entry)
+    const session: LlmSession = { messages: [{ role: 'user', content: 'hi', timestamp: 0 } as never], chatStartIndex: 1 }
+    await setLlmSession(storage, 'a', session)
+    const back = await getEntry(storage, 'a')
+    expect(back!.llmSession).toEqual(session)
+    expect(back!.sizeBytes).toBeGreaterThan(entry.sizeBytes)
+  })
+
+  it('setLlmSession clears the session when passed undefined', async () => {
+    const entry = makeEntry('a', 'sha-a', 1000)
+    await putEntry(storage, entry)
+    await setLlmSession(storage, 'a', { messages: [{ role: 'user', content: 'hi', timestamp: 0 } as never], chatStartIndex: 1 })
+    await setLlmSession(storage, 'a', undefined)
+    const back = await getEntry(storage, 'a')
+    expect(back!.llmSession).toBeUndefined()
+    expect(back!.sizeBytes).toBe(computeEntrySizeBytes(entry.diff, entry.analyzedBy))
+  })
+
+  it('an entry rebuilt via putEntry without the field has no session', async () => {
+    const entry = makeEntry('a', 'sha-a', 1000)
+    await putEntry(storage, entry)
+    await setLlmSession(storage, 'a', { messages: [{ role: 'user', content: 'hi', timestamp: 0 } as never], chatStartIndex: 1 })
+    await putEntry(storage, makeEntry('a', 'sha-a', 2000))
+    const back = await getEntry(storage, 'a')
+    expect(back!.llmSession).toBeUndefined()
   })
 })

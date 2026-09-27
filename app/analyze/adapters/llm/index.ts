@@ -1,51 +1,11 @@
-import type { AnalyzeAdapter, DiffGroup, GroupedResultCore } from '../../../types/analyze'
-import type { DiffsPayload, FileChange } from '../../../types/diff'
+import type { AgentMessage } from '@earendil-works/pi-agent-core'
+import type { AnalyzeAdapter, AnalyzeOptions, DiffGroup, GroupedResult, GroupedResultCore } from '../../../types/analyze'
+import type { DiffsPayload } from '../../../types/diff'
 import type { Analysis } from './schema'
-import { generateText, Output } from 'ai'
 import { normalizeGroupedResult } from '../../../types/analyze'
-import { ruleBasedAdapter } from '../rule-based'
-import { chunkFiles } from './chunk'
-import { mergeGroups } from './merge'
-import { resolveLanguageModel } from './model'
-import { buildDiffPrompt, CHUNK_SYSTEM_PROMPT, SINGLE_PASS_SYSTEM_PROMPT, SYNTHESIS_SYSTEM_PROMPT } from './prompt'
-import { AnalysisSchema, ChunkAnalysisSchema, SynthesisSchema } from './schema'
-import { toModelSchema } from './valibot-schema'
+import { NOT_CONFIGURED_MESSAGE, resolveModel } from './model'
 
 export const LLM_SCHEMA_VERSION = 1
-
-async function analyzeWhole(diff: DiffsPayload, model: NonNullable<ReturnType<typeof resolveLanguageModel>>): Promise<Analysis> {
-  const { output } = await generateText({
-    model,
-    system: SINGLE_PASS_SYSTEM_PROMPT,
-    prompt: buildDiffPrompt(diff),
-    output: Output.object({ schema: toModelSchema(AnalysisSchema) }),
-  })
-  return output
-}
-
-async function analyzeChunked(diff: DiffsPayload, model: NonNullable<ReturnType<typeof resolveLanguageModel>>, chunks: FileChange[][]): Promise<Analysis> {
-  const chunkResults = await Promise.all(chunks.map(async (files, index) => {
-    const { output } = await generateText({
-      model,
-      system: CHUNK_SYSTEM_PROMPT,
-      prompt: `Part ${index + 1} of ${chunks.length}.\n\n${buildDiffPrompt(diff, files)}`,
-      output: Output.object({ schema: toModelSchema(ChunkAnalysisSchema) }),
-    })
-    return output
-  }))
-
-  const groups = mergeGroups(chunkResults.flatMap(result => result.groups))
-  const { output: synthesis } = await generateText({
-    model,
-    system: SYNTHESIS_SYSTEM_PROMPT,
-    prompt: `PR title: ${diff.title}\n\nSection summaries:\n${
-      chunkResults.map((result, index) => `${index + 1}. ${result.summary}`).join('\n')
-    }\n\nResulting groups: ${groups.map(group => `"${group.label}" (${group.filePaths.length + (group.children?.reduce((n, c) => n + c.filePaths.length, 0) ?? 0)} files)`).join(', ')}`,
-    output: Output.object({ schema: toModelSchema(SynthesisSchema) }),
-  })
-
-  return { overallSummary: synthesis.overallSummary, groups }
-}
 
 /**
  * Drops any file path the model hallucinated (not in the diff) and any it duplicated
@@ -85,34 +45,31 @@ function reconcile(diff: DiffsPayload, analysis: Analysis): DiffGroup[] {
   return groups
 }
 
+export function toGroupedResult(diff: DiffsPayload, analysis: Analysis): GroupedResult {
+  const core: GroupedResultCore = {
+    overallSummary: analysis.overallSummary,
+    groups: reconcile(diff, analysis),
+    schemaVersion: LLM_SCHEMA_VERSION,
+  }
+  return normalizeGroupedResult('llm', core)
+}
+
+export async function runLlmAnalysis(diff: DiffsPayload, options?: AnalyzeOptions): Promise<{ result: GroupedResult, transcript: AgentMessage[] }> {
+  const resolved = resolveModel()
+  if (!resolved)
+    throw new Error(NOT_CONFIGURED_MESSAGE)
+
+  const { runAgent } = await import('./agent')
+  const { analysis, transcript } = await runAgent(diff, resolved, options)
+  return { result: toGroupedResult(diff, analysis), transcript }
+}
+
 export const llmAdapter: AnalyzeAdapter = {
   id: 'llm',
   get available() {
-    return resolveLanguageModel() !== undefined
+    return resolveModel() !== undefined
   },
-  async analyze(diff) {
-    const model = resolveLanguageModel()
-    if (!model)
-      throw new Error('llm adapter is not configured: add a gateway token or a vendor API key in Settings')
-
-    try {
-      const chunks = chunkFiles(diff.files)
-      const analysis = chunks.length <= 1
-        ? await analyzeWhole(diff, model)
-        : await analyzeChunked(diff, model, chunks)
-
-      const core: GroupedResultCore = {
-        overallSummary: analysis.overallSummary,
-        groups: reconcile(diff, analysis),
-        schemaVersion: LLM_SCHEMA_VERSION,
-      }
-      return normalizeGroupedResult('llm', core)
-    }
-    catch {
-      // A network failure, a misconfigured endpoint, or a response that doesn't fit
-      // the schema (bad JSON, wrong types, an invented category, ...) must never
-      // crash the view - fall back to the always-available deterministic grouping.
-      return ruleBasedAdapter.analyze(diff)
-    }
+  async analyze(diff, options) {
+    return (await runLlmAnalysis(diff, options)).result
   },
 }

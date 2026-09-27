@@ -107,7 +107,29 @@ This PR ports the https://github.com/stackblitz/alien-signals/blob/master/src/sy
 
 - ~~Merging `dirtyLevel`, `canPropagate`, `pauseLevel`, and `allowRecurse` into one attribute should further reduce memory usage. Reaching the lowest memory usage is not the purpose of this PR, so we will not implement it here currently.~~ Completed when update to alien-signals 0.4.4
 
----CHANGES---
+---MANIFEST--- (16 files, +866/-777)
+vitest.config.ts  M  +6/-1  @@ import { entries } from './scripts/aliases.js' / @@ export default defineConfig({
+packages/reactivity/__tests__/
+  computed.spec.ts  M  +7/-6  @@ import { / @@ describe('reactivity/computed', () => {
+  effect.spec.ts  M  +14/-19  @@ import { / @@ describe('reactivity/effect', () => {
+  gc.spec.ts  M  +35/-2  @@ import { / @@ describe.skipIf(!global.gc)('reactivity/gc', () => {
+packages/reactivity/src/
+  arrayInstrumentations.ts  M  +4/-3
+  computed.ts  M  +101/-66  @@ export interface WritableComputedOptions<T, S = T> { / @@ export class ComputedRefImpl<T = any> implements Subscriber { / @@ export function computed<T>(
+  debug.ts  A  +72/-0
+  dep.ts  M  +41/-232  @@ export const ARRAY_ITERATE_KEY: unique symbol = Symbol( / @@ export function trigger(
+  effect.ts  M  +121/-379  @@ export interface DebuggerOptions { / @@ export interface ReactiveEffectRunner<T = any> { / @@ export class ReactiveEffect<T = any>
+  effectScope.ts  M  +33/-25  @@ export class EffectScope {
+  ref.ts  M  +49/-30  @@ import { / @@ function createRef(rawValue: unknown, shallow: boolean) { / @@ class RefImpl<T = any> {
+  system.ts  A  +366/-0
+  watch.ts  M  +3/-7  @@ import { / @@ export function watch(
+packages/runtime-core/__tests__/
+  apiSetupHelpers.spec.ts  M  +9/-6  @@ import { / @@ describe('SFC <script setup> helpers', () => {
+  errorHandling.spec.ts  M  +3/-0  @@ describe('error handling', () => {
+packages/runtime-core/src/
+  renderer.ts  M  +2/-1  @@ function baseCreateRenderer(
+
+---DIFFS--- (all diffs included; you may submit directly)
 ### packages/reactivity/__tests__/computed.spec.ts [modified, +7/-6]
 @@ -25,8 +25,9 @@ import {
    toRaw,

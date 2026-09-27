@@ -23,7 +23,35 @@ Commit `91291de9` adds six regression cases for trust revocation during dynamic 
 
 
 
----CHANGES---
+---MANIFEST--- (15 files, +560/-75)
+docs/content/1.guide/
+  17.client-context.md  M  +4/-2  @@ A client-only dock can also carry `type: 'json-render'` with an inline [JSON-ren
+docs/content/8.references/
+  6.hub-api.md  M  +3/-1  @@ Which `ClientScriptEntry` field carries an entry's client script, and when it ru
+examples/custom-hub-next/src/client/devframe/
+  next-devframe-hub.ts  M  +3/-2  @@ export async function nextDevframeHub(
+examples/custom-hub-vite/
+  vite.config.ts  M  +4/-3  @@ export default defineConfig({
+packages/devframe/src/types/
+  devframe.ts  M  +5/-0  @@ export interface DevframeDockDefaults {
+packages/hub-ui/src/client/state/
+  client-script.integration.test.ts  M  +235/-4  @@ function createStubRpc() { / @@ afterEach(() => { / @@ describe('dock client scripts', () => {
+  context.test.ts  M  +2/-1  @@ import { nextTick, ref } from 'vue'
+  context.ts  M  +44/-11  @@ import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, DEFAULT_DOCK_SESSION_ST / @@ export async function createDocksContext(
+  setup-script.ts  M  +35/-30  @@ async function _executeSetupScript(
+packages/hub/src/client/
+  host.ts  M  +71/-16  @@ import type { / @@ export async function createDevframeClientRuntime(
+packages/hub/src/client/__tests__/
+  host.test.ts  M  +144/-2  @@ function createStubRpc() { / @@ describe('createDevframeClientRuntime', () => {
+  renderers.test.ts  M  +2/-0  @@ function createStubSharedState<T>(initial: T): StubSharedState<T> {
+packages/hub/src/types/
+  docks.ts  M  +6/-3  @@ export interface DevframeDockEntryBase { / @@ export interface DevframeViewIframe extends DevframeDockEntryBase {
+tests/__snapshots__/tsnapi/@devframes/hub/
+  index.snapshot.d.ts  M  +1/-0
+tests/__snapshots__/tsnapi/devframe/
+  index.snapshot.d.ts  M  +1/-0  @@ export interface DevframeDockDefaults {
+
+---DIFFS--- (all diffs included; you may submit directly)
 ### docs/content/1.guide/17.client-context.md [modified, +4/-2]
 @@ -67,14 +67,16 @@ A client-only dock can also carry `type: 'json-render'` with an inline [JSON-ren
  

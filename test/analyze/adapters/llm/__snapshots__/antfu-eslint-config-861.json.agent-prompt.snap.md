@@ -21,7 +21,31 @@ Note: 7 factory snapshots were already stale on `main` (from the earlier pnpm bl
 ---
 This PR was created with the help of an agent.
 
----CHANGES---
+---MANIFEST--- (18 files, +863/-2)
+package.json  M  +10/-0
+pnpm-lock.yaml  M  +73/-0  [generated]
+pnpm-workspace.yaml  M  +3/-0  @@ minimumReleaseAgeExcludePrune: true / @@ catalogs:
+README.md  M  +44/-0  @@ Running `npx eslint` should prompt you to install the required dependencies, oth
+src/
+  config-presets.ts  M  +2/-0  @@ import type { OptionsConfig } from './types' / @@ export const CONFIG_PRESET_FULL_ON: OptionsConfig = {
+  factory.ts  M  +13/-0  @@ import { findUpSync } from 'find-up-simple' / @@ export function antfu(
+  types.ts  M  +52/-0  @@ export interface OptionsE18e extends OptionsOverrides { / @@ export interface OptionsConfig extends OptionsComponentExts, OptionsProjectType
+src/configs/
+  antislop.ts  A  +87/-0
+  index.ts  M  +1/-0
+test/__snapshots__/api/@antfu/eslint-config/
+  index.snapshot.d.ts  M  +433/-2  @@ export interface OptionsConfig extends OptionsComponentExts, OptionsProjectType / @@ export interface OptionsMarkdown extends OptionsOverrides { / @@ export interface OptionsReact extends OptionsOverrides {}
+  index.snapshot.js  M  +1/-0
+test/__snapshots__/factory/
+  default.snap.js  M  +15/-0
+  full-on.snap.js  M  +54/-0
+  in-editor.snap.js  M  +15/-0
+  javascript-vue.snap.js  M  +15/-0
+  less-opinionated.snap.js  M  +15/-0
+  lib.snap.js  M  +15/-0
+  pnpm-without-jsonc.snap.js  M  +15/-0
+
+---DIFFS--- (all diffs included; you may submit directly)
 ### README.md [modified, +44/-0]
 @@ -814,6 +814,50 @@ Running `npx eslint` should prompt you to install the required dependencies, oth
  npm i -D @angular-eslint/eslint-plugin @angular-eslint/eslint-plugin-template @angular-eslint/template-parser

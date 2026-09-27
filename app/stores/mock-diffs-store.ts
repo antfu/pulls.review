@@ -1,7 +1,8 @@
-import type { GroupedResult, GroupSource } from '../types/analyze'
+import type { AgentMessage } from '@earendil-works/pi-agent-core'
+import type { AnalyzeProgress, GroupedResult, GroupSource } from '../types/analyze'
 import type { DiffsPayload } from '../types/diff'
 import type { DiffsStore } from './types'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, shallowRef } from 'vue'
 import { resolveGroups } from '../components/diff/group-utils'
 
 /**
@@ -19,6 +20,13 @@ export function createMockDiffsStore(input: {
   isStale?: boolean
   isSetup?: boolean
   llm?: boolean
+  isAnalyzing?: boolean
+  llmProgress?: AnalyzeProgress
+  llmError?: Error
+  chatMessages?: AgentMessage[]
+  chatStreaming?: boolean
+  chatError?: Error
+  chatAvailable?: boolean
   layout?: 'split' | 'unified'
   isEmbedded?: boolean
 }): DiffsStore {
@@ -31,7 +39,9 @@ export function createMockDiffsStore(input: {
   const isStale = ref(input.isStale ?? false)
   const reviewed = ref(new Set(input.reviewed ?? []))
   const analyzeMode = ref<GroupSource>(grouped.value?.source ?? (llmEnabled ? 'llm' : 'rule-based'))
-  const isAnalyzing = ref(false)
+  const isAnalyzing = ref(input.isAnalyzing ?? false)
+  const llmProgress = ref(input.llmProgress)
+  const llmError = ref(input.llmError)
   const hasAiResultOverride = ref(grouped.value?.source === 'llm')
   const isSetup = computed(() => input.isSetup ?? true)
   const hasAiResult = computed(() => hasAiResultOverride.value)
@@ -39,6 +49,20 @@ export function createMockDiffsStore(input: {
   // A local ref, not the app's real `state/layout.ts` singleton - a story/test's layout
   // choice shouldn't leak into (or be affected by) the real app's persisted preference.
   const layout = ref(input.layout ?? 'unified')
+
+  const chatMessages = shallowRef(input.chatMessages ?? [])
+  const chat = reactive({
+    available: input.chatAvailable ?? true,
+    messages: chatMessages,
+    isStreaming: input.chatStreaming ?? false,
+    error: input.chatError,
+    async send(text: string) {
+      chatMessages.value = [...chatMessages.value, { role: 'user', content: text, timestamp: Date.now() }]
+    },
+    async retry() {},
+    stop() {},
+    async clear() {},
+  })
 
   async function load() {}
   async function refresh() {}
@@ -80,10 +104,13 @@ export function createMockDiffsStore(input: {
       ? reactive({
           isSetup,
           isAnalyzing,
+          progress: llmProgress,
+          error: llmError,
           hasAiResult,
           analyzeMode,
           setAnalyzeMode,
           reanalyze,
+          chat,
         })
       : undefined,
     load,
