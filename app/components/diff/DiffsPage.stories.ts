@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import real from '../../../test/fixtures/real/antfu-eslint-config-861.json'
+import nestedGroups from '../../../test/fixtures/synthetic/nested-groups.json'
 import partiallyReviewed from '../../../test/fixtures/synthetic/partially-reviewed.json'
 import zeroFiles from '../../../test/fixtures/synthetic/zero-files.json'
 import { createMockDiffsStore } from '../../stores/mock-diffs-store'
@@ -19,6 +20,15 @@ export const Synthetic: Story = {
       diff: partiallyReviewed.diff as any,
       grouped: partiallyReviewed.grouped as any,
       reviewed: partiallyReviewed.reviewedShas,
+    }),
+  },
+}
+
+export const NestedGroups: Story = {
+  args: {
+    store: createMockDiffsStore({
+      diff: nestedGroups.diff as any,
+      grouped: nestedGroups.grouped as any,
     }),
   },
 }
