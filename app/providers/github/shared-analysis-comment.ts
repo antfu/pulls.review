@@ -35,12 +35,16 @@ function formatUtcMinutes(iso: string): string {
 export function renderSharedAnalysisComment(pr: PullRequestRef, login: string, analysis: SharedAnalysis): string {
   const { result } = analysis
   const link = `${SITE_ORIGIN}/gh/${pr.owner}/${pr.repo}/${pr.number}?from=${login}`
-  const summary = `Analyzed by ${result.model ?? result.source} at ${formatUtcMinutes(result.generatedAt)} UTC · head ${analysis.headSha.slice(0, 7)}`
+  const summary = `analyzed by \`${result.model ?? result.source}\` at ${formatUtcMinutes(result.generatedAt)} UTC · head ${analysis.headSha.slice(0, 7)} · automated by pulls.review`
   const body = [
     MARKER,
-    `See a better organized pull request review at ${link}`,
+    `👁️‍🗨️ Review this pull request with grouped, summarized diffs at:`,
+    `👉 ${link}`,
     '',
-    `<details><summary>${summary}</summary>`,
+    `<details><summary>raw result</summary>`,
+    '',
+    '<br>',
+    summary,
     '',
     '```json',
     JSON.stringify(analysis, null, 2),
@@ -49,6 +53,9 @@ export function renderSharedAnalysisComment(pr: PullRequestRef, login: string, a
     '</details>',
     '',
   ].join('\n')
+
+  // TODO: if the body is too long, try using lz-string to compress it, and error when it still exceeds the limit.
+  // The parser should support both uncompressed json and compressed lz-string.
   if (body.length > MAX_BODY_LENGTH)
     throw new Error(`The analysis is too large to share as a comment (${body.length} characters).`)
   return body
