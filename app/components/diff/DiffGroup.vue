@@ -43,6 +43,10 @@ function toggleChild(key: string) {
   collapsedChildren.value = next
 }
 
+const labelBox = ref<HTMLElement>()
+const labelText = ref<HTMLElement>()
+const labelFontSize = useFitText(labelBox, labelText, () => props.group.label, 14, 20)
+
 // A parent with children becomes a full-width band; its children render as ordinary
 // rows at the same x-offset as top-level groups instead of being indented under it.
 const isChapter = computed(() => !props.parentLabel && props.group.children.length > 0)
@@ -57,10 +61,6 @@ function setChildEl(key: string, instance: ComponentPublicInstance | null) {
 function scrollToChild(key: string) {
   childEls.get(key)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
-
-const labelBox = ref<HTMLElement>()
-const labelText = ref<HTMLElement>()
-const labelFontSize = useFitText(labelBox, labelText, () => props.group.label, 14, 20)
 
 const progress = computed(() => totalFiles.value === 0 ? 1 : reviewedCount.value / totalFiles.value)
 
@@ -84,29 +84,29 @@ function navigateToFile(sha: string) {
 
 <template>
   <section class="scroll-mt-45">
-    <header v-if="isChapter" class="py-3 border-b border-base flex flex-col gap-2">
+    <header v-if="isChapter" class="p-3 border-b border-base flex flex-col gap-2">
       <div class="flex w-full items-center">
         <button
           type="button"
-          class="group text-left flex flex-1 flex-col gap-1 min-w-0"
+          class="px-2 py-1 text-left flex flex-1 min-w-0 items-start"
           :aria-expanded="!collapsed"
           @click="emit('toggle')"
         >
-          <div class="leading-1em flex gap-1 items-center">
-            <span class="text-2xl font-medium">{{ group.label }}</span>
-            <ActionIconButton
-              compact
-              class="op-mute group-hover:op-100"
-              :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
-              label="Toggle group"
-              as="span"
-            />
-          </div>
-          <div class="leading-1em flex gap-2 items-center">
-            <DiffStats :additions="totalAdded" :deletions="totalDeleted" />
-            <span class="text-xs op-fade">{{ totalFiles }} file{{ totalFiles === 1 ? '' : 's' }}</span>
-            <DisplayDonut :value="progress" :size="12" :thickness="2.5" />
-            <span class="text-xs op-fade">{{ group.children.length }} subgroup{{ group.children.length === 1 ? '' : 's' }}</span>
+          <ActionIconButton
+            compact
+            class="ml--5 py2 op-mute hover:op-100"
+            :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
+            label="Toggle group"
+            as="span"
+          />
+          <div class="flex flex-1 flex-col gap-1.5 min-w-0">
+            <span class="text-2xl leading-1em font-medium truncate" :title="group.label">{{ group.label }}</span>
+            <div class="leading-1em flex gap-2 items-center">
+              <DiffStats :additions="totalAdded" :deletions="totalDeleted" />
+              <span class="text-xs op-fade">{{ totalFiles }} file{{ totalFiles === 1 ? '' : 's' }}</span>
+              <DisplayDonut :value="progress" :size="12" :thickness="2.5" />
+              <span class="text-xs op-fade">{{ group.children.length }} subgroup{{ group.children.length === 1 ? '' : 's' }}</span>
+            </div>
           </div>
         </button>
         <div v-if="$slots.actions" class="px-2 flex shrink-0 gap-1 items-center">
@@ -115,9 +115,9 @@ function navigateToFile(sha: string) {
       </div>
       <template v-if="!collapsed">
         <Suspense v-if="group.summary">
-          <Markdown :value="group.summary" class="text-sm op-fade max-w-200" />
+          <Markdown :value="group.summary" class="text-sm px-2 op-fade max-w-200" />
         </Suspense>
-        <div class="flex flex-wrap gap-1.5">
+        <div class="px-2 flex flex-wrap gap-1.5">
           <button
             v-for="child in group.children"
             :key="child.key"
@@ -131,20 +131,29 @@ function navigateToFile(sha: string) {
       </template>
     </header>
 
-    <div v-if="!isChapter || (!collapsed && group.files.length)" class="py-3 flex flex-col gap-4 lg:grid lg:grid-cols-[1fr_4fr]">
+    <div v-if="!isChapter || (!collapsed && group.files.length)" class="p-3 flex flex-col gap-4 lg:grid lg:grid-cols-[1fr_4fr]">
       <!-- top-40 approximates the page's own sticky DiffsHeader height, so the aside
            sticks just below it rather than underneath it. -->
       <aside class="flex shrink-0 flex-col gap-3 min-w-70 top-40 lg:self-start lg:sticky">
+        <div v-if="parentLabel" class="text-xs leading-1em mb--2 px-3 op-fade truncate">
+          {{ parentLabel }} ›
+        </div>
         <header v-if="!isChapter" class="bg-base flex w-full items-center">
           <button
             type="button"
-            class="group text-sm py-1 text-left flex flex-1 min-w-0 items-start"
+            class="text-sm px-2 py-1 text-left flex flex-1 min-w-0 items-start"
             :aria-expanded="!collapsed"
             @click="emit('toggle')"
           >
-            <div class="flex flex-1 flex-col gap-1 min-w-0">
-              <span v-if="parentLabel" class="text-xs leading-1em op-fade truncate">{{ parentLabel }} ›</span>
-              <div class="leading-1em flex gap-1 items-center">
+            <ActionIconButton
+              compact
+              class="ml--5 py1.5 op-mute hover:op-100"
+              :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
+              label="Toggle group"
+              as="span"
+            />
+            <div class="flex-1 min-w-0">
+              <div class="leading-1em flex gap-2 items-center">
                 <span
                   ref="labelBox"
                   class="text-xl font-medium flex-1 min-w-0 truncate"
@@ -153,13 +162,7 @@ function navigateToFile(sha: string) {
                 >
                   <span ref="labelText">{{ group.label }}</span>
                 </span>
-                <ActionIconButton
-                  compact
-                  class="op-mute group-hover:op-100"
-                  :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
-                  label="Toggle group"
-                  as="span"
-                />
+                <div class="flex shrink-0 items-center" :title="`${reviewedCount} / ${totalFiles} files reviewed`" />
               </div>
               <div class="leading-1em flex gap-2 items-center">
                 <DiffStats :additions="totalAdded" :deletions="totalDeleted" />
