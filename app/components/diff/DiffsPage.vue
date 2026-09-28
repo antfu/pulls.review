@@ -5,7 +5,7 @@ import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyS
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
 import { Markdown } from '@comark/vue'
 import { Virtualizer } from '@pierre/diffs'
-import { useEventListener } from '@vueuse/core'
+import { useElementBounding, useEventListener } from '@vueuse/core'
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue'
 import { useProvider } from '../../composables/useProvider'
 import { parseGithubDiffId } from '../../providers/github/diff-id'
@@ -79,10 +79,12 @@ useEventListener(() => props.document ?? document, 'scroll', (event) => {
   updateVisibleGroups()
 }, { capture: true })
 
-// top-40 (160px) approximates the sticky DiffsHeader's own height (see DiffGroup.vue's
-// aside for the same constant) - a group counts as "visible" once it's scrolled past
-// that, not merely past the very top of the viewport.
-const HEADER_HEIGHT_PX = 160
+// The sticky DiffsHeader's height drives every sticky offset below it: its real,
+// measured height is published as the `--diffs-header-height` CSS variable on the root
+// (DiffGroup asides and section scroll-margins read it) and reused here so a group only
+// counts as "visible" once it's scrolled past the header, not merely past the viewport top.
+const headerRef = useTemplateRef<{ $el: HTMLElement }>('header')
+const { height: headerHeight } = useElementBounding(() => headerRef.value?.$el)
 const groupsVisable = ref<string[]>([])
 function updateVisibleGroups() {
   const root = props.document ?? document
@@ -93,17 +95,17 @@ function updateVisibleGroups() {
       if (!el)
         return false
       const rect = el.getBoundingClientRect()
-      return rect.bottom > HEADER_HEIGHT_PX && rect.top < viewportHeight
+      return rect.bottom > headerHeight.value && rect.top < viewportHeight
     })
     .map(group => group.key)
 }
 // Groups render async (v-for over `groups`), so the first measurement has to wait for
-// that DOM to actually exist - re-run whenever the group list itself changes.
-watch(groups, () => nextTick(updateVisibleGroups), { immediate: true })
+// that DOM to actually exist - re-run whenever the group list or header height changes.
+watch([groups, headerHeight], () => nextTick(updateVisibleGroups), { immediate: true })
 </script>
 
 <template>
-  <div ref="root" class="color-base bg-base">
+  <div ref="root" class="color-base bg-base" :style="{ '--diffs-header-height': `${headerHeight}px` }">
     <div>
       <template v-if="isLoading && !diff">
         <div class="mxa px-4 py-12 max-w-500 w-full">
@@ -130,6 +132,7 @@ watch(groups, () => nextTick(updateVisibleGroups), { immediate: true })
       </template>
       <template v-else-if="diff && grouped">
         <DiffsHeader
+          ref="header"
           :document
           :store="store!"
           :groups-visable="groupsVisable"
