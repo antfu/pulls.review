@@ -1,6 +1,7 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import type { AnalyzeAdapter, AnalyzeOptions, DiffGroup, GroupedResult, GroupedResultCore } from '../../../types/analyze'
 import type { DiffsPayload } from '../../../types/diff'
+import type { ResolvedModel } from './model'
 import type { Analysis } from './schema'
 import { normalizeGroupedResult } from '../../../types/analyze'
 import { NOT_CONFIGURED_MESSAGE, resolveModel } from './model'
@@ -45,13 +46,13 @@ function reconcile(diff: DiffsPayload, analysis: Analysis): DiffGroup[] {
   return groups
 }
 
-export function toGroupedResult(diff: DiffsPayload, analysis: Analysis): GroupedResult {
+export function toGroupedResult(diff: DiffsPayload, analysis: Analysis, resolved: ResolvedModel): GroupedResult {
   const core: GroupedResultCore = {
     overallSummary: analysis.overallSummary,
     groups: reconcile(diff, analysis),
     schemaVersion: LLM_SCHEMA_VERSION,
   }
-  return normalizeGroupedResult('llm', core)
+  return normalizeGroupedResult('llm', core, `${resolved.model.provider}/${resolved.model.id}`)
 }
 
 export async function runLlmAnalysis(diff: DiffsPayload, options?: AnalyzeOptions): Promise<{ result: GroupedResult, transcript: AgentMessage[] }> {
@@ -61,7 +62,7 @@ export async function runLlmAnalysis(diff: DiffsPayload, options?: AnalyzeOption
 
   const { runAgent } = await import('./agent')
   const { analysis, transcript } = await runAgent(diff, resolved, options)
-  return { result: toGroupedResult(diff, analysis), transcript }
+  return { result: toGroupedResult(diff, analysis, resolved), transcript }
 }
 
 export const llmAdapter: AnalyzeAdapter = {

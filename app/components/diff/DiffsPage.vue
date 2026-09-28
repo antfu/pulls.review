@@ -14,6 +14,7 @@ import DiffGroup from './DiffGroup.vue'
 import DiffsHeader from './DiffsHeader.vue'
 import { fileContentContextKey } from './file-content-context'
 import ReviewSummaries from './ReviewSummaries.vue'
+import SharedAnalysisBanner from './SharedAnalysisBanner.vue'
 
 const props = defineProps<{
   document?: Document | ShadowRoot
@@ -149,6 +150,8 @@ watch([groups, headerHeight], () => nextTick(updateVisibleGroups), { immediate: 
             </div>
           </slot>
 
+          <SharedAnalysisBanner v-if="store?.shared" :store="store" />
+
           <ReviewSummaries v-if="store?.reviews" :summaries="store.reviews.summaries" />
 
           <Suspense v-if="grouped?.overallSummary">
@@ -171,7 +174,7 @@ watch([groups, headerHeight], () => nextTick(updateVisibleGroups), { immediate: 
           </div>
         </div>
 
-        <ChatWidget v-if="store?.llm?.hasAiResult" :store="store" />
+        <ChatWidget v-if="store?.llm && store.aiResult" :store="store" />
       </template>
       <template v-else>
         <div class="mxa px-4 py-12 max-w-500 w-full">

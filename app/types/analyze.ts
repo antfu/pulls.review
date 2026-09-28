@@ -59,12 +59,16 @@ export const GroupedResultSchema = v.object({
   ...GroupedResultCoreSchema.entries,
   source: GroupSourceSchema,
   generatedAt: v.string(),
+  /** `provider/model-id` that produced an llm/web-llm result. */
+  model: v.optional(v.string()),
+  /** Login of the user whose shared PR comment this result was loaded from (see plans/07). */
+  sharedBy: v.optional(v.string()),
 })
 export type GroupedResult = v.InferOutput<typeof GroupedResultSchema>
 
 /** Stamps the invocation metadata an adapter doesn't decide onto its analysis. */
-export function normalizeGroupedResult(source: GroupSource, core: GroupedResultCore): GroupedResult {
-  return { ...core, source, generatedAt: new Date().toISOString() }
+export function normalizeGroupedResult(source: GroupSource, core: GroupedResultCore, model?: string): GroupedResult {
+  return { ...core, source, generatedAt: new Date().toISOString(), model }
 }
 
 export interface AnalyzeProgress { step: number, message: string }

@@ -16,6 +16,8 @@ export const PrCacheEntrySchema = v.object({
     messages: v.array(v.looseObject({ role: v.string() })),
     chatStartIndex: v.number(),
   })),
+  /** The viewer's own shared-analysis PR comment, reused (PATCHed) on later shares. */
+  sharedComment: v.optional(v.object({ id: v.number(), url: v.string() })),
 })
 export type PrCacheEntry = v.InferOutput<typeof PrCacheEntrySchema>
 

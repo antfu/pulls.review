@@ -17,7 +17,10 @@ const params = computed(() => ({
   number: route.params.number as string,
 }))
 
-const store = createDiffsStore(params.value, { token: settings.value.githubToken })
+// `?from=<login>` deep-links a shared analysis (see plans/07); read once, never rewritten.
+const from = typeof route.query.from === 'string' ? route.query.from : undefined
+
+const store = createDiffsStore(params.value, { token: settings.value.githubToken, from })
 
 onMounted(() => store.load())
 </script>

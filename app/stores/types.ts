@@ -20,11 +20,6 @@ export interface DiffsStoreLlm {
   readonly isAnalyzing: boolean
   readonly progress: AnalyzeProgress | undefined
   readonly error: Error | undefined
-  /** Whether the `llm` adapter has already produced a result for the current diff. */
-  readonly hasAiResult: boolean
-  readonly analyzeMode: GroupSource
-  /** Switches the active grouping. `none`/`rule-based` analyze immediately (free, instant); `llm` only switches the view - call `reanalyze` to actually run it. */
-  setAnalyzeMode: (mode: GroupSource) => Promise<void>
   reanalyze: () => Promise<void>
   readonly chat: {
     readonly available: boolean
@@ -76,6 +71,39 @@ export interface DiffsStoreReviews {
   discardPendingReview: () => Promise<void>
 }
 
+/** A shared analysis found in the PR's Conversation comments, offered for loading. */
+export interface SharedAnalysisCandidate {
+  login: string
+  /** `html_url` of the comment. */
+  url: string
+  result: GroupedResult
+  /** The viewer's own comment (e.g. from another browser). */
+  own: boolean
+  /** Analyzed at a head the loaded diff has since moved past. */
+  stale: boolean
+}
+
+/**
+ * Sharing an AI result as a PR comment and loading results others shared,
+ * behind `DiffsStore.shared` (github only, like `reviews`). See plans/07.
+ */
+export interface DiffsStoreShared {
+  /** Offered for loading, newest first; `[]` once loaded or dismissed. */
+  readonly candidates: SharedAnalysisCandidate[]
+  /** e.g. the `?from=` user has no shared analysis here. */
+  readonly notice: string | undefined
+  /** Same gating as `reviews.canWrite`. */
+  readonly canShare: boolean
+  readonly isSharing: boolean
+  readonly error: Error | undefined
+  /** The viewer's own comment on this PR once known - the next share updates it. */
+  readonly ownComment: { id: number, url: string } | undefined
+  dismiss: () => void
+  load: (login: string) => Promise<void>
+  /** Posts (or updates) the viewer's comment with the current locally generated AI result. */
+  share: () => Promise<void>
+}
+
 /**
  * Presentation-level settings every diff view component needs, grouped so they can be
  * read off the same `store` prop instead of threaded down as their own separate props.
@@ -112,11 +140,18 @@ export interface DiffsStore {
   readonly reviewed: Set<string>
   /** Each group's `filePaths` resolved into real `FileChange`s, `[]` until `diff`/`grouped` are both loaded. */
   readonly groups: ResolvedGroupWithChildren[]
+  /** The AI (`llm`/`web-llm`) result for the current diff, locally generated or loaded from a shared comment (`sharedBy` set). */
+  readonly aiResult: GroupedResult | undefined
+  readonly analyzeMode: GroupSource
+  /** Switches the active grouping. `none`/`rule-based` analyze immediately (free, instant); `llm` only switches the view - `llm.reanalyze` actually runs it. */
+  setAnalyzeMode: (mode: GroupSource) => Promise<void>
   readonly ui: DiffsStoreUi
   /** `undefined` = LLM analysis isn't available in this environment (embed, or disabled). */
   readonly llm?: DiffsStoreLlm
   /** `undefined` = this source has no review threads (paste/local, or capability off). */
   readonly reviews?: DiffsStoreReviews
+  /** `undefined` = this source has no PR comments to share into / load from. */
+  readonly shared?: DiffsStoreShared
   load: () => Promise<void>
   refresh: () => Promise<void>
   toggleReviewed: (sha: string, reviewed: boolean) => Promise<void>

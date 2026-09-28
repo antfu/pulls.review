@@ -127,7 +127,7 @@ describe('createDiffsStore llm session/progress/error', () => {
     await running
 
     expect(signal?.aborted).toBe(true)
-    expect(store.llm!.hasAiResult).toBe(false)
+    expect(store.aiResult).toBeUndefined()
     expect(store.llm!.chat.available).toBe(false)
     const entry = await mocks.storage!.getItem(`pr:${store.diff!.id}`) as any
     expect(entry.analyzedBy.llm).toBeUndefined()

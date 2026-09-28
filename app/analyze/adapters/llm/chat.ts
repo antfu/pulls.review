@@ -82,7 +82,7 @@ export function createChatSession({ diff, resolved, messages, onGroupingUpdate }
       model: resolved.model,
       tools: [
         createReadDiffsTool(diff, ledger),
-        createUpdateGroupingTool(diff, analysis => onGroupingUpdate(toGroupedResult(diff, analysis))),
+        createUpdateGroupingTool(diff, analysis => onGroupingUpdate(toGroupedResult(diff, analysis, resolved))),
       ],
       messages: withChatInstructions(messages),
     },

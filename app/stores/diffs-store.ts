@@ -1,5 +1,5 @@
 import type { AnalyzeProgress, GroupedResult, GroupSource } from '../types/analyze'
-import type { LlmSession } from '../types/cache'
+import type { LlmSession, PrCacheEntry } from '../types/cache'
 import type { ReviewData } from '../types/comment-threads'
 import type { DiffsPayload } from '../types/diff'
 import type { FetchDiffParams } from '../types/provider'
@@ -16,14 +16,24 @@ import { useLlmChat } from '../composables/useLlmChat'
 import { useProvider } from '../composables/useProvider'
 import { fetchPullRequest } from '../providers/github/api'
 import { layout } from '../state/layout'
+import { createGithubWriteAccess } from './github-write-access'
 import { createReviewsStore } from './reviews-store'
+import { createSharedAnalysisStore } from './shared-analysis-store'
 
 /**
  * Creates a `DiffsStore` backed by real providers/cache/adapters - the isomorphic
  * counterpart to `createMockDiffsStore`. Works for both `github-pr` and `patch-text`
  * params, matching `FetchDiffParams`'s discriminated union.
  */
-export function createDiffsStore(params: FetchDiffParams, opts: { token?: string, llm?: boolean, isEmbedded?: boolean } = {}): DiffsStore {
+export interface DiffsStoreOptions {
+  token?: string
+  llm?: boolean
+  isEmbedded?: boolean
+  /** Login from the page's `?from=` query: load that user's shared analysis (see plans/07). */
+  from?: string
+}
+
+export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOptions = {}): DiffsStore {
   const llmEnabled = opts.llm ?? true
 
   const diff = ref<DiffsPayload>()
@@ -31,7 +41,9 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
   const isLoading = ref(false)
   const error = ref<Error>()
   const isStale = ref(false)
-  const analyzeMode = ref<GroupSource>(llmEnabled ? 'llm' : 'rule-based')
+  // `llm` even when `llmEnabled` is off: `grouped` falls back to rule-based until an AI
+  // result exists, and the embed can still hold one loaded from a shared comment.
+  const analyzeMode = ref<GroupSource>('llm')
   const isAnalyzing = ref(false)
   const cacheKey = ref<string>()
   const reviewed = ref(new Set<string>())
@@ -43,12 +55,18 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
   if (getCurrentScope())
     onScopeDispose(() => llmAbortController?.abort())
 
-  // SWR seed for the reviews sub-store, set when a cached PR entry carries one.
+  // SWR seeds for the sub-stores, set when a cached PR entry carries them.
   let cachedReviewData: ReviewData | undefined
+  let cachedSharedComment: PrCacheEntry['sharedComment']
 
-  const reviews = params.kind === 'github-pr' && useProvider('github').capabilities.supportsComments
-    ? createReviewsStore(params, {
+  const github = params.kind === 'github-pr' && useProvider('github').capabilities.supportsComments
+    ? { params, access: createGithubWriteAccess(opts.token || undefined) }
+    : undefined
+
+  const reviews = github
+    ? createReviewsStore(github.params, {
         token: opts.token,
+        access: github.access,
         getHeadSha: () => diff.value?.head?.sha,
         getCacheKey: () => cacheKey.value,
         cachedData: () => cachedReviewData,
@@ -59,7 +77,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
   // (currently only `llm` can be in this state) hasn't been analyzed yet for this
   // diff, so the header/view never lose their data just from switching modes.
   const grouped = computed(() => analyzedBy.value[analyzeMode.value] ?? analyzedBy.value['rule-based'])
-  const hasAiResult = computed(() => analyzedBy.value.llm !== undefined)
+  const aiResult = computed(() => analyzedBy.value.llm ?? analyzedBy.value['web-llm'])
   const isSetup = computed(() => llmAdapter.available)
   const groups = computed(() => diff.value && grouped.value ? resolveGroups(grouped.value.groups, diff.value.files) : [])
 
@@ -162,6 +180,32 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
     await setAnalyzeMode('llm')
   }
 
+  /** A shared result replaces any in-flight run and the chat transcript: it has no session of its own. */
+  async function applySharedResult(result: GroupedResult) {
+    chat.stop()
+    llmAbortController?.abort()
+    analyzedBy.value = { ...analyzedBy.value, [result.source]: result }
+    llmSession.value = undefined
+    analyzeMode.value = result.source
+    if (cacheKey.value) {
+      const storage = await getDefaultCacheStorage()
+      await setAnalyzedResult(storage, cacheKey.value, result.source, result)
+      await setLlmSession(storage, cacheKey.value, undefined)
+    }
+  }
+
+  const shared = github
+    ? createSharedAnalysisStore(github.params, {
+        token: opts.token,
+        access: github.access,
+        getDiff: () => diff.value,
+        getCacheKey: () => cacheKey.value,
+        getAiResult: () => aiResult.value,
+        cachedComment: () => cachedSharedComment,
+        applyResult: applySharedResult,
+      })
+    : undefined
+
   async function analyzeAndStore(key: string, freshDiff: DiffsPayload) {
     chat.stop()
     llmAbortController?.abort()
@@ -223,6 +267,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
           analyzedBy.value = cached.analyzedBy
           llmSession.value = cached.llmSession as LlmSession | undefined
           cachedReviewData = cached.reviews
+          cachedSharedComment = cached.sharedComment
           await touchEntry(storage, key)
           await loadReviewed()
           void checkStaleness(cached.headSha)
@@ -230,9 +275,10 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
         else {
           await fetchFresh()
         }
-        // Threads load after (and independently of) the diff - a failure there
-        // never blocks the diff view itself.
+        // Threads and shared analyses load after (and independently of) the diff -
+        // a failure there never blocks the diff view itself.
         void reviews?.load()
+        void shared?.discover(opts.from)
       }
       else {
         // A paste has no live source: parsing is cheap and local, so always run it, then
@@ -270,6 +316,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
       await fetchFresh()
       isStale.value = false
       void reviews?.load()
+      void shared?.discover()
     }
     catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err))
@@ -293,6 +340,9 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
     isStale,
     reviewed,
     groups,
+    aiResult,
+    analyzeMode,
+    setAnalyzeMode,
     ui,
     llm: llmEnabled
       ? reactive({
@@ -300,14 +350,12 @@ export function createDiffsStore(params: FetchDiffParams, opts: { token?: string
           isAnalyzing,
           progress: llmProgress,
           error: llmError,
-          hasAiResult,
-          analyzeMode,
-          setAnalyzeMode,
           reanalyze,
           chat: reactive(chat),
         })
       : undefined,
     reviews,
+    shared: shared?.store,
     load,
     refresh,
     toggleReviewed,

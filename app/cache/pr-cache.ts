@@ -65,6 +65,13 @@ export async function setLlmSession(storage: CacheStorage, key: string, session:
   await enforceBudget(storage)
 }
 
+export async function setSharedComment(storage: CacheStorage, key: string, sharedComment: PrCacheEntry['sharedComment']): Promise<void> {
+  const entry = await getEntry(storage, key)
+  if (!entry)
+    return
+  await storage.setItem(prKey(key), { ...entry, sharedComment })
+}
+
 export async function setReviewData(storage: CacheStorage, key: string, reviews: ReviewData): Promise<void> {
   const entry = await getEntry(storage, key)
   if (!entry)

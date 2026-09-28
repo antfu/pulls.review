@@ -1,5 +1,6 @@
 import type { MockedFunction } from 'vitest'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createGithubWriteAccess } from './github-write-access'
 import { createReviewsStore } from './reviews-store'
 
 interface Route {
@@ -42,6 +43,7 @@ function stubFetch(routes: Route[]): MockedFunction<typeof fetch> {
 function makeStore(token?: string) {
   return createReviewsStore({ owner: 'owner', repo: 'repo', number: '1' }, {
     token,
+    access: createGithubWriteAccess(token),
     getHeadSha: () => 'head-sha',
     getCacheKey: () => undefined,
   })

@@ -11,28 +11,28 @@ export default meta
 type Story = StoryObj<typeof DiffAnalyzeButton>
 
 export const NotConfigured: Story = {
-  args: { llm: createMockDiffsStore({ isSetup: false }).llm! },
+  args: { store: createMockDiffsStore({ isSetup: false }) },
 }
 
 export const ReadyToAnalyze: Story = {
-  args: { llm: createMockDiffsStore({ isSetup: true }).llm! },
+  args: { store: createMockDiffsStore({ isSetup: true }) },
 }
 
 export const Analyzing: Story = {
   args: {
-    llm: createMockDiffsStore({
+    store: createMockDiffsStore({
       isSetup: true,
       isAnalyzing: true,
       llmProgress: { step: 3, message: 'Reading 4 files: app/auth/session.ts, …' },
-    }).llm!,
+    }),
   },
 }
 
 export const Failed: Story = {
   args: {
-    llm: createMockDiffsStore({
+    store: createMockDiffsStore({
       isSetup: true,
       llmError: new Error('401 Unauthorized: invalid x-api-key'),
-    }).llm!,
+    }),
   },
 }

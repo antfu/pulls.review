@@ -2,7 +2,7 @@ import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import type { AnalyzeProgress, GroupedResult, GroupSource } from '../types/analyze'
 import type { CommentThread, PendingReview, ReviewDraftTarget, ReviewSummary, ReviewVerdict } from '../types/comment-threads'
 import type { DiffsPayload } from '../types/diff'
-import type { DiffsStore, DiffsStoreReviews } from './types'
+import type { DiffsStore, DiffsStoreReviews, DiffsStoreShared, SharedAnalysisCandidate } from './types'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { resolveGroups } from '../components/diff/group-utils'
 
@@ -104,11 +104,49 @@ export function createMockReviewsStore(input: MockReviewsInput = {}): DiffsStore
   }) as DiffsStoreReviews
 }
 
+export interface MockSharedInput {
+  candidates?: SharedAnalysisCandidate[]
+  notice?: string
+  canShare?: boolean
+  isSharing?: boolean
+  error?: Error
+  ownComment?: { id: number, url: string }
+}
+
+/** In-memory `DiffsStoreShared`: `load`/`share` only flip local state. */
+export function createMockSharedStore(input: MockSharedInput, applyResult: (result: GroupedResult) => void): DiffsStoreShared {
+  const candidates = ref(input.candidates ?? [])
+  const notice = ref(input.notice)
+  const ownComment = ref(input.ownComment)
+  return reactive({
+    candidates,
+    notice,
+    canShare: input.canShare ?? true,
+    isSharing: input.isSharing ?? false,
+    error: input.error,
+    ownComment,
+    dismiss: () => {
+      candidates.value = []
+      notice.value = undefined
+    },
+    load: async (login: string) => {
+      const candidate = candidates.value.find(entry => entry.login === login)
+      if (candidate)
+        applyResult({ ...candidate.result, sharedBy: login })
+      candidates.value = []
+      notice.value = undefined
+    },
+    share: async () => {
+      ownComment.value = { id: 1, url: 'https://github.com/owner/repo/pull/1#issuecomment-1' }
+    },
+  }) as DiffsStoreShared
+}
+
 /**
  * In-memory `DiffsStore` for Storybook stories and tests: same interface as
  * `createDiffsStore`, but never touches cache/network/providers/adapters. `load`/
- * `refresh` are no-ops since the data is already seeded; `reanalyze` just flips
- * `hasAiResult` on rather than calling the real `llm` adapter.
+ * `refresh` are no-ops since the data is already seeded; `reanalyze` just exposes the
+ * seeded grouping as `aiResult` rather than calling the real `llm` adapter.
  */
 export function createMockDiffsStore(input: {
   diff?: DiffsPayload
@@ -130,6 +168,8 @@ export function createMockDiffsStore(input: {
   isEmbedded?: boolean
   /** Enables the reviews sub-store (absent = a source with no review lifecycle). */
   reviews?: MockReviewsInput
+  /** Enables the shared-analysis sub-store (absent = a source with no PR comments). */
+  shared?: MockSharedInput
 }): DiffsStore {
   const llmEnabled = input.llm ?? true
 
@@ -143,9 +183,9 @@ export function createMockDiffsStore(input: {
   const isAnalyzing = ref(input.isAnalyzing ?? false)
   const llmProgress = ref(input.llmProgress)
   const llmError = ref(input.llmError)
-  const hasAiResultOverride = ref(grouped.value?.source === 'llm')
+  const hasAiResult = ref(grouped.value?.source === 'llm')
   const isSetup = computed(() => input.isSetup ?? true)
-  const hasAiResult = computed(() => hasAiResultOverride.value)
+  const aiResult = computed(() => hasAiResult.value ? grouped.value : undefined)
   const groups = computed(() => diff.value && grouped.value ? resolveGroups(grouped.value.groups, diff.value.files) : [])
   // A local ref, not the app's real `state/layout.ts` singleton - a story/test's layout
   // choice shouldn't leak into (or be affected by) the real app's persisted preference.
@@ -182,7 +222,7 @@ export function createMockDiffsStore(input: {
   }
 
   async function reanalyze() {
-    hasAiResultOverride.value = true
+    hasAiResult.value = true
     analyzeMode.value = 'llm'
   }
 
@@ -200,6 +240,9 @@ export function createMockDiffsStore(input: {
     isStale,
     reviewed,
     groups,
+    aiResult,
+    analyzeMode,
+    setAnalyzeMode,
     ui,
     llm: llmEnabled
       ? reactive({
@@ -207,14 +250,18 @@ export function createMockDiffsStore(input: {
           isAnalyzing,
           progress: llmProgress,
           error: llmError,
-          hasAiResult,
-          analyzeMode,
-          setAnalyzeMode,
           reanalyze,
           chat,
         })
       : undefined,
     reviews: input.reviews ? createMockReviewsStore(input.reviews) : undefined,
+    shared: input.shared
+      ? createMockSharedStore(input.shared, (result) => {
+          grouped.value = result
+          hasAiResult.value = true
+          analyzeMode.value = result.source
+        })
+      : undefined,
     load,
     refresh,
     toggleReviewed,

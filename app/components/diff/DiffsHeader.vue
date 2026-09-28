@@ -12,6 +12,7 @@ import DiffAnalyzeButton from './DiffAnalyzeButton.vue'
 import DiffGroupNav from './DiffGroupNav.vue'
 import DiffReviewButton from './DiffReviewButton.vue'
 import DiffReviewThreadsToggle from './DiffReviewThreadsToggle.vue'
+import DiffShareButton from './DiffShareButton.vue'
 import DiffStats from './DiffStats.vue'
 import PrStatusIcon from './PrStatusIcon.vue'
 import ReviewSubmitModal from './ReviewSubmitModal.vue'
@@ -33,13 +34,13 @@ const additions = computed(() => meta.value.files.reduce((sum, file) => sum + fi
 const deletions = computed(() => meta.value.files.reduce((sum, file) => sum + file.deletions, 0))
 const progress = computed(() => totalFiles.value === 0 ? 1 : reviewedCount.value / totalFiles.value)
 
-const llmHasAiResult = computed(() => props.store.llm?.hasAiResult ?? false)
-const llmAnalyzeMode = computed(() => props.store.llm?.analyzeMode ?? 'rule-based')
-
-const analyzeOptions = [
+const aiResult = computed(() => props.store.aiResult)
+const analyzeOptions = computed(() => [
   { value: 'rule-based', label: 'Rules' },
-  { value: 'llm', label: 'AI', icon: 'i-ph-sparkle-duotone' },
-]
+  { value: aiResult.value?.source ?? 'llm', label: 'AI', icon: 'i-ph-sparkle-duotone' },
+])
+// Share is for results the viewer generated - a loaded shared result is credited, not re-shared.
+const canShareResult = computed(() => props.store.shared && props.store.llm && aiResult.value && !aiResult.value.sharedBy)
 
 const githubRef = computed(() => meta.value.provider === 'github' ? parseGithubDiffId(meta.value.id) : undefined)
 
@@ -71,14 +72,14 @@ function scrollToGroup(key: string) {
         </h1>
 
         <div
-          v-if="store.llm && llmHasAiResult"
+          v-if="aiResult"
           class="text-sm flex shrink-0 gap-1.5 items-center"
         >
           <span class="op-fade">Analyze by</span>
           <ActionToggleGroup
-            :model-value="llmAnalyzeMode"
+            :model-value="store.analyzeMode"
             :options="analyzeOptions"
-            @update:model-value="store.llm?.setAnalyzeMode($event as GroupSource)"
+            @update:model-value="store.setAnalyzeMode($event as GroupSource)"
           />
         </div>
 
@@ -106,7 +107,13 @@ function scrollToGroup(key: string) {
           ←
           <span class="text-xs font-mono px-2 py-0.5 border border-base rounded bg-code">{{ meta.head.ref }}</span>
         </span>
-        <DiffAnalyzeButton v-if="store.llm" :llm="store.llm" />
+        <span v-if="aiResult?.sharedBy && store.analyzeMode !== 'rule-based'" class="flex gap-1.5 items-center" :title="aiResult.model">
+          AI analysis shared by
+          <GithubAvatar :login="aiResult.sharedBy" :size="16" />
+          {{ aiResult.sharedBy }}
+        </span>
+        <DiffAnalyzeButton v-if="store.llm" :store="store" />
+        <DiffShareButton v-if="canShareResult" :shared="store.shared!" />
       </div>
       <!-- <template v-if="meta.description">
       <button

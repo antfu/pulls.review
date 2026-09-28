@@ -1,10 +1,9 @@
 import type { ReviewData, ReviewDraftTarget, ReviewVerdict } from '../types/comment-threads'
+import type { GithubWriteAccess } from './github-write-access'
 import type { DiffsStoreReviews } from './types'
 import { computed, reactive, ref } from 'vue'
 import { setReviewData } from '../cache/pr-cache'
 import { getDefaultCacheStorage } from '../cache/storage'
-import { resolveStoredTokenMeta } from '../composables/useGithubTokenMeta'
-import { GithubApiError } from '../providers/github/api'
 import {
   createPendingReview,
   createReview,
@@ -24,6 +23,7 @@ import { showReviewComments } from '../state/review-comments'
 
 export interface ReviewsStoreOptions {
   token?: string
+  access: GithubWriteAccess
   /** Head sha of the loaded diff - `commit_id` for new comments; unset until the diff loads. */
   getHeadSha: () => string | undefined
   /** PR cache key of the loaded diff, for persisting the SWR snapshot; unset until the diff loads. */
@@ -44,14 +44,10 @@ function toGithubSide(side: 'additions' | 'deletions'): 'LEFT' | 'RIGHT' {
 export function createReviewsStore(params: { owner: string, repo: string, number: string }, opts: ReviewsStoreOptions): DiffsStoreReviews {
   const { owner, repo, number } = params
   const token = opts.token || undefined
+  const { write } = opts.access
 
   const data = ref<ReviewData>({ threads: [], summaries: [], pendingReview: undefined })
   const isLoading = ref(false)
-  const viewerLogin = ref<string>()
-  const scopesAllowWrite = ref(false)
-  const writeBlockedReason = ref<string>()
-
-  const canWrite = computed(() => !!token && scopesAllowWrite.value && !writeBlockedReason.value)
   const pendingCommentCount = computed(() =>
     data.value.threads.reduce((count, thread) => count + thread.comments.filter(comment => comment.pending).length, 0))
 
@@ -86,13 +82,7 @@ export function createReviewsStore(params: { owner: string, repo: string, number
       data.value = cached
     isLoading.value = !cached
     try {
-      if (token) {
-        const meta = await resolveStoredTokenMeta(token)
-        viewerLogin.value = meta?.login
-        // No scopes header = fine-grained token: optimistic until a 403 says otherwise.
-        scopesAllowWrite.value = meta !== undefined
-          && (meta.scopes.length === 0 || meta.scopes.includes('repo') || meta.scopes.includes('public_repo'))
-      }
+      await opts.access.resolve()
       await refetch()
     }
     catch {
@@ -104,27 +94,8 @@ export function createReviewsStore(params: { owner: string, repo: string, number
     }
   }
 
-  /** Wraps every write: a 403 means the token can't write here - flip the session read-only. */
-  async function write<T>(action: () => Promise<T>): Promise<T> {
-    try {
-      return await action()
-    }
-    catch (err) {
-      if (err instanceof GithubApiError && err.status === 403)
-        writeBlockedReason.value = 'This token cannot write reviews on this repository. It needs the "repo" scope (classic token) or "Pull requests: Read and write" permission (fine-grained token).'
-      throw err
-    }
-  }
-
-  function requireToken(): string {
-    if (!token)
-      throw new Error('A GitHub token is required to leave reviews.')
-    return token
-  }
-
   async function addComment(target: ReviewDraftTarget, body: string, mode: 'single' | 'review') {
-    const auth = requireToken()
-    await write(async () => {
+    await write(async (auth) => {
       if (mode === 'review' && data.value.pendingReview) {
         await addThreadToPendingReview(data.value.pendingReview.nodeId, target, body, auth)
         return
@@ -150,28 +121,27 @@ export function createReviewsStore(params: { owner: string, repo: string, number
   }
 
   async function reply(rootCommentId: number, body: string) {
-    await write(() => replyToReviewComment(owner, repo, number, rootCommentId, body, requireToken()))
+    await write(auth => replyToReviewComment(owner, repo, number, rootCommentId, body, auth))
     await refetch()
   }
 
   async function editComment(commentId: number, body: string) {
-    await write(() => updateReviewComment(owner, repo, commentId, body, requireToken()))
+    await write(auth => updateReviewComment(owner, repo, commentId, body, auth))
     await refetch()
   }
 
   async function deleteComment(commentId: number) {
-    await write(() => deleteReviewComment(owner, repo, commentId, requireToken()))
+    await write(auth => deleteReviewComment(owner, repo, commentId, auth))
     await refetch()
   }
 
   async function resolveThread(threadId: string) {
-    await write(() => resolveThreadMutation(threadId, requireToken()))
+    await write(auth => resolveThreadMutation(threadId, auth))
     await refetch()
   }
 
   async function submitReview(verdict: ReviewVerdict, body: string) {
-    const auth = requireToken()
-    await write(async () => {
+    await write(async (auth) => {
       const pending = data.value.pendingReview
       if (pending)
         await submitPendingReview(owner, repo, number, pending.id, verdict, body, auth)
@@ -185,7 +155,7 @@ export function createReviewsStore(params: { owner: string, repo: string, number
     const pending = data.value.pendingReview
     if (!pending)
       return
-    await write(() => deletePendingReview(owner, repo, number, pending.id, requireToken()))
+    await write(auth => deletePendingReview(owner, repo, number, pending.id, auth))
     await refetch()
   }
 
@@ -195,9 +165,9 @@ export function createReviewsStore(params: { owner: string, repo: string, number
     pendingReview: computed(() => data.value.pendingReview),
     pendingCommentCount,
     isLoading,
-    viewerLogin,
-    canWrite,
-    writeBlockedReason,
+    viewerLogin: opts.access.viewerLogin,
+    canWrite: opts.access.canWrite,
+    writeBlockedReason: opts.access.writeBlockedReason,
     showThreads: showReviewComments,
     setShowThreads: (value: boolean) => { showReviewComments.value = value },
     load,

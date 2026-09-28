@@ -92,13 +92,38 @@ analysis strategy later never touches the view layer:
   `store.llm?.reanalyze()`) instead of emitting events that bubble up to
   whoever created the store. `store.llm` is `undefined` when LLM analysis
   isn't available in the current environment (e.g. the GitHub-embedded view),
-  which components use structurally to hide AI-related UI. Components MUST
+  which components use structurally to hide the *run* side of AI (analyze,
+  chat). The AI *result* itself (`store.aiResult`, `analyzeMode`) lives on the
+  store root, because the embed can still hold one loaded from a shared PR
+  comment (below). Components MUST
   NOT know which provider or analyze adapter produced the store's data, and
   MUST NOT talk to storage/providers/adapters directly — only the store
   factories (`app/stores/diffs-store.ts`'s `createDiffsStore`,
   `app/stores/mock-diffs-store.ts`'s `createMockDiffsStore`) do that. This
   keeps every view component Storybook-friendly and isomorphic across a real
   PR, a pasted patch, and mock data — a story just builds a different store.
+
+## Sharing an AI result through the PR (`plans/07-share-result.md`)
+
+An `llm`/`web-llm` `GroupedResult` MAY be posted as a Conversation (issue)
+comment on the GitHub PR, one comment per user, updated in place on later
+shares. This is the only way the github.com embed gets an AI result at all
+(GitHub's CSP blocks model providers), and lets token-less visitors on public
+repos read one. Contract:
+
+- Body: line 1 is the literal marker `<!-- pulls.review data -->`; then a link
+  to `https://pulls.review/gh/{owner}/{repo}/{n}?from={login}` (hardcoded
+  origin — a preview host MUST NOT leak into a public comment); then a
+  `<details>` whose fenced ```` ```json ```` block is `{ headSha, result }`
+  (`SharedAnalysisSchema`). Unmarked or invalid comments are ignored, never an
+  error. Only the `GroupedResult` is shared — never the chat transcript.
+- Loading writes the result into the `pr:*` entry under its own `source` with
+  `sharedBy: login`, so the view credits it and never offers to re-share it.
+  Discovery is one best-effort `GET` of the first 100 comments, run only when
+  the store has no AI result. `?from=` on the site loads that user directly
+  unless it would replace a locally generated result (then it's offered).
+- A shared result whose `headSha` differs from the loaded diff is offered
+  labelled outdated, not hidden.
 
 ## Canonical data structures
 

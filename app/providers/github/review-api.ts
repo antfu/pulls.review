@@ -39,7 +39,7 @@ export interface GithubReviewJson {
  * out of error bodies (e.g. "Resource not accessible by personal access token")
  * so a permission failure surfaces as something actionable, not a bare status.
  */
-async function githubRequest(method: string, url: string, token: string | undefined, body?: object): Promise<Response> {
+export async function githubRequest(method: string, url: string, token: string | undefined, body?: object): Promise<Response> {
   const res = await fetch(url, {
     method,
     headers: buildHeaders(token),
