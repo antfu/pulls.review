@@ -83,7 +83,7 @@ function navigateToFile(sha: string) {
 </script>
 
 <template>
-  <section class="scroll-mt-[var(--diffs-header-height,10rem)]">
+  <section class="scroll-mt-[var(--diffs-header-height)]">
     <header v-if="isChapter" class="p-3 border-b border-base flex flex-col gap-2">
       <div class="flex w-full items-center">
         <button
@@ -134,7 +134,7 @@ function navigateToFile(sha: string) {
     <div v-if="!isChapter || (!collapsed && group.files.length)" class="p-3 flex flex-col gap-4 lg:grid lg:grid-cols-[1fr_4fr]">
       <!-- --diffs-header-height is the page's real, measured sticky DiffsHeader height
            (set on the DiffsPage root), so the aside sticks just below it, not under it. -->
-      <aside class="flex shrink-0 flex-col gap-3 min-w-70 top-[var(--diffs-header-height,10rem)] lg:self-start lg:sticky">
+      <aside class="flex shrink-0 flex-col gap-3 min-w-70 top-[var(--diffs-header-height)] lg:self-start lg:sticky">
         <div v-if="parentLabel" class="text-xs leading-1em mb--2 px-3 op-fade truncate">
           {{ parentLabel }} ›
         </div>

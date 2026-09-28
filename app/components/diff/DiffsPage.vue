@@ -105,7 +105,7 @@ watch([groups, headerHeight], () => nextTick(updateVisibleGroups), { immediate: 
 </script>
 
 <template>
-  <div ref="root" class="color-base bg-base" :style="{ '--diffs-header-height': `${headerHeight}px` }">
+  <div ref="root" class="diffs-page color-base bg-base" :style="{ '--diffs-header-height': headerHeight ? `${headerHeight}px` : undefined }">
     <div>
       <template v-if="isLoading && !diff">
         <div class="mxa px-4 py-12 max-w-500 w-full">

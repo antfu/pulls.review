@@ -12,6 +12,13 @@ html {
   scrollbar-gutter: stable;
 }
 
+.diffs-page {
+  /* Default sticky offset used until DiffsPage measures the real DiffsHeader height
+     and overrides this via an inline style. `:root` can't be used: it never matches
+     inside the embed's shadow tree, whereas this class is on DiffsPage's own root. */
+  --diffs-header-height: 10rem;
+}
+
 html.dark,
 .dark {
   color-scheme: dark;
