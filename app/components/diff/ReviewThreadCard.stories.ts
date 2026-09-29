@@ -49,3 +49,14 @@ export const ReadOnly: Story = {
 export const BotReview: Story = {
   args: { thread: botThread },
 }
+
+export const BrokenAvatar: Story = {
+  args: {
+    thread: mockThread({
+      comments: [{
+        ...botThread.comments[0]!,
+        author: { login: 'chatgpt-codex-connector[bot]', avatarUrl: 'data:image/png;base64,AAAA' },
+      }],
+    }),
+  },
+}
