@@ -92,25 +92,26 @@ onMounted(load)
       <section class="gap-12 grid items-center lg:gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,27rem)]">
         <div class="flex flex-col gap-8">
           <h1 class="text-[clamp(2.25rem,4.6vw,4rem)] leading-[1.05] tracking-tight font-medium">
-            <span class="block"><span class="color-accent-orange">@@</span> review</span>
-            <span class="block">diffs <span class="color-accent-magenta">{</span> <span class="color-accent-teal">+</span></span>
-            <span class="block">that <span class="color-accent-orange">-></span> explain</span>
-            <span class="block">themselves <span class="color-accent-magenta">}</span> <span class="i-ph-check-bold text-[0.8em] color-accent-teal inline-block" aria-hidden="true" /></span>
+            <span class="block"><span class="color-accent-orange" aria-hidden="true">@@</span> pull</span>
+            <span class="block">reviews<span class="color-accent-magenta" aria-hidden="true">:</span></span>
+            <span class="block"><span class="color-accent-teal" aria-hidden="true">+</span> made<span class="color-accent-orange" aria-hidden="true">{}</span></span>
+            <span class="block"><span class="color-accent-magenta" aria-hidden="true">>>> </span>easy<span class="i-ph-check-bold text-[0.8em] color-accent-teal inline-block translate-y-2" aria-hidden="true" /></span>
           </h1>
           <p class="text-sm leading-relaxed op-fade max-w-md">
-            Groups changed files, summarizes what matters, remembers what you reviewed.
-            Any GitHub PR, or a diff you paste in.
+            Groups changed files, summarizes what matters, review them one scope at a time.
           </p>
           <div class="flex flex-col gap-2 max-w-md">
             <form class="flex gap-2 items-stretch" @submit.prevent="go">
               <FormTextInput v-model="url" icon="i-ph:link-simple-duotone" placeholder="https://github.com/owner/repo/pull/123" class="flex-1" />
-              <button
+              <ActionButton
                 type="submit"
+                variant="primary"
+                class="pl-3 pr-4"
+                icon="i-ph-arrow-right-bold"
                 :disabled="!parsed"
-                class="text-neutral-900 px-5 rounded bg-accent-orange-400 transition hover:text-white hover:bg-accent-orange-600 disabled:op40 disabled:pointer-events-none"
               >
-                open
-              </button>
+                Open
+              </ActionButton>
             </form>
             <p class="text-xs op-fade">
               Paste any GitHub pull request URL, or
@@ -129,6 +130,7 @@ onMounted(load)
           // recently viewed
         </h2>
         <div class="flex flex-wrap gap-2">
+          <!-- TODO: refactor this to be a component -->
           <RouterLink
             v-for="pr in recent"
             :key="`${pr.owner}/${pr.repo}#${pr.number}`"
@@ -145,6 +147,8 @@ onMounted(load)
           </RouterLink>
         </div>
       </section>
+
+      <!-- TODO: instead of "try a demo" text link, have a section like "// recently viewed" -> "// try some demos", that renders a list of demo pull requests using the same pills ad recent viewed -->
 
       <section class="gap-4 grid sm:grid-cols-2">
         <div class="p-5 border border-base rounded-lg flex flex-col gap-4">
