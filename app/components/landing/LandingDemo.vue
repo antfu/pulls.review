@@ -49,16 +49,15 @@ function build() {
     return
   const beats = buildSchedule(DEMO_GROUPS.length)
   const morph = findBeat(beats, 'morph')
-  const grouped = findBeat(beats, 'grouped')
   const reset = findBeat(beats, 'reset')
 
   const rows = query('[data-row]')
-  const labels = query('[data-label]')
   const cards = query('[data-card]')
   const details = query('[data-detail]')
   const donuts = query('[data-donut]')
   const checks = query('[data-check]')
   const [total] = query('[data-total]')
+  const [summary] = query('[data-summary]')
   const [tail] = query('[data-tail]')
   const [groupedLayer] = query('[data-grouped]')
 
@@ -66,9 +65,11 @@ function build() {
 
   tl.add(body.value, { opacity: [0, 1], duration: 400 }, 0)
 
-  // The PR-wide total is the scary number; it makes way for per-group stats.
+  // The PR-wide total is the scary number; the AI summary takes its place.
   if (total)
     tl.add(total, { opacity: 0, duration: 400 }, morph.at)
+  if (summary)
+    tl.add(summary, { opacity: [0, 1], duration: 400 }, morph.at + 300)
   if (tail)
     tl.add(tail, { opacity: 0, duration: 300 }, morph.at)
 
@@ -78,7 +79,7 @@ function build() {
   tl.add(cards, { opacity: [0, 1], y: [12, 0], duration: 500, delay: stagger(60) }, cardsAt)
 
   // Rows of an expanded group fly to their own slot in that group and hand
-  // over to the grouped copy; the rest shrink into their group's label.
+  // over to the grouped copy; the rest fade out where they are.
   const flight = morph.duration * 0.55
   rows.forEach((row, i) => {
     const file = files[i]!
@@ -92,19 +93,11 @@ function build() {
       tl.set(slot, { opacity: 1 }, at + flight)
     }
     else {
-      const to = labels[file.group]!.getBoundingClientRect()
-      tl.add(row, {
-        x: to.left - from.left,
-        y: to.top - from.top,
-        scale: 0.4,
-        opacity: 0,
-        duration: flight,
-        ease: 'inOutCubic',
-      }, at)
+      tl.add(row, { opacity: 0, duration: flight * 0.6 }, at)
     }
   })
 
-  tl.add(details, { opacity: [0, 1], y: [6, 0], duration: 400, delay: stagger(60) }, grouped.at)
+  tl.add(details, { opacity: [0, 1], duration: 300, delay: stagger(60) }, morph.at + flight)
 
   let reviewed = 0
   DEMO_GROUPS.forEach((group, i) => {
@@ -167,19 +160,25 @@ useIntersectionObserver(root, ([entry]) => {
     <div class="flex gap-2 items-start">
       <PrStatusIcon state="open" class="mt-0.5" />
       <div class="flex-1 min-w-0">
-        <div class="text-sm leading-snug font-medium">
-          {{ DEMO_PR.title }} <span class="op-fade">#{{ DEMO_PR.number }}</span>
+        <div class="flex gap-3 items-start">
+          <div class="text-sm leading-snug font-medium flex-1 min-w-0">
+            {{ DEMO_PR.title }} <span class="op-fade">#{{ DEMO_PR.number }}</span>
+          </div>
+          <span class="mt-0.5 flex shrink-0 gap-2 items-center">
+            <span class="op-fade whitespace-nowrap tabular-nums">{{ reviewedTotal }} / {{ DEMO_PR.files }} reviewed</span>
+            <span class="color-accent-teal flex">
+              <DisplayDonut :value="reviewedTotal / DEMO_PR.files" :size="18" :thickness="3" color="currentColor" />
+            </span>
+          </span>
         </div>
-        <!-- TODO: the entire row should be replaced with AI summary (not only the diff stats) -->
-        <div class="mt-1.5 flex gap-2 items-center">
-          <span data-total class="flex gap-2 items-center" :class="{ 'op-0': settled }">
+        <div class="mt-1.5 grid grid-cols-1">
+          <span data-total class="flex gap-2 col-start-1 row-start-1 items-center" :class="{ 'op-0': settled }">
             <DiffStats :additions="DEMO_PR.additions" :deletions="DEMO_PR.deletions" />
             <span class="op-fade whitespace-nowrap">{{ DEMO_PR.files }} files</span>
           </span>
-          <span class="flex-1" />
-          <span class="op-fade whitespace-nowrap tabular-nums">{{ reviewedTotal }} / {{ DEMO_PR.files }} reviewed</span>
-          <span class="color-accent-teal flex">
-            <DisplayDonut :value="reviewedTotal / DEMO_PR.files" :size="18" :thickness="3" color="currentColor" />
+          <span data-summary class="flex gap-1.5 col-start-1 row-start-1 items-start" :class="{ 'op-0': !settled }">
+            <span class="i-ph-sparkle-duotone color-accent-magenta mt-0.5 shrink-0" />
+            <span class="op-fade">{{ DEMO_PR.summary }}</span>
           </span>
         </div>
       </div>
@@ -187,7 +186,6 @@ useIntersectionObserver(root, ([entry]) => {
 
     <div ref="body" class="mt-4 grid grid-cols-1">
       <ul class="flex flex-col col-start-1 row-start-1" :class="{ 'op-0': settled }">
-        <!-- TODO: for the file list, if it's not in the grouped list, fade it out instead of moving it out of view  -->
         <li
           v-for="file in files"
           :key="file.path"
@@ -203,14 +201,9 @@ useIntersectionObserver(root, ([entry]) => {
       </ul>
 
       <div data-grouped class="flex flex-col gap-2 col-start-1 row-start-1" :class="{ 'op-0': !settled }">
-        <!-- TODO: this is fade in a bit too late -->
-        <div data-detail class="mb-1 pl-1 flex gap-1.5 items-start" :class="{ 'op-0': !settled }">
-          <span class="i-ph-sparkle-duotone color-accent-magenta mt-0.5 shrink-0" />
-          <span class="op-fade">{{ DEMO_PR.summary }}</span>
-        </div>
         <div v-for="(group, i) in groups" :key="group.label" class="flex flex-col">
           <div data-card class="py-1 flex gap-2 items-center" :class="{ 'op-0': !settled }">
-            <!-- TODO: add a caret icon to indicate expandable/collapsible group -->
+            <span class="op-fade shrink-0" :class="group.expanded ? 'i-ph-caret-down-bold' : 'i-ph-caret-right-bold'" />
             <span data-label class="text-sm font-medium min-w-0 truncate">{{ group.label }}</span>
             <span class="flex-1" />
             <DiffStats :additions="group.additions" :deletions="group.deletions" />
@@ -233,7 +226,6 @@ useIntersectionObserver(root, ([entry]) => {
               <DisplayFileIcon :path="file.path" class="shrink-0" />
               <span class="min-w-0 truncate"><span class="op-fade">{{ file.dir }}</span>{{ file.base }}</span>
             </li>
-            <!-- TODO: this is fade in a bit too late -->
             <li v-if="group.hidden" data-detail class="flex h-6 items-center" :class="{ 'op-0': !settled }">
               <span class="op-fade">...{{ group.hidden }} more files</span>
             </li>
