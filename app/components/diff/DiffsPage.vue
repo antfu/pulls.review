@@ -11,6 +11,7 @@ import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, p
 import { useProvider } from '../../composables/useProvider'
 import { parseGithubDiffId } from '../../providers/github/diff-id'
 import { autoRefresh } from '../../state/auto-refresh'
+import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffGroup from './DiffGroup.vue'
 import DiffsHeader from './DiffsHeader.vue'
@@ -29,6 +30,10 @@ const diff = computed(() => props.store?.diff)
 const grouped = computed(() => props.store?.grouped)
 const isLoading = computed(() => props.store?.isLoading ?? false)
 const error = computed(() => props.store?.error)
+// Only GitHub sources have a review lifecycle, so `reviews` doubles as "this is a
+// GitHub PR" - the one case where a missing/expired token can cause a load error and
+// offering the token field as a recovery affordance makes sense (a paste can't).
+const isGithub = computed(() => !!props.store?.reviews)
 const isStale = computed(() => props.store?.isStale ?? false)
 const groups = computed(() => props.store?.groups ?? [])
 
@@ -137,7 +142,7 @@ function refreshFromBanner() {
         </div>
       </template>
       <template v-else-if="error">
-        <div class="mxa px-4 py-12 max-w-500 w-full">
+        <div class="mxa px-4 py-12 flex flex-col gap-8 max-w-500 w-full">
           <slot name="error" :error="error" :retry="() => store?.load()">
             <FeedbackEmptyState icon="i-ph:warning-duotone" title="Something went wrong">
               <template #hint>
@@ -150,6 +155,7 @@ function refreshFromBanner() {
               </template>
             </FeedbackEmptyState>
           </slot>
+          <GithubTokenRecovery v-if="isGithub" @saved="store?.load()" />
         </div>
       </template>
       <template v-else-if="diff && grouped">
