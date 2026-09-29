@@ -3,7 +3,7 @@ import type { Timeline } from 'animejs'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import DisplayFileIcon from '@antfu/design/components/Display/DisplayFileIcon.vue'
 import { useDebounceFn, useIntersectionObserver, usePreferredReducedMotion, useResizeObserver } from '@vueuse/core'
-import { createTimeline, stagger, utils } from 'animejs'
+import { createTimeline, stagger } from 'animejs'
 import { computed, onBeforeUnmount, onMounted, reactive, useTemplateRef, watch } from 'vue'
 import DiffStats from '../diff/DiffStats.vue'
 import PrStatusIcon from '../diff/PrStatusIcon.vue'
@@ -21,7 +21,6 @@ const settled = computed(() => props.still || reducedMotion.value === 'reduce')
 const root = useTemplateRef('root')
 const body = useTemplateRef('body')
 
-const review = reactive({ reviewed: 0 })
 const progress = DEMO_GROUPS.map(() => reactive({ value: 0 }))
 
 function splitPath(path: string) {
@@ -98,13 +97,10 @@ function build() {
 
   tl.add(details, { opacity: [0, 1], duration: 300, delay: stagger(60) }, morph.at + flight)
 
-  let reviewed = 0
-  DEMO_GROUPS.forEach((group, i) => {
+  DEMO_GROUPS.forEach((_, i) => {
     const beat = findBeat(beats, `review-${i}`)
     const fill = beat.duration * 0.7
-    reviewed += group.files
     tl.add(progress[i]!, { value: 1, duration: fill }, beat.at)
-    tl.add(review, { reviewed, duration: fill, modifier: utils.round(0) }, beat.at)
     tl.add(donuts[i]!, { opacity: 0, duration: 150 }, beat.at + fill)
     tl.add(checks[i]!, { opacity: [0, 1], scale: [0, 1], duration: 300, ease: 'outBack' }, beat.at + fill)
   })

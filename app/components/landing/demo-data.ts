@@ -1,7 +1,7 @@
 /**
- * The pull request the landing-page animation walks through. Modelled on
- * antfu/pulls.review#9 (title, groups, paths) with the stats scaled up so the
- * "long flat list becomes five groups" story lands at a glance.
+ * The pull request the landing-page animation walks through: antfu/pulls.review#9
+ * with its real title and stats, its files bucketed into five groups whose stats
+ * add up to the PR total.
  */
 
 export interface DemoGroup {
@@ -19,22 +19,21 @@ export interface DemoFile {
   group: number
 }
 
-/** TODO: make the diffs lines (additions and deletions) more realistic in both DEMO_PR and DEMO_GROUPS */
 export const DEMO_PR = {
   number: 9,
   title: 'feat: share an AI analysis as a PR comment and load shared results',
   summary: 'One reviewer with an API key posts their analysis to the PR; everyone else, including the github.com embed, loads it without a token.',
-  additions: 5356,
-  deletions: 1244,
-  files: 41,
+  additions: 1358,
+  deletions: 156,
+  files: 37,
 }
 
 export const DEMO_GROUPS: DemoGroup[] = [
-  { label: 'Shared analysis store & comment contract', additions: 2418, deletions: 612, files: 14, expanded: true },
-  { label: 'Share result UI', additions: 1203, deletions: 187, files: 9, expanded: true },
-  { label: 'Store refactor: aiResult to root', additions: 842, deletions: 331, files: 7 },
-  { label: 'Tests', additions: 731, deletions: 96, files: 8 },
-  { label: 'Docs & deps', additions: 162, deletions: 18, files: 3 },
+  { label: 'Shared analysis store & comment contract', additions: 363, deletions: 3, files: 8, expanded: true },
+  { label: 'Share result UI', additions: 331, deletions: 31, files: 11, expanded: true },
+  { label: 'Store refactor: aiResult to root', additions: 182, deletions: 77, files: 9 },
+  { label: 'Tests', additions: 353, deletions: 1, files: 4 },
+  { label: 'Docs & deps', additions: 129, deletions: 44, files: 5 },
 ]
 
 /** The rows shown in the flat state; the rest hide behind "N more files". */
