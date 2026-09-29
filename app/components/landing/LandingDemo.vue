@@ -35,7 +35,6 @@ const groups = DEMO_GROUPS.map((group, i) => {
   const shown = files.filter(file => file.group === i)
   return { ...group, shown: group.expanded ? shown : [], hidden: group.files - shown.length }
 })
-const reviewedTotal = computed(() => settled.value ? DEMO_PR.files : review.reviewed)
 
 let timeline: Timeline | undefined
 let visible = false
@@ -156,7 +155,11 @@ useIntersectionObserver(root, ([entry]) => {
 </script>
 
 <template>
-  <div ref="root" class="text-xs select-none" aria-hidden="true">
+  <div ref="root" class="text-xs p4 rounded-lg select-none lt-md:border lt-md:border-base" aria-hidden="true">
+    <h2 class="text-xs font-mono mb2 op-fade">
+      // demo
+    </h2>
+
     <div class="flex gap-2 items-start">
       <PrStatusIcon state="open" class="mt-0.5" />
       <div class="flex-1 min-w-0">
@@ -164,15 +167,9 @@ useIntersectionObserver(root, ([entry]) => {
           <div class="text-sm leading-snug font-medium flex-1 min-w-0">
             {{ DEMO_PR.title }} <span class="op-fade">#{{ DEMO_PR.number }}</span>
           </div>
-          <span class="mt-0.5 flex shrink-0 gap-2 items-center">
-            <span class="op-fade whitespace-nowrap tabular-nums">{{ reviewedTotal }} / {{ DEMO_PR.files }} reviewed</span>
-            <span class="color-accent-teal flex">
-              <DisplayDonut :value="reviewedTotal / DEMO_PR.files" :size="18" :thickness="3" color="currentColor" />
-            </span>
-          </span>
         </div>
         <div class="mt-1.5 grid grid-cols-1">
-          <span data-total class="flex gap-2 col-start-1 row-start-1 items-center" :class="{ 'op-0': settled }">
+          <span data-total class="flex gap-2 col-start-1 row-start-1 items-center self-start" :class="{ 'op-0': settled }">
             <DiffStats :additions="DEMO_PR.additions" :deletions="DEMO_PR.deletions" />
             <span class="op-fade whitespace-nowrap">{{ DEMO_PR.files }} files</span>
           </span>
@@ -184,8 +181,8 @@ useIntersectionObserver(root, ([entry]) => {
       </div>
     </div>
 
-    <div ref="body" class="mt-4 grid grid-cols-1">
-      <ul class="flex flex-col col-start-1 row-start-1" :class="{ 'op-0': settled }">
+    <div ref="body" class="mt-4 pl-6 grid grid-cols-1">
+      <ul class="mt--5 pl2 flex flex-col col-start-1 row-start-1" :class="{ 'op-0': settled }">
         <li
           v-for="file in files"
           :key="file.path"
@@ -196,13 +193,13 @@ useIntersectionObserver(root, ([entry]) => {
           <span class="min-w-0 truncate"><span class="op-fade">{{ file.dir }}</span>{{ file.base }}</span>
         </li>
         <li data-tail class="op-fade flex h-8 items-center">
-          ...{{ hiddenFiles }} more files
+          ... {{ hiddenFiles }} more files
         </li>
       </ul>
 
       <div data-grouped class="flex flex-col gap-2 col-start-1 row-start-1" :class="{ 'op-0': !settled }">
         <div v-for="(group, i) in groups" :key="group.label" class="flex flex-col">
-          <div data-card class="py-1 flex gap-2 items-center" :class="{ 'op-0': !settled }">
+          <div data-card class="ml--5 py-1 flex gap-2 items-center" :class="{ 'op-0': !settled }">
             <span class="op-fade shrink-0" :class="group.expanded ? 'i-ph-caret-down-bold' : 'i-ph-caret-right-bold'" />
             <span data-label class="text-sm font-medium min-w-0 truncate">{{ group.label }}</span>
             <span class="flex-1" />
@@ -212,10 +209,10 @@ useIntersectionObserver(root, ([entry]) => {
               <span data-donut class="flex col-start-1 row-start-1" :class="{ 'op-0': settled }">
                 <DisplayDonut :value="settled ? 1 : progress[i]!.value" :size="14" :thickness="2.5" color="currentColor" />
               </span>
-              <span data-check class="i-ph-check-bold col-start-1 row-start-1" :class="{ 'op-0': !settled }" />
+              <span data-check class="i-ph-check-circle-duotone text-base m--0.5 col-start-1 row-start-1" :class="{ 'op-0': !settled }" />
             </span>
           </div>
-          <ul v-if="group.shown.length" class="pl-3 flex flex-col">
+          <ul v-if="group.shown.length" class="pl-5 flex flex-col">
             <li
               v-for="file in group.shown"
               :key="file.path"
@@ -227,7 +224,7 @@ useIntersectionObserver(root, ([entry]) => {
               <span class="min-w-0 truncate"><span class="op-fade">{{ file.dir }}</span>{{ file.base }}</span>
             </li>
             <li v-if="group.hidden" data-detail class="flex h-6 items-center" :class="{ 'op-0': !settled }">
-              <span class="op-fade">...{{ group.hidden }} more files</span>
+              <span class="op-fade">... {{ group.hidden }} more files</span>
             </li>
           </ul>
         </div>

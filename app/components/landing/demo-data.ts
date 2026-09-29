@@ -19,6 +19,7 @@ export interface DemoFile {
   group: number
 }
 
+/** TODO: make the diffs lines (additions and deletions) more realistic in both DEMO_PR and DEMO_GROUPS */
 export const DEMO_PR = {
   number: 9,
   title: 'feat: share an AI analysis as a PR comment and load shared results',
