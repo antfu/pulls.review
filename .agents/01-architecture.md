@@ -84,14 +84,25 @@ analysis strategy later never touches the view layer:
     + `chatStartIndex`) is persisted alongside the result in the `pr:*`
     entry, and `composables/useLlmChat.ts` builds a fresh pi `Agent` from it
     per message (`read_diffs` plus `update_grouping`, which replaces
-    `analyzedBy.llm` in store and cache). Re-analyze or a refetch replaces
-    the session; results cached without one show `Re-analyze to enable chat`.
+    `analyzedBy.llm` in store and cache). Re-analyze or loading a shared
+    result replaces the session; a refetch keeps it (the transcript still
+    reads the live diff). Results cached without one show `Re-analyze to
+    enable chat`.
   - `web-llm` — TODO, stub only. Fully in-browser model inference, no network
     call at analyze time.
   - LLM-sourced groups MAY nest one level (root group -> children, e.g.
     `docs/featureA`); `rule-based` groups MUST stay flat. Depth is capped at 2
     total — enforced structurally in the schema (child groups have no further
     `children`), not by convention.
+  - A `GroupedResult` references files by path and MAY predate the diff it is
+    viewed with (new commits since an AI run, a shared result, a model that
+    omitted files). `resolveGroups` (`app/components/diff/group-utils.ts`)
+    reconciles the two at view time and MUST NOT silently drop anything: a
+    path still in the diff resolves to its `FileChange` (a renamed file is
+    found by its `previousPath` too), a path that left the diff is kept as
+    `missing` and rendered as removed, and files no group names are collected
+    into a trailing `Uncategorized` group. Adapters therefore don't need their
+    own catch-all group.
 - **View components** (`app/components/`) MUST stay pure and data-driven: they
   receive a single `DiffsStore` (`app/stores/types.ts`) as a `store` prop,
   threaded explicitly down the tree (no provide/inject, no global singleton
@@ -162,7 +173,7 @@ identical code, no separate IndexedDB-mocking dependency needed.
 One `unstorage` instance, three logical collections via key prefix (unstorage
 is flat key-value, so there's no native "object store" split):
 
-- `pr:*` — raw diff + per-adapter `GroupedResult`s (+ the `llmSession`
+- `pr:*` — raw diff + the `llm`/`web-llm` `GroupedResult`s (+ the `llmSession`
   chat transcript, counted toward the size budget), keyed by
   `pr:{provider}:{owner}/{repo}#{number}` for github or `pr:paste:{contentHash}`
   for paste (content hash is an internal cache key only, never exposed in a
@@ -173,6 +184,11 @@ is flat key-value, so there's no native "object store" split):
   (that could re-trigger a paid LLM analysis) or silently go stale. `paste`
   entries have no live source, so no staleness check applies; if evicted,
   `/upload` simply has nothing to show until the user pastes again.
+  Only results that cost a model call are persisted: `rule-based` and `none`
+  MUST be recomputed from the diff on every load, so they can never disagree
+  with it. A refetch replaces the entry's diff but keeps its AI result and
+  session — `resolveGroups` reconciles them against the new diff, so a paid
+  analysis is never thrown away by new commits.
 - `review:*` — per-file "reviewed" marks, keyed by `review:{FileChange.sha}`,
   not by path or PR. This is deliberate: if a PR gets new commits and a
   file's `sha` is unchanged, its reviewed mark MUST survive; only files whose
