@@ -50,3 +50,25 @@ export const ZeroFiles: Story = {
     }),
   },
 }
+
+/**
+ * A GitHub load failure (e.g. a missing/expired token) surfaces the token field inline
+ * in the error fallback - `reviews` marks the source as GitHub, which gates it on.
+ */
+export const GithubLoadError: Story = {
+  args: {
+    store: createMockDiffsStore({
+      error: new Error('GitHub API request failed: 401 Bad credentials'),
+      reviews: {},
+    }),
+  },
+}
+
+/** A paste failure has no token to fix, so the error fallback shows the message alone. */
+export const PasteLoadError: Story = {
+  args: {
+    store: createMockDiffsStore({
+      error: new Error('Could not parse this diff'),
+    }),
+  },
+}

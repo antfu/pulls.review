@@ -17,8 +17,6 @@ const emit = defineEmits<{
 
 // Only opened when both are set - `DiffShareButton` gates on them.
 const shared = computed(() => props.store.shared!)
-const result = computed(() => props.store.aiResult!)
-const groupCount = computed(() => result.value.groups.reduce((count, group) => count + 1 + (group.children?.length ?? 0), 0))
 
 async function confirm() {
   await shared.value.share()
