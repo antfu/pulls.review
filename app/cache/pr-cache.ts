@@ -1,5 +1,5 @@
 import type { GroupedResult } from '../types/analyze'
-import type { LlmSession, PrCacheEntry } from '../types/cache'
+import type { LlmSession, PersistedGroupSource, PrCacheEntry } from '../types/cache'
 import type { ReviewData } from '../types/comment-threads'
 import type { CacheStorage } from './storage'
 import * as v from 'valibot'
@@ -20,7 +20,7 @@ function prKey(key: string): string {
 }
 
 /** Rough approximation of an entry's on-disk footprint, used for LRU budget accounting. */
-export function computeEntrySizeBytes(diff: PrCacheEntry['diff'], analyzedBy: PrCacheEntry['analyzedBy'], llmSession?: LlmSession): number {
+export function computeEntrySizeBytes(diff: PrCacheEntry['diff'], analyzedBy: PrCacheEntry['analyzedBy'], llmSession?: PrCacheEntry['llmSession'] | LlmSession): number {
   return new TextEncoder().encode(JSON.stringify({ diff, analyzedBy, llmSession })).length
 }
 
@@ -39,6 +39,27 @@ export async function putEntry(storage: CacheStorage, entry: PrCacheEntry, budge
   await enforceBudget(storage, budget)
 }
 
+/**
+ * Stores a freshly fetched diff under `key`, keeping whatever the existing entry
+ * already holds (AI analyses, chat session, review data, shared comment): those
+ * were paid for and stay useful against a newer diff via `resolveGroups`.
+ */
+export async function putDiff(storage: CacheStorage, key: string, diff: PrCacheEntry['diff'], headSha: string): Promise<PrCacheEntry> {
+  const existing = await getEntry(storage, key)
+  const analyzedBy = existing?.analyzedBy ?? {}
+  const entry: PrCacheEntry = {
+    ...existing,
+    key,
+    diff,
+    headSha,
+    analyzedBy,
+    lastViewedAt: Date.now(),
+    sizeBytes: computeEntrySizeBytes(diff, analyzedBy, existing?.llmSession),
+  }
+  await putEntry(storage, entry)
+  return entry
+}
+
 export async function touchEntry(storage: CacheStorage, key: string): Promise<void> {
   const entry = await getEntry(storage, key)
   if (!entry)
@@ -46,7 +67,7 @@ export async function touchEntry(storage: CacheStorage, key: string): Promise<vo
   await storage.setItem(prKey(key), { ...entry, lastViewedAt: Date.now() })
 }
 
-export async function setAnalyzedResult(storage: CacheStorage, key: string, source: GroupedResult['source'], result: GroupedResult): Promise<void> {
+export async function setAnalyzedResult(storage: CacheStorage, key: string, source: PersistedGroupSource, result: GroupedResult): Promise<void> {
   const entry = await getEntry(storage, key)
   if (!entry)
     return

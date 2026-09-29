@@ -8,7 +8,7 @@ import type { DiffsStore } from './types'
 import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef } from 'vue'
 import { resolveAdapter } from '../analyze'
 import { ruleBasedAdapter } from '../analyze/adapters/rule-based'
-import { computeEntrySizeBytes, getEntry, putEntry, setAnalyzedResult, setLlmSession, touchEntry } from '../cache/pr-cache'
+import { getEntry, putDiff, setAnalyzedResult, setLlmSession, touchEntry } from '../cache/pr-cache'
 import { getReviewed, setReviewed } from '../cache/review-cache'
 import { getDefaultCacheStorage } from '../cache/storage'
 import { resolveGroups } from '../components/diff/group-utils'
@@ -111,12 +111,10 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
   async function runAnalysis(mode: Exclude<GroupSource, 'llm'>) {
     if (!diff.value)
       return
+    // Cheap, deterministic modes are never persisted: recomputing keeps them exact
+    // against the current diff, where a cached copy could only go stale.
     const result = await resolveAdapter(mode).analyze(diff.value)
     analyzedBy.value = { ...analyzedBy.value, [mode]: result }
-    if (cacheKey.value) {
-      const storage = await getDefaultCacheStorage()
-      await setAnalyzedResult(storage, cacheKey.value, mode, result)
-    }
   }
 
   async function setAnalyzeMode(mode: GroupSource) {
@@ -129,13 +127,16 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
 
   /** A shared result replaces any in-flight run and the chat transcript: it has no session of its own. */
   async function applySharedResult(result: GroupedResult) {
+    const source = result.source
+    if (source !== 'llm' && source !== 'web-llm')
+      return
     llm.value?.abort()
-    analyzedBy.value = { ...analyzedBy.value, [result.source]: result }
+    analyzedBy.value = { ...analyzedBy.value, [source]: result }
     llmSession.value = undefined
-    analyzeMode.value = result.source
+    analyzeMode.value = source
     if (cacheKey.value) {
       const storage = await getDefaultCacheStorage()
-      await setAnalyzedResult(storage, cacheKey.value, result.source, result)
+      await setAnalyzedResult(storage, cacheKey.value, source, result)
       await setLlmSession(storage, cacheKey.value, undefined)
     }
   }
@@ -152,24 +153,25 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
       })
     : undefined
 
+  /**
+   * Installs a diff plus whatever was persisted for it. The AI result and chat session
+   * are kept on purpose: `resolveGroups` reconciles them against the newer diff, so a
+   * refresh never throws away a paid analysis.
+   */
+  async function install(key: string, entry: Pick<PrCacheEntry, 'diff' | 'analyzedBy' | 'llmSession'>) {
+    diff.value = entry.diff
+    cacheKey.value = key
+    analyzedBy.value = { ...entry.analyzedBy, 'rule-based': await ruleBasedAdapter.analyze(entry.diff) }
+    llmSession.value = entry.llmSession as LlmSession | undefined
+    await loadReviewed()
+  }
+
   async function analyzeAndStore(key: string, freshDiff: DiffsPayload) {
+    // An in-flight run analyzed the diff being replaced; the last persisted result stands.
     llm.value?.abort()
     const storage = await getDefaultCacheStorage()
-    const result = await ruleBasedAdapter.analyze(freshDiff)
-    diff.value = freshDiff
-    cacheKey.value = key
-    const freshAnalyzedBy = { 'rule-based': result }
-    analyzedBy.value = freshAnalyzedBy
-    llmSession.value = undefined
-    await putEntry(storage, {
-      key,
-      diff: freshDiff,
-      headSha: freshDiff.head?.sha ?? '',
-      analyzedBy: freshAnalyzedBy,
-      lastViewedAt: Date.now(),
-      sizeBytes: computeEntrySizeBytes(freshDiff, freshAnalyzedBy),
-    })
-    await loadReviewed()
+    const entry = await putDiff(storage, key, freshDiff, freshDiff.head?.sha ?? '')
+    await install(key, entry)
     // `llm` is never auto-run, even here - a paid/slow call must always be an explicit
     // click (the "(Re-)Analyze with AI" button), never a side effect of loading or
     // refreshing a diff. Only the free/instant modes re-run automatically.
@@ -215,14 +217,10 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
         const storage = await getDefaultCacheStorage()
         const cached = await getEntry(storage, key)
         if (cached) {
-          diff.value = cached.diff
-          cacheKey.value = key
-          analyzedBy.value = cached.analyzedBy
-          llmSession.value = cached.llmSession as LlmSession | undefined
           cachedReviewData = cached.reviews
           cachedSharedComment = cached.sharedComment
           await touchEntry(storage, key)
-          await loadReviewed()
+          await install(key, cached)
           void checkStaleness(cached.headSha)
         }
         else {
@@ -242,12 +240,8 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
         const storage = await getDefaultCacheStorage()
         const cached = await getEntry(storage, key)
         if (cached) {
-          diff.value = cached.diff
-          cacheKey.value = key
-          analyzedBy.value = cached.analyzedBy
-          llmSession.value = cached.llmSession as LlmSession | undefined
           await touchEntry(storage, key)
-          await loadReviewed()
+          await install(key, cached)
         }
         else {
           await analyzeAndStore(key, freshDiff)

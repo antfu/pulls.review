@@ -26,7 +26,6 @@ vi.mock('../cache/storage', async (importOriginal) => {
 const pr = { owner: 'antfu', repo: 'diffs', number: '1' }
 const CACHE_KEY = 'github:antfu/diffs#1'
 const diff = fixture.diff as PrCacheEntry['diff']
-const ruleBased = fixture.grouped as GroupedResult
 
 function aiResult(overrides: Partial<GroupedResult> = {}): GroupedResult {
   return { source: 'llm', model: 'anthropic/claude-sonnet-4', generatedAt: '2026-09-28T12:34:00.000Z', schemaVersion: 1, groups: [], ...overrides }
@@ -100,7 +99,7 @@ afterEach(() => {
 
 describe('discovery', () => {
   it('offers shared analyses newest first, marks own and outdated ones, and skips non-marker comments', async () => {
-    await seedCache({ 'rule-based': ruleBased })
+    await seedCache({})
     stubFetch([userRoute, commentsRoute([
       { id: 1, user: { login: 'someone' }, body: 'LGTM', html_url: '', updated_at: '2026-09-29T00:00:00Z' },
       issueComment(2, 'antfu', aiResult(), diff.head!.sha, '2026-09-27T00:00:00Z'),
@@ -120,7 +119,7 @@ describe('discovery', () => {
   })
 
   it('does not scan when an AI result already exists', async () => {
-    await seedCache({ 'rule-based': ruleBased, 'llm': aiResult() })
+    await seedCache({ llm: aiResult() })
     const fetchMock = stubFetch([userRoute, commentsRoute([issueComment(2, 'antfu', aiResult())])])
     const store = createDiffsStore({ kind: 'github-pr', ...pr }, { token: 't' })
 
@@ -132,7 +131,7 @@ describe('discovery', () => {
   })
 
   it('loads a candidate into the cache under its source, credited and without chat', async () => {
-    await seedCache({ 'rule-based': ruleBased })
+    await seedCache({})
     stubFetch([commentsRoute([issueComment(2, 'antfu', aiResult({ overallSummary: 'Shared summary' }))])])
     const store = createDiffsStore({ kind: 'github-pr', ...pr })
     await store.load()
@@ -150,7 +149,7 @@ describe('discovery', () => {
 
   it('works anonymously in the embed (no token, LLM compiled out)', async () => {
     vi.stubEnv('PR_LLM', undefined)
-    await seedCache({ 'rule-based': ruleBased })
+    await seedCache({})
     stubFetch([commentsRoute([issueComment(2, 'antfu', aiResult())])])
     const store = createDiffsStore({ kind: 'github-pr', ...pr }, { isEmbedded: true })
     await store.load()
@@ -171,7 +170,7 @@ describe('discovery', () => {
 
 describe('?from=', () => {
   it('auto-loads that user when there is no local AI result', async () => {
-    await seedCache({ 'rule-based': ruleBased })
+    await seedCache({})
     stubFetch([commentsRoute([issueComment(2, 'antfu', aiResult()), issueComment(3, 'other', aiResult())])])
     const store = createDiffsStore({ kind: 'github-pr', ...pr }, { from: 'antfu' })
 
@@ -183,7 +182,7 @@ describe('?from=', () => {
   })
 
   it('only offers that user when a local AI result would be replaced', async () => {
-    await seedCache({ 'rule-based': ruleBased, 'llm': aiResult({ overallSummary: 'mine' }) })
+    await seedCache({ llm: aiResult({ overallSummary: 'mine' }) })
     stubFetch([commentsRoute([issueComment(2, 'antfu', aiResult()), issueComment(3, 'other', aiResult())])])
     const store = createDiffsStore({ kind: 'github-pr', ...pr }, { from: 'antfu' })
 
@@ -195,7 +194,7 @@ describe('?from=', () => {
   })
 
   it('notices a user who shared nothing and falls back to discovery', async () => {
-    await seedCache({ 'rule-based': ruleBased })
+    await seedCache({})
     stubFetch([commentsRoute([issueComment(3, 'other', aiResult())])])
     const store = createDiffsStore({ kind: 'github-pr', ...pr }, { from: 'antfu' })
 
@@ -215,7 +214,7 @@ describe('share', () => {
   }
 
   it('creates a comment first, then updates the same one, remembering its id', async () => {
-    await seedCache({ 'rule-based': ruleBased, 'llm': aiResult() })
+    await seedCache({ llm: aiResult() })
     const fetchMock = stubFetch([
       userRoute,
       { match: (url, init) => url.endsWith('/issues/1/comments') && init?.method === 'POST', respond: () => json({ id: 42, html_url: 'https://github.com/antfu/diffs/pull/1#issuecomment-42' }) },
@@ -239,7 +238,7 @@ describe('share', () => {
   })
 
   it('falls back to scanning for its own comment when the remembered one is gone', async () => {
-    await seedCache({ 'rule-based': ruleBased, 'llm': aiResult() }, { sharedComment: { id: 7, url: '' } })
+    await seedCache({ llm: aiResult() }, { sharedComment: { id: 7, url: '' } })
     const fetchMock = stubFetch([
       userRoute,
       { match: (url, init) => url.endsWith('/issues/comments/7') && init?.method === 'PATCH', respond: () => json({ message: 'Not Found' }, 404) },
@@ -257,7 +256,7 @@ describe('share', () => {
   })
 
   it('surfaces a 403 as an error and flips write access off for reviews too', async () => {
-    await seedCache({ 'rule-based': ruleBased, 'llm': aiResult() })
+    await seedCache({ llm: aiResult() })
     stubFetch([
       userRoute,
       { match: (url, init) => url.endsWith('/issues/1/comments') && init?.method === 'POST', respond: () => json({ message: 'Resource not accessible' }, 403) },
@@ -275,7 +274,7 @@ describe('share', () => {
   })
 
   it('never shares a result that was itself loaded from a comment', async () => {
-    await seedCache({ 'rule-based': ruleBased, 'llm': aiResult({ sharedBy: 'antfu' }) })
+    await seedCache({ llm: aiResult({ sharedBy: 'antfu' }) })
     const fetchMock = stubFetch([userRoute, commentsRoute([])])
     const store = createDiffsStore({ kind: 'github-pr', ...pr }, { token: 't' })
     await store.load()

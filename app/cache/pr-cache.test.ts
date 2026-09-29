@@ -1,7 +1,7 @@
 import type { LlmSession, PrCacheEntry } from '../types/cache'
 import memoryDriver from 'unstorage/drivers/memory'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { computeEntrySizeBytes, enforceBudget, getEntry, listRecentEntries, putEntry, setLlmSession, touchEntry } from './pr-cache'
+import { computeEntrySizeBytes, enforceBudget, getEntry, listRecentEntries, putDiff, putEntry, setLlmSession, touchEntry } from './pr-cache'
 import { getReviewed, setReviewed } from './review-cache'
 import { createCacheStorage } from './storage'
 
@@ -37,6 +37,41 @@ describe('pr-cache', () => {
   it('treats a corrupt/previous-shape entry as a cache miss', async () => {
     await storage.setItem('pr:bad', { totally: 'not a valid entry' })
     expect(await getEntry(storage, 'bad')).toBeUndefined()
+  })
+
+  it('strips a previously persisted rule-based result instead of rejecting the entry', async () => {
+    const entry = makeEntry('a', 'sha-a', Date.now())
+    const legacyResult = { source: 'rule-based', groups: [], schemaVersion: 1, generatedAt: 'then' }
+    await storage.setItem('pr:a', { ...entry, analyzedBy: { 'rule-based': legacyResult } })
+    const back = await getEntry(storage, 'a')
+    expect(back?.analyzedBy).toEqual({})
+  })
+
+  it('putDiff replaces the diff while keeping the AI result, session, reviews and shared comment', async () => {
+    const entry = makeEntry('a', 'sha-old', 1000)
+    const llm = { source: 'llm' as const, groups: [], schemaVersion: 1, generatedAt: 'then' }
+    const sharedComment = { id: 7, url: 'https://example.com/7' }
+    await putEntry(storage, { ...entry, analyzedBy: { llm }, sharedComment })
+    await setLlmSession(storage, 'a', { messages: [{ role: 'user', content: 'hi', timestamp: 0 }], chatStartIndex: 1 })
+
+    const newDiff = { ...entry.diff, files: [{ ...entry.diff.files[0]!, sha: 'sha-new' }] }
+    await putDiff(storage, 'a', newDiff, 'sha-new')
+
+    const back = await getEntry(storage, 'a')
+    expect(back!.diff).toEqual(newDiff)
+    expect(back!.headSha).toBe('sha-new')
+    expect(back!.analyzedBy.llm).toEqual(llm)
+    expect(back!.llmSession?.chatStartIndex).toBe(1)
+    expect(back!.sharedComment).toEqual(sharedComment)
+    expect(back!.lastViewedAt).toBeGreaterThan(1000)
+  })
+
+  it('putDiff creates the entry when none exists', async () => {
+    const entry = makeEntry('a', 'sha-a', 0)
+    await putDiff(storage, 'a', entry.diff, 'sha-a')
+    const back = await getEntry(storage, 'a')
+    expect(back?.analyzedBy).toEqual({})
+    expect(back?.sizeBytes).toBeGreaterThan(0)
   })
 
   it('touchEntry bumps lastViewedAt', async () => {
