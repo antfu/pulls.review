@@ -155,7 +155,11 @@ function refreshFromBanner() {
               </template>
             </FeedbackEmptyState>
           </slot>
-          <GithubTokenRecovery v-if="isGithub" @saved="store?.load()" />
+          <GithubTokenRecovery
+            v-if="isGithub"
+            class="mxa p4 border border-base border-rounded max-w-200"
+            @saved="store?.load()"
+          />
         </div>
       </template>
       <template v-else-if="diff && grouped">
