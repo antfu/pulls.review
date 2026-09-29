@@ -48,7 +48,10 @@ there instead of paying for their own run.
   (`app/types/shared-analysis.ts`); anything invalid is ignored silently.
 - The link origin is the hardcoded `https://pulls.review`, never
   `location.origin` (a preview host must not leak into a public comment).
-- Bodies over 60k characters are refused (GitHub caps at 65536).
+- When the readable `json` block would push the body past 60k characters
+  (GitHub caps at 65536), the payload is posted lz-string-compressed under an
+  ```` ```lz-string ```` fence instead; the parser reads both. Still too large
+  after compression -> the share is refused with an error.
 
 ## Behaviour
 

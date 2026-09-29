@@ -1,4 +1,5 @@
 import type { SharedAnalysis } from '../../types/shared-analysis'
+import { compressToBase64, decompressFromBase64 } from 'lz-string'
 import * as v from 'valibot'
 import { SharedAnalysisSchema } from '../../types/shared-analysis'
 import { githubRequest } from './review-api'
@@ -32,10 +33,21 @@ function formatUtcMinutes(iso: string): string {
   return iso.replace('T', ' ').slice(0, 16)
 }
 
+/**
+ * The payload as a fenced block: readable `json` when it fits, otherwise
+ * lz-string base64 under an `lz-string` fence so large analyses still fit
+ * GitHub's limit. `parseSharedAnalysisComment` reads both.
+ */
+function renderPayload(analysis: SharedAnalysis, compress: boolean): string {
+  return compress
+    ? ['```lz-string', compressToBase64(JSON.stringify(analysis)), '```'].join('\n')
+    : ['```json', JSON.stringify(analysis, null, 2), '```'].join('\n')
+}
+
 export function renderSharedAnalysisComment(pr: PullRequestRef, login: string, analysis: SharedAnalysis): string {
   const { result } = analysis
   const link = `${SITE_ORIGIN}/gh/${pr.owner}/${pr.repo}/${pr.number}?from=${login}`
-  const body = [
+  const render = (compress: boolean) => [
     MARKER,
     `👁️‍🗨️ Review this pull request with grouped, summarized diffs at:`,
     `👉 ${link}`,
@@ -48,30 +60,31 @@ export function renderSharedAnalysisComment(pr: PullRequestRef, login: string, a
     `🔗 head ${analysis.headSha.slice(0, 7)}`,
     `🤖 automated by [pulls.review](${SITE_ORIGIN})`,
     '',
-    '```json',
-    JSON.stringify(analysis, null, 2),
-    '```',
+    renderPayload(analysis, compress),
     '',
     '</details>',
     '',
   ].join('\n')
 
-  // TODO: if the body is too long, try using lz-string to compress it, and error when it still exceeds the limit.
-  // The parser should support both uncompressed json and compressed lz-string.
-  if (body.length > MAX_BODY_LENGTH)
-    throw new Error(`The analysis is too large to share as a comment (${body.length} characters).`)
-  return body
+  const plain = render(false)
+  if (plain.length <= MAX_BODY_LENGTH)
+    return plain
+  const compressed = render(true)
+  if (compressed.length > MAX_BODY_LENGTH)
+    throw new Error(`The analysis is too large to share as a comment (${compressed.length} characters).`)
+  return compressed
 }
 
 /** `undefined` for anything that isn't a well-formed pulls.review comment - never throws. */
 export function parseSharedAnalysisComment(body: string): SharedAnalysis | undefined {
   if (!body.startsWith(MARKER))
     return undefined
-  const match = body.match(/```json\n([\s\S]*?)\n```/)
+  const match = body.match(/```(json|lz-string)\n([\s\S]*?)\n```/)
   if (!match)
     return undefined
   try {
-    const parsed = v.safeParse(SharedAnalysisSchema, JSON.parse(match[1]!))
+    const json = match[1] === 'lz-string' ? decompressFromBase64(match[2]!) : match[2]!
+    const parsed = v.safeParse(SharedAnalysisSchema, JSON.parse(json))
     return parsed.success ? parsed.output : undefined
   }
   catch {

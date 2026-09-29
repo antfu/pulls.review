@@ -78,6 +78,7 @@ catalogs:
     ai: ^7.0.118
     colorjs.io: ^0.7.1
     idb-keyval: ^6.3.0
+    lz-string: ^1.5.0
     picomatch: ^4.0.7
     reka-ui: ^2.10.5
     unstorage: ^1.17.5

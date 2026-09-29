@@ -31,8 +31,20 @@ describe('renderSharedAnalysisComment', () => {
     expect(parseSharedAnalysisComment(renderSharedAnalysisComment(pr, 'antfu', analysis))).toEqual(analysis)
   })
 
-  it('refuses a body GitHub would reject', () => {
-    const huge = { ...analysis, result: { ...analysis.result, overallSummary: 'x'.repeat(70_000) } }
+  it('falls back to an lz-string block when plain JSON would not fit, and still round-trips', () => {
+    const large = { ...analysis, result: { ...analysis.result, overallSummary: 'word '.repeat(14_000) } }
+    const body = renderSharedAnalysisComment(pr, 'antfu', large)
+
+    expect(body).not.toContain('```json')
+    expect(body).toContain('```lz-string')
+    expect(body.length).toBeLessThanOrEqual(60_000)
+    expect(parseSharedAnalysisComment(body)).toEqual(large)
+  })
+
+  it('refuses a body GitHub would reject even after compression', () => {
+    // Random bytes don't compress; hex keeps it a valid JSON string.
+    const incompressible = Array.from(crypto.getRandomValues(new Uint8Array(60_000)), byte => byte.toString(16).padStart(2, '0')).join('')
+    const huge = { ...analysis, result: { ...analysis.result, overallSummary: incompressible } }
     expect(() => renderSharedAnalysisComment(pr, 'antfu', huge)).toThrow(/too large/)
   })
 })
@@ -47,5 +59,6 @@ describe('parseSharedAnalysisComment', () => {
     expect(parseSharedAnalysisComment('<!-- pulls.review data -->\n```json\n{ not json\n```')).toBeUndefined()
     expect(parseSharedAnalysisComment('<!-- pulls.review data -->\n```json\n{ "headSha": "x" }\n```')).toBeUndefined()
     expect(parseSharedAnalysisComment('<!-- pulls.review data -->\nno block')).toBeUndefined()
+    expect(parseSharedAnalysisComment('<!-- pulls.review data -->\n```lz-string\nnot-lz\n```')).toBeUndefined()
   })
 })

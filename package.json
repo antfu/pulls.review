@@ -30,7 +30,6 @@
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build"
   },
-  "dependencies": {},
   "devDependencies": {
     "@ai-sdk/anthropic": "catalog:frontend",
     "@ai-sdk/gateway": "catalog:frontend",
@@ -68,6 +67,7 @@
     "idb-keyval": "catalog:frontend",
     "jiti": "catalog:dev",
     "lightningcss": "catalog:build",
+    "lz-string": "catalog:frontend",
     "picomatch": "catalog:frontend",
     "reka-ui": "catalog:frontend",
     "storybook": "catalog:storybook",
