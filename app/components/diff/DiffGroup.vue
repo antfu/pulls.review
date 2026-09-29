@@ -183,6 +183,7 @@ function navigateToFile(sha: string) {
           <FileTree
             :store="store"
             :files="group.files"
+            :missing="group.missing"
             @navigate="navigateToFile"
           />
         </template>

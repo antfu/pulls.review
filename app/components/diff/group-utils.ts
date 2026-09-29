@@ -6,6 +6,8 @@ export interface ResolvedGroup {
   label: string
   summary?: string
   files: FileChange[]
+  /** Paths the analysis named that are no longer in the diff, rendered as removed. */
+  missing: string[]
   added: number
   deleted: number
 }
@@ -14,25 +16,59 @@ export interface ResolvedGroupWithChildren extends ResolvedGroup {
   children: ResolvedGroup[]
 }
 
-function resolveLeaf(leaf: DiffGroupLeaf, byPath: Map<string, FileChange>): ResolvedGroup {
-  const files = leaf.filePaths.map(path => byPath.get(path)).filter((file): file is FileChange => file != null)
+function toResolvedGroup(leaf: Pick<DiffGroupLeaf, 'key' | 'label' | 'summary'>, files: FileChange[], missing: string[]): ResolvedGroup {
   return {
     key: leaf.key,
     label: leaf.label,
     summary: leaf.summary,
     files,
+    missing,
     added: files.reduce((sum, file) => sum + file.additions, 0),
     deleted: files.reduce((sum, file) => sum + file.deletions, 0),
   }
 }
 
-/** Resolves each group's `filePaths` into real `FileChange`s and totals their +/- counts, for both the sidebar tree and the diff panels to share. */
+/**
+ * Reconciles an analysis against the diff it's viewed with, which may be newer than
+ * the one it was computed from (new commits, or a shared/partial result): paths still
+ * in the diff resolve to `FileChange`s (a renamed file is found by its old path too),
+ * paths that vanished become `missing`, and files no group names are collected into a
+ * trailing "Uncategorized" group so nothing is silently dropped from the view.
+ */
 export function resolveGroups(groups: DiffGroup[], files: FileChange[]): ResolvedGroupWithChildren[] {
   const byPath = new Map(files.map(file => [file.path, file]))
-  return groups.map(group => ({
-    ...resolveLeaf(group, byPath),
-    children: (group.children ?? []).map(child => resolveLeaf(child, byPath)),
+  const byPreviousPath = new Map(files.flatMap(file => file.previousPath ? [[file.previousPath, file] as const] : []))
+  const referenced = new Set<FileChange>()
+
+  function resolveLeaf(leaf: DiffGroupLeaf): ResolvedGroup {
+    const resolved: FileChange[] = []
+    const missing: string[] = []
+    for (const path of leaf.filePaths) {
+      const file = byPath.get(path) ?? byPreviousPath.get(path)
+      if (file) {
+        resolved.push(file)
+        referenced.add(file)
+      }
+      else {
+        missing.push(path)
+      }
+    }
+    return toResolvedGroup(leaf, resolved, missing)
+  }
+
+  const resolvedGroups = groups.map(group => ({
+    ...resolveLeaf(group),
+    children: (group.children ?? []).map(resolveLeaf),
   }))
+
+  const uncategorized = files.filter(file => !referenced.has(file))
+  if (uncategorized.length > 0) {
+    resolvedGroups.push({
+      ...toResolvedGroup({ key: 'uncategorized', label: 'Uncategorized', summary: 'Files not covered by the current analysis.' }, uncategorized, []),
+      children: [],
+    })
+  }
+  return resolvedGroups
 }
 
 export function countGroupFiles(group: ResolvedGroupWithChildren): number {

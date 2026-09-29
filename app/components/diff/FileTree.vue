@@ -13,6 +13,8 @@ import FileStatus from './FileStatus.vue'
 const props = defineProps<{
   store: DiffsStore
   files: FileChange[]
+  /** Paths the analysis named that have since left the diff, shown as removed. */
+  missing?: string[]
 }>()
 
 const emit = defineEmits<{
@@ -22,7 +24,7 @@ const emit = defineEmits<{
 interface TreeRow {
   key: string
   depth: number
-  type: 'folder' | 'file'
+  type: 'folder' | 'file' | 'missing'
   name: string
   file?: FileChange
   /** Folder rows only: every file nested under it, for the folder-level checkbox. */
@@ -30,11 +32,16 @@ interface TreeRow {
 }
 
 const rows = computed<TreeRow[]>(() => {
-  interface Node { name: string, children: Map<string, Node>, file?: FileChange }
+  interface Node { name: string, children: Map<string, Node>, file?: FileChange, missing?: boolean }
   const root: Node = { name: '', children: new Map() }
 
-  for (const file of [...props.files].sort((a, b) => a.path.localeCompare(b.path))) {
-    const segments = file.path.split('/')
+  const leaves = [
+    ...props.files.map(file => ({ path: file.path, file })),
+    ...(props.missing ?? []).map(path => ({ path, file: undefined })),
+  ].sort((a, b) => a.path.localeCompare(b.path))
+
+  for (const { path, file } of leaves) {
+    const segments = path.split('/')
     let node = root
     for (let i = 0; i < segments.length - 1; i++) {
       const segment = segments[i]!
@@ -45,7 +52,7 @@ const rows = computed<TreeRow[]>(() => {
       }
       node = child
     }
-    node.children.set(`\0file:${file.path}`, { name: segments[segments.length - 1]!, children: new Map(), file })
+    node.children.set(`\0file:${path}`, { name: segments[segments.length - 1]!, children: new Map(), file, missing: !file })
   }
 
   function collectFiles(node: Node): FileChange[] {
@@ -62,6 +69,10 @@ const rows = computed<TreeRow[]>(() => {
         result.push({ key: `file:${child.file.path}`, depth, type: 'file', name: child.name, file: child.file })
         continue
       }
+      if (child.missing) {
+        result.push({ key: `missing:${pathPrefix}${child.name}`, depth, type: 'missing', name: child.name })
+        continue
+      }
 
       // Collapse a chain of single-child folders into one row, e.g.
       // `src` -> `components` -> (diff, bar) renders as a single `src/components` row.
@@ -70,7 +81,7 @@ const rows = computed<TreeRow[]>(() => {
       let prefix = `${pathPrefix}${key}/`
       while (tail.children.size === 1) {
         const [onlyKey, onlyChild] = [...tail.children.entries()][0]!
-        if (onlyChild.file)
+        if (onlyChild.file || onlyChild.missing)
           break
         name += `/${onlyChild.name}`
         tail = onlyChild
@@ -153,6 +164,13 @@ const virtualizer = useVirtualizer(computed(() => ({
             <DiffStats :additions="row.row.file.additions" :deletions="row.row.file.deletions" />
             <FileStatus :status="row.row.file.status" />
           </button>
+        </template>
+        <template v-else-if="row.row.type === 'missing'">
+          <span class="shrink-0 w-4" aria-hidden="true" />
+          <span class="op-50 flex flex-1 gap-1.5 min-w-0 items-center" title="No longer in this diff">
+            <DisplayFilePath :path="row.row.name" :dim="false" class="line-through flex-1 min-w-0" />
+            <span class="text-xs shrink-0">removed</span>
+          </span>
         </template>
       </div>
     </div>
