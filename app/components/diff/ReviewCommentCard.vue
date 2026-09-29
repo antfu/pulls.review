@@ -62,7 +62,18 @@ function saveEdit() {
       </div>
     </div>
     <Suspense v-else>
-      <Markdown :value="comment.body" class="text-sm" />
+      <Markdown :value="comment.body" class="review-comment-markdown text-sm" />
     </Suspense>
   </article>
 </template>
+
+<style scoped>
+.review-comment-markdown :deep(p + p) {
+  margin-top: 1em;
+}
+
+.review-comment-markdown :deep(sub img) {
+  display: inline-block;
+  vertical-align: baseline;
+}
+</style>
