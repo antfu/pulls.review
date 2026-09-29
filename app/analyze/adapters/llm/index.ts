@@ -10,8 +10,9 @@ export const LLM_SCHEMA_VERSION = 1
 
 /**
  * Drops any file path the model hallucinated (not in the diff) and any it duplicated
- * across groups (first group wins), then appends the diff's remaining, un-grouped
- * files as a catch-all group rather than silently dropping them from the view.
+ * across groups (first group wins). Files the model left out are not re-attached
+ * here: `resolveGroups` surfaces them as "Uncategorized" at view time, the same way
+ * it handles files added by later commits.
  */
 function reconcile(diff: DiffsPayload, analysis: Analysis): DiffGroup[] {
   const validPaths = new Set(diff.files.map(file => file.path))
@@ -38,10 +39,6 @@ function reconcile(diff: DiffsPayload, analysis: Analysis): DiffGroup[] {
       continue
     groups.push({ ...group, filePaths, children: children?.length ? children : undefined })
   }
-
-  const leftover = diff.files.map(file => file.path).filter(path => !seen.has(path))
-  if (leftover.length > 0)
-    groups.push({ key: 'llm-unassigned', label: 'Other', filePaths: leftover })
 
   return groups
 }
