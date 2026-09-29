@@ -40,7 +40,7 @@ function saveEdit() {
 <template>
   <article class="text-sm px-3 py-2 flex flex-col gap-1.5">
     <header class="flex gap-2 items-center">
-      <GithubAvatar v-if="comment.author" :login="comment.author.login" :size="18" />
+      <GithubAvatar v-if="comment.author" :login="comment.author.login" :avatar-url="comment.author.avatarUrl" :size="18" />
       <span class="font-medium">{{ comment.author?.login ?? 'ghost' }}</span>
       <DisplayDate :date="comment.createdAt" class="text-xs op-fade" />
       <DisplayBadge v-if="comment.pending" text="Pending" class="text-xs text-amber-700 dark:text-amber-400" />

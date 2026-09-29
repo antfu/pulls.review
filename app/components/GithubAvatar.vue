@@ -1,15 +1,18 @@
 <script setup lang="ts">
-// GitHub serves any user/org's avatar at this predictable URL - no API call or extra
-// schema field needed.
-withDefaults(defineProps<{
+import { computed } from 'vue'
+
+const props = withDefaults(defineProps<{
   login: string
+  avatarUrl?: string
   size?: number
 }>(), { size: 20 })
+
+const src = computed(() => props.avatarUrl || `https://github.com/${props.login.replace(/\[bot\]$/, '')}.png?size=${props.size * 2}`)
 </script>
 
 <template>
   <img
-    :src="`https://github.com/${login}.png?size=${size * 2}`"
+    :src="src"
     :width="size"
     :height="size"
     :alt="`${login}'s avatar`"

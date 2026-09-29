@@ -35,7 +35,7 @@ const STATE_DISPLAY = {
       <li v-for="summary in summaries" :key="summary.id" class="text-sm px-3 py-2 flex flex-col gap-1">
         <div class="flex gap-2 items-center">
           <span :class="STATE_DISPLAY[summary.state].icon" aria-hidden="true" />
-          <GithubAvatar v-if="summary.author" :login="summary.author.login" :size="16" />
+          <GithubAvatar v-if="summary.author" :login="summary.author.login" :avatar-url="summary.author.avatarUrl" :size="16" />
           <span class="font-medium">{{ summary.author?.login ?? 'ghost' }}</span>
           <span class="op-fade">{{ STATE_DISPLAY[summary.state].label }}</span>
           <DisplayDate v-if="summary.submittedAt" :date="summary.submittedAt" class="text-xs op-fade" />

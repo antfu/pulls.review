@@ -1,3 +1,4 @@
+import Vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vitest/config'
 import { features } from './vite.config.shared'
 
@@ -8,6 +9,7 @@ import { features } from './vite.config.shared'
 const { 'import.meta.env.PR_EMBED': _embedOff, ...define } = features({ llm: true, embed: false })
 
 export default defineConfig({
+  plugins: [Vue()],
   define,
   test: {
     environment: 'happy-dom',
