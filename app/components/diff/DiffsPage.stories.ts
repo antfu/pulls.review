@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import real from '../../../test/fixtures/real/antfu-eslint-config-861.json'
 import nestedGroups from '../../../test/fixtures/synthetic/nested-groups.json'
 import partiallyReviewed from '../../../test/fixtures/synthetic/partially-reviewed.json'
+import staleAnalysis from '../../../test/fixtures/synthetic/stale-analysis.json'
 import zeroFiles from '../../../test/fixtures/synthetic/zero-files.json'
 import { createMockDiffsStore } from '../../stores/mock-diffs-store'
 import DiffsPage from './DiffsPage.vue'
@@ -29,6 +30,16 @@ export const NestedGroups: Story = {
     store: createMockDiffsStore({
       diff: nestedGroups.diff as any,
       grouped: nestedGroups.grouped as any,
+    }),
+  },
+}
+
+/** The diff moved on after the AI analysis: a removed file, a rename, and a new file landing in "Uncategorized". */
+export const StaleAnalysis: Story = {
+  args: {
+    store: createMockDiffsStore({
+      diff: staleAnalysis.diff as any,
+      grouped: staleAnalysis.grouped as any,
     }),
   },
 }

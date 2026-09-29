@@ -1,0 +1,124 @@
+{
+  "diff": {
+    "provider": "github",
+    "id": "github:antfu/diffs#1",
+    "title": "Example pull request with commits newer than its analysis",
+    "description": "An LLM analysis was produced at an earlier head; since then one file was removed, one renamed and one added.",
+    "url": "https://github.com/antfu/diffs/pull/1",
+    "base": {
+      "sha": "base0000",
+      "ref": "main"
+    },
+    "head": {
+      "sha": "head0002",
+      "ref": "feature/example"
+    },
+    "createdAt": "2026-09-16T00:00:00.000Z",
+    "updatedAt": "2026-09-17T00:00:00.000Z",
+    "pullRequest": {
+      "author": "antfu"
+    },
+    "files": [
+      {
+        "path": "src/feature/index.ts",
+        "status": "modified",
+        "additions": 12,
+        "deletions": 3,
+        "isBinary": false,
+        "sha": "src0001",
+        "hunks": [
+          {
+            "header": "@@ -1,3 +1,4 @@",
+            "oldStart": 1,
+            "oldLines": 3,
+            "newStart": 1,
+            "newLines": 4,
+            "patch": " export function feature() {\n-  return 1\n+  return compute()\n+}\n+function compute() {\n+  return 2\n }"
+          }
+        ]
+      },
+      {
+        "path": "src/feature/compute.ts",
+        "previousPath": "src/feature/helpers.ts",
+        "status": "renamed",
+        "additions": 4,
+        "deletions": 1,
+        "isBinary": false,
+        "sha": "src0002",
+        "hunks": [
+          {
+            "header": "@@ -1,2 +1,5 @@",
+            "oldStart": 1,
+            "oldLines": 2,
+            "newStart": 1,
+            "newLines": 5,
+            "patch": "-export const helper = 1\n+export function compute() {\n+  return 2\n+}\n+\n+export const helper = 1"
+          }
+        ]
+      },
+      {
+        "path": "src/feature/compute.test.ts",
+        "status": "added",
+        "additions": 6,
+        "deletions": 0,
+        "isBinary": false,
+        "sha": "tst0001",
+        "hunks": [
+          {
+            "header": "@@ -0,0 +1,6 @@",
+            "oldStart": 0,
+            "oldLines": 0,
+            "newStart": 1,
+            "newLines": 6,
+            "patch": "+import { expect, it } from 'vitest'\n+import { compute } from './compute'\n+\n+it('computes', () => {\n+  expect(compute()).toBe(2)\n+})"
+          }
+        ]
+      },
+      {
+        "path": "docs/feature.md",
+        "status": "added",
+        "additions": 8,
+        "deletions": 0,
+        "isBinary": false,
+        "sha": "doc0001",
+        "hunks": [
+          {
+            "header": "@@ -0,0 +1,3 @@",
+            "oldStart": 0,
+            "oldLines": 0,
+            "newStart": 1,
+            "newLines": 3,
+            "patch": "+# Feature\n+\n+How the feature works."
+          }
+        ]
+      }
+    ]
+  },
+  "grouped": {
+    "source": "llm",
+    "model": "anthropic/claude-sonnet-4",
+    "generatedAt": "2026-09-16T12:00:00.000Z",
+    "schemaVersion": 1,
+    "overallSummary": "Introduces the feature module and documents it. Analyzed at an earlier commit: the diff has moved on since.",
+    "groups": [
+      {
+        "key": "feature",
+        "label": "Feature implementation",
+        "summary": "Core logic for the feature, split between the entry point and a helpers module.",
+        "filePaths": [
+          "src/feature/index.ts",
+          "src/feature/helpers.ts",
+          "src/feature/legacy.ts"
+        ]
+      },
+      {
+        "key": "docs",
+        "label": "Documentation",
+        "summary": "Explains the feature to users.",
+        "filePaths": [
+          "docs/feature.md"
+        ]
+      }
+    ]
+  }
+}
