@@ -79,4 +79,5 @@ export const DEMO_FILES: DemoFile[] = [
   { path: 'app/stores/shared-analysis-store.test.ts', additions: 586, deletions: 0, group: 3 },
   { path: '.agents/01-architecture.md', additions: 127, deletions: 11, group: 4 },
   { path: 'plans/07-share-result.md', additions: 87, deletions: 0, group: 4 },
+  // TODO: add more files, with different types
 ]

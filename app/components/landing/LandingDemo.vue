@@ -146,6 +146,7 @@ const reviewedTotal = computed(() => settled.value ? DEMO_PR.files : review.revi
         <div class="text-sm leading-snug font-medium">
           {{ DEMO_PR.title }} <span class="op-fade">#{{ DEMO_PR.number }}</span>
         </div>
+        <!-- TODO: when grouped, the overall diff status should be faded out, one of the name point os that huge diffs like +5356-1244 is scary and not very useful, we breakdown the changes into smaller, more digestible groups (if better we could morph the diff stats from here to each groups's diff stats) -->
         <div class="mt-1.5 flex gap-2 items-center">
           <DiffStats :additions="DEMO_PR.additions" :deletions="DEMO_PR.deletions" />
           <span class="op-fade whitespace-nowrap">{{ DEMO_PR.files }} files</span>
@@ -164,15 +165,14 @@ const reviewedTotal = computed(() => settled.value ? DEMO_PR.files : review.revi
           v-for="file in files"
           :key="file.path"
           data-row
-          class="flex gap-2 h-8 origin-left items-center"
+          class="flex gap-1 h-6 origin-left items-center"
         >
           <DisplayFileIcon :path="file.path" class="shrink-0" />
           <span class="min-w-0 truncate"><span class="op-fade">{{ file.dir }}</span>{{ file.base }}</span>
           <span class="flex-1" />
-          <DiffStats :additions="file.additions" :deletions="file.deletions" />
         </li>
         <li data-tail class="op-fade flex h-8 items-center">
-          {{ hiddenFiles }} more files
+          ...{{ hiddenFiles }} more files
         </li>
       </ul>
 
@@ -200,6 +200,7 @@ const reviewedTotal = computed(() => settled.value ? DEMO_PR.files : review.revi
               <span data-check class="i-ph-check-bold col-start-1 row-start-1" :class="{ 'op-0': !settled }" />
             </span>
           </div>
+          <!-- TODO: for each group, do not show the summary, but instead show the file tree of that group. Only example a few groups to demo -->
           <div data-summary class="flex gap-1.5 items-start" :class="{ 'op-0': !settled }">
             <span class="i-ph-sparkle-duotone color-accent-magenta mt-0.5 shrink-0" />
             <span class="op-fade">{{ group.summary }}</span>
