@@ -3,12 +3,14 @@ import type { DiffsStore } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyState.vue'
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
+import FormCheckbox from '@antfu/design/components/Form/FormCheckbox.vue'
 import { Markdown } from '@comark/vue'
 import { Virtualizer } from '@pierre/diffs'
 import { useElementBounding, useEventListener } from '@vueuse/core'
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue'
 import { useProvider } from '../../composables/useProvider'
 import { parseGithubDiffId } from '../../providers/github/diff-id'
+import { autoRefresh } from '../../state/auto-refresh'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffGroup from './DiffGroup.vue'
 import DiffsHeader from './DiffsHeader.vue'
@@ -109,6 +111,15 @@ const styles = computed(() => {
     '--diffs-header-height': headerHeight.value ? `${headerHeight.value + 10}px` : undefined,
   }
 })
+
+// The stale banner only shows while auto-refresh is off, so the checkbox is a local
+// opt-in nudge (default checked) rather than a mirror of the persisted preference -
+// the click on Refresh is what commits that choice to `autoRefresh` for next time.
+const autoRefreshNextTime = ref(true)
+function refreshFromBanner() {
+  autoRefresh.value = autoRefreshNextTime.value
+  props.store?.refresh()
+}
 </script>
 
 <template>
@@ -152,11 +163,14 @@ const styles = computed(() => {
 
         <div class="mxa flex flex-col gap-4 max-w-500 w-full">
           <slot name="stale" :refresh="() => store?.refresh()">
-            <div v-if="isStale" class="text-sm text-amber-700 mb-4 px-3 py-2 border border-amber:20 rounded-lg bg-amber:10 bg-raised flex gap-3 items-center justify-between dark:text-amber-400">
+            <div v-if="isStale" class="text-sm text-amber-700 mb-4 px-3 py-2 border border-amber:20 rounded-lg bg-amber:10 bg-raised flex flex-wrap gap-3 items-center justify-between dark:text-amber-400">
               <span>This pull request has new commits since it was cached.</span>
-              <ActionButton size="sm" @click="store?.refresh()">
-                Refresh
-              </ActionButton>
+              <div class="flex gap-3 items-center">
+                <FormCheckbox v-model="autoRefreshNextTime" label="Auto refresh next time" />
+                <ActionButton size="sm" @click="refreshFromBanner">
+                  Refresh
+                </ActionButton>
+              </div>
             </div>
           </slot>
 

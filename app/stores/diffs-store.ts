@@ -15,6 +15,7 @@ import { resolveGroups } from '../components/diff/group-utils'
 import { useLlmChat } from '../composables/useLlmChat'
 import { useProvider } from '../composables/useProvider'
 import { fetchPullRequest } from '../providers/github/api'
+import { autoRefresh } from '../state/auto-refresh'
 import { layout } from '../state/layout'
 import { createGithubWriteAccess } from './github-write-access'
 import { createReviewsStore } from './reviews-store'
@@ -245,7 +246,14 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
       return
     try {
       const pr = await fetchPullRequest(params.owner, params.repo, params.number, opts.token)
-      isStale.value = pr.head.sha !== cachedHeadSha
+      if (pr.head.sha === cachedHeadSha)
+        return
+      // The user opted into auto-refresh (banner checkbox or Settings): fetch the new
+      // commits silently instead of parking behind the "new commits" banner.
+      if (autoRefresh.value)
+        await refresh()
+      else
+        isStale.value = true
     }
     catch {
       // Non-fatal: the cached view still renders even if the cheap staleness check fails.

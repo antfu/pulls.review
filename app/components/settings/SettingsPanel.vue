@@ -2,6 +2,7 @@
 import type { ModelOption } from '../../analyze/adapters/llm/list-models'
 import type { StoredGithubTokenMeta } from '../../composables/useGithubTokenMeta'
 import type { LlmSettings } from '../../state/settings'
+import AutoRefreshSettingsSection from './AutoRefreshSettingsSection.vue'
 import GithubTokenSettings from './GithubTokenSettings.vue'
 import LayoutSettingsSection from './LayoutSettingsSection.vue'
 import LlmSettingsSection from './LlmSettingsSection.vue'
@@ -28,6 +29,10 @@ defineEmits<{
 <template>
   <div class="flex flex-col gap-4">
     <LayoutSettingsSection />
+
+    <div class="border-t border-base" />
+
+    <AutoRefreshSettingsSection />
 
     <div class="border-t border-base" />
 
