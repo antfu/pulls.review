@@ -100,16 +100,14 @@ const groupsVisable = ref<string[]>([])
 function updateVisibleGroups() {
   const root = props.document ?? document
   const viewportHeight = window.innerHeight
-  // TODO: this should include subgroups as well
-  groupsVisable.value = groups.value
-    .filter((group) => {
-      const el = root.getElementById(`group-${group.key}`)
-      if (!el)
-        return false
-      const rect = el.getBoundingClientRect()
-      return rect.bottom > headerHeight.value && rect.top < viewportHeight
-    })
-    .map(group => group.key)
+  const keys = groups.value.flatMap(group => [group.key, ...group.children.map(child => child.key)])
+  groupsVisable.value = keys.filter((key) => {
+    const el = root.getElementById(`group-${key}`)
+    if (!el)
+      return false
+    const rect = el.getBoundingClientRect()
+    return rect.bottom > headerHeight.value && rect.top < viewportHeight
+  })
 }
 // Groups render async (v-for over `groups`), so the first measurement has to wait for
 // that DOM to actually exist - re-run whenever the group list or header height changes.
