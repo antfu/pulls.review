@@ -8,6 +8,7 @@ import { Markdown } from '@comark/vue'
 import { computed, nextTick, ref } from 'vue'
 import { useFitText } from '../../composables/useFitText'
 import DiffGroup from './DiffGroup.vue'
+import DiffGroupNav from './DiffGroupNav.vue'
 import DiffStats from './DiffStats.vue'
 import FileDiff from './FileDiff.vue'
 import FileTree from './FileTree.vue'
@@ -18,6 +19,7 @@ const props = defineProps<{
   group: ResolvedGroupWithChildren
   collapsed: boolean
   parentLabel?: string
+  parentKey?: string
 }>()
 
 const emit = defineEmits<{
@@ -63,6 +65,11 @@ function scrollToChild(key: string) {
   childEls.get(key)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
+function navigateToParent() {
+  if (props.parentKey)
+    document.getElementById(`group-${props.parentKey}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
 const progress = computed(() => totalFiles.value === 0 ? 1 : reviewedCount.value / totalFiles.value)
 
 const fileDiffRefs = new Map<string, InstanceType<typeof FileDiff>>()
@@ -84,7 +91,7 @@ function navigateToFile(sha: string) {
 </script>
 
 <template>
-  <section class="scroll-mt-[var(--diffs-header-height)]">
+  <section :id="`group-${group.key}`" class="scroll-mt-[var(--diffs-header-height)]">
     <header v-if="isChapter" class="p-3 border-b border-base flex flex-col gap-2">
       <div class="flex w-full items-center">
         <button
@@ -118,18 +125,13 @@ function navigateToFile(sha: string) {
         <Suspense v-if="group.summary">
           <Markdown :value="group.summary" class="text-sm px-2 op-fade max-w-200" />
         </Suspense>
-        <!-- TODO: use DiffGroupNav.vue instead -->
-        <div class="px-2 flex flex-wrap gap-1.5">
-          <button
-            v-for="child in group.children"
-            :key="child.key"
-            type="button"
-            class="text-xs px-2 py-0.5 border border-base rounded-full op-fade transition hover:op-100"
-            @click="scrollToChild(child.key)"
-          >
-            {{ child.label }} · {{ child.files.length }}
-          </button>
-        </div>
+        <DiffGroupNav
+          class="px-2"
+          :groups="group.children.map(child => ({ ...child, children: [] }))"
+          :groups-visable="[]"
+          :reviewed="store.reviewed"
+          @select="scrollToChild"
+        />
       </template>
     </header>
 
@@ -137,45 +139,51 @@ function navigateToFile(sha: string) {
       <!-- --diffs-header-height is the page's real, measured sticky DiffsHeader height
            (set on the DiffsPage root), so the aside sticks just below it, not under it. -->
       <aside class="flex shrink-0 flex-col gap-3 min-w-70 top-[var(--diffs-header-height)] lg:self-start lg:sticky">
-        <header v-if="!isChapter" class="bg-base flex w-full items-center">
+        <header v-if="!isChapter" class="bg-base flex flex-col w-full">
           <button
+            v-if="parentLabel"
             type="button"
-            class="text-sm px-2 py-1 text-left flex flex-1 min-w-0 items-start"
-            :aria-expanded="!collapsed"
-            @click="emit('toggle')"
+            class="text-xs leading-1em pb1 pl2 op-fade truncate self-start hover:op-100"
+            @click="navigateToParent"
           >
-            <ActionIconButton
-              compact
-              class="ml--5 py1.5 op-mute hover:op-100"
-              :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
-              label="Toggle group"
-              as="span"
-            />
-            <div class="flex-1 min-w-0">
-              <!-- TODO: clickable to navigtate to parent group -->
-              <div v-if="parentLabel" class="text-xs leading-1em pt2 op-fade truncate">
-                {{ parentLabel }} ›
-              </div>
-              <div class="leading-1em flex gap-2 items-center">
-                <span
-                  ref="labelBox"
-                  class="text-xl font-medium flex-1 min-w-0 truncate"
-                  :style="{ fontSize: `${labelFontSize}px` }"
-                  :title="group.label"
-                >
-                  <span ref="labelText">{{ group.label }}</span>
-                </span>
-                <div class="flex shrink-0 items-center" :title="`${reviewedCount} / ${totalFiles} files reviewed`" />
-              </div>
-              <div class="leading-1em flex gap-2 items-center">
-                <DiffStats :additions="totalAdded" :deletions="totalDeleted" />
-                <span class="text-xs op-fade">{{ totalFiles }} file{{ totalFiles === 1 ? '' : 's' }}</span>
-                <DisplayDonut :value="progress" :size="12" :thickness="2.5" />
-              </div>
-            </div>
+            {{ parentLabel }} ›
           </button>
-          <div v-if="$slots.actions" class="px-2 flex shrink-0 gap-1 items-center">
-            <slot name="actions" />
+          <div class="flex w-full items-center">
+            <button
+              type="button"
+              class="text-sm px-2 py-1 text-left flex flex-1 min-w-0 items-start"
+              :aria-expanded="!collapsed"
+              @click="emit('toggle')"
+            >
+              <ActionIconButton
+                compact
+                class="ml--5 py1.5 op-mute hover:op-100"
+                :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
+                label="Toggle group"
+                as="span"
+              />
+              <div class="flex-1 min-w-0">
+                <div class="leading-1em flex gap-2 items-center">
+                  <span
+                    ref="labelBox"
+                    class="text-xl font-medium flex-1 min-w-0 truncate"
+                    :style="{ fontSize: `${labelFontSize}px` }"
+                    :title="group.label"
+                  >
+                    <span ref="labelText">{{ group.label }}</span>
+                  </span>
+                  <div class="flex shrink-0 items-center" :title="`${reviewedCount} / ${totalFiles} files reviewed`" />
+                </div>
+                <div class="leading-1em flex gap-2 items-center">
+                  <DiffStats :additions="totalAdded" :deletions="totalDeleted" />
+                  <span class="text-xs op-fade">{{ totalFiles }} file{{ totalFiles === 1 ? '' : 's' }}</span>
+                  <DisplayDonut :value="progress" :size="12" :thickness="2.5" />
+                </div>
+              </div>
+            </button>
+            <div v-if="$slots.actions" class="px-2 flex shrink-0 gap-1 items-center">
+              <slot name="actions" />
+            </div>
           </div>
         </header>
         <template v-if="!collapsed">
@@ -213,6 +221,7 @@ function navigateToFile(sha: string) {
         :group="{ ...child, children: [] }"
         :collapsed="collapsedChildren.has(child.key)"
         :parent-label="group.label"
+        :parent-key="group.key"
         @toggle="toggleChild(child.key)"
       />
     </div>

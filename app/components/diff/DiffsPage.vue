@@ -197,7 +197,6 @@ function refreshFromBanner() {
 
           <DiffGroup
             v-for="group in groups"
-            :id="`group-${group.key}`"
             :key="group.key"
             :store="store!"
             :group="group"

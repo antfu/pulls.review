@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { ResolvedGroupWithChildren } from './group-utils'
-import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
-import DiffStats from './DiffStats.vue'
-import { countGroupFiles, countGroupStats } from './group-utils'
+import { computed, ref } from 'vue'
+import DiffGroupNavItem from './DiffGroupNavItem.vue'
 
 const props = defineProps<{
   groups: ResolvedGroupWithChildren[]
@@ -14,37 +13,42 @@ defineEmits<{
   select: [key: string]
 }>()
 
-function groupProgress(group: ResolvedGroupWithChildren) {
-  const files = [...group.files, ...group.children.flatMap(child => child.files)]
-  if (files.length === 0)
-    return 1
-  return files.filter(file => props.reviewed.has(file.sha)).length / files.length
+const expandedKey = ref<string>()
+function toggleExpanded(key: string) {
+  expandedKey.value = expandedKey.value === key ? undefined : key
 }
+
+// Subgroups are rendered as their own nav items (no further nesting), so give each a
+// leaf `children` array to satisfy the item component's stats helpers.
+const subgroups = computed<ResolvedGroupWithChildren[]>(() => {
+  const group = props.groups.find(g => g.key === expandedKey.value)
+  return group ? group.children.map(child => ({ ...child, children: [] })) : []
+})
 </script>
 
 <template>
-  <div
-    class="text-sm flex flex-1 flex-wrap gap-1.5 min-w-0 items-center relative"
-  >
-    <button
-      v-for="group in groups"
-      :key="group.key"
-      type="button"
-      class="px-2 py-0.5 border border-base rounded flex gap-2 transition items-center hover:bg-active hover:op-100"
-      :class="groupsVisable.includes(group.key) ? 'op-100 border-primary:50 bg-primary:10 color-base' : 'op-fade'"
-      @click="$emit('select', group.key)"
-    >
-      <div class="flex flex-col items-start">
-        <div>{{ group.label }}</div>
-        <div class="text-xs flex items-center">
-          <DiffStats :additions="countGroupStats(group).added" :deletions="countGroupStats(group).deleted" />
-          <span class="op-mute">・{{ countGroupFiles(group) }} file{{ countGroupFiles(group) === 1 ? '' : 's' }}</span>
-          <span v-if="group.children.length" class="op-mute">・{{ group.children.length }} subgroup{{ group.children.length === 1 ? '' : 's' }}</span>
-        </div>
-      </div>
-      <DisplayDonut v-if="groupProgress(group) !== 0" :value="groupProgress(group)" :size="18" :thickness="2" />
-      <!-- TODO: show a caret button when subgroups are present, on clicking, show the sub groups in next row -->
-    </button>
+  <div class="flex flex-1 flex-col gap-1.5 min-w-0">
+    <div class="flex flex-wrap gap-1.5 items-center">
+      <DiffGroupNavItem
+        v-for="group in groups"
+        :key="group.key"
+        :group="group"
+        :active="groupsVisable.includes(group.key)"
+        :reviewed="reviewed"
+        :expanded="expandedKey === group.key"
+        @select="$emit('select', $event)"
+        @toggle="toggleExpanded(group.key)"
+      />
+    </div>
+    <div v-if="subgroups.length" class="pl-3 flex flex-wrap gap-1.5 items-center">
+      <DiffGroupNavItem
+        v-for="sub in subgroups"
+        :key="sub.key"
+        :group="sub"
+        :active="groupsVisable.includes(sub.key)"
+        :reviewed="reviewed"
+        @select="$emit('select', $event)"
+      />
+    </div>
   </div>
-  <!-- TODO: show subgroups in here for selected group -->
 </template>
