@@ -74,7 +74,7 @@ onMounted(load)
 
 <template>
   <div
-    class="font-mono flex flex-col min-h-screen relative"
+    class="flex flex-col min-h-screen relative"
     @dragenter.prevent="onDragEnter"
     @dragleave.prevent="onDragLeave"
     @dragover.prevent
@@ -92,7 +92,7 @@ onMounted(load)
     <main class="mxa px-6 py-16 flex flex-1 flex-col gap-20 max-w-6xl w-full sm:py-20">
       <section class="gap-12 grid items-center lg:gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,27rem)]">
         <div class="flex flex-col gap-8">
-          <h1 class="text-[clamp(2.25rem,4.6vw,4rem)] leading-[1.05] tracking-tight font-medium">
+          <h1 class="text-[clamp(2.25rem,4.6vw,4rem)] leading-[1.05] tracking-tight font-medium font-mono">
             <span class="block"><span class="color-accent-orange" aria-hidden="true">@@</span> pull</span>
             <span class="block">reviews<span class="color-accent-magenta" aria-hidden="true">:</span></span>
             <span class="block"><span class="color-accent-teal" aria-hidden="true">+</span> made<span class="color-accent-orange" aria-hidden="true">{}</span></span>
@@ -124,7 +124,7 @@ onMounted(load)
       </section>
 
       <section v-if="recent.length" class="flex flex-col gap-3">
-        <h2 class="text-xs op-fade">
+        <h2 class="text-xs font-mono op-fade">
           // recently viewed
         </h2>
         <div class="flex flex-wrap gap-2">
@@ -146,7 +146,7 @@ onMounted(load)
       </section>
 
       <section class="flex flex-col gap-3">
-        <h2 class="text-xs op-fade">
+        <h2 class="text-xs font-mono op-fade">
           // try some demos
         </h2>
         <div class="flex flex-wrap gap-2">

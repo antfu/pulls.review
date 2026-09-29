@@ -152,6 +152,7 @@ useResizeObserver(root, useDebounceFn(([entry]) => {
   width = next
   rebuild()
 }, 200))
+
 useIntersectionObserver(root, ([entry]) => {
   visible = entry?.isIntersecting ?? false
   if (visible)
@@ -162,13 +163,14 @@ useIntersectionObserver(root, ([entry]) => {
 </script>
 
 <template>
-  <div ref="root" class="text-xs font-mono select-none" aria-hidden="true">
+  <div ref="root" class="text-xs select-none" aria-hidden="true">
     <div class="flex gap-2 items-start">
       <PrStatusIcon state="open" class="mt-0.5" />
       <div class="flex-1 min-w-0">
         <div class="text-sm leading-snug font-medium">
           {{ DEMO_PR.title }} <span class="op-fade">#{{ DEMO_PR.number }}</span>
         </div>
+        <!-- TODO: the entire row should be replaced with AI summary (not only the diff stats) -->
         <div class="mt-1.5 flex gap-2 items-center">
           <span data-total class="flex gap-2 items-center" :class="{ 'op-0': settled }">
             <DiffStats :additions="DEMO_PR.additions" :deletions="DEMO_PR.deletions" />
@@ -185,6 +187,7 @@ useIntersectionObserver(root, ([entry]) => {
 
     <div ref="body" class="mt-4 grid grid-cols-1">
       <ul class="flex flex-col col-start-1 row-start-1" :class="{ 'op-0': settled }">
+        <!-- TODO: for the file list, if it's not in the grouped list, fade it out instead of moving it out of view  -->
         <li
           v-for="file in files"
           :key="file.path"
@@ -200,12 +203,14 @@ useIntersectionObserver(root, ([entry]) => {
       </ul>
 
       <div data-grouped class="flex flex-col gap-2 col-start-1 row-start-1" :class="{ 'op-0': !settled }">
+        <!-- TODO: this is fade in a bit too late -->
         <div data-detail class="mb-1 pl-1 flex gap-1.5 items-start" :class="{ 'op-0': !settled }">
           <span class="i-ph-sparkle-duotone color-accent-magenta mt-0.5 shrink-0" />
           <span class="op-fade">{{ DEMO_PR.summary }}</span>
         </div>
         <div v-for="(group, i) in groups" :key="group.label" class="flex flex-col">
           <div data-card class="py-1 flex gap-2 items-center" :class="{ 'op-0': !settled }">
+            <!-- TODO: add a caret icon to indicate expandable/collapsible group -->
             <span data-label class="text-sm font-medium min-w-0 truncate">{{ group.label }}</span>
             <span class="flex-1" />
             <DiffStats :additions="group.additions" :deletions="group.deletions" />
@@ -228,6 +233,7 @@ useIntersectionObserver(root, ([entry]) => {
               <DisplayFileIcon :path="file.path" class="shrink-0" />
               <span class="min-w-0 truncate"><span class="op-fade">{{ file.dir }}</span>{{ file.base }}</span>
             </li>
+            <!-- TODO: this is fade in a bit too late -->
             <li v-if="group.hidden" data-detail class="flex h-6 items-center" :class="{ 'op-0': !settled }">
               <span class="op-fade">...{{ group.hidden }} more files</span>
             </li>
