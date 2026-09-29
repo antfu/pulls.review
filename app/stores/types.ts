@@ -92,6 +92,8 @@ export interface DiffsStoreShared {
   readonly candidates: SharedAnalysisCandidate[]
   /** e.g. the `?from=` user has no shared analysis here. */
   readonly notice: string | undefined
+  /** Login of the token's user - the comment is posted as them. */
+  readonly viewerLogin: string | undefined
   /** Same gating as `reviews.canWrite`. */
   readonly canShare: boolean
   readonly isSharing: boolean

@@ -113,7 +113,7 @@ function scrollToGroup(key: string) {
           {{ aiResult.sharedBy }}
         </span>
         <DiffAnalyzeButton v-if="store.llm" :store="store" />
-        <DiffShareButton v-if="canShareResult" :shared="store.shared!" />
+        <DiffShareButton v-if="canShareResult" :store="store" :document="document" />
       </div>
       <!-- <template v-if="meta.description">
       <button

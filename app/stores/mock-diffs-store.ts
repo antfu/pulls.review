@@ -111,6 +111,7 @@ export interface MockSharedInput {
   isSharing?: boolean
   error?: Error
   ownComment?: { id: number, url: string }
+  viewerLogin?: string
 }
 
 /** In-memory `DiffsStoreShared`: `load`/`share` only flip local state. */
@@ -121,6 +122,7 @@ export function createMockSharedStore(input: MockSharedInput, applyResult: (resu
   return reactive({
     candidates,
     notice,
+    viewerLogin: input.viewerLogin ?? 'octocat',
     canShare: input.canShare ?? true,
     isSharing: input.isSharing ?? false,
     error: input.error,

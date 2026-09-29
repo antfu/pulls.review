@@ -156,6 +156,7 @@ export function createSharedAnalysisStore(pr: { owner: string, repo: string, num
     store: reactive({
       candidates,
       notice,
+      viewerLogin: access.viewerLogin,
       canShare: access.canWrite,
       isSharing,
       error,
