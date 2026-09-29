@@ -10,6 +10,7 @@ import LandingDemo from '../components/landing/LandingDemo.vue'
 import LoadDiffModal from '../components/load/LoadDiffModal.vue'
 import PullRequestPill from '../components/PullRequestPill.vue'
 import { UPLOAD_SESSION_STORAGE_KEY } from '../composables/uploadSession'
+import { useDocumentTitle } from '../composables/useDocumentTitle'
 import { useRecentPullRequests } from '../composables/useRecentPullRequests'
 
 const DEMO_PRS = [
@@ -70,6 +71,9 @@ function onDragLeave() {
 
 const { recent, load } = useRecentPullRequests()
 onMounted(load)
+
+// No subject: resets the tab to the plain app name after returning from a PR/upload view.
+useDocumentTitle(() => undefined)
 </script>
 
 <template>

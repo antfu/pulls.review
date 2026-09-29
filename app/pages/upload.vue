@@ -7,6 +7,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import DiffsPage from '../components/diff/DiffsPage.vue'
 import { UPLOAD_SESSION_STORAGE_KEY } from '../composables/uploadSession'
+import { useDocumentTitle } from '../composables/useDocumentTitle'
 import { createDiffsStore } from '../stores/diffs-store'
 
 const router = useRouter()
@@ -25,6 +26,8 @@ const pending = (() => {
 const store: DiffsStore | undefined = pending
   ? createDiffsStore({ kind: 'patch-text', text: pending.text, title: pending.title })
   : undefined
+
+useDocumentTitle(() => store?.diff?.title)
 
 async function loadAll() {
   if (!store) {

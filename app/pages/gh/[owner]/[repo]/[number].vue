@@ -5,6 +5,7 @@ import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.v
 import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import DiffsPage from '../../../../components/diff/DiffsPage.vue'
+import { useDocumentTitle } from '../../../../composables/useDocumentTitle'
 import { settings } from '../../../../state/settings'
 import { createDiffsStore } from '../../../../stores/diffs-store'
 
@@ -21,6 +22,12 @@ const params = computed(() => ({
 const from = typeof route.query.from === 'string' ? route.query.from : undefined
 
 const store = createDiffsStore(params.value, { token: settings.value.githubToken, from })
+
+// The PR title matches the header's `{{ meta.title }} #number`; before it loads, fall
+// back to the route so the tab still identifies which PR is opening.
+useDocumentTitle(() => store.diff
+  ? `${store.diff.title} (#${params.value.number})`
+  : `${params.value.owner}/${params.value.repo} #${params.value.number}`)
 
 onMounted(() => store.load())
 </script>
