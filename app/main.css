@@ -22,3 +22,16 @@ html.dark,
 .dark {
   color-scheme: dark;
 }
+
+/* Review-comment Markdown presentation. Kept here rather than in a scoped SFC
+   block so it also reaches the embed's shadow tree: plain (non-Uno) scoped CSS
+   is injected into the top document's <head> and neither crosses into the shadow
+   root nor gets picked up by the embed's Uno extraction. */
+.review-comment-markdown p + p {
+  margin-top: 1em;
+}
+
+.review-comment-markdown sub img {
+  display: inline-block;
+  vertical-align: baseline;
+}
