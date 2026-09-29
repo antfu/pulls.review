@@ -50,7 +50,7 @@ there instead of paying for their own run.
   `location.origin` (a preview host must not leak into a public comment).
 - When the readable `json` block would push the body past 60k characters
   (GitHub caps at 65536), the payload is posted lz-string-compressed under an
-  ```` ```lz-string ```` fence instead; the parser reads both. Still too large
+  ` ```lz-string ` fence instead; the parser reads both. Still too large
   after compression -> the share is refused with an error.
 
 ## Behaviour
