@@ -53,7 +53,7 @@ export default defineConfig({
   resolve: {
     alias: sharedAlias,
   },
-  define: features({ llm: false }),
+  define: features({ llm: false, embed: true }),
   publicDir: false,
   build: {
     outDir: 'public/embed',

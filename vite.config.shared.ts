@@ -16,8 +16,9 @@ export const alias = [
  * Each is replaced with a literal at build time, so a branch on it is dead-code-eliminated
  * before module discovery - a dynamic `import()` inside a disabled branch is never bundled.
  */
-export function features(flags: { llm: boolean }) {
+export function features(flags: { llm: boolean, embed: boolean }) {
   return {
     'import.meta.env.PR_LLM': JSON.stringify(flags.llm),
+    'import.meta.env.PR_EMBED': JSON.stringify(flags.embed),
   }
 }

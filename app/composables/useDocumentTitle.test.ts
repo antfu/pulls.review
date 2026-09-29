@@ -1,5 +1,5 @@
 import type { EffectScope } from 'vue'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { effectScope, nextTick, ref } from 'vue'
 import { useDocumentTitle } from './useDocumentTitle'
 
@@ -11,7 +11,10 @@ describe('useDocumentTitle', () => {
     document.title = ''
   })
 
-  afterEach(() => scope.stop())
+  afterEach(() => {
+    scope.stop()
+    vi.unstubAllEnvs()
+  })
 
   it('appends the app name to a subject', () => {
     scope.run(() => useDocumentTitle('feat: add thing (#123)'))
@@ -34,5 +37,14 @@ describe('useDocumentTitle', () => {
     subject.value = 'Pasted diff'
     await nextTick()
     expect(document.title).toBe('Pasted diff · pulls.review')
+  })
+
+  it('leaves the tab title untouched in the embed build', () => {
+    vi.stubEnv('PR_EMBED', 'true')
+    document.title = 'github.com'
+
+    scope.run(() => useDocumentTitle('feat: add thing (#123)'))
+
+    expect(document.title).toBe('github.com')
   })
 })

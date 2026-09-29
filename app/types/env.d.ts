@@ -7,4 +7,11 @@ interface ImportMetaEnv {
    * turns it off).
    */
   readonly PR_LLM: boolean
+  /**
+   * Whether this is the github.com embed build (`true` only in `vite.config.embed.ts`).
+   * Guards SPA-only behaviour that must never touch the host page - e.g. `useDocumentTitle`
+   * skips writing the tab title so the embed never hijacks github.com's `<title>`. Same
+   * truthiness-only testing rule as `PR_LLM`.
+   */
+  readonly PR_EMBED: boolean
 }

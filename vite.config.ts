@@ -11,5 +11,5 @@ export default defineConfig({
   resolve: {
     alias,
   },
-  define: features({ llm: true }),
+  define: features({ llm: true, embed: false }),
 })
