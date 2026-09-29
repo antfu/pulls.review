@@ -257,6 +257,9 @@ catalogs:
     ai:
       specifier: ^7.0.118
       version: 7.0.118
+    animejs:
+      specifier: ^4.5.0
+      version: 4.5.0
     colorjs.io:
       specifier: ^0.7.1
       version: 0.7.1
@@ -412,6 +415,9 @@ importers:
       ai:
         specifier: catalog:frontend
         version: 7.0.118(zod@4.6.5)
+      animejs:
+        specifier: catalog:frontend
+        version: 4.5.0
       colorjs.io:
         specifier: catalog:frontend
         version: 0.7.1
@@ -2782,6 +2788,17 @@ packages:
 
   alien-signals@3.2.1:
     resolution: {integrity: sha512-I8FjmltrfnDFoZedi5CG8DghVYNhzb/Ijluz7tCSJH0xpd0484Kowhbb1XDYOxfJpU1p5wnM2X54dA+IfGyD1g==}
+
+  animejs@4.5.0:
+    resolution: {integrity: sha512-NQimYX+lz8WaXonGS9zVVoviCIAjONeJayxacUditaivYLqyXgGjFKjuyl0aUUhFKm5MriX9ty1TGovNzoJQWA==}
+    peerDependencies:
+      '@types/three': '>=0.150.0'
+      three: '>=0.150.0'
+    peerDependenciesMeta:
+      '@types/three':
+        optional: true
+      three:
+        optional: true
 
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
@@ -7407,6 +7424,8 @@ snapshots:
       uri-js: 4.4.1
 
   alien-signals@3.2.1: {}
+
+  animejs@4.5.0: {}
 
   ansi-regex@5.0.1: {}
 

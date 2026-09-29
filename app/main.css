@@ -1,6 +1,5 @@
 html,
-body,
-#__nuxt {
+body {
   height: 100vh;
   margin: 0;
   padding: 0;
@@ -22,6 +21,4 @@ html {
 html.dark,
 .dark {
   color-scheme: dark;
-  background-color: #121212;
-  color: #ffffff;
 }

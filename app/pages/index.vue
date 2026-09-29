@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
+import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import FormTextInput from '@antfu/design/components/Form/FormTextInput.vue'
 import { formatTimeAgo } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '../components/AppHeader.vue'
 import PrStatusIcon from '../components/diff/PrStatusIcon.vue'
+import LandingDemo from '../components/landing/LandingDemo.vue'
 import LoadDiffModal from '../components/load/LoadDiffModal.vue'
 import { UPLOAD_SESSION_STORAGE_KEY } from '../composables/uploadSession'
 import { useRecentPullRequests } from '../composables/useRecentPullRequests'
@@ -71,7 +73,7 @@ onMounted(load)
 
 <template>
   <div
-    class="flex flex-col min-h-screen relative"
+    class="font-mono flex flex-col min-h-screen relative"
     @dragenter.prevent="onDragEnter"
     @dragleave.prevent="onDragLeave"
     @dragover.prevent
@@ -81,54 +83,50 @@ onMounted(load)
 
     <div
       v-if="isDragging"
-      class="z-50 text-lg color-primary-600 font-medium border-4 border-primary-500 rounded-2xl border-dashed bg-primary-500/10 flex pointer-events-none items-center inset-4 justify-center fixed backdrop-blur-sm dark:color-primary-400"
+      class="text-lg color-accent-teal font-medium border-4 border-accent-teal-400 rounded-2xl border-dashed bg-accent-teal-400/10 flex pointer-events-none items-center inset-4 justify-center fixed z-toast backdrop-blur-sm"
     >
       Drop to load your diff / .patch file
     </div>
 
-    <main class="mxa px-4 py-16 flex flex-1 flex-col gap-14 max-w-2xl w-full items-center">
-      <div class="text-center flex flex-col gap-4 items-center">
-        <div class="i-ph:git-diff-duotone text-3xl color-primary-500" aria-hidden="true" />
-        <h1 class="text-3xl tracking-tight font-bold sm:text-4xl">
-          Review pull requests, <span class="color-primary-500">without the noise</span>
-        </h1>
-        <p class="text-base op-fade max-w-lg sm:text-lg">
-          pulls.review groups changed files, summarizes what matters, and remembers what you've
-          already reviewed - for any GitHub pull request, or a diff you just paste in.
-        </p>
-      </div>
-
-      <div class="p-5 border border-base flex flex-col gap-4 w-full sm:p-6">
-        <div class="flex flex-col gap-2">
-          <div class="flex gap-2 w-full items-start">
-            <FormTextInput v-model="url" icon="i-ph:link-simple-duotone" placeholder="https://github.com/owner/repo/pull/123" class="flex-1" @keyup.enter="go" />
-            <ActionButton variant="primary" :disabled="!parsed" @click="go">
-              Open
-            </ActionButton>
+    <main class="mxa px-6 py-16 flex flex-1 flex-col gap-20 max-w-6xl w-full sm:py-20">
+      <section class="gap-12 grid items-center lg:gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,27rem)]">
+        <div class="flex flex-col gap-8">
+          <h1 class="text-[clamp(2.25rem,4.6vw,4rem)] leading-[1.05] tracking-tight font-medium">
+            <span class="block"><span class="color-accent-orange">@@</span> review</span>
+            <span class="block">diffs <span class="color-accent-magenta">{</span> <span class="color-accent-teal">+</span></span>
+            <span class="block">that <span class="color-accent-orange">-></span> explain</span>
+            <span class="block">themselves <span class="color-accent-magenta">}</span> <span class="i-ph-check-bold text-[0.8em] color-accent-teal inline-block" aria-hidden="true" /></span>
+          </h1>
+          <p class="text-sm leading-relaxed op-fade max-w-md">
+            Groups changed files, summarizes what matters, remembers what you reviewed.
+            Any GitHub PR, or a diff you paste in.
+          </p>
+          <div class="flex flex-col gap-2 max-w-md">
+            <form class="flex gap-2 items-stretch" @submit.prevent="go">
+              <FormTextInput v-model="url" icon="i-ph:link-simple-duotone" placeholder="https://github.com/owner/repo/pull/123" class="flex-1" />
+              <button
+                type="submit"
+                :disabled="!parsed"
+                class="text-neutral-900 px-5 rounded bg-accent-orange-400 transition hover:text-white hover:bg-accent-orange-600 disabled:op40 disabled:pointer-events-none"
+              >
+                open
+              </button>
+            </form>
+            <p class="text-xs op-fade">
+              Paste any GitHub pull request URL, or
+              <button type="button" class="color-accent-orange hover:underline" @click="tryDemo">
+                try a demo
+              </button>.
+            </p>
           </div>
-          <p class="text-xs op-fade">
-            Paste any GitHub pull request URL, or
-            <button type="button" class="color-primary-500 hover:underline" @click="tryDemo">
-              try a demo
-            </button>.
-          </p>
         </div>
 
-        <div class="border-t border-base" />
+        <LandingDemo class="min-w-0 w-full" />
+      </section>
 
-        <div class="flex flex-wrap gap-3 items-center justify-between">
-          <ActionButton icon="i-ph:upload-simple-duotone" @click="loadDiffOpen = true">
-            Upload a diff
-          </ActionButton>
-          <p class="text-xs op-fade">
-            or drag &amp; drop a <code class="px-1 rounded bg-code">.diff</code> / <code class="px-1 rounded bg-code">.patch</code> file anywhere on this page
-          </p>
-        </div>
-      </div>
-
-      <div v-if="recent.length" class="flex flex-col gap-3 w-full items-stretch">
-        <h2 class="text-xs tracking-wide font-medium op-fade uppercase">
-          Recently viewed
+      <section v-if="recent.length" class="flex flex-col gap-3">
+        <h2 class="text-xs op-fade">
+          // recently viewed
         </h2>
         <div class="flex flex-wrap gap-2">
           <RouterLink
@@ -136,47 +134,63 @@ onMounted(load)
             :key="`${pr.owner}/${pr.repo}#${pr.number}`"
             :to="`/gh/${pr.owner}/${pr.repo}/${pr.number}`"
             :title="pr.title"
-            class="text-sm px-3 py-1.5 border border-base rounded-full flex gap-2 transition items-center hover:border-primary-500/50 hover:bg-hover"
+            class="text-sm px-3 py-1.5 border border-base rounded-full flex gap-2 transition items-center hover:border-accent-teal-400/50 hover:bg-hover"
           >
             <PrStatusIcon v-if="pr.state" :state="pr.state" class="text-sm" />
             <span class="font-medium">{{ pr.owner }}/{{ pr.repo }}<span class="op-fade">#{{ pr.number }}</span></span>
-            <span class="text-xs op-fade">{{ pr.reviewedCount }}/{{ pr.totalFiles }}</span>
-            <span class="text-xs op-fade">·</span>
+            <span class="color-accent-teal flex">
+              <DisplayDonut :value="pr.totalFiles ? pr.reviewedCount / pr.totalFiles : 0" :size="14" :thickness="2.5" color="currentColor" />
+            </span>
             <span class="text-xs op-fade">{{ formatTimeAgo(new Date(pr.lastViewedAt)) }}</span>
           </RouterLink>
         </div>
-      </div>
+      </section>
 
-      <div class="p-5 border border-base flex flex-col gap-4 w-full">
-        <div class="flex gap-3 items-start">
-          <div class="i-ph:puzzle-piece-duotone text-xl color-primary-500 mt-0.5 shrink-0" aria-hidden="true" />
-          <div class="flex-1">
-            <h2 class="font-semibold">
-              Use it directly on github.com
-            </h2>
-            <p class="text-sm op-fade">
-              Install the userscript and a "pulls.review" drawer appears on every pull request page.
-            </p>
+      <section class="gap-4 grid sm:grid-cols-2">
+        <div class="p-5 border border-base rounded-lg flex flex-col gap-4">
+          <div class="flex gap-3 items-start">
+            <span class="i-ph:upload-simple-duotone text-xl color-accent-teal mt-0.5 shrink-0" aria-hidden="true" />
+            <div class="flex-1">
+              <h2 class="font-semibold">
+                Review a diff without a PR
+              </h2>
+              <p class="text-sm op-fade">
+                Upload or paste a unified diff, or drop a <code class="px-1 rounded bg-code">.diff</code> / <code class="px-1 rounded bg-code">.patch</code> file anywhere on this page.
+              </p>
+            </div>
+          </div>
+          <div class="mt-auto flex">
+            <ActionButton icon="i-ph:upload-simple-duotone" @click="loadDiffOpen = true">
+              Upload a diff
+            </ActionButton>
           </div>
         </div>
-        <ol class="text-sm pl-5 list-decimal op-fade">
-          <li>Install <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener" class="color-base hover:underline">Tampermonkey</a> or <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener" class="color-base hover:underline">Violentmonkey</a>.</li>
-          <li>Open the userscript below and confirm the install in your extension.</li>
-          <li>Visit any pull request - click the "pulls.review" tab on the right edge to open the drawer.</li>
-        </ol>
-        <div class="flex flex-wrap gap-2">
-          <ActionButton href="https://pulls.review/pulls-review-github.user.js" icon="i-ph:download-duotone">
-            Install userscript
-          </ActionButton>
+
+        <div class="p-5 border border-base rounded-lg flex flex-col gap-4">
+          <div class="flex gap-3 items-start">
+            <span class="i-ph:puzzle-piece-duotone text-xl color-accent-magenta mt-0.5 shrink-0" aria-hidden="true" />
+            <div class="flex-1">
+              <h2 class="font-semibold">
+                Use it directly on github.com
+              </h2>
+              <p class="text-sm op-fade">
+                With <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener" class="color-base hover:underline">Tampermonkey</a> or <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener" class="color-base hover:underline">Violentmonkey</a> installed, a pulls.review drawer appears on every pull request page.
+              </p>
+            </div>
+          </div>
+          <div class="mt-auto flex">
+            <ActionButton href="https://pulls.review/pulls-review-github.user.js" icon="i-ph:download-duotone">
+              Install userscript
+            </ActionButton>
+          </div>
         </div>
-      </div>
+      </section>
     </main>
 
-    <footer class="text-sm px-4 py-6 op-fade flex items-center justify-center">
-      <a href="https://github.com/antfu/pulls.review" target="_blank" rel="noopener" class="flex gap-1.5 transition items-center hover:color-base">
-        <span class="i-ph:github-logo-duotone text-base" aria-hidden="true" />
-        GitHub Repo
-      </a>
+    <footer class="text-xs px-6 py-6 op-fade flex gap-2 items-center justify-center">
+      <span>MIT</span>
+      <span>·</span>
+      <a href="https://github.com/antfu/pulls.review" target="_blank" rel="noopener" class="transition hover:color-base hover:op100">GitHub</a>
     </footer>
 
     <LoadDiffModal v-model:open="loadDiffOpen" />
