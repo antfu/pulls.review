@@ -6,16 +6,15 @@
 
 export interface DemoGroup {
   label: string
-  summary: string
   additions: number
   deletions: number
   files: number
+  /** Show this group's files once grouped; the others stay a single header row. */
+  expanded?: boolean
 }
 
 export interface DemoFile {
   path: string
-  additions: number
-  deletions: number
   /** Index into {@link DEMO_GROUPS}: where the row flies to. */
   group: number
 }
@@ -30,54 +29,29 @@ export const DEMO_PR = {
 }
 
 export const DEMO_GROUPS: DemoGroup[] = [
-  {
-    label: 'Shared analysis store & comment contract',
-    summary: 'Marker, link and JSON payload in one issue comment; discovery of shared results.',
-    additions: 2418,
-    deletions: 612,
-    files: 14,
-  },
-  {
-    label: 'Share result UI',
-    summary: 'Share button, confirm modal, and a banner listing who shared.',
-    additions: 1203,
-    deletions: 187,
-    files: 9,
-  },
-  {
-    label: 'Store refactor: aiResult to root',
-    summary: 'Result and mode move out of store.llm so the embed can display them.',
-    additions: 842,
-    deletions: 331,
-    files: 7,
-  },
-  {
-    label: 'Tests',
-    summary: 'Store, comment parsing and write-access gating covered.',
-    additions: 731,
-    deletions: 96,
-    files: 8,
-  },
-  {
-    label: 'Docs & deps',
-    summary: 'Architecture notes and the share-result plan.',
-    additions: 162,
-    deletions: 18,
-    files: 3,
-  },
+  { label: 'Shared analysis store & comment contract', additions: 2418, deletions: 612, files: 14, expanded: true },
+  { label: 'Share result UI', additions: 1203, deletions: 187, files: 9, expanded: true },
+  { label: 'Store refactor: aiResult to root', additions: 842, deletions: 331, files: 7 },
+  { label: 'Tests', additions: 731, deletions: 96, files: 8 },
+  { label: 'Docs & deps', additions: 162, deletions: 18, files: 3 },
 ]
 
 /** The rows shown in the flat state; the rest hide behind "N more files". */
 export const DEMO_FILES: DemoFile[] = [
-  { path: 'app/stores/shared-analysis-store.ts', additions: 870, deletions: 0, group: 0 },
-  { path: 'app/providers/github/shared-analysis-comment.ts', additions: 412, deletions: 0, group: 0 },
-  { path: 'app/components/diff/ShareResultModal.vue', additions: 290, deletions: 0, group: 1 },
-  { path: 'app/components/diff/SharedAnalysisBanner.vue', additions: 145, deletions: 0, group: 1 },
-  { path: 'app/components/diff/DiffsHeader.vue', additions: 121, deletions: 75, group: 1 },
-  { path: 'app/stores/diffs-store.ts', additions: 260, deletions: 112, group: 2 },
-  { path: 'app/stores/reviews-store.ts', additions: 54, deletions: 144, group: 2 },
-  { path: 'app/stores/shared-analysis-store.test.ts', additions: 586, deletions: 0, group: 3 },
-  { path: '.agents/01-architecture.md', additions: 127, deletions: 11, group: 4 },
-  { path: 'plans/07-share-result.md', additions: 87, deletions: 0, group: 4 },
-  // TODO: add more files, with different types
+  { path: 'app/stores/shared-analysis-store.ts', group: 0 },
+  { path: 'app/components/diff/ShareResultModal.vue', group: 1 },
+  { path: '.agents/01-architecture.md', group: 4 },
+  { path: 'app/providers/github/shared-analysis-comment.ts', group: 0 },
+  { path: 'app/stores/diffs-store.ts', group: 2 },
+  { path: 'app/components/diff/SharedAnalysisBanner.vue', group: 1 },
+  { path: 'app/stores/shared-analysis-store.test.ts', group: 3 },
+  { path: 'app/types/shared-analysis.ts', group: 0 },
+  { path: 'pnpm-lock.yaml', group: 4 },
+  { path: 'app/components/diff/DiffsHeader.vue', group: 1 },
+  { path: 'app/cache/pr-cache.ts', group: 0 },
+  { path: 'test/fixtures/shared-analysis/comment.json', group: 3 },
+  { path: 'app/stores/reviews-store.ts', group: 2 },
+  { path: 'app/components/diff/share-result.css', group: 1 },
+  { path: 'plans/07-share-result.md', group: 4 },
+  { path: 'app/stores/github-write-access.ts', group: 0 },
 ]

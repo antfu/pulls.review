@@ -6,13 +6,18 @@ import { formatTimeAgo } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '../components/AppHeader.vue'
-import PrStatusIcon from '../components/diff/PrStatusIcon.vue'
 import LandingDemo from '../components/landing/LandingDemo.vue'
 import LoadDiffModal from '../components/load/LoadDiffModal.vue'
+import PullRequestPill from '../components/PullRequestPill.vue'
 import { UPLOAD_SESSION_STORAGE_KEY } from '../composables/uploadSession'
 import { useRecentPullRequests } from '../composables/useRecentPullRequests'
 
-const DEMO_PR = { owner: 'slidevjs', repo: 'slidev', number: '2746' }
+const DEMO_PRS = [
+  { owner: 'slidevjs', repo: 'slidev', number: 2746, state: 'open', title: 'feat: arrange slides on a grid' },
+  { owner: 'slidevjs', repo: 'slidev', number: 2722, state: 'merged', title: 'feat(export): editable PPTX export with native shapes and text' },
+  { owner: 'unocss', repo: 'unocss', number: 5296, state: 'merged', title: 'feat: add Rollup and Rolldown integration' },
+  { owner: 'antfu', repo: 'pulls.review', number: 9, state: 'merged', title: 'feat: share an AI analysis as a PR comment and load shared results' },
+] as const
 
 const router = useRouter()
 const url = ref('')
@@ -30,10 +35,6 @@ function go() {
   if (!parsed.value)
     return
   router.push(`/gh/${parsed.value.owner}/${parsed.value.repo}/${parsed.value.number}`)
-}
-
-function tryDemo() {
-  router.push(`/gh/${DEMO_PR.owner}/${DEMO_PR.repo}/${DEMO_PR.number}`)
 }
 
 async function loadFile(file: File) {
@@ -114,10 +115,7 @@ onMounted(load)
               </ActionButton>
             </form>
             <p class="text-xs op-fade">
-              Paste any GitHub pull request URL, or
-              <button type="button" class="color-accent-orange hover:underline" @click="tryDemo">
-                try a demo
-              </button>.
+              Paste any GitHub pull request URL, or pick a demo below.
             </p>
           </div>
         </div>
@@ -130,25 +128,41 @@ onMounted(load)
           // recently viewed
         </h2>
         <div class="flex flex-wrap gap-2">
-          <!-- TODO: refactor this to be a component -->
-          <RouterLink
+          <PullRequestPill
             v-for="pr in recent"
             :key="`${pr.owner}/${pr.repo}#${pr.number}`"
-            :to="`/gh/${pr.owner}/${pr.repo}/${pr.number}`"
+            :owner="pr.owner"
+            :repo="pr.repo"
+            :number="pr.number"
+            :state="pr.state"
             :title="pr.title"
-            class="text-sm px-3 py-1.5 border border-base rounded-full flex gap-2 transition items-center hover:border-accent-teal-400/50 hover:bg-hover"
           >
-            <PrStatusIcon v-if="pr.state" :state="pr.state" class="text-sm" />
-            <span class="font-medium">{{ pr.owner }}/{{ pr.repo }}<span class="op-fade">#{{ pr.number }}</span></span>
             <span class="color-accent-teal flex">
               <DisplayDonut :value="pr.totalFiles ? pr.reviewedCount / pr.totalFiles : 0" :size="14" :thickness="2.5" color="currentColor" />
             </span>
             <span class="text-xs op-fade">{{ formatTimeAgo(new Date(pr.lastViewedAt)) }}</span>
-          </RouterLink>
+          </PullRequestPill>
         </div>
       </section>
 
-      <!-- TODO: instead of "try a demo" text link, have a section like "// recently viewed" -> "// try some demos", that renders a list of demo pull requests using the same pills ad recent viewed -->
+      <section class="flex flex-col gap-3">
+        <h2 class="text-xs op-fade">
+          // try some demos
+        </h2>
+        <div class="flex flex-wrap gap-2">
+          <PullRequestPill
+            v-for="pr in DEMO_PRS"
+            :key="`${pr.owner}/${pr.repo}#${pr.number}`"
+            :owner="pr.owner"
+            :repo="pr.repo"
+            :number="pr.number"
+            :state="pr.state"
+            :title="pr.title"
+          >
+            <span class="text-xs op-fade max-w-56 truncate">{{ pr.title }}</span>
+          </PullRequestPill>
+        </div>
+      </section>
 
       <section class="gap-4 grid sm:grid-cols-2">
         <div class="p-5 border border-base rounded-lg flex flex-col gap-4">
