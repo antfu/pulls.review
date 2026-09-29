@@ -93,22 +93,22 @@ function scrollToGroup(key: string) {
         </div>
       </div>
 
-      <div class="text-sm text-sm op-fade flex flex-wrap gap-x-3 gap-y-1 items-center">
+      <div class="text-sm text-sm flex flex-wrap gap-x-3 gap-y-1 items-center">
         <a v-if="githubRef && !isEmbedded" :href="meta.url" target="_blank" rel="noopener" class="op-fade flex gap-1.5 items-center">
           <span>{{ githubRef.owner }}/{{ githubRef.repo }}</span>
         </a>
         <span v-if="meta.pullRequest?.author" class="flex gap-1.5 items-center">
-          by
+          <span class="op-fade">by</span>
           <GithubAvatar :login="meta.pullRequest.author" :size="16" />
-          {{ meta.pullRequest.author }}
+          <span class="op-fade">{{ meta.pullRequest.author }}</span>
         </span>
         <span v-if="meta.base && meta.head && !isEmbedded" class="font-mono flex gap-1 items-center">
           <span class="text-xs font-mono px-2 py-0.5 border border-base rounded bg-code">{{ meta.base.ref }}</span>
           ←
           <span class="text-xs font-mono px-2 py-0.5 border border-base rounded bg-code">{{ meta.head.ref }}</span>
         </span>
-        <span v-if="aiResult?.sharedBy && store.analyzeMode !== 'rule-based'" class="flex gap-1.5 items-center" :title="aiResult.model">
-          AI analysis shared by
+        <span v-if="aiResult?.sharedBy && store.analyzeMode !== 'rule-based'" class="px2 border border-base rounded flex gap-1.5 items-center" :title="aiResult.model">
+          Viewing AI analysis shared by
           <GithubAvatar :login="aiResult.sharedBy" :size="16" />
           {{ aiResult.sharedBy }}
         </span>
@@ -132,13 +132,12 @@ function scrollToGroup(key: string) {
 
       <div class="text-sm pt-2 flex gap-2 items-center">
         <DiffGroupNav
+          class="flex-auto"
           :groups="groups"
           :groups-visable="groupsVisable"
           :reviewed="store.reviewed"
           @select="scrollToGroup"
         />
-
-        <div class="flex-auto" />
 
         <DiffStats :additions="additions" :deletions="deletions" />
         <DisplayDonut :value="progress" :size="18" :thickness="3" />

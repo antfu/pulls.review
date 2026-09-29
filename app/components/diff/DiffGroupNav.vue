@@ -38,7 +38,7 @@ function groupProgress(group: ResolvedGroupWithChildren) {
         <div>{{ group.label }}</div>
         <div class="text-xs flex items-center">
           <DiffStats :additions="countGroupStats(group).added" :deletions="countGroupStats(group).deleted" />
-          <span class="op-mute">・{{ countGroupFiles(group) }} Files</span>
+          <span class="op-mute">・{{ countGroupFiles(group) }} files</span>
         </div>
       </div>
       <DisplayDonut v-if="groupProgress(group) !== 0" :value="groupProgress(group)" :size="18" :thickness="2" />

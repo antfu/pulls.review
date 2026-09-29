@@ -103,10 +103,20 @@ function updateVisibleGroups() {
 // Groups render async (v-for over `groups`), so the first measurement has to wait for
 // that DOM to actually exist - re-run whenever the group list or header height changes.
 watch([groups, headerHeight], () => nextTick(updateVisibleGroups), { immediate: true })
+
+const styles = computed(() => {
+  return {
+    '--diffs-header-height': headerHeight.value ? `${headerHeight.value + 10}px` : undefined,
+  }
+})
 </script>
 
 <template>
-  <div ref="root" class="diffs-page color-base bg-base" :style="{ '--diffs-header-height': headerHeight ? `${headerHeight}px` : undefined }">
+  <div
+    ref="root"
+    class="diffs-page color-base bg-base"
+    :style="styles"
+  >
     <div>
       <template v-if="isLoading && !diff">
         <div class="mxa px-4 py-12 max-w-500 w-full">
@@ -140,7 +150,7 @@ watch([groups, headerHeight], () => nextTick(updateVisibleGroups), { immediate: 
           :scroll-y="scrollY"
         />
 
-        <div class="mxa py-4 flex flex-col gap-4 max-w-500 w-full">
+        <div class="mxa flex flex-col gap-4 max-w-500 w-full">
           <slot name="stale" :refresh="() => store?.refresh()">
             <div v-if="isStale" class="text-sm text-amber-700 mb-4 px-3 py-2 border border-amber:20 rounded-lg bg-amber:10 bg-raised flex gap-3 items-center justify-between dark:text-amber-400">
               <span>This pull request has new commits since it was cached.</span>

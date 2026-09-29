@@ -178,7 +178,7 @@ function navigateToFile(sha: string) {
         </header>
         <template v-if="!collapsed">
           <Suspense v-if="group.summary && !isChapter">
-            <Markdown :value="group.summary" class="text-sm pb-2 border-b border-base op-fade" />
+            <Markdown :value="group.summary" class="text-sm pb-2 pl2 border-b border-base op-fade" />
           </Suspense>
           <FileTree
             :store="store"

@@ -109,7 +109,7 @@ const virtualizer = useVirtualizer(computed(() => ({
 </script>
 
 <template>
-  <div ref="scrollEl" class="max-h-100 overflow-auto">
+  <div ref="scrollEl" class="overflow-auto">
     <div :style="{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }">
       <div
         v-for="row in virtualizer.getVirtualItems().map(item => ({ item, row: rows[item.index]! }))"
