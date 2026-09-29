@@ -100,6 +100,7 @@ const groupsVisable = ref<string[]>([])
 function updateVisibleGroups() {
   const root = props.document ?? document
   const viewportHeight = window.innerHeight
+  // TODO: this should include subgroups as well
   groupsVisable.value = groups.value
     .filter((group) => {
       const el = root.getElementById(`group-${group.key}`)

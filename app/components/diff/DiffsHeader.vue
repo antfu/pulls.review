@@ -139,14 +139,16 @@ function scrollToGroup(key: string) {
           @select="scrollToGroup"
         />
 
-        <DiffStats :additions="additions" :deletions="deletions" />
-        <DisplayDonut :value="progress" :size="18" :thickness="3" />
-        <span class="shrink-0 whitespace-nowrap">{{ reviewedCount }} <span class="text-xs opacity-50">/ {{ totalFiles }} reviewed</span></span>
-        <DiffReviewButton
-          v-if="reviews?.canWrite"
-          :pending-comment-count="reviews.pendingCommentCount"
-          @review="reviewModalOpen = true"
-        />
+        <div class="text-sm pt-2 flex gap-2 items-center self-end">
+          <DiffStats :additions="additions" :deletions="deletions" />
+          <DisplayDonut :value="progress" :size="18" :thickness="3" />
+          <span class="shrink-0 whitespace-nowrap">{{ reviewedCount }} <span class="text-xs opacity-50">/ {{ totalFiles }} reviewed</span></span>
+          <DiffReviewButton
+            v-if="reviews?.canWrite"
+            :pending-comment-count="reviews.pendingCommentCount"
+            @review="reviewModalOpen = true"
+          />
+        </div>
       </div>
     </div>
 

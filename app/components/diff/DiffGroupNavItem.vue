@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ResolvedGroupWithChildren } from './group-utils'
+import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { computed } from 'vue'
 import DiffStats from './DiffStats.vue'
@@ -47,16 +48,15 @@ const progress = computed(() => {
         </div>
       </div>
       <DisplayDonut v-if="progress !== 0" :value="progress" :size="18" :thickness="2" />
-    </button>
-    <button
-      v-if="subgroupCount"
-      type="button"
-      class="px-1.5 border-l border-base op-mute flex items-center self-stretch hover:bg-active hover:op-100"
-      :aria-expanded="expanded"
-      :aria-label="expanded ? 'Hide subgroups' : 'Show subgroups'"
-      @click="$emit('toggle')"
-    >
-      <span :class="expanded ? 'i-ph:caret-up' : 'i-ph:caret-down'" aria-hidden="true" />
+      <ActionIconButton
+        v-if="subgroupCount"
+        type="button"
+        :icon="expanded ? 'i-ph:caret-up' : 'i-ph:caret-down'"
+        :aria-expanded="expanded"
+        class="text-xs mr--1"
+        :aria-label="expanded ? 'Hide subgroups' : 'Show subgroups'"
+        @click.stop="$emit('toggle')"
+      />
     </button>
   </div>
 </template>
