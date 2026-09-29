@@ -1,18 +1,17 @@
-import type { AnalyzeProgress, GroupedResult, GroupSource } from '../types/analyze'
+import type { GroupedResult, GroupSource } from '../types/analyze'
 import type { LlmSession, PrCacheEntry } from '../types/cache'
 import type { ReviewData } from '../types/comment-threads'
 import type { DiffsPayload } from '../types/diff'
 import type { FetchDiffParams } from '../types/provider'
+import type { LlmStore } from './llm-store'
 import type { DiffsStore } from './types'
 import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef } from 'vue'
 import { resolveAdapter } from '../analyze'
-import { llmAdapter, runLlmAnalysis } from '../analyze/adapters/llm'
 import { ruleBasedAdapter } from '../analyze/adapters/rule-based'
 import { computeEntrySizeBytes, getEntry, putEntry, setAnalyzedResult, setLlmSession, touchEntry } from '../cache/pr-cache'
 import { getReviewed, setReviewed } from '../cache/review-cache'
 import { getDefaultCacheStorage } from '../cache/storage'
 import { resolveGroups } from '../components/diff/group-utils'
-import { useLlmChat } from '../composables/useLlmChat'
 import { useProvider } from '../composables/useProvider'
 import { fetchPullRequest } from '../providers/github/api'
 import { layout } from '../state/layout'
@@ -41,16 +40,13 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
   // `llm` even when `PR_LLM` is off: `grouped` falls back to rule-based until an AI
   // result exists, and the embed can still hold one loaded from a shared comment.
   const analyzeMode = ref<GroupSource>('llm')
-  const isAnalyzing = ref(false)
   const cacheKey = ref<string>()
   const reviewed = ref(new Set<string>())
-  const llmProgress = ref<AnalyzeProgress>()
-  const llmError = ref<Error>()
   const llmSession = shallowRef<LlmSession>()
-  let llmAbortController: AbortController | undefined
+  const llm = shallowRef<LlmStore>()
 
   if (getCurrentScope())
-    onScopeDispose(() => llmAbortController?.abort())
+    onScopeDispose(() => llm.value?.abort())
 
   // SWR seeds for the sub-stores, set when a cached PR entry carries them.
   let cachedReviewData: ReviewData | undefined
@@ -75,23 +71,22 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
   // diff, so the header/view never lose their data just from switching modes.
   const grouped = computed(() => analyzedBy.value[analyzeMode.value] ?? analyzedBy.value['rule-based'])
   const aiResult = computed(() => analyzedBy.value.llm ?? analyzedBy.value['web-llm'])
-  const isSetup = computed(() => llmAdapter.available)
   const groups = computed(() => diff.value && grouped.value ? resolveGroups(grouped.value.groups, diff.value.files) : [])
 
-  const chat = useLlmChat({
-    diff,
-    session: llmSession,
-    async onSessionChange(session) {
-      llmSession.value = session
-      if (cacheKey.value)
-        await setLlmSession(await getDefaultCacheStorage(), cacheKey.value, session)
-    },
-    async onGroupingUpdate(result) {
-      analyzedBy.value = { ...analyzedBy.value, llm: result }
-      if (cacheKey.value)
-        await setAnalyzedResult(await getDefaultCacheStorage(), cacheKey.value, 'llm', result)
-    },
-  })
+  // The flag is a compile-time literal: with it off, this `import()` is dead code and the
+  // whole LLM sub-store (runs, chat, the pi runtime behind them) stays out of the bundle.
+  // `load()` awaits it so `store.llm` is set by the time the diff renders.
+  const llmReady = import.meta.env.PR_LLM
+    ? import('./llm-store').then(({ createLlmStore }) => {
+        llm.value = createLlmStore({
+          diff,
+          session: llmSession,
+          getCacheKey: () => cacheKey.value,
+          setResult: result => analyzedBy.value = { ...analyzedBy.value, llm: result },
+          showLlmResult: () => setAnalyzeMode('llm'),
+        })
+      })
+    : undefined
 
   async function loadReviewed() {
     if (!diff.value)
@@ -111,56 +106,15 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
     reviewed.value = next
   }
 
-  async function runLlmAnalysisAndStore(currentDiff: DiffsPayload) {
-    chat.stop()
-    llmError.value = undefined
-    const controller = new AbortController()
-    llmAbortController = controller
-    try {
-      const { result, transcript } = await runLlmAnalysis(currentDiff, {
-        onProgress: progress => llmProgress.value = progress,
-        signal: controller.signal,
-      })
-      if (controller.signal.aborted)
-        return
-      analyzedBy.value = { ...analyzedBy.value, llm: result }
-      llmSession.value = { messages: transcript, chatStartIndex: transcript.length }
-      if (cacheKey.value) {
-        const storage = await getDefaultCacheStorage()
-        await setAnalyzedResult(storage, cacheKey.value, 'llm', result)
-        await setLlmSession(storage, cacheKey.value, llmSession.value)
-      }
-    }
-    catch (err) {
-      if (!controller.signal.aborted)
-        llmError.value = err instanceof Error ? err : new Error(String(err))
-    }
-    finally {
-      if (llmAbortController === controller)
-        llmAbortController = undefined
-    }
-  }
-
-  async function runAnalysis(mode: GroupSource) {
+  /** The free, instant modes; `llm` runs only through `llm.reanalyze` (see `llm-store.ts`). */
+  async function runAnalysis(mode: Exclude<GroupSource, 'llm'>) {
     if (!diff.value)
       return
-    isAnalyzing.value = true
-    try {
-      if (mode === 'llm') {
-        await runLlmAnalysisAndStore(diff.value)
-        return
-      }
-
-      const result = await resolveAdapter(mode).analyze(diff.value)
-      analyzedBy.value = { ...analyzedBy.value, [mode]: result }
-      if (cacheKey.value) {
-        const storage = await getDefaultCacheStorage()
-        await setAnalyzedResult(storage, cacheKey.value, mode, result)
-      }
-    }
-    finally {
-      llmProgress.value = undefined
-      isAnalyzing.value = false
+    const result = await resolveAdapter(mode).analyze(diff.value)
+    analyzedBy.value = { ...analyzedBy.value, [mode]: result }
+    if (cacheKey.value) {
+      const storage = await getDefaultCacheStorage()
+      await setAnalyzedResult(storage, cacheKey.value, mode, result)
     }
   }
 
@@ -172,15 +126,9 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
       await runAnalysis(mode)
   }
 
-  async function reanalyze() {
-    await runAnalysis('llm')
-    await setAnalyzeMode('llm')
-  }
-
   /** A shared result replaces any in-flight run and the chat transcript: it has no session of its own. */
   async function applySharedResult(result: GroupedResult) {
-    chat.stop()
-    llmAbortController?.abort()
+    llm.value?.abort()
     analyzedBy.value = { ...analyzedBy.value, [result.source]: result }
     llmSession.value = undefined
     analyzeMode.value = result.source
@@ -204,8 +152,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
     : undefined
 
   async function analyzeAndStore(key: string, freshDiff: DiffsPayload) {
-    chat.stop()
-    llmAbortController?.abort()
+    llm.value?.abort()
     const storage = await getDefaultCacheStorage()
     const result = await ruleBasedAdapter.analyze(freshDiff)
     diff.value = freshDiff
@@ -225,8 +172,9 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
     // `llm` is never auto-run, even here - a paid/slow call must always be an explicit
     // click (the "(Re-)Analyze with AI" button), never a side effect of loading or
     // refreshing a diff. Only the free/instant modes re-run automatically.
-    if (analyzeMode.value !== 'rule-based' && analyzeMode.value !== 'llm')
-      await runAnalysis(analyzeMode.value)
+    const mode = analyzeMode.value
+    if (mode !== 'rule-based' && mode !== 'llm')
+      await runAnalysis(mode)
   }
 
   async function fetchFresh() {
@@ -297,6 +245,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
           await analyzeAndStore(key, freshDiff)
         }
       }
+      await llmReady
     }
     catch (err) {
       error.value = err instanceof Error ? err : new Error(String(err))
@@ -341,16 +290,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
     analyzeMode,
     setAnalyzeMode,
     ui,
-    llm: import.meta.env.PR_LLM
-      ? reactive({
-          isSetup,
-          isAnalyzing,
-          progress: llmProgress,
-          error: llmError,
-          reanalyze,
-          chat: reactive(chat),
-        })
-      : undefined,
+    llm,
     reviews,
     shared: shared?.store,
     load,

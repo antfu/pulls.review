@@ -5,7 +5,7 @@ import type { GroupedResult } from '../types/analyze'
 import type { LlmSession } from '../types/cache'
 import type { DiffsPayload } from '../types/diff'
 import { computed, getCurrentScope, onScopeDispose, ref, shallowRef, toRaw } from 'vue'
-import { NOT_COMPILED_MESSAGE, NOT_CONFIGURED_MESSAGE, resolveModel } from '../analyze/adapters/llm/model'
+import { NOT_CONFIGURED_MESSAGE, resolveModel } from '../analyze/adapters/llm/model'
 
 export interface LlmChatOptions {
   diff: Ref<DiffsPayload | undefined>
@@ -36,10 +36,6 @@ export function useLlmChat({ diff, session, onSessionChange, onGroupingUpdate }:
     const current = session.value
     if (!currentDiff || !current || isStreaming.value)
       return
-    if (!import.meta.env.PR_LLM) {
-      error.value = new Error(NOT_COMPILED_MESSAGE)
-      return
-    }
     const resolved = resolveModel()
     if (!resolved) {
       error.value = new Error(NOT_CONFIGURED_MESSAGE)
