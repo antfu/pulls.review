@@ -51,14 +51,18 @@ building pi-ai custom `Model` objects from Settings. The runtime side (`llm/runt
 `contextWindow`/`maxTokens`/`cost` use conservative constants (128k / 16k / 0);
 they are not used for billing here.
 
-`list-models.ts` keeps using `@ai-sdk/gateway` in this plan. Removing `ai` and
-`@ai-sdk/*` is a follow-up once nothing imports them.
+`list-models.ts` keeps using `@ai-sdk/gateway` for the gateway catalog; `ai`,
+`@ai-sdk/anthropic` and `@ai-sdk/openai-compatible` are gone.
 
 ### Bundle size
 
 pi-ai's core entry is side-effect free and skips the model catalogs, but pi-agent-core's entry carries its harness. `llm/index.ts` MUST
 load `agent.ts` and `chat.ts` via dynamic `import()` so the code is fetched only on
-the first "Analyze with AI" click or chat open. The embed bundle MUST NOT grow.
+the first "Analyze with AI" click or chat open. The embed bundle MUST NOT grow:
+its `inlineDynamicImports` would inline those `import()`s too, so they (and the
+model-catalog fetch) sit behind the compile-time `import.meta.env.PR_LLM` flag,
+which `vite.config.embed.ts` defines as `false` and enforces by failing the build
+on any bundled LLM SDK module.
 The `api/<id>.lazy` wrappers keep provider SDKs in their own chunks. Never import `providers/all` or `compat`.
 
 ## Analysis agent (`llm/agent.ts`)

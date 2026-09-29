@@ -1,7 +1,7 @@
 import Vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
-import { alias } from './vite.config.shared'
+import { alias, features } from './vite.config.shared'
 
 export default defineConfig({
   plugins: [
@@ -11,4 +11,5 @@ export default defineConfig({
   resolve: {
     alias,
   },
+  define: features({ llm: true }),
 })

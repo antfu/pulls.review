@@ -105,8 +105,8 @@ function navigateToFile(sha: string) {
             <div class="leading-1em flex gap-2 items-center">
               <DiffStats :additions="totalAdded" :deletions="totalDeleted" />
               <span class="text-xs op-fade">{{ totalFiles }} file{{ totalFiles === 1 ? '' : 's' }}</span>
-              <DisplayDonut :value="progress" :size="12" :thickness="2.5" />
               <span class="text-xs op-fade">{{ group.children.length }} subgroup{{ group.children.length === 1 ? '' : 's' }}</span>
+              <DisplayDonut :value="progress" :size="12" :thickness="2.5" />
             </div>
           </div>
         </button>
@@ -118,6 +118,7 @@ function navigateToFile(sha: string) {
         <Suspense v-if="group.summary">
           <Markdown :value="group.summary" class="text-sm px-2 op-fade max-w-200" />
         </Suspense>
+        <!-- TODO: use DiffGroupNav.vue instead -->
         <div class="px-2 flex flex-wrap gap-1.5">
           <button
             v-for="child in group.children"
@@ -136,9 +137,6 @@ function navigateToFile(sha: string) {
       <!-- --diffs-header-height is the page's real, measured sticky DiffsHeader height
            (set on the DiffsPage root), so the aside sticks just below it, not under it. -->
       <aside class="flex shrink-0 flex-col gap-3 min-w-70 top-[var(--diffs-header-height)] lg:self-start lg:sticky">
-        <div v-if="parentLabel" class="text-xs leading-1em mb--2 px-3 op-fade truncate">
-          {{ parentLabel }} ›
-        </div>
         <header v-if="!isChapter" class="bg-base flex w-full items-center">
           <button
             type="button"
@@ -154,6 +152,10 @@ function navigateToFile(sha: string) {
               as="span"
             />
             <div class="flex-1 min-w-0">
+              <!-- TODO: clickable to navigtate to parent group -->
+              <div v-if="parentLabel" class="text-xs leading-1em pt2 op-fade truncate">
+                {{ parentLabel }} ›
+              </div>
               <div class="leading-1em flex gap-2 items-center">
                 <span
                   ref="labelBox"
@@ -183,6 +185,7 @@ function navigateToFile(sha: string) {
           <FileTree
             :store="store"
             :files="group.files"
+            :missing="group.missing"
             @navigate="navigateToFile"
           />
         </template>

@@ -110,9 +110,22 @@ describe('createDiffsStore llm session/progress/error', () => {
     vi.unstubAllGlobals()
   })
 
-  it('discards an in-flight analysis when the diff is refreshed', async () => {
+  it('never persists the rule-based result, recomputing it from the diff instead', async () => {
     const store = createDiffsStore({ kind: 'patch-text', text: PATCH_TEXT })
     await store.load()
+
+    expect(store.grouped?.source).toBe('rule-based')
+    const entry = await mocks.storage!.getItem(`pr:${store.diff!.id}`) as any
+    expect(entry.analyzedBy).toEqual({})
+  })
+
+  it('discards an in-flight analysis on refresh but keeps the last stored result and session', async () => {
+    const store = createDiffsStore({ kind: 'patch-text', text: PATCH_TEXT })
+    await store.load()
+
+    const stored = { source: 'llm' as const, groups: [], schemaVersion: 1, generatedAt: new Date().toISOString() }
+    runLlmAnalysisMock.mockResolvedValue({ result: stored, transcript: transcript() })
+    await store.llm!.reanalyze()
 
     let signal: AbortSignal | undefined
     let resolveRun!: (value: unknown) => void
@@ -123,14 +136,14 @@ describe('createDiffsStore llm session/progress/error', () => {
 
     const running = store.llm!.reanalyze()
     await store.refresh()
-    resolveRun({ result: { source: 'llm', groups: [], schemaVersion: 1, generatedAt: new Date().toISOString() }, transcript: transcript() })
+    resolveRun({ result: { ...stored, generatedAt: 'later' }, transcript: transcript() })
     await running
 
     expect(signal?.aborted).toBe(true)
-    expect(store.aiResult).toBeUndefined()
-    expect(store.llm!.chat.available).toBe(false)
+    expect(store.aiResult).toEqual(stored)
+    expect(store.llm!.chat.available).toBe(true)
     const entry = await mocks.storage!.getItem(`pr:${store.diff!.id}`) as any
-    expect(entry.analyzedBy.llm).toBeUndefined()
-    expect(entry.llmSession).toBeUndefined()
+    expect(entry.analyzedBy.llm).toEqual(stored)
+    expect(entry.llmSession.chatStartIndex).toBe(transcript().length)
   })
 })

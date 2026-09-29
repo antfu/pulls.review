@@ -31,9 +31,7 @@
     "storybook:build": "storybook build"
   },
   "devDependencies": {
-    "@ai-sdk/anthropic": "catalog:frontend",
     "@ai-sdk/gateway": "catalog:frontend",
-    "@ai-sdk/openai-compatible": "catalog:frontend",
     "@antfu/design": "catalog:frontend",
     "@antfu/eslint-config": "catalog:dev",
     "@antfu/utils": "catalog:frontend",
@@ -56,7 +54,6 @@
     "@vitejs/plugin-vue": "catalog:build",
     "@vue/test-utils": "catalog:testing",
     "@vueuse/core": "catalog:frontend",
-    "ai": "catalog:frontend",
     "animejs": "catalog:frontend",
     "colorjs.io": "catalog:frontend",
     "eslint": "catalog:dev",

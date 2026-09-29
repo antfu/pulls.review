@@ -95,9 +95,10 @@ const model = computed({
       :inert="isEmbedded"
     >
       <div>
-        <h3 class="text-sm color-base font-medium">
-          AI summaries
-        </h3>
+        <div class="text-sm color-base font-medium mb1 flex gap-1 items-center">
+          <div class="i-ph-sparkle-duotone text-lg" />
+          AI Analysis
+        </div>
         <p class="text-sm color-faint">
           Configure a model provider to enable AI-generated summaries. Stored only in this browser and sent only to the provider you select.
         </p>
@@ -124,6 +125,7 @@ const model = computed({
             <FormTextInput
               v-model="draftToken"
               type="password"
+              icon="i-ph-key-duotone"
               :placeholder="config.placeholder"
               class="flex-1"
               @keyup.enter="draftToken && save()"

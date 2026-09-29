@@ -48,11 +48,21 @@ function remove() {
 </script>
 
 <template>
-  <FormField v-if="!tokenSet || editing" label="GitHub personal access token" :error="error">
+  <FormField
+    v-if="!tokenSet || editing"
+    :error="error"
+  >
+    <template #label>
+      <div class="pb1 flex gap-1 items-center">
+        <div class="i-carbon-logo-github text-lg" />
+        GitHub Personal Access Token
+      </div>
+    </template>
     <div class="flex gap-2 items-center">
       <FormTextInput
         v-model="draft"
         type="password"
+        icon="i-ph-key-duotone"
         placeholder="ghp_…"
         class="flex-1"
         :disabled="busy"
@@ -70,19 +80,25 @@ function remove() {
       </ActionButton>
     </div>
     <template #description>
-      Optional for public repos; required for private repos, a higher rate limit, or leaving review comments.
-      Reviews need the <code>repo</code> scope (classic token) or "Pull requests: Read and write" (fine-grained token);
-      read-only tokens still work with reviewing disabled. Stored only in this browser.
-      <a
+      Optional for public repos; required for private repos, or leaving reviews.<br>
+      Reviews need the <code class="font-medium px1 rounded bg-sunken">repo</code> scope (classic token) or <code class="font-medium px1 rounded bg-sunken">Pull requests: Read and write</code> (fine-grained token)<br>
+      Stored only in this browser.
+      <br><a
         href="https://github.com/settings/tokens/new?description=pulls.review&scopes=repo"
         target="_blank"
         rel="noopener"
-        class="hover:underline"
+        class="text-primary hover:underline"
       >Generate one on GitHub →</a>
     </template>
   </FormField>
 
-  <FormField v-else label="GitHub personal access token">
+  <FormField v-else>
+    <template #label>
+      <div class="flex gap-1 items-center">
+        <div class="i-carbon-logo-github text-lg" />
+        GitHub Personal Access Token
+      </div>
+    </template>
     <div class="p-3 border border-base rounded bg-raised flex flex-col gap-2">
       <div v-if="meta" class="flex gap-3 items-start">
         <DisplayAvatar :src="meta.avatarUrl" :name="meta.login" :size="36" />

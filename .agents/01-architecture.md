@@ -70,28 +70,46 @@ analysis strategy later never touches the view layer:
     the model must fix it. A read budget and a turn cap bound the run, and
     progress (`Reading 4 files: …`) streams to the header. Failures MUST
     surface as `llm.error` — there is no silent `rule-based` fallback, and
-    nothing but real model output is ever stored under `llm`. The pi runtime
-    (`agent.ts`, `runtime.ts`, `chat.ts`) is only reached via dynamic
-    `import()`, so the embed bundle never ships it.
+    nothing but real model output is ever stored under `llm`. Everything that
+    runs or chats with a model - `stores/llm-store.ts` (the `DiffsStore.llm`
+    sub-store), `composables/useLlmChat.ts`, the chat components, and the pi
+    runtime (`agent.ts`, `runtime.ts`, `chat.ts`) behind them - is only
+    reached via dynamic `import()` behind the compile-time
+    `import.meta.env.PR_LLM` flag: the site builds with it on (lazy chunks),
+    the embed with it off (the `import()`s are dead code, so its single IIFE
+    never bundles any of it, nor `@ai-sdk/gateway`), and
+    `vite.config.embed.ts` fails the build if an LLM SDK slips in anyway.
+    `store.llm` is `undefined` iff the flag is off.
   - Follow-up chat reuses the analysis transcript: `llmSession` (`messages`
     + `chatStartIndex`) is persisted alongside the result in the `pr:*`
     entry, and `composables/useLlmChat.ts` builds a fresh pi `Agent` from it
     per message (`read_diffs` plus `update_grouping`, which replaces
-    `analyzedBy.llm` in store and cache). Re-analyze or a refetch replaces
-    the session; results cached without one show `Re-analyze to enable chat`.
+    `analyzedBy.llm` in store and cache). Re-analyze or loading a shared
+    result replaces the session; a refetch keeps it (the transcript still
+    reads the live diff). Results cached without one show `Re-analyze to
+    enable chat`.
   - `web-llm` — TODO, stub only. Fully in-browser model inference, no network
     call at analyze time.
   - LLM-sourced groups MAY nest one level (root group -> children, e.g.
     `docs/featureA`); `rule-based` groups MUST stay flat. Depth is capped at 2
     total — enforced structurally in the schema (child groups have no further
     `children`), not by convention.
+  - A `GroupedResult` references files by path and MAY predate the diff it is
+    viewed with (new commits since an AI run, a shared result, a model that
+    omitted files). `resolveGroups` (`app/components/diff/group-utils.ts`)
+    reconciles the two at view time and MUST NOT silently drop anything: a
+    path still in the diff resolves to its `FileChange` (a renamed file is
+    found by its `previousPath` too), a path that left the diff is kept as
+    `missing` and rendered as removed, and files no group names are collected
+    into a trailing `Uncategorized` group. Adapters therefore don't need their
+    own catch-all group.
 - **View components** (`app/components/`) MUST stay pure and data-driven: they
   receive a single `DiffsStore` (`app/stores/types.ts`) as a `store` prop,
   threaded explicitly down the tree (no provide/inject, no global singleton
   registry), and call its methods directly (`store.toggleReviewed(...)`,
   `store.llm?.reanalyze()`) instead of emitting events that bubble up to
   whoever created the store. `store.llm` is `undefined` when LLM analysis
-  isn't available in the current environment (e.g. the GitHub-embedded view),
+  isn't compiled into the current build (`PR_LLM` off: the GitHub-embedded view),
   which components use structurally to hide the *run* side of AI (analyze,
   chat). The AI *result* itself (`store.aiResult`, `analyzeMode`) lives on the
   store root, because the embed can still hold one loaded from a shared PR
@@ -155,7 +173,7 @@ identical code, no separate IndexedDB-mocking dependency needed.
 One `unstorage` instance, three logical collections via key prefix (unstorage
 is flat key-value, so there's no native "object store" split):
 
-- `pr:*` — raw diff + per-adapter `GroupedResult`s (+ the `llmSession`
+- `pr:*` — raw diff + the `llm`/`web-llm` `GroupedResult`s (+ the `llmSession`
   chat transcript, counted toward the size budget), keyed by
   `pr:{provider}:{owner}/{repo}#{number}` for github or `pr:paste:{contentHash}`
   for paste (content hash is an internal cache key only, never exposed in a
@@ -166,6 +184,11 @@ is flat key-value, so there's no native "object store" split):
   (that could re-trigger a paid LLM analysis) or silently go stale. `paste`
   entries have no live source, so no staleness check applies; if evicted,
   `/upload` simply has nothing to show until the user pastes again.
+  Only results that cost a model call are persisted: `rule-based` and `none`
+  MUST be recomputed from the diff on every load, so they can never disagree
+  with it. A refetch replaces the entry's diff but keeps its AI result and
+  session — `resolveGroups` reconciles them against the new diff, so a paid
+  analysis is never thrown away by new commits.
 - `review:*` — per-file "reviewed" marks, keyed by `review:{FileChange.sha}`,
   not by path or PR. This is deliberate: if a PR gets new commits and a
   file's `sha` is unchanged, its reviewed mark MUST survive; only files whose

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import nestedGroups from '../../../test/fixtures/synthetic/nested-groups.json'
 import partiallyReviewed from '../../../test/fixtures/synthetic/partially-reviewed.json'
+import staleAnalysis from '../../../test/fixtures/synthetic/stale-analysis.json'
 import { createMockDiffsStore } from '../../stores/mock-diffs-store'
 import DiffGroup from './DiffGroup.vue'
 import { resolveGroups } from './group-utils'
@@ -24,6 +25,14 @@ export const Default: Story = {
 export const WithNestedChildren: Story = {
   args: {
     group: resolveGroups(nestedGroups.grouped.groups as any, nestedGroups.diff.files as any)[0]!,
+    store: createMockDiffsStore({}),
+  },
+}
+
+/** An analysis from an older commit: one path resolved via its rename, one no longer in the diff. */
+export const WithRemovedFiles: Story = {
+  args: {
+    group: resolveGroups(staleAnalysis.grouped.groups as any, staleAnalysis.diff.files as any)[0]!,
     store: createMockDiffsStore({}),
   },
 }

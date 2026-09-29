@@ -239,7 +239,7 @@ describe('reconcile', () => {
     expect(result.groups[0]?.children?.[0]?.filePaths).toEqual(['a.ts'])
   })
 
-  it('drops hallucinated and duplicated paths and re-attaches dropped files as Other', async () => {
+  it('drops hallucinated and duplicated paths, leaving omitted files for the view to surface', async () => {
     const analysis: Analysis = {
       overallSummary: 'Summary.',
       groups: [
@@ -253,7 +253,6 @@ describe('reconcile', () => {
 
     expect(result.groups).toEqual([
       { key: 'code', label: 'Code', filePaths: ['a.ts'], children: undefined },
-      { key: 'llm-unassigned', label: 'Other', filePaths: ['b.ts'] },
     ])
   })
 })

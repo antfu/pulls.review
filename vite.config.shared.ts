@@ -10,3 +10,14 @@ export const alias = [
     replacement: fileURLToPath(new URL('./app/embed/shiki-langs-embed.ts', import.meta.url)),
   },
 ]
+
+/**
+ * Compile-time feature flags, read as `import.meta.env.PR_*` (typed in `app/types/env.d.ts`).
+ * Each is replaced with a literal at build time, so a branch on it is dead-code-eliminated
+ * before module discovery - a dynamic `import()` inside a disabled branch is never bundled.
+ */
+export function features(flags: { llm: boolean }) {
+  return {
+    'import.meta.env.PR_LLM': JSON.stringify(flags.llm),
+  }
+}

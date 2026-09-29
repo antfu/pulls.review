@@ -38,10 +38,13 @@ function groupProgress(group: ResolvedGroupWithChildren) {
         <div>{{ group.label }}</div>
         <div class="text-xs flex items-center">
           <DiffStats :additions="countGroupStats(group).added" :deletions="countGroupStats(group).deleted" />
-          <span class="op-mute">・{{ countGroupFiles(group) }} files</span>
+          <span class="op-mute">・{{ countGroupFiles(group) }} file{{ countGroupFiles(group) === 1 ? '' : 's' }}</span>
+          <span v-if="group.children.length" class="op-mute">・{{ group.children.length }} subgroup{{ group.children.length === 1 ? '' : 's' }}</span>
         </div>
       </div>
       <DisplayDonut v-if="groupProgress(group) !== 0" :value="groupProgress(group)" :size="18" :thickness="2" />
+      <!-- TODO: show a caret button when subgroups are present, on clicking, show the sub groups in next row -->
     </button>
   </div>
+  <!-- TODO: show subgroups in here for selected group -->
 </template>

@@ -2,6 +2,7 @@ import type { Api, Model } from '@earendil-works/pi-ai'
 import { settings } from '../../../state/settings'
 
 export const NOT_CONFIGURED_MESSAGE = 'llm adapter is not configured: add a gateway token or a vendor API key in Settings'
+export const NOT_COMPILED_MESSAGE = 'llm adapter is not compiled into this build (PR_LLM is off)'
 
 export interface ResolvedModel {
   model: Model<Api>
