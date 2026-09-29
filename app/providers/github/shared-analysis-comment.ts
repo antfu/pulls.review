@@ -55,6 +55,7 @@ export function renderSharedAnalysisComment(pr: PullRequestRef, login: string, a
     `<details><summary>raw result</summary>`,
     '',
     '<br>',
+    '',
     `💭 analyzed by \`${result.model ?? result.source}\``,
     `🕰️ ${formatUtcMinutes(result.generatedAt)} UTC`,
     `🔗 head ${analysis.headSha.slice(0, 7)}`,

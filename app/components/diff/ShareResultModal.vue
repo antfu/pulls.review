@@ -34,7 +34,7 @@ async function confirm() {
     :document="document"
     @update:open="emit('update:open', $event)"
   >
-    <div class="text-sm flex flex-col gap-3 w-full sm:w-110">
+    <div class="text-sm flex flex-col gap-3 w-full">
       <p>
         <template v-if="shared.ownComment">
           Your existing <a :href="shared.ownComment.url" target="_blank" rel="noopener" class="underline">comment</a> on this pull request will be updated
@@ -43,7 +43,7 @@ async function confirm() {
           A public comment will be posted on this pull request
         </template>
         as
-        <span v-if="shared.viewerLogin" class="align-text-bottom inline-flex gap-1 items-center">
+        <span v-if="shared.viewerLogin" class="align-middle inline-flex gap-1 items-center">
           <span class="rounded-full h-4 w-4 overflow-hidden"><GithubAvatar :login="shared.viewerLogin" :size="16" /></span>
           <strong>{{ shared.viewerLogin }}</strong>
         </span>
@@ -58,22 +58,19 @@ async function confirm() {
           The comment contains:
         </p>
         <ul class="pl-5 list-disc flex flex-col gap-0.5">
+          <li>a link to open this review on <span class="text-primary font-bold">pulls.review</span></li>
           <li>
-            the {{ groupCount }} group{{ groupCount === 1 ? '' : 's' }} and summaries of this AI analysis
-            <template v-if="result.model">
-              (by <code class="text-xs">{{ result.model }}</code>)
-            </template>
+            the grouping and summaries of this AI analysis
             as JSON inside a collapsed block
           </li>
-          <li>a link to open this review on pulls.review</li>
         </ul>
         <p class="op-fade">
-          Not included: your chat messages, API keys, or anything else from your settings.
+          Your chat messages, API keys, or anything else from your settings will not be included.
         </p>
       </div>
 
       <p class="op-fade">
-        Anyone viewing the pull request can load the shared analysis instead of running their own - including in the github.com embed, which cannot call AI providers itself.
+        Anyone viewing the pull request can load the shared analysis.
       </p>
 
       <p v-if="shared.error" class="text-red-600 dark:text-red-400">
