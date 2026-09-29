@@ -22,13 +22,14 @@ const replacesLocal = computed(() => props.store.aiResult !== undefined && props
     <span class="i-ph-sparkle-duotone op-fade shrink-0" aria-hidden="true" />
     <template v-if="shared.candidates.length">
       <span>
-        <template v-if="replacesLocal">Load a shared AI analysis? It replaces yours.</template>
-        <template v-else>Shared AI analyses of this pull request:</template>
+        <template v-if="replacesLocal">Load a shared AI analysis? It replaces yours:</template>
+        <template v-else>Shared AI analyses of this pull request available:</template>
       </span>
       <ActionButton
         v-for="candidate in shared.candidates"
         :key="candidate.login"
         size="sm"
+        class="rounded-full"
         :title="candidate.stale ? 'Analyzed before the latest commits' : candidate.result.model"
         @click="shared.load(candidate.login)"
       >
