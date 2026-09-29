@@ -35,7 +35,6 @@ function formatUtcMinutes(iso: string): string {
 export function renderSharedAnalysisComment(pr: PullRequestRef, login: string, analysis: SharedAnalysis): string {
   const { result } = analysis
   const link = `${SITE_ORIGIN}/gh/${pr.owner}/${pr.repo}/${pr.number}?from=${login}`
-  const summary = `analyzed by \`${result.model ?? result.source}\` at ${formatUtcMinutes(result.generatedAt)} UTC · head ${analysis.headSha.slice(0, 7)} · automated by pulls.review`
   const body = [
     MARKER,
     `👁️‍🗨️ Review this pull request with grouped, summarized diffs at:`,
@@ -44,7 +43,10 @@ export function renderSharedAnalysisComment(pr: PullRequestRef, login: string, a
     `<details><summary>raw result</summary>`,
     '',
     '<br>',
-    summary,
+    `💭 analyzed by \`${result.model ?? result.source}\``,
+    `🕰️ ${formatUtcMinutes(result.generatedAt)} UTC`,
+    `🔗 head ${analysis.headSha.slice(0, 7)}`,
+    `🤖 automated by [pulls.review](${SITE_ORIGIN})`,
     '',
     '```json',
     JSON.stringify(analysis, null, 2),
