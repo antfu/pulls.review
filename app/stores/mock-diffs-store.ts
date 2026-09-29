@@ -167,7 +167,6 @@ export function createMockDiffsStore(input: {
   chatError?: Error
   chatAvailable?: boolean
   layout?: 'split' | 'unified'
-  isEmbedded?: boolean
   /** Enables the reviews sub-store (absent = a source with no review lifecycle). */
   reviews?: MockReviewsInput
   /** Enables the shared-analysis sub-store (absent = a source with no PR comments). */
@@ -230,7 +229,6 @@ export function createMockDiffsStore(input: {
 
   const ui = reactive({
     layout,
-    isEmbedded: input.isEmbedded ?? false,
     setLayout: (mode: 'split' | 'unified') => { layout.value = mode },
   })
 

@@ -15,13 +15,15 @@ const props = defineProps<{
   models: ModelOption[] | null
   modelsLoading?: boolean
   modelsError?: string
-  /** The GitHub-embedded view: github.com's CSP blocks the requests AI providers need, so the form is shown but disabled. */
-  isEmbedded?: boolean
 }>()
 
 const emit = defineEmits<{
   'update:llmSettings': [value: LlmSettings]
 }>()
+
+// The GitHub-embedded build shows this form disabled: github.com's CSP blocks the
+// requests AI providers need. Keyed off the compile-time `PR_EMBED` flag, not a prop.
+const isEmbedded = import.meta.env.PR_EMBED
 
 interface ProviderConfig {
   tokenKey: 'gatewayToken' | 'anthropicApiKey' | 'openaiApiKey'

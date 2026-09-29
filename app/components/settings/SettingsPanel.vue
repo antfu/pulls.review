@@ -16,7 +16,6 @@ defineProps<{
   models: ModelOption[] | null
   modelsLoading?: boolean
   modelsError?: string
-  isEmbedded?: boolean
 }>()
 
 defineEmits<{
@@ -51,7 +50,6 @@ defineEmits<{
       :models="models"
       :models-loading="modelsLoading"
       :models-error="modelsError"
-      :is-embedded="isEmbedded"
       @update:llm-settings="$emit('update:llmSettings', $event)"
     />
   </div>

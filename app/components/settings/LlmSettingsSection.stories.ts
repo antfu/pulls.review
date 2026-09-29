@@ -53,11 +53,3 @@ export const ModelsFetchFailed: Story = {
     modelsError: 'Anthropic API request failed (401)',
   },
 }
-
-export const Embedded: Story = {
-  args: {
-    llmSettings: defaultLlmSettings,
-    models: null,
-    isEmbedded: true,
-  },
-}

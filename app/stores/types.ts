@@ -111,13 +111,10 @@ export interface DiffsStoreShared {
  * read off the same `store` prop instead of threaded down as their own separate props.
  * `layout` is a shared app-wide preference (backed by the same persisted singleton
  * across every `DiffsStore` instance, like `state/dark.ts`'s `isDark`) - writing it
- * through one store's `ui.layout` updates it everywhere. `isEmbedded` is fixed per
- * store instance (set at creation) - the GitHub-embedded view is the one place it's
- * `true`.
+ * through one store's `ui.layout` updates it everywhere.
  */
 export interface DiffsStoreUi {
   readonly layout: 'split' | 'unified'
-  readonly isEmbedded: boolean
   setLayout: (layout: 'split' | 'unified') => void
 }
 

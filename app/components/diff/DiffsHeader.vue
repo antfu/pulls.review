@@ -27,7 +27,9 @@ const props = defineProps<{
 // `store.diff` is guaranteed set - `DiffsPage` only renders this component once it is.
 const meta = computed(() => props.store.diff!)
 const groups = computed(() => props.store.groups)
-const isEmbedded = computed(() => props.store.ui.isEmbedded)
+// The embedded view keys off the compile-time `PR_EMBED` flag instead of a runtime flag
+// threaded down from the store.
+const isEmbedded = import.meta.env.PR_EMBED
 const totalFiles = computed(() => meta.value.files.length)
 const reviewedCount = computed(() => meta.value.files.filter(file => props.store.reviewed.has(file.sha)).length)
 const additions = computed(() => meta.value.files.reduce((sum, file) => sum + file.additions, 0))
@@ -89,7 +91,7 @@ function scrollToGroup(key: string) {
           @update:show-threads="reviews.setShowThreads($event)"
         />
         <div class="shrink-0">
-          <NavControls :document="document" :is-embedded="isEmbedded" />
+          <NavControls :document="document" />
         </div>
       </div>
 

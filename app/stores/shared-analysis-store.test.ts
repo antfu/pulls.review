@@ -151,7 +151,7 @@ describe('discovery', () => {
     vi.stubEnv('PR_LLM', undefined)
     await seedCache({})
     stubFetch([commentsRoute([issueComment(2, 'antfu', aiResult())])])
-    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { isEmbedded: true })
+    const store = createDiffsStore({ kind: 'github-pr', ...pr })
     await store.load()
     await settle()
 
@@ -162,7 +162,7 @@ describe('discovery', () => {
     expect(store.shared!.canShare).toBe(false)
 
     // A fresh embed store (e.g. next page view) shows the cached shared result without toggling.
-    const next = createDiffsStore({ kind: 'github-pr', ...pr }, { isEmbedded: true })
+    const next = createDiffsStore({ kind: 'github-pr', ...pr })
     await next.load()
     expect(next.grouped?.sharedBy).toBe('antfu')
   })

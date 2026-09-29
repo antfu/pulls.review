@@ -23,7 +23,3 @@ export const Default: Story = {
 export const NoDescription: Story = {
   args: { store: createMockDiffsStore({ diff: zeroFiles.diff as any, grouped: zeroFiles.grouped as any, isSetup: true }) },
 }
-
-export const Embedded: Story = {
-  args: { store: createMockDiffsStore({ diff: empty.diff as any, grouped: empty.grouped as any, llm: false, isEmbedded: true }) },
-}

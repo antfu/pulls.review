@@ -12,7 +12,7 @@ import { createDiffsStore } from '../stores/diffs-store'
 // so a fresh instance (and fresh store) is created per navigation, same as the routed
 // page getting a fresh mount per route change. The store's `llm` is `undefined` here:
 // the embed build compiles LLM support out (`PR_LLM: false`, see vite.config.embed.ts).
-// `isEmbedded: true` flows into `store.ui.isEmbedded`.
+// Embedded-only UI keys off the compile-time `import.meta.env.PR_EMBED` flag directly.
 const props = defineProps<{
   document?: Document | ShadowRoot
   owner: string
@@ -27,7 +27,7 @@ const params = computed(() => ({
   number: props.number,
 }))
 
-const store = createDiffsStore(params.value, { token: settings.value.githubToken, isEmbedded: true })
+const store = createDiffsStore(params.value, { token: settings.value.githubToken })
 
 onMounted(() => store.load())
 </script>

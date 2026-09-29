@@ -6,14 +6,15 @@ import SettingsModal from './settings/SettingsModal.vue'
 
 defineProps<{
   document?: Document | ShadowRoot
-  /**
-   * The GitHub-embedded view: hides the dark-mode toggle (embed styling already
-   * follows GitHub's own theme, via `embed/dark.ts`'s scoped `isDark` - `DarkToggle`
-   * only ever touches the global, page-wide one) and skips mounting its own
-   * `SettingsModal`, since `EmbedApp.ce.vue` already mounts one at the embed's root.
-   */
-  isEmbedded?: boolean
 }>()
+
+/**
+ * The GitHub-embedded build hides the dark-mode toggle (embed styling already follows
+ * GitHub's own theme, via `embed/dark.ts`'s scoped `isDark` - `DarkToggle` only ever
+ * touches the global, page-wide one) and skips mounting its own `SettingsModal`, since
+ * `EmbedApp.ce.vue` already mounts one at the embed's root.
+ */
+const isEmbedded = import.meta.env.PR_EMBED
 </script>
 
 <template>

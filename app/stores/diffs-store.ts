@@ -27,7 +27,6 @@ import { createSharedAnalysisStore } from './shared-analysis-store'
  */
 export interface DiffsStoreOptions {
   token?: string
-  isEmbedded?: boolean
   /** Login from the page's `?from=` query: load that user's shared analysis (see plans/07). */
   from?: string
 }
@@ -276,7 +275,6 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
 
   const ui = reactive({
     layout,
-    isEmbedded: opts.isEmbedded ?? false,
     setLayout: (mode: 'split' | 'unified') => { layout.value = mode },
   })
 
