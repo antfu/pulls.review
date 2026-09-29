@@ -17,12 +17,14 @@ const analysis: SharedAnalysis = {
 }
 
 describe('renderSharedAnalysisComment', () => {
-  it('starts with the marker, links back with ?from=, and labels the summary', () => {
+  it('starts with the marker, links back with ?from=, and attributes model, time and head', () => {
     const body = renderSharedAnalysisComment(pr, 'antfu', analysis)
 
     expect(body.split('\n')[0]).toBe('<!-- pulls.review data -->')
     expect(body).toContain('https://pulls.review/gh/vuejs/core/12349?from=antfu')
-    expect(body).toContain('<summary>Analyzed by anthropic/claude-sonnet-4 at 2026-09-28 12:34 UTC · head abc1234</summary>')
+    expect(body).toContain('analyzed by `anthropic/claude-sonnet-4`')
+    expect(body).toContain('2026-09-28 12:34 UTC')
+    expect(body).toContain('head abc1234')
   })
 
   it('round-trips through parse', () => {

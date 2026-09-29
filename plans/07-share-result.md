@@ -25,9 +25,16 @@ there instead of paying for their own run.
 
 ````
 <!-- pulls.review data -->
-See a better organized pull request review at https://pulls.review/gh/{owner}/{repo}/{number}?from={login}
+👁️‍🗨️ Review this pull request with grouped, summarized diffs at:
+👉 https://pulls.review/gh/{owner}/{repo}/{number}?from={login}
 
-<details><summary>Analyzed by {model} at {generatedAt, YYYY-MM-DD HH:mm UTC} · head {sha7}</summary>
+<details><summary>raw result</summary>
+
+<br>
+💭 analyzed by `{model}`
+🕰️ {generatedAt, YYYY-MM-DD HH:mm} UTC
+🔗 head {sha7}
+🤖 automated by [pulls.review](https://pulls.review)
 
 ```json
 { "headSha": "...", "result": { ...GroupedResult } }

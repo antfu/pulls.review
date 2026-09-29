@@ -114,8 +114,9 @@ repos read one. Contract:
 - Body: line 1 is the literal marker `<!-- pulls.review data -->`; then a link
   to `https://pulls.review/gh/{owner}/{repo}/{n}?from={login}` (hardcoded
   origin — a preview host MUST NOT leak into a public comment); then a
-  `<details>` whose fenced ```` ```json ```` block is `{ headSha, result }`
-  (`SharedAnalysisSchema`). Unmarked or invalid comments are ignored, never an
+  `<details>` with model/time/head attribution and a fenced ```` ```json ````
+  block `{ headSha, result }` (`SharedAnalysisSchema`). Exact template in
+  `plans/07-share-result.md`. Unmarked or invalid comments are ignored, never an
   error. Only the `GroupedResult` is shared — never the chat transcript.
 - Loading writes the result into the `pr:*` entry under its own `source` with
   `sharedBy: login`, so the view credits it and never offers to re-share it.
