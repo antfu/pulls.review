@@ -63,9 +63,7 @@ catalogs:
     typescript: ^6.0.3
     vue-tsc: ^3.3.11
   frontend:
-    '@ai-sdk/anthropic': ^4.0.65
     '@ai-sdk/gateway': ^4.0.96
-    '@ai-sdk/openai-compatible': ^3.0.57
     '@antfu/design': ^0.5.3
     '@antfu/utils': ^9.3.0
     '@comark/vue': ^0.7.0
@@ -75,7 +73,6 @@ catalogs:
     '@tanstack/vue-virtual': ^3.13.39
     '@valibot/to-json-schema': ^1.8.0
     '@vueuse/core': ^14.4.0
-    ai: ^7.0.118
     colorjs.io: ^0.7.1
     idb-keyval: ^6.3.0
     lz-string: ^1.5.0

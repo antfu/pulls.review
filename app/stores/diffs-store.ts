@@ -27,21 +27,18 @@ import { createSharedAnalysisStore } from './shared-analysis-store'
  */
 export interface DiffsStoreOptions {
   token?: string
-  llm?: boolean
   isEmbedded?: boolean
   /** Login from the page's `?from=` query: load that user's shared analysis (see plans/07). */
   from?: string
 }
 
 export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOptions = {}): DiffsStore {
-  const llmEnabled = opts.llm ?? true
-
   const diff = ref<DiffsPayload>()
   const analyzedBy = ref<Partial<Record<GroupSource, GroupedResult>>>({})
   const isLoading = ref(false)
   const error = ref<Error>()
   const isStale = ref(false)
-  // `llm` even when `llmEnabled` is off: `grouped` falls back to rule-based until an AI
+  // `llm` even when `PR_LLM` is off: `grouped` falls back to rule-based until an AI
   // result exists, and the embed can still hold one loaded from a shared comment.
   const analyzeMode = ref<GroupSource>('llm')
   const isAnalyzing = ref(false)
@@ -344,7 +341,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
     analyzeMode,
     setAnalyzeMode,
     ui,
-    llm: llmEnabled
+    llm: import.meta.env.PR_LLM
       ? reactive({
           isSetup,
           isAnalyzing,

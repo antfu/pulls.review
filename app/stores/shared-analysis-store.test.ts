@@ -95,6 +95,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  vi.unstubAllEnvs()
 })
 
 describe('discovery', () => {
@@ -147,10 +148,11 @@ describe('discovery', () => {
     expect(entry!.analyzedBy.llm?.sharedBy).toBe('antfu')
   })
 
-  it('works anonymously in the embed (no token, llm disabled)', async () => {
+  it('works anonymously in the embed (no token, LLM compiled out)', async () => {
+    vi.stubEnv('PR_LLM', undefined)
     await seedCache({ 'rule-based': ruleBased })
     stubFetch([commentsRoute([issueComment(2, 'antfu', aiResult())])])
-    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { llm: false, isEmbedded: true })
+    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { isEmbedded: true })
     await store.load()
     await settle()
 
@@ -161,7 +163,7 @@ describe('discovery', () => {
     expect(store.shared!.canShare).toBe(false)
 
     // A fresh embed store (e.g. next page view) shows the cached shared result without toggling.
-    const next = createDiffsStore({ kind: 'github-pr', ...pr }, { llm: false, isEmbedded: true })
+    const next = createDiffsStore({ kind: 'github-pr', ...pr }, { isEmbedded: true })
     await next.load()
     expect(next.grouped?.sharedBy).toBe('antfu')
   })

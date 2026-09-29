@@ -2,9 +2,15 @@ import { fileURLToPath } from 'node:url'
 import Vue from '@vitejs/plugin-vue'
 import { createJiti } from 'jiti'
 import { defineConfig } from 'vite'
-import { alias as sharedAlias } from './vite.config.shared'
+import { features, alias as sharedAlias } from './vite.config.shared'
 
 const jiti = createJiti(import.meta.url)
+
+/**
+ * Packages that MUST NOT end up in the embed: github.com's CSP blocks model providers,
+ * so LLM analysis/chat is compiled out (`PR_LLM: false`) and these would be dead weight.
+ */
+const FORBIDDEN_MODULES = /\/node_modules\/(?:@earendil-works\/pi-[^/]+|@ai-sdk\/[^/]+|ai|@anthropic-ai\/sdk|openai)\//
 
 /**
  * Separate build target from `vite.config.ts`: a single self-contained IIFE bundle
@@ -12,15 +18,15 @@ const jiti = createJiti(import.meta.url)
  * See `app/embed/main.ts`. No `unocss/vite` plugin - its CSS is a pre-generated,
  * shadow-root-safe file instead (`build:embed:css`, see scripts/build-embed-css.ts).
  *
- * The Shiki aliases below are embed-only, layered on top of `vite.config.shared.ts`'s
- * (shared with the main site) - `inlineDynamicImports: true` (required so the
- * userscript's single `@require` has no further script-src fetches to make on
- * GitHub's CSP) forces a bundler to inline every dynamic import it can statically
- * discover regardless of whether a given diff's runtime path actually reaches it, so
- * anything genuinely unused (the WASM highlighter engine) or rarely needed (most of
- * shiki's ~240 language grammars) needs to be swapped out before bundling, not after.
- * Neither applies to the main site, which code-splits each language into its own
- * lazily-fetched chunk - only ever downloading what a given diff actually needs.
+ * `inlineDynamicImports: true` (required so the userscript's single `@require` has no
+ * further script-src fetches to make on GitHub's CSP) forces the bundler to inline every
+ * dynamic import it can statically discover regardless of whether a given runtime path
+ * actually reaches it, so anything unused here has to be cut before bundling, not after:
+ * - The Shiki aliases (`vite.config.shared.ts`) swap out the WASM highlighter engine and
+ *   most of shiki's ~240 language grammars.
+ * - `PR_LLM: false` compiles out the branches holding the `import()`s of the pi runtime
+ *   and `@ai-sdk/gateway`; `generateBundle` below fails the build if any still slips in.
+ * Neither applies to the main site, which code-splits each into its own lazily-fetched chunk.
  */
 export default defineConfig({
   plugins: [
@@ -31,6 +37,13 @@ export default defineConfig({
         await (jiti.import('./scripts/build-embed-css') as Promise<typeof import('./scripts/build-embed-css')>)
           .then(m => m.buildEmbedCSS())
       },
+      generateBundle(_, bundle) {
+        const forbidden = Object.values(bundle)
+          .flatMap(chunk => chunk.type === 'chunk' ? chunk.moduleIds : [])
+          .filter(id => FORBIDDEN_MODULES.test(id))
+        if (forbidden.length)
+          throw new Error(`embed bundle must not ship LLM SDKs, found:\n${forbidden.join('\n')}`)
+      },
       async buildEnd() {
         await (jiti.import('./scripts/build-userscript') as Promise<typeof import('./scripts/build-userscript')>)
           .then(m => m.buildUserscript())
@@ -40,6 +53,7 @@ export default defineConfig({
   resolve: {
     alias: sharedAlias,
   },
+  define: features({ llm: false }),
   publicDir: false,
   build: {
     outDir: 'public/embed',

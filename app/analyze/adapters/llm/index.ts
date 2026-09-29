@@ -4,7 +4,7 @@ import type { DiffsPayload } from '../../../types/diff'
 import type { ResolvedModel } from './model'
 import type { Analysis } from './schema'
 import { normalizeGroupedResult } from '../../../types/analyze'
-import { NOT_CONFIGURED_MESSAGE, resolveModel } from './model'
+import { NOT_COMPILED_MESSAGE, NOT_CONFIGURED_MESSAGE, resolveModel } from './model'
 
 export const LLM_SCHEMA_VERSION = 1
 
@@ -56,6 +56,10 @@ export function toGroupedResult(diff: DiffsPayload, analysis: Analysis, resolved
 }
 
 export async function runLlmAnalysis(diff: DiffsPayload, options?: AnalyzeOptions): Promise<{ result: GroupedResult, transcript: AgentMessage[] }> {
+  // The flag is a compile-time literal: with it off, the branch holding the `import()`
+  // is eliminated, so the embed bundle never discovers the pi runtime.
+  if (!import.meta.env.PR_LLM)
+    throw new Error(NOT_COMPILED_MESSAGE)
   const resolved = resolveModel()
   if (!resolved)
     throw new Error(NOT_CONFIGURED_MESSAGE)
@@ -68,7 +72,7 @@ export async function runLlmAnalysis(diff: DiffsPayload, options?: AnalyzeOption
 export const llmAdapter: AnalyzeAdapter = {
   id: 'llm',
   get available() {
-    return resolveModel() !== undefined
+    return import.meta.env.PR_LLM && resolveModel() !== undefined
   },
   async analyze(diff, options) {
     return (await runLlmAnalysis(diff, options)).result

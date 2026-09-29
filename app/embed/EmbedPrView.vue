@@ -10,9 +10,9 @@ import { createDiffsStore } from '../stores/diffs-store'
 // Mirrors `pages/gh/[owner]/[repo]/[number].vue`'s wiring, from plain props instead of
 // route params - there's no router here. `EmbedApp.ce.vue` gives this a `:key` per PR,
 // so a fresh instance (and fresh store) is created per navigation, same as the routed
-// page getting a fresh mount per route change. `llm: false` - the store's `llm` is
-// `undefined` in the embed, since LLM analysis isn't available in this environment.
-// `isEmbedded: true` similarly flows into `store.ui.isEmbedded`.
+// page getting a fresh mount per route change. The store's `llm` is `undefined` here:
+// the embed build compiles LLM support out (`PR_LLM: false`, see vite.config.embed.ts).
+// `isEmbedded: true` flows into `store.ui.isEmbedded`.
 const props = defineProps<{
   document?: Document | ShadowRoot
   owner: string
@@ -27,7 +27,7 @@ const params = computed(() => ({
   number: props.number,
 }))
 
-const store = createDiffsStore(params.value, { token: settings.value.githubToken, llm: false, isEmbedded: true })
+const store = createDiffsStore(params.value, { token: settings.value.githubToken, isEmbedded: true })
 
 onMounted(() => store.load())
 </script>

@@ -72,7 +72,12 @@ analysis strategy later never touches the view layer:
     surface as `llm.error` — there is no silent `rule-based` fallback, and
     nothing but real model output is ever stored under `llm`. The pi runtime
     (`agent.ts`, `runtime.ts`, `chat.ts`) is only reached via dynamic
-    `import()`, so the embed bundle never ships it.
+    `import()` behind the compile-time `import.meta.env.PR_LLM` flag: the
+    site builds with it on (the runtime is a lazy chunk), the embed with it
+    off (the `import()`s are dead code, so its single IIFE never bundles the
+    runtime or `@ai-sdk/gateway`), and `vite.config.embed.ts` fails the build
+    if an LLM SDK slips in anyway. `store.llm` is `undefined` iff the flag is
+    off.
   - Follow-up chat reuses the analysis transcript: `llmSession` (`messages`
     + `chatStartIndex`) is persisted alongside the result in the `pr:*`
     entry, and `composables/useLlmChat.ts` builds a fresh pi `Agent` from it
@@ -91,7 +96,7 @@ analysis strategy later never touches the view layer:
   registry), and call its methods directly (`store.toggleReviewed(...)`,
   `store.llm?.reanalyze()`) instead of emitting events that bubble up to
   whoever created the store. `store.llm` is `undefined` when LLM analysis
-  isn't available in the current environment (e.g. the GitHub-embedded view),
+  isn't compiled into the current build (`PR_LLM` off: the GitHub-embedded view),
   which components use structurally to hide the *run* side of AI (analyze,
   chat). The AI *result* itself (`store.aiResult`, `analyzeMode`) lives on the
   store root, because the embed can still hold one loaded from a shared PR

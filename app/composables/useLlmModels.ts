@@ -65,6 +65,11 @@ export function useLlmModels(): UseLlmModelsReturn {
   const loading = ref(false)
   const error = ref<string>()
 
+  // Compile-time: a build without LLM support (the embed) has no use for a catalog,
+  // and skipping the fetch here is what keeps `@ai-sdk/gateway` out of its bundle.
+  if (!import.meta.env.PR_LLM)
+    return { models, loading, error }
+
   // Stopping the scope stops the watcher, but not an async callback already
   // suspended at an await - invalidate those instead of fetching/writing for
   // a dead owner.
