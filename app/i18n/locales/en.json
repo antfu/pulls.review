@@ -31,7 +31,7 @@
     "tryDemos": "// try some demos",
     "demo": "// demo",
     "moreFiles": "... {n} more files",
-    "demoSummary": "One reviewer with an API key posts their analysis to the PR; everyone else, including the github.com embed, loads it without a token.",
+    "demoSummary": "One reviewer with an API key posts their analysis to the PR; everyone else loads it without a token.",
     "demoGroups": {
       "store": "Shared analysis store & comment contract",
       "ui": "Share result UI",

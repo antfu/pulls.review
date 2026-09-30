@@ -31,7 +31,7 @@
     "tryDemos": "// prueba algunas demos",
     "demo": "// demo",
     "moreFiles": "... {n} archivos más",
-    "demoSummary": "Un revisor con clave API publica su análisis en el PR; el resto, incluida la integración en github.com, lo carga sin token.",
+    "demoSummary": "Un revisor con API key publica su análisis en el PR; el resto lo carga sin token.",
     "demoGroups": {
       "store": "Store de análisis compartidos y contrato del comentario",
       "ui": "UI para compartir resultados",
@@ -85,7 +85,7 @@
     "thinking": "Pensando… (paso {step})",
     "reading": "Leyendo {n} archivo: {first} | Leyendo {n} archivos: {first}",
     "organizing": "Organizando grupos…",
-    "notConfigured": "El análisis de IA no está configurado: añade un token de gateway o una clave API de proveedor en Ajustes",
+    "notConfigured": "El análisis de IA no está configurado: añade un token de gateway o una API key de proveedor en Ajustes",
     "chatFailed": "La solicitud del chat falló"
   },
   "share": {
@@ -237,17 +237,17 @@
       "provider": "Proveedor",
       "baseUrl": "URL base",
       "baseUrlDescription": "Cualquier endpoint de chat completions compatible con OpenAI (OpenAI, un servidor local, etc.).",
-      "apiKey": "Clave API",
+      "apiKey": "API key",
       "gatewayHint": "Un token de {link}, que llega a cualquiera de sus proveedores compatibles con un solo token.",
       "anthropicHint": "Una {link}, llamada directamente desde este navegador (sin gateway).",
-      "anthropicLink": "clave API de Anthropic",
-      "openaiHint": "La clave API del endpoint anterior.",
+      "anthropicLink": "API key de Anthropic",
+      "openaiHint": "La API key del endpoint anterior.",
       "configured": "Configurada",
       "changeKey": "Cambiar clave",
       "model": "Modelo",
       "modelListFailed": "No se pudo cargar la lista de modelos ({error}). Introduce un id de modelo manualmente.",
       "embedUnavailable": "Las funciones de IA no están disponibles en modo integrado",
-      "embedReason": "La estricta Content Security Policy de github.com bloquea las solicitudes que necesitan las funciones de IA. {link} para usarlas.",
+      "embedReason": "La estricta CSP de github.com bloquea las solicitudes que necesitan las funciones de IA. {link} para usarlas.",
       "goToWebsite": "Ve al sitio web"
     },
     "models": {

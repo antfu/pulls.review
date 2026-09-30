@@ -31,7 +31,7 @@
     "tryDemos": "// 試試範例",
     "demo": "// 範例",
     "moreFiles": "... 還有 {n} 個檔案",
-    "demoSummary": "一位擁有 API 金鑰的審閱者將分析發布到 PR；其他所有人（包括 github.com 嵌入）無需權杖即可載入。",
+    "demoSummary": "一位擁有 API key 的審閱者將分析發布到 PR；其他所有人無需 token 即可載入。",
     "demoGroups": {
       "store": "共享分析儲存與留言契約",
       "ui": "分享結果介面",
@@ -74,7 +74,7 @@
     "openInSite": "在 pulls.review 中開啟"
   },
   "analyze": {
-    "setupKeys": "設定 API 金鑰",
+    "setupKeys": "設定 API key",
     "analyzing": "分析中…",
     "failed": "分析失敗",
     "failedTitle": "AI 分析失敗：{message}",
@@ -85,7 +85,7 @@
     "thinking": "思考中…（第 {step} 步）",
     "reading": "正在讀取 {n} 個檔案：{first}",
     "organizing": "正在整理群組…",
-    "notConfigured": "尚未設定 AI 分析：請在設定中新增 gateway 權杖或廠商 API 金鑰",
+    "notConfigured": "尚未設定 AI 分析：請在設定中新增 gateway token 或廠商 API key",
     "chatFailed": "對話請求失敗"
   },
   "share": {
@@ -93,17 +93,17 @@
     "updateButton": "更新已分享的留言",
     "sharing": "分享中…",
     "tooltip": "將此分析以留言形式發布到 pull request，供他人載入",
-    "needsToken": "分享需要具有寫入權限的 GitHub 權杖",
+    "needsToken": "分享需要具有寫入權限的 GitHub token",
     "failed": "分享失敗：{message}",
     "titleUpdate": "更新你分享的分析",
     "titleShare": "在 GitHub 上分享此分析",
-    "willUpdate": "將使用你的 GitHub 權杖，以 {user} 的身分更新你在此 pull request 上既有的{comment}。",
-    "willPost": "將使用你的 GitHub 權杖，以 {user} 的身分在此 pull request 上發布一則公開留言。",
+    "willUpdate": "將使用你的 GitHub token，以 {user} 的身分更新你在此 pull request 上既有的 {comment}。",
+    "willPost": "將使用你的 GitHub token，以 {user} 的身分在此 pull request 上發布一則公開留言。",
     "commentLink": "留言",
     "contains": "留言包含：",
     "containsLink": "在 {site} 上開啟此審閱的連結",
     "containsJson": "此 AI 分析的分組與摘要，以 JSON 形式放在折疊區塊中",
-    "excludes": "你的對話訊息、API 金鑰或設定中的其他內容都不會包含在內。",
+    "excludes": "你的對話訊息、API key 或設定中的其他內容都不會包含在內。",
     "anyoneCanLoad": "任何檢視此 pull request 的人都可以載入分享的分析。",
     "englishRecommended": "如果你參與的是公開專案，我們建議以英文分享結果，對社群更有幫助。",
     "share": "分享",
@@ -114,7 +114,7 @@
     "available": "此 pull request 有可用的 AI 分析分享：",
     "staleTitle": "在最新提交之前分析",
     "outdated": "（已過期）",
-    "inLanguage": "以{language}分析",
+    "inLanguage": "以 {language} 分析",
     "notShared": "{login} 尚未分享此 pull request 的分析。"
   },
   "group": {
@@ -218,36 +218,36 @@
     "language": "語言",
     "languageHint": "用於介面語言，以及 AI 分析所產生摘要的語言。",
     "token": {
-      "label": "GitHub 個人存取權杖",
+      "label": "GitHub Personal Access Token",
       "optional": "公開儲存庫可省略；私有儲存庫或提交審查時必需。",
-      "scopes": "審查需要 {repo} 權限（傳統權杖）或 {fineGrained}（細粒度權杖）",
+      "scopes": "審查需要 {repo} scope（classic token）或 {fineGrained}（fine-grained token）",
       "storedLocally": "僅儲存在此瀏覽器中。",
       "generate": "在 GitHub 上產生 →",
-      "fineGrained": "細粒度權杖（無傳統權限範圍）",
+      "fineGrained": "fine-grained token（無 classic scope）",
       "updated": "更新於",
       "expires": "到期於",
       "neverExpires": "永不到期",
-      "change": "更換權杖",
-      "checking": "正在檢查權杖…",
-      "couldNotVerify": "無法驗證此權杖。"
+      "change": "更換 token",
+      "checking": "正在檢查 token…",
+      "couldNotVerify": "無法驗證此 token。"
     },
     "llm": {
       "title": "AI 分析",
       "description": "設定模型供應商以啟用 AI 產生的摘要。僅儲存在此瀏覽器中，且只傳送給你選擇的供應商。",
       "provider": "供應商",
       "baseUrl": "Base URL",
-      "baseUrlDescription": "任何相容 OpenAI 的 chat completions 端點（OpenAI 本身、本機伺服器等）。",
-      "apiKey": "API 金鑰",
-      "gatewayHint": "一個 {link} 權杖，憑單一權杖即可存取其支援的所有廠商。",
+      "baseUrlDescription": "任何相容 OpenAI 的 chat completions endpoint（OpenAI 本身、本機伺服器等）。",
+      "apiKey": "API key",
+      "gatewayHint": "一個 {link} token，憑單一 token 即可存取其支援的所有廠商。",
       "anthropicHint": "一個 {link}，直接從此瀏覽器呼叫（不經過 gateway）。",
-      "anthropicLink": "Anthropic API 金鑰",
-      "openaiHint": "上述端點的 API 金鑰。",
+      "anthropicLink": "Anthropic API key",
+      "openaiHint": "上述 endpoint 的 API key。",
       "configured": "已設定",
-      "changeKey": "更換金鑰",
+      "changeKey": "更換 key",
       "model": "模型",
       "modelListFailed": "無法載入模型清單（{error}）。請手動輸入模型 id。",
       "embedUnavailable": "嵌入模式下無法使用 AI 功能",
-      "embedReason": "github.com 嚴格的內容安全政策會阻擋 AI 功能所需的請求。{link}即可使用。",
+      "embedReason": "github.com 嚴格的 CSP 會阻擋 AI 功能所需的請求。{link} 即可使用。",
       "goToWebsite": "前往網站"
     },
     "models": {
@@ -271,10 +271,10 @@
     "generated": { "label": "產生檔案", "summary": "產生或建置產物的變更。" }
   },
   "errors": {
-    "tokenRequired": "寫入此 pull request 需要 GitHub 權杖。",
+    "tokenRequired": "寫入此 pull request 需要 GitHub token。",
     "diffNotLoaded": "diff 尚未載入完成。",
-    "noViewer": "無法判斷此權杖對應的 GitHub 使用者。",
-    "tokenRejected": "GitHub 拒絕了此權杖（401）。請確認已完整貼上且未被撤銷。",
+    "noViewer": "無法判斷此 token 對應的 GitHub 使用者。",
+    "tokenRejected": "GitHub 拒絕了此 token（401）。請確認已完整貼上且未被撤銷。",
     "tooLarge": "分析內容過大，無法以留言分享（{n} 個字元）。"
   }
 }

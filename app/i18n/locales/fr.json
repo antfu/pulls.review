@@ -31,7 +31,7 @@
     "tryDemos": "// essayez des démos",
     "demo": "// démo",
     "moreFiles": "... {n} fichiers de plus",
-    "demoSummary": "Un relecteur avec une clé API publie son analyse sur la PR ; tous les autres, y compris l'intégration github.com, la chargent sans jeton.",
+    "demoSummary": "Un relecteur avec une API key publie son analyse sur la PR ; tous les autres la chargent sans token.",
     "demoGroups": {
       "store": "Store d'analyses partagées et contrat du commentaire",
       "ui": "UI de partage du résultat",
@@ -85,7 +85,7 @@
     "thinking": "Réflexion… (étape {step})",
     "reading": "Lecture de {n} fichier : {first} | Lecture de {n} fichiers : {first}",
     "organizing": "Organisation des groupes…",
-    "notConfigured": "L'analyse IA n'est pas configurée : ajoutez un jeton de gateway ou une clé API de fournisseur dans les Paramètres",
+    "notConfigured": "L'analyse IA n'est pas configurée : ajoutez un token gateway ou une API key de fournisseur dans les Paramètres",
     "chatFailed": "La requête du chat a échoué"
   },
   "share": {
@@ -93,12 +93,12 @@
     "updateButton": "Mettre à jour le commentaire partagé",
     "sharing": "Partage…",
     "tooltip": "Publie cette analyse en commentaire de la pull request pour que d'autres puissent la charger",
-    "needsToken": "Un jeton GitHub avec accès en écriture est requis pour partager",
+    "needsToken": "Un token GitHub avec accès en écriture est requis pour partager",
     "failed": "Échec du partage : {message}",
     "titleUpdate": "Mettre à jour votre analyse partagée",
     "titleShare": "Partager cette analyse sur GitHub",
-    "willUpdate": "Votre {comment} existant sur cette pull request sera mis à jour en tant que {user} avec votre jeton GitHub.",
-    "willPost": "Un commentaire public sera publié sur cette pull request en tant que {user} avec votre jeton GitHub.",
+    "willUpdate": "Votre {comment} existant sur cette pull request sera mis à jour en tant que {user} avec votre token GitHub.",
+    "willPost": "Un commentaire public sera publié sur cette pull request en tant que {user} avec votre token GitHub.",
     "commentLink": "commentaire",
     "contains": "Le commentaire contient :",
     "containsLink": "un lien pour ouvrir cette revue sur {site}",
@@ -218,18 +218,18 @@
     "language": "Langue",
     "languageHint": "Utilisée pour l'interface et pour les résumés rédigés par l'analyse IA.",
     "token": {
-      "label": "Jeton d'accès personnel GitHub",
+      "label": "Personal Access Token GitHub",
       "optional": "Facultatif pour les dépôts publics ; requis pour les dépôts privés ou pour laisser des revues.",
-      "scopes": "Les revues nécessitent la portée {repo} (jeton classique) ou {fineGrained} (jeton granulaire)",
+      "scopes": "Les revues nécessitent le scope {repo} (classic token) ou {fineGrained} (fine-grained token)",
       "storedLocally": "Stocké uniquement dans ce navigateur.",
       "generate": "En générer un sur GitHub →",
-      "fineGrained": "Jeton granulaire (sans portées classiques)",
+      "fineGrained": "Fine-grained token (sans scopes classiques)",
       "updated": "Mis à jour",
       "expires": "Expire",
       "neverExpires": "N'expire jamais",
-      "change": "Changer le jeton",
-      "checking": "Vérification du jeton…",
-      "couldNotVerify": "Impossible de vérifier ce jeton."
+      "change": "Changer le token",
+      "checking": "Vérification du token…",
+      "couldNotVerify": "Impossible de vérifier ce token."
     },
     "llm": {
       "title": "Analyse IA",
@@ -237,17 +237,17 @@
       "provider": "Fournisseur",
       "baseUrl": "URL de base",
       "baseUrlDescription": "N'importe quel endpoint de chat completions compatible OpenAI (OpenAI, un serveur local, etc.).",
-      "apiKey": "Clé API",
-      "gatewayHint": "Un jeton {link}, donnant accès à tous ses fournisseurs pris en charge avec un seul jeton.",
+      "apiKey": "API key",
+      "gatewayHint": "Un token {link}, donnant accès à tous ses fournisseurs pris en charge avec un seul token.",
       "anthropicHint": "Une {link}, appelée directement depuis ce navigateur (sans gateway).",
-      "anthropicLink": "clé API Anthropic",
-      "openaiHint": "La clé API de l'endpoint ci-dessus.",
+      "anthropicLink": "API key Anthropic",
+      "openaiHint": "L'API key de l'endpoint ci-dessus.",
       "configured": "Configurée",
       "changeKey": "Changer la clé",
       "model": "Modèle",
       "modelListFailed": "Impossible de charger la liste des modèles ({error}). Saisissez un id de modèle manuellement.",
       "embedUnavailable": "Les fonctions IA ne sont pas disponibles en mode intégré",
-      "embedReason": "La Content Security Policy stricte de github.com bloque les requêtes nécessaires aux fonctions IA. {link} pour les utiliser.",
+      "embedReason": "La CSP stricte de github.com bloque les requêtes nécessaires aux fonctions IA. {link} pour les utiliser.",
       "goToWebsite": "Rendez-vous sur le site"
     },
     "models": {
@@ -271,10 +271,10 @@
     "generated": { "label": "Générés", "summary": "Modifications de fichiers générés ou de build." }
   },
   "errors": {
-    "tokenRequired": "Un jeton GitHub est requis pour écrire sur cette pull request.",
+    "tokenRequired": "Un token GitHub est requis pour écrire sur cette pull request.",
     "diffNotLoaded": "Le diff n'a pas fini de se charger.",
-    "noViewer": "Impossible de déterminer l'utilisateur GitHub de ce jeton.",
-    "tokenRejected": "GitHub a refusé ce jeton (401). Vérifiez qu'il a été collé en entier et qu'il n'a pas été révoqué.",
+    "noViewer": "Impossible de déterminer l'utilisateur GitHub de ce token.",
+    "tokenRejected": "GitHub a refusé ce token (401). Vérifiez qu'il a été collé en entier et qu'il n'a pas été révoqué.",
     "tooLarge": "L'analyse est trop volumineuse pour être partagée en commentaire ({n} caractères)."
   }
 }

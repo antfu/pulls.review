@@ -31,7 +31,7 @@
     "tryDemos": "// Demos ausprobieren",
     "demo": "// Demo",
     "moreFiles": "... {n} weitere Dateien",
-    "demoSummary": "Ein Reviewer mit API-Schlüssel postet seine Analyse in den PR; alle anderen, auch das github.com-Embed, laden sie ohne Token.",
+    "demoSummary": "Ein Reviewer mit API-Key postet seine Analyse in den PR; alle anderen laden sie ohne Token.",
     "demoGroups": {
       "store": "Store für geteilte Analysen & Kommentarvertrag",
       "ui": "UI zum Teilen des Ergebnisses",
@@ -74,7 +74,7 @@
     "openInSite": "In pulls.review öffnen"
   },
   "analyze": {
-    "setupKeys": "API-Schlüssel einrichten",
+    "setupKeys": "API-Key einrichten",
     "analyzing": "Analysiere…",
     "failed": "Analyse fehlgeschlagen",
     "failedTitle": "KI-Analyse fehlgeschlagen: {message}",
@@ -85,7 +85,7 @@
     "thinking": "Denke nach… (Schritt {step})",
     "reading": "Lese {n} Datei: {first} | Lese {n} Dateien: {first}",
     "organizing": "Gruppen werden geordnet…",
-    "notConfigured": "Die KI-Analyse ist nicht konfiguriert: Füge in den Einstellungen ein Gateway-Token oder einen Anbieter-API-Schlüssel hinzu",
+    "notConfigured": "Die KI-Analyse ist nicht konfiguriert: Füge in den Einstellungen ein Gateway-Token oder einen Anbieter-API-Key hinzu",
     "chatFailed": "Chat-Anfrage fehlgeschlagen"
   },
   "share": {
@@ -103,7 +103,7 @@
     "contains": "Der Kommentar enthält:",
     "containsLink": "einen Link, um dieses Review auf {site} zu öffnen",
     "containsJson": "die Gruppierung und Zusammenfassungen dieser KI-Analyse als JSON in einem eingeklappten Block",
-    "excludes": "Deine Chat-Nachrichten, API-Schlüssel oder andere Daten aus deinen Einstellungen werden nicht enthalten sein.",
+    "excludes": "Deine Chat-Nachrichten, API-Key oder andere Daten aus deinen Einstellungen werden nicht enthalten sein.",
     "anyoneCanLoad": "Jeder, der den Pull Request ansieht, kann die geteilte Analyse laden.",
     "englishRecommended": "Wenn du an einem öffentlichen Projekt arbeitest, empfehlen wir, das Ergebnis auf Englisch zu teilen, damit es der Community nützt.",
     "share": "Teilen",
@@ -218,7 +218,7 @@
     "language": "Sprache",
     "languageHint": "Wird für die Oberfläche und für die Zusammenfassungen der KI-Analyse verwendet.",
     "token": {
-      "label": "Persönliches GitHub-Zugriffstoken",
+      "label": "GitHub Personal Access Token",
       "optional": "Optional für öffentliche Repositories; erforderlich für private Repositories oder zum Reviewen.",
       "scopes": "Reviews benötigen den Scope {repo} (klassisches Token) oder {fineGrained} (feingranulares Token)",
       "storedLocally": "Nur in diesem Browser gespeichert.",
@@ -236,18 +236,18 @@
       "description": "Konfiguriere einen Modellanbieter, um KI-generierte Zusammenfassungen zu aktivieren. Nur in diesem Browser gespeichert und nur an den gewählten Anbieter gesendet.",
       "provider": "Anbieter",
       "baseUrl": "Basis-URL",
-      "baseUrlDescription": "Ein beliebiger OpenAI-kompatibler Chat-Completions-Endpunkt (OpenAI selbst, ein lokaler Server usw.).",
-      "apiKey": "API-Schlüssel",
+      "baseUrlDescription": "Ein beliebiger OpenAI-kompatibler Chat-Completions-Endpoint (OpenAI selbst, ein lokaler Server usw.).",
+      "apiKey": "API-Key",
       "gatewayHint": "Ein {link}-Token, das mit einem einzigen Token alle unterstützten Anbieter erreicht.",
       "anthropicHint": "Ein {link}, direkt aus diesem Browser aufgerufen (ohne Gateway).",
-      "anthropicLink": "Anthropic-API-Schlüssel",
-      "openaiHint": "Der API-Schlüssel für den obigen Endpunkt.",
+      "anthropicLink": "Anthropic-API-Key",
+      "openaiHint": "Der API-Key für den obigen Endpoint.",
       "configured": "Konfiguriert",
-      "changeKey": "Schlüssel ändern",
+      "changeKey": "Key ändern",
       "model": "Modell",
       "modelListFailed": "Die Modellliste konnte nicht geladen werden ({error}). Gib eine Modell-ID manuell ein.",
       "embedUnavailable": "KI-Funktionen sind im eingebetteten Modus nicht verfügbar",
-      "embedReason": "Die strikte Content Security Policy von github.com blockiert die Anfragen, die KI-Funktionen hier benötigen. {link}, um sie zu nutzen.",
+      "embedReason": "Die strikte CSP von github.com blockiert die Anfragen, die KI-Funktionen hier benötigen. {link}, um sie zu nutzen.",
       "goToWebsite": "Zur Website"
     },
     "models": {

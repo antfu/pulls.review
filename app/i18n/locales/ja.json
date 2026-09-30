@@ -31,7 +31,7 @@
     "tryDemos": "// デモを試す",
     "demo": "// デモ",
     "moreFiles": "... 他 {n} ファイル",
-    "demoSummary": "API キーを持つレビュアー 1 人が分析を PR に投稿すれば、github.com 埋め込みを含む他の全員がトークンなしで読み込めます。",
+    "demoSummary": "API キーを持つレビュアー 1 人が分析を PR に投稿すれば、他の全員がトークンなしで読み込めます。",
     "demoGroups": {
       "store": "共有分析ストアとコメント契約",
       "ui": "結果共有 UI",
@@ -247,7 +247,7 @@
       "model": "モデル",
       "modelListFailed": "モデル一覧を読み込めませんでした（{error}）。モデル id を手動で入力してください。",
       "embedUnavailable": "埋め込みモードでは AI 機能を利用できません",
-      "embedReason": "github.com の厳しい Content Security Policy により、AI 機能に必要なリクエストがブロックされます。利用するには{link}。",
+      "embedReason": "github.com の厳しい CSP により、AI 機能に必要なリクエストがブロックされます。利用するには{link}。",
       "goToWebsite": "ウェブサイトへ"
     },
     "models": {

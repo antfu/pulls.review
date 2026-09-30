@@ -31,7 +31,7 @@
     "tryDemos": "// 试试示例",
     "demo": "// 示例",
     "moreFiles": "... 还有 {n} 个文件",
-    "demoSummary": "一位拥有 API 密钥的审阅者将分析发布到 PR；其他所有人（包括 github.com 嵌入）无需令牌即可加载。",
+    "demoSummary": "一位拥有 API key 的审阅者将分析发布到 PR；其他所有人无需 token 即可加载。",
     "demoGroups": {
       "store": "共享分析存储与评论契约",
       "ui": "分享结果界面",
@@ -74,7 +74,7 @@
     "openInSite": "在 pulls.review 中打开"
   },
   "analyze": {
-    "setupKeys": "配置 API 密钥",
+    "setupKeys": "配置 API key",
     "analyzing": "分析中…",
     "failed": "分析失败",
     "failedTitle": "AI 分析失败：{message}",
@@ -85,7 +85,7 @@
     "thinking": "思考中…（第 {step} 步）",
     "reading": "正在读取 {n} 个文件：{first}",
     "organizing": "正在整理分组…",
-    "notConfigured": "AI 分析尚未配置：请在设置中添加 gateway 令牌或厂商 API 密钥",
+    "notConfigured": "AI 分析尚未配置：请在设置中添加 gateway token 或厂商 API key",
     "chatFailed": "对话请求失败"
   },
   "share": {
@@ -93,17 +93,17 @@
     "updateButton": "更新已分享的评论",
     "sharing": "分享中…",
     "tooltip": "将此分析作为评论发布到 pull request，供他人加载",
-    "needsToken": "分享需要具有写入权限的 GitHub 令牌",
+    "needsToken": "分享需要具有写入权限的 GitHub token",
     "failed": "分享失败：{message}",
     "titleUpdate": "更新你分享的分析",
     "titleShare": "在 GitHub 上分享此分析",
-    "willUpdate": "将使用你的 GitHub 令牌，以 {user} 的身份更新你在此 pull request 上已有的{comment}。",
-    "willPost": "将使用你的 GitHub 令牌，以 {user} 的身份在此 pull request 上发布一条公开评论。",
+    "willUpdate": "将使用你的 GitHub token，以 {user} 的身份更新你在此 pull request 上已有的 {comment}。",
+    "willPost": "将使用你的 GitHub token，以 {user} 的身份在此 pull request 上发布一条公开评论。",
     "commentLink": "评论",
     "contains": "评论包含：",
     "containsLink": "在 {site} 上打开此审阅的链接",
     "containsJson": "此 AI 分析的分组和摘要，以 JSON 形式放在折叠块中",
-    "excludes": "你的对话记录、API 密钥或设置中的其他内容都不会包含在内。",
+    "excludes": "你的对话记录、API key 或设置中的其他内容都不会包含在内。",
     "anyoneCanLoad": "任何查看此 pull request 的人都可以加载分享的分析。",
     "englishRecommended": "如果你参与的是公开项目，我们建议以英文分享结果，以便对社区更有帮助。",
     "share": "分享",
@@ -114,7 +114,7 @@
     "available": "此 pull request 有可用的 AI 分析分享：",
     "staleTitle": "在最新提交之前分析",
     "outdated": "（已过期）",
-    "inLanguage": "以{language}分析",
+    "inLanguage": "以 {language} 分析",
     "notShared": "{login} 尚未分享此 pull request 的分析。"
   },
   "group": {
@@ -218,36 +218,36 @@
     "language": "语言",
     "languageHint": "用于界面语言以及 AI 分析生成的摘要语言。",
     "token": {
-      "label": "GitHub 个人访问令牌",
+      "label": "GitHub Personal Access Token",
       "optional": "公开仓库可选；私有仓库或提交审查时必需。",
-      "scopes": "审查需要 {repo} 权限（经典令牌）或 {fineGrained}（细粒度令牌）",
+      "scopes": "审查需要 {repo} scope（classic token）或 {fineGrained}（fine-grained token）",
       "storedLocally": "仅存储在此浏览器中。",
       "generate": "在 GitHub 上生成 →",
-      "fineGrained": "细粒度令牌（无经典权限范围）",
+      "fineGrained": "fine-grained token（无 classic scope）",
       "updated": "更新于",
       "expires": "过期于",
       "neverExpires": "永不过期",
-      "change": "更换令牌",
-      "checking": "正在检查令牌…",
-      "couldNotVerify": "无法验证此令牌。"
+      "change": "更换 token",
+      "checking": "正在检查 token…",
+      "couldNotVerify": "无法验证此 token。"
     },
     "llm": {
       "title": "AI 分析",
       "description": "配置模型提供商以启用 AI 生成的摘要。仅存储在此浏览器中，且只发送给你选择的提供商。",
       "provider": "提供商",
       "baseUrl": "Base URL",
-      "baseUrlDescription": "任意兼容 OpenAI 的 chat completions 端点（OpenAI 本身、本地服务器等）。",
-      "apiKey": "API 密钥",
-      "gatewayHint": "一个 {link} 令牌，凭单个令牌即可访问其支持的所有厂商。",
+      "baseUrlDescription": "任意兼容 OpenAI 的 chat completions endpoint（OpenAI 本身、本地服务器等）。",
+      "apiKey": "API key",
+      "gatewayHint": "一个 {link} token，凭单个 token 即可访问其支持的所有厂商。",
       "anthropicHint": "一个 {link}，直接从此浏览器调用（不经过 gateway）。",
-      "anthropicLink": "Anthropic API 密钥",
-      "openaiHint": "上述端点的 API 密钥。",
+      "anthropicLink": "Anthropic API key",
+      "openaiHint": "上述 endpoint 的 API key。",
       "configured": "已配置",
-      "changeKey": "更换密钥",
+      "changeKey": "更换 key",
       "model": "模型",
       "modelListFailed": "无法加载模型列表（{error}）。请手动输入模型 id。",
       "embedUnavailable": "嵌入模式下不可用 AI 功能",
-      "embedReason": "github.com 严格的内容安全策略会阻止 AI 功能所需的请求。{link}即可使用。",
+      "embedReason": "github.com 严格的 CSP 会阻止 AI 功能所需的请求。{link} 即可使用。",
       "goToWebsite": "前往网站"
     },
     "models": {
@@ -271,10 +271,10 @@
     "generated": { "label": "生成文件", "summary": "生成或构建产物的变更。" }
   },
   "errors": {
-    "tokenRequired": "写入此 pull request 需要 GitHub 令牌。",
+    "tokenRequired": "写入此 pull request 需要 GitHub token。",
     "diffNotLoaded": "diff 尚未加载完成。",
-    "noViewer": "无法确定此令牌对应的 GitHub 用户。",
-    "tokenRejected": "GitHub 拒绝了此令牌（401）。请检查是否完整粘贴且未被撤销。",
+    "noViewer": "无法确定此 token 对应的 GitHub 用户。",
+    "tokenRejected": "GitHub 拒绝了此 token（401）。请检查是否完整粘贴且未被撤销。",
     "tooLarge": "分析内容过大，无法作为评论分享（{n} 个字符）。"
   }
 }

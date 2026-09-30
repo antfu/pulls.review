@@ -31,7 +31,7 @@
     "tryDemos": "// coba beberapa demo",
     "demo": "// demo",
     "moreFiles": "... {n} berkas lainnya",
-    "demoSummary": "Satu peninjau dengan kunci API mengirim analisisnya ke PR; semua orang lain, termasuk embed github.com, memuatnya tanpa token.",
+    "demoSummary": "Satu peninjau dengan API key mengirim analisisnya ke PR; semua orang lain memuatnya tanpa token.",
     "demoGroups": {
       "store": "Store analisis bersama & kontrak komentar",
       "ui": "UI berbagi hasil",
@@ -74,7 +74,7 @@
     "openInSite": "Buka di pulls.review"
   },
   "analyze": {
-    "setupKeys": "Atur kunci API",
+    "setupKeys": "Atur API key",
     "analyzing": "Menganalisis…",
     "failed": "Analisis gagal",
     "failedTitle": "Analisis AI gagal: {message}",
@@ -85,7 +85,7 @@
     "thinking": "Berpikir… (langkah {step})",
     "reading": "Membaca {n} berkas: {first}",
     "organizing": "Menyusun grup…",
-    "notConfigured": "Analisis AI belum dikonfigurasi: tambahkan token gateway atau kunci API penyedia di Pengaturan",
+    "notConfigured": "Analisis AI belum dikonfigurasi: tambahkan token gateway atau API key penyedia di Pengaturan",
     "chatFailed": "Permintaan chat gagal"
   },
   "share": {
@@ -103,7 +103,7 @@
     "contains": "Komentar berisi:",
     "containsLink": "tautan untuk membuka tinjauan ini di {site}",
     "containsJson": "pengelompokan dan ringkasan analisis AI ini sebagai JSON di dalam blok yang dilipat",
-    "excludes": "Pesan chat, kunci API, atau apa pun dari pengaturan Anda tidak akan disertakan.",
+    "excludes": "Pesan chat, API key, atau apa pun dari pengaturan Anda tidak akan disertakan.",
     "anyoneCanLoad": "Siapa pun yang melihat pull request dapat memuat analisis yang dibagikan.",
     "englishRecommended": "Jika Anda mengerjakan proyek publik, kami menyarankan membagikan hasil dalam bahasa Inggris agar bermanfaat bagi komunitas.",
     "share": "Bagikan",
@@ -218,7 +218,7 @@
     "language": "Bahasa",
     "languageHint": "Digunakan untuk antarmuka dan untuk ringkasan yang ditulis analisis AI.",
     "token": {
-      "label": "Token Akses Pribadi GitHub",
+      "label": "GitHub Personal Access Token",
       "optional": "Opsional untuk repositori publik; wajib untuk repositori privat atau untuk memberikan tinjauan.",
       "scopes": "Tinjauan memerlukan scope {repo} (token klasik) atau {fineGrained} (token fine-grained)",
       "storedLocally": "Hanya disimpan di browser ini.",
@@ -237,17 +237,17 @@
       "provider": "Penyedia",
       "baseUrl": "URL dasar",
       "baseUrlDescription": "Endpoint chat completions apa pun yang kompatibel dengan OpenAI (OpenAI sendiri, server lokal, dll.).",
-      "apiKey": "Kunci API",
+      "apiKey": "API key",
       "gatewayHint": "Token {link}, yang menjangkau semua vendor yang didukung dengan satu token.",
       "anthropicHint": "{link}, dipanggil langsung dari browser ini (tanpa gateway).",
-      "anthropicLink": "Kunci API Anthropic",
-      "openaiHint": "Kunci API untuk endpoint di atas.",
+      "anthropicLink": "API key Anthropic",
+      "openaiHint": "API key untuk endpoint di atas.",
       "configured": "Terkonfigurasi",
       "changeKey": "Ganti kunci",
       "model": "Model",
       "modelListFailed": "Daftar model tidak dapat dimuat ({error}). Masukkan id model secara manual.",
       "embedUnavailable": "Fitur AI tidak tersedia dalam mode tersemat",
-      "embedReason": "Content Security Policy github.com yang ketat memblokir permintaan yang dibutuhkan fitur AI di sini. {link} untuk menggunakannya.",
+      "embedReason": "CSP github.com yang ketat memblokir permintaan yang dibutuhkan fitur AI di sini. {link} untuk menggunakannya.",
       "goToWebsite": "Kunjungi situs web"
     },
     "models": {
