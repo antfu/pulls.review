@@ -102,50 +102,52 @@ const REVIEW_ICON: Record<ReviewDecision, string> = {
       </div>
     </div>
 
-    <div class="flex shrink-0 items-center gap-4 pt-0.5 text-xs op-fade">
+    <div class="flex shrink-0 flex-col items-end gap-2 pt-0.5 text-xs">
       <DiffStats v-if="stats" :additions="stats.additions" :deletions="stats.deletions" />
-      <span
-        v-if="viewed"
-        class="flex items-center gap-1"
-        :title="$t('pulls.viewedHint')"
-      >
-        <span class="i-ph:stack-duotone" aria-hidden="true" />
-        {{ $t('pulls.groups', viewed.groups) }}
+      <div class="flex items-center gap-2 op-fade">
         <span
-          v-if="viewed.hasAiResult"
-          class="i-ph-shooting-star-duotone color-accent-teal"
-          role="img"
-          :aria-label="$t('pulls.aiAvailable')"
-          :title="$t('pulls.aiAvailable')"
-        />
-      </span>
-      <span
-        v-if="pr.linkedIssues"
-        class="flex items-center gap-1"
-        :title="$t('pulls.linkedIssues', pr.linkedIssues)"
-      >
-        <span class="i-octicon-issue-closed-16" aria-hidden="true" />
-        {{ pr.linkedIssues }}
-      </span>
-      <span v-if="pr.assignees.length" class="flex -space-x-1.5">
-        <GithubAvatar
-          v-for="assignee in pr.assignees"
-          :key="assignee.login"
-          :login="assignee.login"
-          :avatar-url="assignee.avatarUrl"
-          :size="20"
-          class="ring-2 ring-base"
-          :title="$t('pulls.assignedTo', { login: assignee.login })"
-        />
-      </span>
-      <span
-        v-if="pr.comments"
-        class="flex items-center gap-1"
-        :title="$t('pulls.comments', pr.comments)"
-      >
-        <span class="i-ph:chat-circle-duotone" aria-hidden="true" />
-        {{ pr.comments }}
-      </span>
+          v-if="viewed"
+          class="flex items-center gap-1"
+          :title="$t('pulls.viewedHint')"
+        >
+          <span
+            v-if="viewed.hasAiResult"
+            class="i-ph:sparkle-duotone color-accent-teal"
+            role="img"
+            :aria-label="$t('pulls.aiAvailable')"
+            :title="$t('pulls.aiAvailable')"
+          />
+          <span v-else class="i-ph:stack-duotone" aria-hidden="true" />
+          {{ $t('pulls.groups', viewed.groups) }}
+        </span>
+        <span
+          v-if="pr.linkedIssues"
+          class="flex items-center gap-1"
+          :title="$t('pulls.linkedIssues', pr.linkedIssues)"
+        >
+          <span class="i-octicon-issue-closed-16" aria-hidden="true" />
+          {{ pr.linkedIssues }}
+        </span>
+        <span v-if="pr.assignees.length" class="flex -space-x-1.5">
+          <GithubAvatar
+            v-for="assignee in pr.assignees"
+            :key="assignee.login"
+            :login="assignee.login"
+            :avatar-url="assignee.avatarUrl"
+            :size="20"
+            class="ring-2 ring-base"
+            :title="$t('pulls.assignedTo', { login: assignee.login })"
+          />
+        </span>
+        <span
+          v-if="pr.comments"
+          class="flex items-center gap-1"
+          :title="$t('pulls.comments', pr.comments)"
+        >
+          <span class="i-ph:chat-circle-duotone" aria-hidden="true" />
+          {{ pr.comments }}
+        </span>
+      </div>
     </div>
   </RouterLink>
 </template>

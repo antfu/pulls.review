@@ -29,9 +29,10 @@ const sortOptions = computed(() => PULL_REQUEST_SORTS.map(value => ({ value, lab
     <div class="mxa max-w-6xl w-full flex flex-col gap-2">
       <div class="flex flex-wrap items-center gap-2">
         <RouterLink to="/" class="flex">
-          <span class="i-ph:git-pull-request-duotone text-lg color-accent-teal" aria-hidden="true" />
+          <span class="i-ph-house-line-duotone text-lg color-accent-teal" aria-hidden="true" />
         </RouterLink>
         <h1 class="flex flex-auto items-center gap-1.5 text-lg font-semibold">
+          <!-- TODO: here we should add the repository icon -->
           <a :href="`https://github.com/${store.owner}`" target="_blank" rel="noopener" class="op-fade hover:underline">{{ store.owner }}</a>
           <span class="op-mute">/</span>
           <a :href="`https://github.com/${store.owner}/${store.repo}/pulls`" target="_blank" rel="noopener" class="hover:underline">{{ store.repo }}</a>
