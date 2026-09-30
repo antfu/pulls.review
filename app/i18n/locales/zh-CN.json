@@ -28,6 +28,7 @@
     "open": "打开",
     "pasteHint": "粘贴任意 GitHub pull request 链接，或选择下方的示例。",
     "recentlyViewed": "// 最近查看",
+    "recentRepositories": "// 最近查看的仓库",
     "tryDemos": "// 试试示例",
     "demoBefore": "// 之前",
     "demoAfter": "// 之后",

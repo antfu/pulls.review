@@ -74,11 +74,11 @@ describe('createPullRequestListStore', () => {
     expect(store.totalCount).toBe(3)
     expect(store.hasMore).toBe(false)
     expect(store.isLoading).toBe(false)
-    expect(await mocks.storage!.getItem('pulls:o/r')).toEqual(page([3, 2, 1], 3))
+    expect(await mocks.storage!.getItem('pulls:o/r')).toMatchObject({ owner: 'o', repo: 'r', page: { totalCount: 3, items: page([3, 2, 1], 3).items } })
   })
 
   it('shows the cached page while the fresh one loads, then replaces it', async () => {
-    await mocks.storage!.setItem('pulls:o/r', page([5, 4], 2))
+    await mocks.storage!.setItem('pulls:o/r', { owner: 'o', repo: 'r', page: page([5, 4], 2), lastViewedAt: 0 })
     const { promise, resolve: resolveFetch } = Promise.withResolvers<PullRequestListPage>()
     mocks.fetchOpenPullRequests.mockReturnValue(promise)
     const store = createPullRequestListStore({ owner: 'o', repo: 'r' })
@@ -111,11 +111,11 @@ describe('createPullRequestListStore', () => {
     expect(store.items.map(pr => pr.number)).toEqual([9, 8, 7, 6, 5])
     expect(store.hasMore).toBe(false)
     // Only the first page is persisted.
-    expect(await mocks.storage!.getItem('pulls:o/r')).toEqual(page([9, 8], 5, 'p2'))
+    expect(await mocks.storage!.getItem('pulls:o/r')).toMatchObject({ page: page([9, 8], 5, 'p2') })
   })
 
   it('surfaces a failed first load as an error and keeps cached rows visible', async () => {
-    await mocks.storage!.setItem('pulls:o/r', page([1], 1))
+    await mocks.storage!.setItem('pulls:o/r', { owner: 'o', repo: 'r', page: page([1], 1), lastViewedAt: 0 })
     mocks.fetchOpenPullRequests.mockRejectedValue(new Error('rate limited'))
     const store = createPullRequestListStore({ owner: 'o', repo: 'r' })
 

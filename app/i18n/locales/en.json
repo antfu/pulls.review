@@ -28,6 +28,7 @@
     "open": "Open",
     "pasteHint": "Paste any GitHub pull request URL, or pick a demo below.",
     "recentlyViewed": "// recently viewed",
+    "recentRepositories": "// recently viewed repositories",
     "tryDemos": "// try some demos",
     "demoBefore": "// before",
     "demoAfter": "// after",

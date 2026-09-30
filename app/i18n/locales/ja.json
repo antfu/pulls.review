@@ -28,6 +28,7 @@
     "open": "開く",
     "pasteHint": "GitHub の pull request URL を貼り付けるか、下のデモを選んでください。",
     "recentlyViewed": "// 最近見たもの",
+    "recentRepositories": "// 最近見たリポジトリ",
     "tryDemos": "// デモを試す",
     "demoBefore": "// 変更前",
     "demoAfter": "// 変更後",

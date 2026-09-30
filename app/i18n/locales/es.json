@@ -28,6 +28,7 @@
     "open": "Abrir",
     "pasteHint": "Pega la URL de cualquier pull request de GitHub o elige una demo abajo.",
     "recentlyViewed": "// vistos recientemente",
+    "recentRepositories": "// repositorios vistos recientemente",
     "tryDemos": "// prueba algunas demos",
     "demoBefore": "// antes",
     "demoAfter": "// después",

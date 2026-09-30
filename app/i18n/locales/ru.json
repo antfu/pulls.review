@@ -28,6 +28,7 @@
     "open": "Открыть",
     "pasteHint": "Вставьте ссылку на любой pull request GitHub или выберите демо ниже.",
     "recentlyViewed": "// недавно просмотренные",
+    "recentRepositories": "// недавно просмотренные репозитории",
     "tryDemos": "// попробуйте демо",
     "demoBefore": "// до",
     "demoAfter": "// после",

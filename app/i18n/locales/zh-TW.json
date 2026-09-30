@@ -28,6 +28,7 @@
     "open": "開啟",
     "pasteHint": "貼上任意 GitHub pull request 網址，或選擇下方的範例。",
     "recentlyViewed": "// 最近檢視",
+    "recentRepositories": "// 最近查看的儲存庫",
     "tryDemos": "// 試試範例",
     "demoBefore": "// 之前",
     "demoAfter": "// 之後",

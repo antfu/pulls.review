@@ -10,9 +10,11 @@ import LandingDemo from '../components/landing/LandingDemo.vue'
 import LandingHero from '../components/landing/LandingHero.vue'
 import LoadDiffModal from '../components/load/LoadDiffModal.vue'
 import PullRequestPill from '../components/PullRequestPill.vue'
+import RepositoryPill from '../components/RepositoryPill.vue'
 import { UPLOAD_SESSION_STORAGE_KEY } from '../composables/uploadSession'
 import { useDocumentTitle } from '../composables/useDocumentTitle'
 import { useRecentPullRequests } from '../composables/useRecentPullRequests'
+import { useRecentRepositories } from '../composables/useRecentRepositories'
 import { formatTimeAgo } from '../i18n/time-ago'
 
 const DEMO_PRS = [
@@ -73,7 +75,11 @@ function onDragLeave() {
 }
 
 const { recent, load } = useRecentPullRequests()
-onMounted(load)
+const { recent: recentRepos, load: loadRepos } = useRecentRepositories()
+onMounted(() => {
+  load()
+  loadRepos()
+})
 
 // No subject: resets the tab to the plain app name after returning from a PR/upload view.
 useDocumentTitle(() => undefined)
@@ -144,6 +150,23 @@ useDocumentTitle(() => undefined)
             </span>
             <span class="text-xs op-fade">{{ formatTimeAgo(new Date(pr.lastViewedAt), locale) }}</span>
           </PullRequestPill>
+        </div>
+      </section>
+
+      <section v-if="recentRepos.length" class="flex flex-col gap-3">
+        <h2 class="text-xs font-mono op-fade">
+          {{ $t('landing.recentRepositories') }}
+        </h2>
+        <div class="flex flex-wrap gap-2">
+          <RepositoryPill
+            v-for="item in recentRepos"
+            :key="`${item.owner}/${item.repo}`"
+            :owner="item.owner"
+            :repo="item.repo"
+          >
+            <span class="text-xs op-fade">{{ $t('pulls.open', { n: item.openCount }) }}</span>
+            <span class="text-xs op-fade">{{ formatTimeAgo(new Date(item.lastViewedAt), locale) }}</span>
+          </RepositoryPill>
         </div>
       </section>
 

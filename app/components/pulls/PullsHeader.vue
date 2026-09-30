@@ -6,6 +6,7 @@ import FormSearchField from '@antfu/design/components/Form/FormSearchField.vue'
 import FormSelect from '@antfu/design/components/Form/FormSelect.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import GithubAvatar from '../GithubAvatar.vue'
 import NavControls from '../NavControls.vue'
 import { PULL_REQUEST_SORTS } from './pull-request-list-query'
 
@@ -32,8 +33,10 @@ const sortOptions = computed(() => PULL_REQUEST_SORTS.map(value => ({ value, lab
           <span class="i-ph-house-line-duotone text-lg color-accent-teal" aria-hidden="true" />
         </RouterLink>
         <h1 class="flex flex-auto items-center gap-1.5 text-lg font-semibold">
-          <!-- TODO: here we should add the repository icon -->
-          <a :href="`https://github.com/${store.owner}`" target="_blank" rel="noopener" class="op-fade hover:underline">{{ store.owner }}</a>
+          <a :href="`https://github.com/${store.owner}`" target="_blank" rel="noopener" class="flex items-center gap-1.5 op-fade hover:underline">
+            <GithubAvatar :login="store.owner" :size="20" />
+            {{ store.owner }}
+          </a>
           <span class="op-mute">/</span>
           <a :href="`https://github.com/${store.owner}/${store.repo}/pulls`" target="_blank" rel="noopener" class="hover:underline">{{ store.repo }}</a>
           <span v-if="store.totalCount !== undefined" class="ml-1 text-sm font-normal op-fade">{{ $t('pulls.open', { n: store.totalCount }) }}</span>

@@ -2,7 +2,7 @@ import type { PullRequestListItem, PullRequestListPage } from '../types/pull-req
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { ruleBasedAdapter } from '../analyze/adapters/rule-based'
 import { listRepoEntries } from '../cache/pr-cache'
-import { getCachedPullRequestList, setCachedPullRequestList } from '../cache/pull-request-list-cache'
+import { getCachedPullRequestList, setCachedPullRequestList, touchCachedPullRequestList } from '../cache/pull-request-list-cache'
 import { getDefaultCacheStorage } from '../cache/storage'
 import { parseGithubDiffId } from '../providers/github/diff-id'
 import { fetchOpenPullRequests } from '../providers/github/pull-request-list'
@@ -109,8 +109,11 @@ export function createPullRequestListStore(params: { owner: string, repo: string
     void loadViewed()
     const storage = await getDefaultCacheStorage()
     const cached = await getCachedPullRequestList(storage, owner, repo)
-    if (cached)
-      installFirstPage(cached)
+    if (cached) {
+      installFirstPage(cached.page)
+      // Counts as a visit even if the refresh below fails (offline, rate-limited).
+      await touchCachedPullRequestList(storage, owner, repo)
+    }
     const flag = cached ? isRefreshing : isLoading
     flag.value = true
     try {
