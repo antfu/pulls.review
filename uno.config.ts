@@ -30,6 +30,10 @@ export function createUnoConfig() {
         'color-accent-teal': 'color-accent-teal-600 dark:color-accent-teal-400',
         'color-accent-magenta': 'color-accent-magenta-600 dark:color-accent-magenta-400',
       },
+      // Overrides
+      {
+        'bg-active': 'bg-[#8881]',
+      },
       // Named z-index layers used by @antfu/design's overlay components (OverlayModal, etc.)
       // The preset ships no z-index scale and blocks plain `z-<number>` on purpose.
       {

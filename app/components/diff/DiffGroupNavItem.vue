@@ -3,6 +3,7 @@ import type { ResolvedGroupWithChildren } from './group-utils'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { computed } from 'vue'
+import { CATEGORY_COLOR_CLASS } from './category-icons'
 import DiffStats from './DiffStats.vue'
 import { countGroupFiles, countGroupStats } from './group-utils'
 import GroupCategoryIcon from './GroupCategoryIcon.vue'
@@ -32,17 +33,27 @@ const progress = computed(() => {
 
 <template>
   <div
-    class="flex items-center border border-base rounded transition"
-    :class="active ? 'op-100 border-primary:50 bg-primary:10 color-base' : 'op-fade hover:op-100'"
+    class="flex items-center border border-b-2 border-base rounded-t transition-all"
+    :class="[
+      CATEGORY_COLOR_CLASS[group.category],
+      active ? 'border-b-current shadow translate-y--1px' : '',
+    ]"
   >
     <button
       type="button"
-      class="flex items-center gap-2 px-2 py-0.5 text-left text-sm hover:bg-active"
+      :class="[
+        active ? 'op-100' : 'op-fade hover:op-100',
+      ]"
+      class="group flex items-center gap-2 px-2 py-0.5 text-left text-sm color-base hover:bg-active"
       @click="$emit('select', group.key)"
     >
       <div class="flex flex-col items-start">
         <div class="flex items-center gap-1.5">
-          <GroupCategoryIcon :category="group.category" class="text-sm" />
+          <GroupCategoryIcon
+            :category="group.category"
+            class="text-sm group-hover:saturate-100"
+            :class="active ? '' : 'saturate-0'"
+          />
           <span>{{ group.label }}</span>
         </div>
         <div class="flex items-center text-xs">
