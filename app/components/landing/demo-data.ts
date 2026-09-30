@@ -2,8 +2,8 @@ import type { DiffCategory } from '../../types/analyze'
 
 /**
  * The pull request the landing-page animation walks through: antfu/pulls.review#9
- * with its real title and stats, its files bucketed into five groups whose stats
- * add up to the PR total.
+ * with its real stats, its files bucketed into five groups whose stats add up to
+ * the PR total.
  */
 
 export interface DemoGroup {
@@ -23,9 +23,9 @@ export interface DemoFile {
   group: number
 }
 
+/** antfu/pulls.review#9; its title is `landing.demoTitle`, translated at render time. */
 export const DEMO_PR = {
   number: 9,
-  title: 'feat: share an AI analysis as a PR comment and load shared results',
   additions: 1358,
   deletions: 156,
   files: 37,

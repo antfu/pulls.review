@@ -174,7 +174,7 @@ useIntersectionObserver(root, ([entry]) => {
       <div class="min-w-0 flex-1">
         <div class="flex items-start gap-3">
           <div class="min-w-0 flex-1 text-sm font-medium leading-snug">
-            {{ DEMO_PR.title }} <span class="op-fade">#{{ DEMO_PR.number }}</span>
+            {{ $t('landing.demoTitle') }} <span class="op-fade">#{{ DEMO_PR.number }}</span>
           </div>
         </div>
         <div class="grid grid-cols-1 mt-1.5">

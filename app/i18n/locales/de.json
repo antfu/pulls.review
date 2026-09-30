@@ -32,6 +32,7 @@
     "demoBefore": "// vorher",
     "demoAfter": "// nachher",
     "moreFiles": "... {n} weitere Dateien",
+    "demoTitle": "feat: KI-Analyse als PR-Kommentar teilen und geteilte Ergebnisse laden",
     "demoSummary": "Ein Reviewer mit API-Key postet seine Analyse in den PR; alle anderen laden sie ohne Token.",
     "demoGroups": {
       "store": "Store für geteilte Analysen & Kommentarvertrag",

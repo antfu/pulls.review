@@ -32,6 +32,7 @@
     "demoBefore": "// 之前",
     "demoAfter": "// 之後",
     "moreFiles": "... 還有 {n} 個檔案",
+    "demoTitle": "feat: 將 AI 分析作為 PR 留言分享並載入已分享的結果",
     "demoSummary": "一位擁有 API key 的審閱者將分析發布到 PR；其他所有人無需 token 即可載入。",
     "demoGroups": {
       "store": "共享分析儲存與留言契約",

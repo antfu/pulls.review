@@ -32,6 +32,7 @@
     "demoBefore": "// 之前",
     "demoAfter": "// 之后",
     "moreFiles": "... 还有 {n} 个文件",
+    "demoTitle": "feat: 将 AI 分析作为 PR 评论分享并加载已分享的结果",
     "demoSummary": "一位拥有 API key 的审阅者将分析发布到 PR；其他所有人无需 token 即可加载。",
     "demoGroups": {
       "store": "共享分析存储与评论契约",

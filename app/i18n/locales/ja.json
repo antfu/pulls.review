@@ -32,6 +32,7 @@
     "demoBefore": "// 変更前",
     "demoAfter": "// 変更後",
     "moreFiles": "... 他 {n} ファイル",
+    "demoTitle": "feat: AI 分析を PR コメントとして共有し、共有結果を読み込む",
     "demoSummary": "API キーを持つレビュアー 1 人が分析を PR に投稿すれば、他の全員がトークンなしで読み込めます。",
     "demoGroups": {
       "store": "共有分析ストアとコメント契約",

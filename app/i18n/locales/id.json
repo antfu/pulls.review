@@ -32,6 +32,7 @@
     "demoBefore": "// sebelum",
     "demoAfter": "// sesudah",
     "moreFiles": "... {n} berkas lainnya",
+    "demoTitle": "feat: bagikan analisis AI sebagai komentar PR dan muat hasil yang dibagikan",
     "demoSummary": "Satu peninjau dengan API key mengirim analisisnya ke PR; semua orang lain memuatnya tanpa token.",
     "demoGroups": {
       "store": "Store analisis bersama & kontrak komentar",

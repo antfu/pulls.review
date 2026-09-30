@@ -32,6 +32,7 @@
     "demoBefore": "// prima",
     "demoAfter": "// dopo",
     "moreFiles": "... altri {n} file",
+    "demoTitle": "feat: condividere un'analisi IA come commento della PR e caricare i risultati condivisi",
     "demoSummary": "Un revisore con API key pubblica la sua analisi nella PR; tutti gli altri la caricano senza token.",
     "demoGroups": {
       "store": "Store delle analisi condivise e contratto del commento",

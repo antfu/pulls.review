@@ -32,6 +32,7 @@
     "demoBefore": "// before",
     "demoAfter": "// after",
     "moreFiles": "... {n} more files",
+    "demoTitle": "feat: share an AI analysis as a PR comment and load shared results",
     "demoSummary": "One reviewer with an API key posts their analysis to the PR; everyone else loads it without a token.",
     "demoGroups": {
       "store": "Shared analysis store & comment contract",
