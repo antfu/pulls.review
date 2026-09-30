@@ -11,7 +11,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { transform } from 'lightningcss'
 import { glob } from 'tinyglobby'
-import { createGenerator, presetWind3 } from 'unocss'
+import { createGenerator } from 'unocss'
 import { createUnoConfig } from '../uno.config'
 
 // Story-only utility classes must not leak into the shipped shadow-root stylesheet.
@@ -44,7 +44,7 @@ export async function buildEmbedCSS() {
   const embedDir = join(root, 'app/embed')
   const require = createRequire(import.meta.url)
 
-  const config = createUnoConfig({ base: presetWind3() })
+  const config = createUnoConfig()
   const generator = await createGenerator(config)
 
   const files = await glob(['app/**/*.{vue,ts}'], {

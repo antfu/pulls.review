@@ -99,7 +99,7 @@ useDocumentTitle(() => undefined)
         <div class="flex flex-col gap-8">
           <LandingHero />
           <p class="text-sm leading-relaxed op-fade max-w-md">
-            Groups changed files, summarizes what matters, review them one scope at a time.
+            Groups changed files, summarizes what matters, review them one scope at a time. Everything works locally in your browser.
           </p>
           <div class="flex flex-col gap-2 max-w-md">
             <form class="flex gap-2 items-stretch" @submit.prevent="go">

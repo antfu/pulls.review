@@ -21,6 +21,7 @@ html {
 html.dark,
 .dark {
   color-scheme: dark;
+  background: #121212;
 }
 
 /* Review-comment Markdown presentation. Kept here rather than in a scoped SFC

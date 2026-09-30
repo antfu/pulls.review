@@ -5,28 +5,12 @@ import {
   presetAttributify,
   presetIcons,
   presetTypography,
-  presetWind4,
+  presetWind3,
   transformerDirectives,
   transformerVariantGroup,
 } from 'unocss'
 
-export interface CreateUnoConfigOptions {
-  /**
-   * The base utility preset layered under `@antfu/design`. Defaults to
-   * {@link presetWind4} for the main app. The GitHub-embed build (see
-   * `scripts/build-embed-css.ts`) passes `presetWind3()` instead: Wind4
-   * registers its theme + `--un-*` custom properties via
-   * `@property { inherits: false }` and keeps them in a document `:root {}`
-   * block, neither of which reaches a shadow tree, so its
-   * `color-mix(var(--colors-*))` utilities resolve to nothing there. Wind3
-   * bakes the same semantic utilities to concrete `rgb()` + `.dark` variants,
-   * which are self-contained inside a shadow root.
-   */
-  base?: Preset<any> | Preset<any>[]
-}
-
-export function createUnoConfig(options: CreateUnoConfigOptions = {}) {
-  const base = options.base ?? presetWind4()
+export function createUnoConfig() {
   return defineConfig({
     theme: {
       colors: {
@@ -65,7 +49,7 @@ export function createUnoConfig(options: CreateUnoConfigOptions = {}) {
     ],
     presets: [
       presetAnthonyDesign(),
-      ...(Array.isArray(base) ? base : [base]),
+      presetWind3(),
       presetAttributify(),
       presetIcons({
         scale: 1.2,
