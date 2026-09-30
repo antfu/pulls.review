@@ -31,6 +31,14 @@
     "tryDemos": "// essayez des démos",
     "demo": "// démo",
     "moreFiles": "... {n} fichiers de plus",
+    "demoSummary": "Un relecteur avec une clé API publie son analyse sur la PR ; tous les autres, y compris l'intégration github.com, la chargent sans jeton.",
+    "demoGroups": {
+      "store": "Store d'analyses partagées et contrat du commentaire",
+      "ui": "UI de partage du résultat",
+      "refactor": "Refactor du store : résultat à la racine",
+      "tests": "Tests",
+      "docs": "Docs et dépendances"
+    },
     "uploadTitle": "Relire un diff sans PR",
     "uploadDescription": "Importez ou collez un unified diff, ou déposez un fichier {diff} / {patch} n'importe où sur cette page.",
     "uploadButton": "Importer un diff",

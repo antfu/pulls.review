@@ -31,6 +31,14 @@
     "tryDemos": "// 試試範例",
     "demo": "// 範例",
     "moreFiles": "... 還有 {n} 個檔案",
+    "demoSummary": "一位擁有 API 金鑰的審閱者將分析發布到 PR；其他所有人（包括 github.com 嵌入）無需權杖即可載入。",
+    "demoGroups": {
+      "store": "共享分析儲存與留言契約",
+      "ui": "分享結果介面",
+      "refactor": "儲存重構：結果上移至根",
+      "tests": "測試",
+      "docs": "文件與相依套件"
+    },
     "uploadTitle": "不需 PR 也能審閱 diff",
     "uploadDescription": "上傳或貼上 unified diff，或將 {diff} / {patch} 檔案拖放到本頁任意位置。",
     "uploadButton": "上傳 diff",

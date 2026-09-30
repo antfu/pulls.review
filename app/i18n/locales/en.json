@@ -31,6 +31,14 @@
     "tryDemos": "// try some demos",
     "demo": "// demo",
     "moreFiles": "... {n} more files",
+    "demoSummary": "One reviewer with an API key posts their analysis to the PR; everyone else, including the github.com embed, loads it without a token.",
+    "demoGroups": {
+      "store": "Shared analysis store & comment contract",
+      "ui": "Share result UI",
+      "refactor": "Store refactor: result to root",
+      "tests": "Tests",
+      "docs": "Docs & deps"
+    },
     "uploadTitle": "Review a diff without a PR",
     "uploadDescription": "Upload or paste a unified diff, or drop a {diff} / {patch} file anywhere on this page.",
     "uploadButton": "Upload a diff",

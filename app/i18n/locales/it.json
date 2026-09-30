@@ -31,6 +31,14 @@
     "tryDemos": "// prova alcune demo",
     "demo": "// demo",
     "moreFiles": "... altri {n} file",
+    "demoSummary": "Un revisore con chiave API pubblica la sua analisi nella PR; tutti gli altri, incluso l'embed di github.com, la caricano senza token.",
+    "demoGroups": {
+      "store": "Store delle analisi condivise e contratto del commento",
+      "ui": "UI di condivisione del risultato",
+      "refactor": "Refactor dello store: risultato alla radice",
+      "tests": "Test",
+      "docs": "Docs e dipendenze"
+    },
     "uploadTitle": "Revisiona un diff senza PR",
     "uploadDescription": "Carica o incolla un unified diff, oppure trascina un file {diff} / {patch} ovunque in questa pagina.",
     "uploadButton": "Carica un diff",

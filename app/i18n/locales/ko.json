@@ -31,6 +31,14 @@
     "tryDemos": "// 데모 살펴보기",
     "demo": "// 데모",
     "moreFiles": "... 파일 {n}개 더",
+    "demoSummary": "API 키가 있는 리뷰어 한 명이 분석을 PR에 게시하면, github.com 임베드를 포함한 다른 모든 사람이 토큰 없이 불러올 수 있습니다.",
+    "demoGroups": {
+      "store": "공유 분석 스토어 및 댓글 계약",
+      "ui": "결과 공유 UI",
+      "refactor": "스토어 리팩터링: 결과를 루트로",
+      "tests": "테스트",
+      "docs": "문서 및 의존성"
+    },
     "uploadTitle": "PR 없이 diff 리뷰하기",
     "uploadDescription": "unified diff를 업로드하거나 붙여 넣거나, {diff} / {patch} 파일을 이 페이지 어디든 놓으세요.",
     "uploadButton": "diff 업로드",

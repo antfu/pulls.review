@@ -31,6 +31,14 @@
     "tryDemos": "// coba beberapa demo",
     "demo": "// demo",
     "moreFiles": "... {n} berkas lainnya",
+    "demoSummary": "Satu peninjau dengan kunci API mengirim analisisnya ke PR; semua orang lain, termasuk embed github.com, memuatnya tanpa token.",
+    "demoGroups": {
+      "store": "Store analisis bersama & kontrak komentar",
+      "ui": "UI berbagi hasil",
+      "refactor": "Refactor store: hasil ke root",
+      "tests": "Pengujian",
+      "docs": "Dokumentasi & dependensi"
+    },
     "uploadTitle": "Tinjau diff tanpa PR",
     "uploadDescription": "Unggah atau tempel unified diff, atau seret berkas {diff} / {patch} ke mana saja di halaman ini.",
     "uploadButton": "Unggah diff",

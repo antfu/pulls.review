@@ -31,6 +31,14 @@
     "tryDemos": "// Demos ausprobieren",
     "demo": "// Demo",
     "moreFiles": "... {n} weitere Dateien",
+    "demoSummary": "Ein Reviewer mit API-Schlüssel postet seine Analyse in den PR; alle anderen, auch das github.com-Embed, laden sie ohne Token.",
+    "demoGroups": {
+      "store": "Store für geteilte Analysen & Kommentarvertrag",
+      "ui": "UI zum Teilen des Ergebnisses",
+      "refactor": "Store-Refactoring: Ergebnis auf Root-Ebene",
+      "tests": "Tests",
+      "docs": "Doku & Abhängigkeiten"
+    },
     "uploadTitle": "Ein Diff ohne PR reviewen",
     "uploadDescription": "Lade ein Unified Diff hoch oder füge es ein, oder ziehe eine {diff}- / {patch}-Datei irgendwo auf diese Seite.",
     "uploadButton": "Diff hochladen",

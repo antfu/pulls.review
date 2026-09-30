@@ -7,7 +7,8 @@ import type { DiffCategory } from '../../types/analyze'
  */
 
 export interface DemoGroup {
-  label: string
+  /** Message key under `landing.demoGroups`; the label is translated at render time. */
+  key: 'store' | 'ui' | 'refactor' | 'tests' | 'docs'
   category: DiffCategory
   additions: number
   deletions: number
@@ -25,18 +26,17 @@ export interface DemoFile {
 export const DEMO_PR = {
   number: 9,
   title: 'feat: share an AI analysis as a PR comment and load shared results',
-  summary: 'One reviewer with an API key posts their analysis to the PR; everyone else, including the github.com embed, loads it without a token.',
   additions: 1358,
   deletions: 156,
   files: 37,
 }
 
 export const DEMO_GROUPS: DemoGroup[] = [
-  { label: 'Shared analysis store & comment contract', category: 'api', additions: 363, deletions: 3, files: 8, expanded: true },
-  { label: 'Share result UI', category: 'ui', additions: 331, deletions: 31, files: 11, expanded: true },
-  { label: 'Store refactor: result to root', category: 'core', additions: 182, deletions: 77, files: 9 },
-  { label: 'Tests', category: 'tests', additions: 353, deletions: 1, files: 4 },
-  { label: 'Docs & deps', category: 'docs', additions: 129, deletions: 44, files: 5 },
+  { key: 'store', category: 'api', additions: 363, deletions: 3, files: 8, expanded: true },
+  { key: 'ui', category: 'ui', additions: 331, deletions: 31, files: 11, expanded: true },
+  { key: 'refactor', category: 'core', additions: 182, deletions: 77, files: 9 },
+  { key: 'tests', category: 'tests', additions: 353, deletions: 1, files: 4 },
+  { key: 'docs', category: 'docs', additions: 129, deletions: 44, files: 5 },
 ]
 
 /** The rows shown in the flat state; the rest hide behind "N more files". */

@@ -31,6 +31,14 @@
     "tryDemos": "// デモを試す",
     "demo": "// デモ",
     "moreFiles": "... 他 {n} ファイル",
+    "demoSummary": "API キーを持つレビュアー 1 人が分析を PR に投稿すれば、github.com 埋め込みを含む他の全員がトークンなしで読み込めます。",
+    "demoGroups": {
+      "store": "共有分析ストアとコメント契約",
+      "ui": "結果共有 UI",
+      "refactor": "ストア再構成：結果をルートへ",
+      "tests": "テスト",
+      "docs": "ドキュメントと依存関係"
+    },
     "uploadTitle": "PR なしで diff をレビュー",
     "uploadDescription": "unified diff をアップロードまたは貼り付けるか、{diff} / {patch} ファイルをこのページのどこかにドロップしてください。",
     "uploadButton": "diff をアップロード",
