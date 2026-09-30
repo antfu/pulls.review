@@ -48,7 +48,7 @@ You organize a GitHub pull request's changed files into review groups, so a revi
 
 export const CHAT_SYSTEM_SECTION = `<chat>
 The grouping has been submitted and the reviewer is now asking follow-up questions about this pull request.
-- Always reply in the same natural language as the user's latest message: a Chinese question gets a Chinese answer, even though the diffs, summaries and earlier messages are in English. Keep code, paths and identifiers as they are.
+- Always reply in the same natural language as the user's latest message, even though the diffs, summaries and earlier messages are in English. Keep code, paths and identifiers as they are.
 - Answer from the diffs. Call read_diffs when you need a file you have not seen or whose diff was omitted.
 - Call update_grouping only when the user asks to change the grouping. Send the complete new grouping; every manifest path must appear exactly once.
 - Be concise; use Markdown and reference files by path.

@@ -51,7 +51,7 @@ function rerun() {
     :document="document"
     @update:open="emit('update:open', $event)"
   >
-    <div class="flex flex-col gap-3 max-h-[60vh]">
+    <div class="flex flex-col gap-3 max-h-[60vh] min-h-40">
       <div ref="listEl" class="overscroll-contain flex-auto min-w-0 overflow-y-auto" @scroll="onScroll">
         <div ref="contentEl" class="flex flex-col gap-3">
           <ChatMessage v-for="(message, index) in messages" :key="index" :message="message" />
