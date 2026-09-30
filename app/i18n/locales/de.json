@@ -25,6 +25,7 @@
   "landing": {
     "dropHint": "Loslassen, um deine diff- / .patch-Datei zu laden",
     "tagline": "Gruppiert geänderte Dateien, fasst das Wesentliche zusammen und lässt dich Bereich für Bereich reviewen. Alles läuft lokal in deinem Browser.",
+    "documentTitle": "Pull-Request-Reviews klar und übersichtlich",
     "open": "Öffnen",
     "pasteHint": "Füge eine beliebige GitHub-Pull-Request-URL ein oder wähle unten eine Demo.",
     "recentlyViewed": "// zuletzt angesehen",

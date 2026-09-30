@@ -25,6 +25,7 @@
   "landing": {
     "dropHint": "拖放以加载 diff / .patch 文件",
     "tagline": "对变更文件分组、总结要点，一个范围一个范围地审阅。所有内容都在你的浏览器中本地运行。",
+    "documentTitle": "清晰有序的拉取请求审阅",
     "open": "打开",
     "pasteHint": "粘贴任意 GitHub pull request 链接，或选择下方的示例。",
     "recentlyViewed": "// 最近查看",

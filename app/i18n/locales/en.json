@@ -25,6 +25,7 @@
   "landing": {
     "dropHint": "Drop to load your diff / .patch file",
     "tagline": "Groups changed files, summarizes what matters, review them one scope at a time. Everything works locally in your browser.",
+    "documentTitle": "Pull reviews made clear and organized",
     "open": "Open",
     "pasteHint": "Paste any GitHub pull request URL, or pick a demo below.",
     "recentlyViewed": "// recently viewed",

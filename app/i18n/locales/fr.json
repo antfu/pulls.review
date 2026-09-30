@@ -25,6 +25,7 @@
   "landing": {
     "dropHint": "Déposez pour charger votre fichier diff / .patch",
     "tagline": "Regroupe les fichiers modifiés, résume l'essentiel, et vous les fait relire un périmètre à la fois. Tout fonctionne localement dans votre navigateur.",
+    "documentTitle": "Des revues de pull requests claires et organisées",
     "open": "Ouvrir",
     "pasteHint": "Collez l'URL d'une pull request GitHub, ou choisissez une démo ci-dessous.",
     "recentlyViewed": "// vus récemment",

@@ -25,6 +25,7 @@
   "landing": {
     "dropHint": "拖放以載入 diff / .patch 檔案",
     "tagline": "將變更檔案分組、摘要重點，一個範圍一個範圍地審閱。所有內容都在你的瀏覽器本機執行。",
+    "documentTitle": "清晰有序的拉取請求審閱",
     "open": "開啟",
     "pasteHint": "貼上任意 GitHub pull request 網址，或選擇下方的範例。",
     "recentlyViewed": "// 最近檢視",

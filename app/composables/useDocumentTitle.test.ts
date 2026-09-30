@@ -21,6 +21,11 @@ describe('useDocumentTitle', () => {
     expect(document.title).toBe('feat: add thing (#123) · pulls.review')
   })
 
+  it('joins the subject with a custom separator', () => {
+    scope.run(() => useDocumentTitle('Pull reviews made clear and organized', ' - '))
+    expect(document.title).toBe('Pull reviews made clear and organized - pulls.review')
+  })
+
   it('falls back to the plain app name when the subject is empty', () => {
     scope.run(() => useDocumentTitle(() => undefined))
     expect(document.title).toBe('pulls.review')

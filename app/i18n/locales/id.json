@@ -25,6 +25,7 @@
   "landing": {
     "dropHint": "Lepaskan untuk memuat berkas diff / .patch Anda",
     "tagline": "Mengelompokkan berkas yang berubah, merangkum yang penting, dan meninjaunya satu lingkup sekaligus. Semuanya berjalan lokal di browser Anda.",
+    "documentTitle": "Tinjauan pull request yang jelas dan teratur",
     "open": "Buka",
     "pasteHint": "Tempel URL pull request GitHub mana pun, atau pilih demo di bawah.",
     "recentlyViewed": "// baru dilihat",

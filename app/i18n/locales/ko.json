@@ -25,6 +25,7 @@
   "landing": {
     "dropHint": "diff / .patch 파일을 놓아 불러오기",
     "tagline": "변경된 파일을 묶고 핵심을 요약해, 한 범위씩 리뷰합니다. 모든 것이 브라우저에서 로컬로 동작합니다.",
+    "documentTitle": "명확하고 체계적인 풀 리퀘스트 리뷰",
     "open": "열기",
     "pasteHint": "GitHub pull request URL을 붙여 넣거나 아래 데모를 선택하세요.",
     "recentlyViewed": "// 최근 본 항목",

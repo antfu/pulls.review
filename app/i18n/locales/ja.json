@@ -25,6 +25,7 @@
   "landing": {
     "dropHint": "ドロップして diff / .patch ファイルを読み込む",
     "tagline": "変更ファイルをグループ化し、要点を要約して、スコープごとにレビュー。すべてブラウザ内でローカルに動作します。",
+    "documentTitle": "プルリクエストのレビューを、明快に、整理して",
     "open": "開く",
     "pasteHint": "GitHub の pull request URL を貼り付けるか、下のデモを選んでください。",
     "recentlyViewed": "// 最近見たもの",

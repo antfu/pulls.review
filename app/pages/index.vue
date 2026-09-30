@@ -25,7 +25,7 @@ const DEMO_PRS = [
 ] as const
 
 const router = useRouter()
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const url = ref('')
 const loadDiffOpen = ref(false)
 
@@ -81,8 +81,7 @@ onMounted(() => {
   loadRepos()
 })
 
-// No subject: resets the tab to the plain app name after returning from a PR/upload view.
-useDocumentTitle(() => undefined)
+useDocumentTitle(() => t('landing.documentTitle'), ' - ')
 </script>
 
 <template>

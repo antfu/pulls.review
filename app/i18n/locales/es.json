@@ -25,6 +25,7 @@
   "landing": {
     "dropHint": "Suelta para cargar tu archivo diff / .patch",
     "tagline": "Agrupa los archivos cambiados, resume lo importante y revísalos ámbito por ámbito. Todo funciona localmente en tu navegador.",
+    "documentTitle": "Revisiones de pull requests claras y organizadas",
     "open": "Abrir",
     "pasteHint": "Pega la URL de cualquier pull request de GitHub o elige una demo abajo.",
     "recentlyViewed": "// vistos recientemente",
