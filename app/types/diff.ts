@@ -42,6 +42,12 @@ export const PullRequestMetaSchema = v.object({
 })
 export type PullRequestMeta = v.InferOutput<typeof PullRequestMetaSchema>
 
+export const CommitSchema = v.object({
+  sha: v.string(),
+  message: v.string(), // full message; consumers pick the subject line themselves
+})
+export type Commit = v.InferOutput<typeof CommitSchema>
+
 const RefSchema = v.object({
   sha: v.string(),
   ref: v.string(),
@@ -66,6 +72,7 @@ export const DiffsPayloadSchema = v.object({
   createdAt: v.optional(v.string()),
   updatedAt: v.optional(v.string()),
   pullRequest: v.optional(PullRequestMetaSchema),
+  commits: v.optional(v.array(CommitSchema)), // oldest first; absent when the source has no commit history
   files: v.array(FileChangeSchema),
 })
 export type DiffsPayload = v.InferOutput<typeof DiffsPayloadSchema>

@@ -1,5 +1,5 @@
 import type { Provider } from '../../types/provider'
-import { fetchPullRequest, fetchPullRequestDiffText, fetchPullRequestFiles } from './api'
+import { fetchPullRequest, fetchPullRequestCommits, fetchPullRequestDiffText, fetchPullRequestFiles } from './api'
 import { normalizePullRequest } from './normalize'
 
 export const GithubProvider: Provider = {
@@ -15,11 +15,12 @@ export const GithubProvider: Provider = {
       throw new Error(`GithubProvider cannot handle params of kind "${params.kind}"`)
 
     const { owner, repo, number } = params
-    const [pr, files] = await Promise.all([
+    const [pr, files, commits] = await Promise.all([
       fetchPullRequest(owner, repo, number, opts.token),
       fetchPullRequestFiles(owner, repo, number, opts.token),
+      fetchPullRequestCommits(owner, repo, number, opts.token),
     ])
 
-    return normalizePullRequest(owner, repo, number, pr, files, () => fetchPullRequestDiffText(owner, repo, number, opts.token))
+    return normalizePullRequest(owner, repo, number, pr, files, commits, () => fetchPullRequestDiffText(owner, repo, number, opts.token))
   },
 }

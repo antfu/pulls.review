@@ -30,6 +30,26 @@ describe('buildAnalysisPrompt snapshot', () => {
   })
 })
 
+describe('buildAnalysisPrompt commits', () => {
+  const base = { provider: 'github', id: 'github:o/r#1', title: 'T', files: [file({ path: 'a.ts' })] } as const
+
+  it('lists short sha and subject line of each commit, oldest first', () => {
+    const prompt = buildAnalysisPrompt({
+      ...base,
+      commits: [
+        { sha: 'aaaaaaa111', message: 'feat: add parser\n\nlong body' },
+        { sha: 'bbbbbbb222', message: 'test: cover parser' },
+      ],
+    })
+    expect(prompt).toContain('---COMMITS--- (2, oldest first)\naaaaaaa feat: add parser\nbbbbbbb test: cover parser\n\n---MANIFEST---')
+  })
+
+  it('omits the section for a single commit', () => {
+    const prompt = buildAnalysisPrompt({ ...base, commits: [{ sha: 'aaaaaaa111', message: 'feat: x' }] })
+    expect(prompt).not.toContain('---COMMITS---')
+  })
+})
+
 describe('buildManifest', () => {
   it('groups files under their directory heading, indented', () => {
     const manifest = buildManifest([

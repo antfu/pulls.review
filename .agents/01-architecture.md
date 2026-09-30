@@ -64,7 +64,8 @@ analysis strategy later never touches the view layer:
   - `llm` — implemented. A pi-agent-core tool loop against whichever
     provider is selected in Settings (AI Gateway, Anthropic, or
     OpenAI-compatible — only the selected one is ever called). The prompt
-    carries a file manifest (plus the full diffs when small); the model pulls
+    carries a file manifest, the commit subject lines when there is more than
+    one commit, and the full diffs when they are small; the model pulls
     diffs on demand with `read_diffs` and finishes with `submit_grouping`,
     whose coverage check rejects a grouping that misses or invents paths so
     the model must fix it. A read budget and a turn cap bound the run, and

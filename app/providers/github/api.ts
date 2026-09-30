@@ -24,6 +24,11 @@ export interface GithubPullRequestFileJson {
   patch?: string
 }
 
+export interface GithubPullRequestCommitJson {
+  sha: string
+  commit: { message: string }
+}
+
 /** A non-ok GitHub response, keeping the status so callers can react to auth/permission failures (401/403). */
 export class GithubApiError extends Error {
   constructor(readonly status: number, message: string) {
@@ -54,19 +59,28 @@ export async function fetchPullRequest(owner: string, repo: string, number: stri
   return res.json()
 }
 
-export async function fetchPullRequestFiles(owner: string, repo: string, number: string, token?: string): Promise<GithubPullRequestFileJson[]> {
-  const files: GithubPullRequestFileJson[] = []
-  let page = 1
-  // GitHub caps at 100 per page and 3000 files total across pages for this endpoint.
-  for (;;) {
-    const res = await githubFetch(`${GITHUB_API_BASE}/repos/${owner}/${repo}/pulls/${number}/files?per_page=100&page=${page}`, token)
-    const pageFiles: GithubPullRequestFileJson[] = await res.json()
-    files.push(...pageFiles)
-    if (pageFiles.length < 100)
-      break
-    page++
+async function fetchAllPages<T>(url: string, token: string | undefined): Promise<T[]> {
+  const items: T[] = []
+  for (let page = 1; ; page++) {
+    const res = await githubFetch(`${url}?per_page=100&page=${page}`, token)
+    const pageItems: T[] = await res.json()
+    items.push(...pageItems)
+    if (pageItems.length < 100)
+      return items
   }
-  return files
+}
+
+/** GitHub caps this endpoint at 3000 files total across pages. */
+export function fetchPullRequestFiles(owner: string, repo: string, number: string, token?: string): Promise<GithubPullRequestFileJson[]> {
+  return fetchAllPages(`${GITHUB_API_BASE}/repos/${owner}/${repo}/pulls/${number}/files`, token)
+}
+
+/**
+ * Oldest first; GitHub caps this endpoint at 250 commits. It carries no per-commit
+ * file lists - those cost one request per commit, so they are deliberately not fetched.
+ */
+export function fetchPullRequestCommits(owner: string, repo: string, number: string, token?: string): Promise<GithubPullRequestCommitJson[]> {
+  return fetchAllPages(`${GITHUB_API_BASE}/repos/${owner}/${repo}/pulls/${number}/commits`, token)
 }
 
 /** Raw unified-diff text for the whole PR, used as a fallback when GitHub omits a file's `patch` (very large diffs). */

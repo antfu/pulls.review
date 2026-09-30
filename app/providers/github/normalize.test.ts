@@ -28,7 +28,7 @@ describe('normalizePullRequest', () => {
         patch: '@@ -1,2 +1,2 @@\n context\n-old\n+new',
       },
     ]
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, async () => '')
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], async () => '')
 
     expect(diff).toMatchObject({
       provider: 'github',
@@ -43,6 +43,12 @@ describe('normalizePullRequest', () => {
     expect(diff.files[0]!.hunks).toHaveLength(1)
   })
 
+  it('keeps each commit\'s sha and full message', async () => {
+    const commits = [{ sha: 'c1', commit: { message: 'feat: add x\n\nbody' } }]
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, [], commits, async () => '')
+    expect(diff.commits).toEqual([{ sha: 'c1', message: 'feat: add x\n\nbody' }])
+  })
+
   it('marks a renamed file with previousPath', async () => {
     const files: GithubPullRequestFileJson[] = [
       {
@@ -55,7 +61,7 @@ describe('normalizePullRequest', () => {
         patch: undefined,
       },
     ]
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, async () => '')
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], async () => '')
     expect(diff.files[0]).toMatchObject({ status: 'renamed', previousPath: 'src/old-name.ts', path: 'src/new-name.ts' })
   })
 
@@ -77,7 +83,7 @@ describe('normalizePullRequest', () => {
       + '-old\n'
       + '+new\n'
     const loadFallback = vi.fn(async () => fallbackText)
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, loadFallback)
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], loadFallback)
 
     expect(loadFallback).toHaveBeenCalledOnce()
     expect(diff.files[0]).toMatchObject({ path: 'src/huge.ts', sha: 'ghi789', isBinary: false, additions: 500, deletions: 10 })
@@ -97,7 +103,7 @@ describe('normalizePullRequest', () => {
     const fallbackText = 'diff --git a/assets/logo.png b/assets/logo.png\n'
       + 'index aaa..jkl012 100644\n'
       + 'Binary files a/assets/logo.png and b/assets/logo.png differ\n'
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, async () => fallbackText)
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], async () => fallbackText)
 
     expect(diff.files[0]).toMatchObject({ path: 'assets/logo.png', isBinary: true })
   })
@@ -108,7 +114,7 @@ describe('normalizePullRequest', () => {
     [{ state: 'closed' as const, draft: false, merged: false }, 'closed'],
     [{ state: 'closed' as const, draft: false, merged: true }, 'merged'],
   ])('resolves pullRequest.state from %o to %s', async (overrides, expected) => {
-    const diff = await normalizePullRequest('owner', 'repo', '1', { ...PR_JSON, ...overrides }, [], async () => '')
+    const diff = await normalizePullRequest('owner', 'repo', '1', { ...PR_JSON, ...overrides }, [], [], async () => '')
     expect(diff.pullRequest?.state).toBe(expected)
   })
 
@@ -122,7 +128,7 @@ describe('normalizePullRequest', () => {
       'diff --git a/b.ts b/b.ts\nindex 0..b1 100644\n--- a/b.ts\n+++ b/b.ts\n@@ -0,0 +1,1 @@\n+b\n',
     ].join('')
     const loadFallback = vi.fn(async () => fallbackText)
-    await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, loadFallback)
+    await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], loadFallback)
     expect(loadFallback).toHaveBeenCalledOnce()
   })
 })

@@ -32,6 +32,7 @@ You organize a GitHub pull request's changed files into review groups, so a revi
 - Tests, stories and fixtures belong to the feature they cover, as a "tests" child when the group has children. Only tests unrelated to any feature form their own group.
 - Order groups by review priority: the core change first, supporting changes next, mechanical changes (lockfiles, generated files, formatting) last.
 - Every path in the manifest goes into exactly one group or child.
+- Commit messages, when listed, hint at the author's intents. Group by the final change, not by commit: fixup and WIP commits often mix concerns.
 </grouping_principles>
 
 <workflow>
@@ -110,6 +111,9 @@ export function buildAnalysisPrompt(diff: DiffsPayload): string {
     parts.push(`PR link: ${diff.url}`)
   if (diff.description)
     parts.push(`---DESCRIPTION---\n${diff.description}`)
+  // A single commit adds nothing the title and description don't already say.
+  if (diff.commits && diff.commits.length > 1)
+    parts.push(`---COMMITS--- (${diff.commits.length}, oldest first)\n${diff.commits.map(commit => `${commit.sha.slice(0, 7)} ${commit.message.split('\n', 1)[0]}`).join('\n')}`)
   const totalAdditions = diff.files.reduce((sum, file) => sum + file.additions, 0)
   const totalDeletions = diff.files.reduce((sum, file) => sum + file.deletions, 0)
   parts.push(`---MANIFEST--- (${diff.files.length} files, +${totalAdditions}/-${totalDeletions})\n${buildManifest(diff.files)}`)

@@ -1,5 +1,5 @@
 import type { DiffsPayload, FileChange, FileChangeStatus, PullRequestState } from '../../types/diff'
-import type { GithubPullRequestFileJson, GithubPullRequestJson } from './api'
+import type { GithubPullRequestCommitJson, GithubPullRequestFileJson, GithubPullRequestJson } from './api'
 import { parseHunks, parsePatch } from '../../patch-parser'
 
 const STATUS_MAP: Record<string, FileChangeStatus> = {
@@ -78,6 +78,7 @@ export async function normalizePullRequest(
   number: string,
   pr: GithubPullRequestJson,
   files: GithubPullRequestFileJson[],
+  commits: GithubPullRequestCommitJson[],
   loadFallbackDiffText: () => Promise<string>,
 ): Promise<DiffsPayload> {
   let fallbackDiffTextPromise: Promise<string> | undefined
@@ -101,6 +102,7 @@ export async function normalizePullRequest(
       author: pr.user?.login,
       state: resolveState(pr),
     },
+    commits: commits.map(({ sha, commit }) => ({ sha, message: commit.message })),
     files: normalizedFiles,
   }
 }
