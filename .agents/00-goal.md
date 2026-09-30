@@ -2,8 +2,9 @@
 
 pulls.review is a better way to review a GitHub pull request's
 diff: grouped, summarized, and fast, instead of GitHub's flat file-by-file
-list. It renders any PR at `/gh/{owner}/{repo}/{number}`, and any raw
-`.diff`/`.patch` text pasted or uploaded at `/upload`.
+list. It renders any PR at `/gh/{owner}/{repo}/{number}`, lists a repo's open
+PRs at `/gh/{owner}/{repo}`, and renders any raw `.diff`/`.patch` text pasted
+or uploaded at `/upload`.
 
 ## Why
 
@@ -58,5 +59,6 @@ management product.
 
 - Being a general git hosting/PR management product (no merging, no CI
   integration, no issue tracking).
-- A dashboard or account system. pulls.review is deep-links plus local
-  (per-browser) history, not a hosted product with accounts.
+- A dashboard or account system. pulls.review is deep-links (plus a per-repo
+  open-PR list to reach them) and local (per-browser) history, not a hosted
+  product with accounts.

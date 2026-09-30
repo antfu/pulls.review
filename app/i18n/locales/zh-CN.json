@@ -74,6 +74,40 @@
     "reviewedOf": "/ {total} 已审阅",
     "openInSite": "在 pulls.review 中打开"
   },
+  "pulls": {
+    "loading": "正在加载 pull request…",
+    "loadFailed": "无法加载 pull request",
+    "open": "{n} 个开放",
+    "search": "筛选 pull request",
+    "empty": "没有开放的 pull request",
+    "noMatches": "没有符合搜索条件的 pull request",
+    "searchingAll": "正在搜索全部 {n} 个开放的 pull request…",
+    "loadingMore": "正在加载更多…",
+    "openedBy": "由 {author} 于 {time}创建",
+    "milestone": "里程碑",
+    "comments": "{n} 条评论",
+    "linkedIssues": "{n} 个关联 issue",
+    "assignedTo": "已分配给 {login}",
+    "sort": {
+      "label": "排序",
+      "recently-updated": "最近更新",
+      "least-recently-updated": "最久未更新",
+      "newest": "最新",
+      "oldest": "最早",
+      "most-commented": "评论最多",
+      "least-commented": "评论最少"
+    },
+    "review": {
+      "approved": "已批准",
+      "changes_requested": "已请求更改",
+      "review_required": "需要审查"
+    },
+    "checks": {
+      "success": "所有检查已通过",
+      "failure": "部分检查未通过",
+      "pending": "部分检查尚未完成"
+    }
+  },
   "analyze": {
     "setupKeys": "配置 API key",
     "analyzing": "分析中…",

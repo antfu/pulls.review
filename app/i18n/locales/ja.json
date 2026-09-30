@@ -74,6 +74,40 @@
     "reviewedOf": "/ {total} レビュー済み",
     "openInSite": "pulls.review で開く"
   },
+  "pulls": {
+    "loading": "pull request を読み込み中…",
+    "loadFailed": "pull request を読み込めませんでした",
+    "open": "{n} 件オープン",
+    "search": "pull request を絞り込む",
+    "empty": "オープンな pull request はありません",
+    "noMatches": "検索に一致する pull request はありません",
+    "searchingAll": "{n} 件のオープンな pull request をすべて検索中…",
+    "loadingMore": "さらに読み込み中…",
+    "openedBy": "{author} が {time}に作成",
+    "milestone": "マイルストーン",
+    "comments": "{n} 件のコメント",
+    "linkedIssues": "{n} 件の関連 issue",
+    "assignedTo": "{login} に割り当て",
+    "sort": {
+      "label": "並べ替え",
+      "recently-updated": "最近更新された順",
+      "least-recently-updated": "更新が古い順",
+      "newest": "新しい順",
+      "oldest": "古い順",
+      "most-commented": "コメントが多い順",
+      "least-commented": "コメントが少ない順"
+    },
+    "review": {
+      "approved": "承認済み",
+      "changes_requested": "変更が要求されています",
+      "review_required": "レビューが必要"
+    },
+    "checks": {
+      "success": "すべてのチェックに合格",
+      "failure": "一部のチェックが失敗",
+      "pending": "一部のチェックが未完了"
+    }
+  },
   "analyze": {
     "setupKeys": "API キーを設定",
     "analyzing": "分析中…",

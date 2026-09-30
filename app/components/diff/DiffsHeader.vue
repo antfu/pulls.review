@@ -103,9 +103,9 @@ function scrollToGroup(key: string) {
       </div>
 
       <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-sm">
-        <a v-if="githubRef && !isEmbedded" :href="meta.url" target="_blank" rel="noopener" class="flex items-center gap-1.5 op-fade">
+        <RouterLink v-if="githubRef && !isEmbedded" :to="`/gh/${githubRef.owner}/${githubRef.repo}`" class="flex items-center gap-1.5 op-fade hover:underline">
           <span>{{ githubRef.owner }}/{{ githubRef.repo }}</span>
-        </a>
+        </RouterLink>
         <span v-if="meta.pullRequest?.author" class="flex items-center gap-1.5">
           <span class="op-fade">{{ $t('pr.by') }}</span>
           <GithubAvatar :login="meta.pullRequest.author" :size="16" />

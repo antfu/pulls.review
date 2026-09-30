@@ -74,6 +74,40 @@
     "reviewedOf": "/ {total} ditinjau",
     "openInSite": "Buka di pulls.review"
   },
+  "pulls": {
+    "loading": "Memuat pull request…",
+    "loadFailed": "Tidak dapat memuat pull request",
+    "open": "{n} terbuka",
+    "search": "Filter pull request",
+    "empty": "Tidak ada pull request yang terbuka",
+    "noMatches": "Tidak ada pull request yang cocok dengan pencarian Anda",
+    "searchingAll": "Mencari di semua {n} pull request terbuka…",
+    "loadingMore": "Memuat lebih banyak…",
+    "openedBy": "dibuka {time} oleh {author}",
+    "milestone": "Milestone",
+    "comments": "{n} komentar | {n} komentar",
+    "linkedIssues": "{n} issue terkait | {n} issue terkait",
+    "assignedTo": "Ditugaskan kepada {login}",
+    "sort": {
+      "label": "Urutkan",
+      "recently-updated": "Baru diperbarui",
+      "least-recently-updated": "Paling lama diperbarui",
+      "newest": "Terbaru",
+      "oldest": "Terlama",
+      "most-commented": "Paling banyak komentar",
+      "least-commented": "Paling sedikit komentar"
+    },
+    "review": {
+      "approved": "Disetujui",
+      "changes_requested": "Perubahan diminta",
+      "review_required": "Perlu review"
+    },
+    "checks": {
+      "success": "Semua pemeriksaan lolos",
+      "failure": "Beberapa pemeriksaan gagal",
+      "pending": "Beberapa pemeriksaan belum selesai"
+    }
+  },
   "analyze": {
     "setupKeys": "Atur API key",
     "analyzing": "Menganalisis…",

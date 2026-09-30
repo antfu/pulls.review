@@ -74,6 +74,40 @@
     "reviewedOf": "/ {total} relus",
     "openInSite": "Ouvrir dans pulls.review"
   },
+  "pulls": {
+    "loading": "Chargement des pull requests…",
+    "loadFailed": "Impossible de charger les pull requests",
+    "open": "{n} ouvertes",
+    "search": "Filtrer les pull requests",
+    "empty": "Aucune pull request ouverte",
+    "noMatches": "Aucune pull request ne correspond à votre recherche",
+    "searchingAll": "Recherche parmi les {n} pull requests ouvertes…",
+    "loadingMore": "Chargement…",
+    "openedBy": "ouverte {time} par {author}",
+    "milestone": "Jalon",
+    "comments": "{n} commentaire | {n} commentaires",
+    "linkedIssues": "{n} issue liée | {n} issues liées",
+    "assignedTo": "Assignée à {login}",
+    "sort": {
+      "label": "Trier",
+      "recently-updated": "Mises à jour récemment",
+      "least-recently-updated": "Mises à jour le moins récemment",
+      "newest": "Plus récentes",
+      "oldest": "Plus anciennes",
+      "most-commented": "Plus commentées",
+      "least-commented": "Moins commentées"
+    },
+    "review": {
+      "approved": "Approuvée",
+      "changes_requested": "Modifications demandées",
+      "review_required": "Revue requise"
+    },
+    "checks": {
+      "success": "Toutes les vérifications ont réussi",
+      "failure": "Certaines vérifications ont échoué",
+      "pending": "Certaines vérifications ne sont pas terminées"
+    }
+  },
   "analyze": {
     "setupKeys": "Configurer les clés API",
     "analyzing": "Analyse…",

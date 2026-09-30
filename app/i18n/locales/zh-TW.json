@@ -74,6 +74,40 @@
     "reviewedOf": "/ {total} 已審閱",
     "openInSite": "在 pulls.review 中開啟"
   },
+  "pulls": {
+    "loading": "正在載入 pull request…",
+    "loadFailed": "無法載入 pull request",
+    "open": "{n} 個開放",
+    "search": "篩選 pull request",
+    "empty": "沒有開放的 pull request",
+    "noMatches": "沒有符合搜尋條件的 pull request",
+    "searchingAll": "正在搜尋全部 {n} 個開放的 pull request…",
+    "loadingMore": "正在載入更多…",
+    "openedBy": "由 {author} 於 {time}建立",
+    "milestone": "里程碑",
+    "comments": "{n} 則留言",
+    "linkedIssues": "{n} 個關聯 issue",
+    "assignedTo": "已指派給 {login}",
+    "sort": {
+      "label": "排序",
+      "recently-updated": "最近更新",
+      "least-recently-updated": "最久未更新",
+      "newest": "最新",
+      "oldest": "最早",
+      "most-commented": "留言最多",
+      "least-commented": "留言最少"
+    },
+    "review": {
+      "approved": "已核准",
+      "changes_requested": "已要求變更",
+      "review_required": "需要審查"
+    },
+    "checks": {
+      "success": "所有檢查已通過",
+      "failure": "部分檢查未通過",
+      "pending": "部分檢查尚未完成"
+    }
+  },
   "analyze": {
     "setupKeys": "設定 API key",
     "analyzing": "分析中…",

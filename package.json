@@ -63,6 +63,7 @@
     "eslint-plugin-slop": "catalog:dev",
     "eslint-plugin-sonarjs": "catalog:dev",
     "fake-indexeddb": "catalog:testing",
+    "fzf": "catalog:frontend",
     "happy-dom": "catalog:testing",
     "idb-keyval": "catalog:frontend",
     "jiti": "catalog:dev",

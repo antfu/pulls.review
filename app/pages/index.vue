@@ -27,18 +27,18 @@ const { locale } = useI18n()
 const url = ref('')
 const loadDiffOpen = ref(false)
 
+// A PR URL opens the diff view; a bare repo URL (or its `/pulls` page) opens the PR list.
 const parsed = computed(() => {
-  const match = url.value.trim().match(/github\.com\/([^/]+)\/([^/]+)\/pull\/(\d+)/)
+  const match = url.value.trim().match(/github\.com\/([^/\s]+)\/([^/\s#?]+)(?:\/pull\/(\d+)|\/pulls\/?)?(?:[/?#]|$)/)
   if (!match)
     return undefined
   const [, owner, repo, number] = match
-  return { owner, repo, number }
+  return number ? `/gh/${owner}/${repo}/${number}` : `/gh/${owner}/${repo}`
 })
 
 function go() {
-  if (!parsed.value)
-    return
-  router.push(`/gh/${parsed.value.owner}/${parsed.value.repo}/${parsed.value.number}`)
+  if (parsed.value)
+    router.push(parsed.value)
 }
 
 async function loadFile(file: File) {

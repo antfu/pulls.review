@@ -74,6 +74,40 @@
     "reviewedOf": "/ {total} 리뷰 완료",
     "openInSite": "pulls.review에서 열기"
   },
+  "pulls": {
+    "loading": "pull request 불러오는 중…",
+    "loadFailed": "pull request를 불러올 수 없습니다",
+    "open": "{n}개 열림",
+    "search": "pull request 필터",
+    "empty": "열린 pull request가 없습니다",
+    "noMatches": "검색과 일치하는 pull request가 없습니다",
+    "searchingAll": "열린 pull request {n}개 전체를 검색하는 중…",
+    "loadingMore": "더 불러오는 중…",
+    "openedBy": "{author}님이 {time}에 열었습니다",
+    "milestone": "마일스톤",
+    "comments": "댓글 {n}개",
+    "linkedIssues": "연결된 issue {n}개",
+    "assignedTo": "{login}에게 할당됨",
+    "sort": {
+      "label": "정렬",
+      "recently-updated": "최근 업데이트순",
+      "least-recently-updated": "오래된 업데이트순",
+      "newest": "최신순",
+      "oldest": "오래된순",
+      "most-commented": "댓글 많은 순",
+      "least-commented": "댓글 적은 순"
+    },
+    "review": {
+      "approved": "승인됨",
+      "changes_requested": "변경 요청됨",
+      "review_required": "리뷰 필요"
+    },
+    "checks": {
+      "success": "모든 검사 통과",
+      "failure": "일부 검사 실패",
+      "pending": "일부 검사가 아직 완료되지 않음"
+    }
+  },
   "analyze": {
     "setupKeys": "API 키 설정",
     "analyzing": "분석 중…",

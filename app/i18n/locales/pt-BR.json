@@ -74,6 +74,40 @@
     "reviewedOf": "/ {total} revisados",
     "openInSite": "Abrir no pulls.review"
   },
+  "pulls": {
+    "loading": "Carregando pull requests…",
+    "loadFailed": "Não foi possível carregar os pull requests",
+    "open": "{n} abertos",
+    "search": "Filtrar pull requests",
+    "empty": "Não há pull requests abertos",
+    "noMatches": "Nenhum pull request corresponde à sua busca",
+    "searchingAll": "Buscando em todos os {n} pull requests abertos…",
+    "loadingMore": "Carregando mais…",
+    "openedBy": "aberto {time} por {author}",
+    "milestone": "Marco",
+    "comments": "{n} comentário | {n} comentários",
+    "linkedIssues": "{n} issue vinculada | {n} issues vinculadas",
+    "assignedTo": "Atribuído a {login}",
+    "sort": {
+      "label": "Ordenar",
+      "recently-updated": "Atualizados recentemente",
+      "least-recently-updated": "Atualizados há mais tempo",
+      "newest": "Mais recentes",
+      "oldest": "Mais antigos",
+      "most-commented": "Mais comentados",
+      "least-commented": "Menos comentados"
+    },
+    "review": {
+      "approved": "Aprovado",
+      "changes_requested": "Alterações solicitadas",
+      "review_required": "Revisão necessária"
+    },
+    "checks": {
+      "success": "Todas as verificações passaram",
+      "failure": "Algumas verificações falharam",
+      "pending": "Algumas verificações ainda não terminaram"
+    }
+  },
   "analyze": {
     "setupKeys": "Configurar chaves de API",
     "analyzing": "Analisando…",

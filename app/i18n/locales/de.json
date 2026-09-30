@@ -74,6 +74,40 @@
     "reviewedOf": "/ {total} reviewt",
     "openInSite": "In pulls.review öffnen"
   },
+  "pulls": {
+    "loading": "Pull Requests werden geladen…",
+    "loadFailed": "Pull Requests konnten nicht geladen werden",
+    "open": "{n} offen",
+    "search": "Pull Requests filtern",
+    "empty": "Es gibt keine offenen Pull Requests",
+    "noMatches": "Keine Pull Requests passen zu deiner Suche",
+    "searchingAll": "Alle {n} offenen Pull Requests werden durchsucht…",
+    "loadingMore": "Mehr wird geladen…",
+    "openedBy": "eröffnet {time} von {author}",
+    "milestone": "Meilenstein",
+    "comments": "{n} Kommentar | {n} Kommentare",
+    "linkedIssues": "{n} verknüpftes Issue | {n} verknüpfte Issues",
+    "assignedTo": "Zugewiesen an {login}",
+    "sort": {
+      "label": "Sortieren",
+      "recently-updated": "Zuletzt aktualisiert",
+      "least-recently-updated": "Am längsten nicht aktualisiert",
+      "newest": "Neueste",
+      "oldest": "Älteste",
+      "most-commented": "Meiste Kommentare",
+      "least-commented": "Wenigste Kommentare"
+    },
+    "review": {
+      "approved": "Genehmigt",
+      "changes_requested": "Änderungen angefordert",
+      "review_required": "Review erforderlich"
+    },
+    "checks": {
+      "success": "Alle Checks bestanden",
+      "failure": "Einige Checks waren nicht erfolgreich",
+      "pending": "Einige Checks sind noch nicht abgeschlossen"
+    }
+  },
   "analyze": {
     "setupKeys": "API-Key einrichten",
     "analyzing": "Analysiere…",

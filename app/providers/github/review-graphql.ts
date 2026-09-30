@@ -8,7 +8,7 @@ const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql'
  * (status + resolve) and adding a draft comment to an already-pending review.
  * Plain `fetch`, same as the REST layer - no client library.
  */
-async function githubGraphql<T>(query: string, variables: Record<string, string | number | null>, token: string): Promise<T> {
+export async function githubGraphql<T>(query: string, variables: Record<string, string | number | null>, token: string): Promise<T> {
   const res = await fetch(GITHUB_GRAPHQL_URL, {
     method: 'POST',
     headers: {

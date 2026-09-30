@@ -74,6 +74,40 @@
     "reviewedOf": "/ {total} проверено",
     "openInSite": "Открыть в pulls.review"
   },
+  "pulls": {
+    "loading": "Загрузка pull request'ов…",
+    "loadFailed": "Не удалось загрузить pull request'ы",
+    "open": "{n} открытых",
+    "search": "Фильтр pull request'ов",
+    "empty": "Открытых pull request'ов нет",
+    "noMatches": "Ни один pull request не соответствует запросу",
+    "searchingAll": "Поиск по всем {n} открытым pull request'ам…",
+    "loadingMore": "Загрузка…",
+    "openedBy": "открыт {time}, автор {author}",
+    "milestone": "Этап",
+    "comments": "{n} комментарий | {n} комментария | {n} комментариев",
+    "linkedIssues": "{n} связанный issue | {n} связанных issue | {n} связанных issue",
+    "assignedTo": "Назначен на {login}",
+    "sort": {
+      "label": "Сортировка",
+      "recently-updated": "Недавно обновлённые",
+      "least-recently-updated": "Давно не обновлялись",
+      "newest": "Сначала новые",
+      "oldest": "Сначала старые",
+      "most-commented": "Больше комментариев",
+      "least-commented": "Меньше комментариев"
+    },
+    "review": {
+      "approved": "Одобрен",
+      "changes_requested": "Запрошены изменения",
+      "review_required": "Требуется ревью"
+    },
+    "checks": {
+      "success": "Все проверки пройдены",
+      "failure": "Некоторые проверки не пройдены",
+      "pending": "Некоторые проверки ещё не завершены"
+    }
+  },
   "analyze": {
     "setupKeys": "Настроить API-ключи",
     "analyzing": "Анализ…",

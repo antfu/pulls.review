@@ -254,6 +254,9 @@ catalogs:
     colorjs.io:
       specifier: ^0.7.1
       version: 0.7.1
+    fzf:
+      specifier: ^0.5.2
+      version: 0.5.2
     idb-keyval:
       specifier: ^6.3.0
       version: 6.3.0
@@ -433,6 +436,9 @@ importers:
       fake-indexeddb:
         specifier: catalog:testing
         version: 6.2.5
+      fzf:
+        specifier: catalog:frontend
+        version: 0.5.2
       happy-dom:
         specifier: catalog:testing
         version: 20.14.5
@@ -3617,6 +3623,9 @@ packages:
 
   functional-red-black-tree@1.0.1:
     resolution: {integrity: sha512-dsKNQNdj6xA3T+QlADDA7mOSlX0qiMINjn0cgr+eGHGsbSHzTabcIogz2+p/iqP1Xs6EP/sS2SbqH+brGTbq0g==}
+
+  fzf@0.5.2:
+    resolution: {integrity: sha512-Tt4kuxLXFKHy8KT40zwsUPUkg1CrsgY25FxA2U/j/0WgEDCk3ddc/zLTCCcbSHX9FcKtLuVaDGtGE/STWC+j3Q==}
 
   gaxios@7.3.1:
     resolution: {integrity: sha512-kB3rzJV7d9juLZh8/56QTXCwQfxyhdOMdyYk1HdQKFtF8TJTDTZQJtixWIwXdE9Jji91mC41DUNpjleo4L4eAQ==}
@@ -8247,6 +8256,8 @@ snapshots:
   function-timeout@1.0.2: {}
 
   functional-red-black-tree@1.0.1: {}
+
+  fzf@0.5.2: {}
 
   gaxios@7.3.1(supports-color@10.2.2):
     dependencies:

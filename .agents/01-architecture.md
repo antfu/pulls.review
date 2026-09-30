@@ -3,7 +3,8 @@
 pulls.review is a SPA (deployed at pulls.review) that renders a GitHub PR's diff at
 `/gh/{owner}/{repo}/{number}` — or an arbitrary pasted/uploaded unified diff at
 `/upload` — grouped and summarized for easier review, with a rule-based
-fallback grouping when no LLM is configured. See `plans/` for the
+fallback grouping when no LLM is configured. `/gh/{owner}/{repo}` lists the
+repo's open PRs as a way into those deep-links. See `plans/` for the
 phase-by-phase implementation plans; this doc is the standing contract those
 plans (and any future work) MUST follow.
 
@@ -178,7 +179,7 @@ call sites — the same swappable-adapter shape as `Provider`/`AnalyzeAdapter`.
 Runtime uses the `indexedDB` driver; tests use the `memory` driver against
 identical code, no separate IndexedDB-mocking dependency needed.
 
-One `unstorage` instance, three logical collections via key prefix (unstorage
+One `unstorage` instance, four logical collections via key prefix (unstorage
 is flat key-value, so there's no native "object store" split):
 
 - `pr:*` — raw diff + the `llm`/`web-llm` `GroupedResult`s (+ the `llmSession`
@@ -209,6 +210,15 @@ is flat key-value, so there's no native "object store" split):
   sha, not a per-blob sha - equally content-addressed for caching purposes,
   without a separate request to look one up. No eviction of its own yet
   (unlike `pr:*`/`review:*`), a known gap for later.
+- `pulls:*` — a repo's first page of open PRs (`PullRequestListPage`), keyed
+  `pulls:{owner}/{repo}`. Stale-while-revalidate: it renders instantly on
+  revisit and is silently replaced by a fresh first page every time — unlike
+  `pr:*`, nothing paid hangs off a list, so auto-refetching costs nothing.
+  Later pages chain off it via `next` and are never persisted. Search is
+  client-side (fzf over the loaded rows) and drains the remaining pages so
+  its results cover the whole repo; only open/draft PRs are ever listed. With
+  a token the rows come from GraphQL search (review decision, CI rollup,
+  linked issues); without one, from REST search, which lacks those three.
 
 ## Explicitly out of scope for now
 
@@ -220,8 +230,9 @@ land later without a rewrite:
   built — see `plans/05-comment-threads.md` — gated behind
   `Provider.capabilities.supportsComments`, true for `github` only.)
 - `local` CLI provider.
-- Any landing/history dashboard (deep-links only: `/gh/owner/repo/number` and
-  nothing else) or social/OG link previews (no backend to render them).
+- Any cross-repo/history dashboard (the per-repo open-PR list at
+  `/gh/owner/repo` is a navigation aid into the deep-links, not that) or
+  social/OG link previews (no backend to render them).
 - A compact "embed" layout mode (`?embed`), for the userscript below to
   render sanely inside a narrow drawer instead of the full page chrome. Not
   built yet - the app MUST NOT gain anything that forecloses it, no
