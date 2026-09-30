@@ -29,7 +29,8 @@
     "pasteHint": "Tempel URL pull request GitHub mana pun, atau pilih demo di bawah.",
     "recentlyViewed": "// baru dilihat",
     "tryDemos": "// coba beberapa demo",
-    "demo": "// demo",
+    "demoBefore": "// sebelum",
+    "demoAfter": "// sesudah",
     "moreFiles": "... {n} berkas lainnya",
     "demoSummary": "Satu peninjau dengan API key mengirim analisisnya ke PR; semua orang lain memuatnya tanpa token.",
     "demoGroups": {

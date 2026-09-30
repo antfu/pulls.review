@@ -29,7 +29,8 @@
     "pasteHint": "GitHub の pull request URL を貼り付けるか、下のデモを選んでください。",
     "recentlyViewed": "// 最近見たもの",
     "tryDemos": "// デモを試す",
-    "demo": "// デモ",
+    "demoBefore": "// 変更前",
+    "demoAfter": "// 変更後",
     "moreFiles": "... 他 {n} ファイル",
     "demoSummary": "API キーを持つレビュアー 1 人が分析を PR に投稿すれば、他の全員がトークンなしで読み込めます。",
     "demoGroups": {

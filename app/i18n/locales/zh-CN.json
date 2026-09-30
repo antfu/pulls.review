@@ -29,7 +29,8 @@
     "pasteHint": "粘贴任意 GitHub pull request 链接，或选择下方的示例。",
     "recentlyViewed": "// 最近查看",
     "tryDemos": "// 试试示例",
-    "demo": "// 示例",
+    "demoBefore": "// 之前",
+    "demoAfter": "// 之后",
     "moreFiles": "... 还有 {n} 个文件",
     "demoSummary": "一位拥有 API key 的审阅者将分析发布到 PR；其他所有人无需 token 即可加载。",
     "demoGroups": {

@@ -29,7 +29,8 @@
     "pasteHint": "Collez l'URL d'une pull request GitHub, ou choisissez une démo ci-dessous.",
     "recentlyViewed": "// vus récemment",
     "tryDemos": "// essayez des démos",
-    "demo": "// démo",
+    "demoBefore": "// avant",
+    "demoAfter": "// après",
     "moreFiles": "... {n} fichiers de plus",
     "demoSummary": "Un relecteur avec une API key publie son analyse sur la PR ; tous les autres la chargent sans token.",
     "demoGroups": {

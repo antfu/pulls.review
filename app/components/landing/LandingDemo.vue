@@ -4,7 +4,7 @@ import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import DisplayFileIcon from '@antfu/design/components/Display/DisplayFileIcon.vue'
 import { useDebounceFn, useIntersectionObserver, usePreferredReducedMotion, useResizeObserver } from '@vueuse/core'
 import { createTimeline, stagger } from 'animejs'
-import { computed, onBeforeUnmount, onMounted, reactive, useTemplateRef, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
 import DiffStats from '../diff/DiffStats.vue'
 import GroupCategoryIcon from '../diff/GroupCategoryIcon.vue'
 import PrStatusIcon from '../diff/PrStatusIcon.vue'
@@ -30,6 +30,8 @@ const root = useTemplateRef('root')
 const body = useTemplateRef('body')
 
 const progress = DEMO_GROUPS.map(() => reactive({ value: 0 }))
+// Which side of the morph the loop is on; the header reads "// before" / "// after".
+const grouped = ref(false)
 
 function splitPath(path: string) {
   const idx = path.lastIndexOf('/')
@@ -80,6 +82,8 @@ function build() {
     tl.add(tail, { opacity: 0, duration: 300 }, morph.at)
 
   const cardsAt = morph.at + morph.duration * 0.3
+  tl.call(() => grouped.value = true, cardsAt)
+  tl.call(() => grouped.value = false, reset.at)
   if (groupedLayer)
     tl.set(groupedLayer, { opacity: 1 }, cardsAt)
   tl.add(cards, { opacity: [0, 1], y: [12, 0], duration: 500, delay: stagger(60) }, cardsAt)
@@ -123,6 +127,7 @@ function build() {
 function teardown() {
   timeline?.revert()
   timeline = undefined
+  grouped.value = false
 }
 
 function rebuild() {
@@ -160,9 +165,8 @@ useIntersectionObserver(root, ([entry]) => {
 
 <template>
   <div ref="root" class="select-none rounded-lg p4 text-xs lt-md:border lt-md:border-base" aria-hidden="true">
-    <!-- TODO: the text should be dynamically "// before" / "// after" along the animation -->
     <h2 v-if="showHeader" class="mb2 text-xs font-mono op-fade">
-      {{ $t('landing.demo') }}
+      {{ $t(settled || grouped ? 'landing.demoAfter' : 'landing.demoBefore') }}
     </h2>
 
     <div class="flex items-start gap-2">
