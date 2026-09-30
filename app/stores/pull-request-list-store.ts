@@ -1,8 +1,21 @@
 import type { PullRequestListItem, PullRequestListPage } from '../types/pull-request-list'
 import { computed, reactive, ref, shallowRef } from 'vue'
+import { ruleBasedAdapter } from '../analyze/adapters/rule-based'
+import { listRepoEntries } from '../cache/pr-cache'
 import { getCachedPullRequestList, setCachedPullRequestList } from '../cache/pull-request-list-cache'
 import { getDefaultCacheStorage } from '../cache/storage'
+import { parseGithubDiffId } from '../providers/github/diff-id'
 import { fetchOpenPullRequests } from '../providers/github/pull-request-list'
+
+/** What this browser already holds for a PR it viewed before (see `pr:*` in the cache). */
+export interface ViewedPullRequest {
+  additions: number
+  deletions: number
+  files: number
+  /** From the AI result when one is stored, else the always-available rule-based grouping. */
+  groups: number
+  hasAiResult: boolean
+}
 
 export interface PullRequestListStore {
   readonly owner: string
@@ -17,6 +30,8 @@ export interface PullRequestListStore {
   readonly isLoadingMore: boolean
   readonly hasMore: boolean
   readonly error: Error | undefined
+  /** Locally cached diffs of this repo, by PR number. */
+  readonly viewed: ReadonlyMap<number, ViewedPullRequest>
   load: () => Promise<void>
   refresh: () => Promise<void>
   loadMore: () => Promise<void>
@@ -43,6 +58,7 @@ export function createPullRequestListStore(params: { owner: string, repo: string
   const isRefreshing = ref(false)
   const isLoadingMore = ref(false)
   const error = ref<Error>()
+  const viewed = shallowRef(new Map<number, ViewedPullRequest>())
   // Bumped by every first-page fetch so a slower, older response can't overwrite a newer list.
   let generation = 0
 
@@ -69,7 +85,28 @@ export function createPullRequestListStore(params: { owner: string, repo: string
     }
   }
 
+  async function loadViewed() {
+    const storage = await getDefaultCacheStorage()
+    const next = new Map<number, ViewedPullRequest>()
+    for (const entry of await listRepoEntries(storage, owner, repo)) {
+      const ref = parseGithubDiffId(entry.diff.id)
+      if (!ref)
+        continue
+      const aiResult = entry.analyzedBy.llm ?? entry.analyzedBy['web-llm']
+      next.set(Number(ref.number), {
+        additions: entry.diff.files.reduce((sum, file) => sum + file.additions, 0),
+        deletions: entry.diff.files.reduce((sum, file) => sum + file.deletions, 0),
+        files: entry.diff.files.length,
+        groups: aiResult ? aiResult.groups.length : (await ruleBasedAdapter.analyze(entry.diff)).groups.length,
+        hasAiResult: !!aiResult,
+      })
+    }
+    viewed.value = next
+  }
+
   async function load() {
+    // Independent of the network: what's viewed locally decorates rows whenever they arrive.
+    void loadViewed()
     const storage = await getDefaultCacheStorage()
     const cached = await getCachedPullRequestList(storage, owner, repo)
     if (cached)
@@ -133,6 +170,7 @@ export function createPullRequestListStore(params: { owner: string, repo: string
     isLoadingMore,
     hasMore: computed(() => next.value !== undefined),
     error,
+    viewed,
     load,
     refresh,
     loadMore,

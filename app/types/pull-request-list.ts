@@ -5,8 +5,8 @@ import { CommentAuthorSchema } from './comment-threads'
  * One row of a repository's open pull requests, the schema-first counterpart to
  * `DiffsPayload` for the list view. Everything GitHub's own pulls page shows per
  * row lives here; the fields that only GraphQL exposes (`reviewDecision`,
- * `checks`, `linkedIssues`) are optional because the anonymous REST path can't
- * supply them.
+ * `checks`, `linkedIssues`, the diff size) are optional because the anonymous
+ * REST path can't supply them.
  */
 
 export const PullRequestLabelSchema = v.object({
@@ -37,6 +37,9 @@ export const PullRequestListItemSchema = v.object({
   reviewDecision: v.optional(ReviewDecisionSchema),
   checks: v.optional(ChecksStatusSchema),
   linkedIssues: v.optional(v.number()),
+  additions: v.optional(v.number()),
+  deletions: v.optional(v.number()),
+  changedFiles: v.optional(v.number()),
 })
 export type PullRequestListItem = v.InferOutput<typeof PullRequestListItemSchema>
 

@@ -1,3 +1,4 @@
+import type { PrCacheEntry } from '../types/cache'
 import type { PullRequestListItem, PullRequestListPage } from '../types/pull-request-list'
 import memoryDriver from 'unstorage/drivers/memory'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -34,6 +35,26 @@ function item(number: number): PullRequestListItem {
 
 function page(numbers: number[], totalCount: number, next?: string): PullRequestListPage {
   return { totalCount, items: numbers.map(item), next }
+}
+
+function viewedEntry(key: string, analyzedBy: PrCacheEntry['analyzedBy'] = {}): PrCacheEntry {
+  return {
+    key,
+    headSha: 'head',
+    analyzedBy,
+    lastViewedAt: 0,
+    sizeBytes: 0,
+    diff: {
+      provider: 'github',
+      id: key,
+      title: 't',
+      description: '',
+      files: [
+        { path: 'src/a.ts', status: 'modified', additions: 10, deletions: 2, isBinary: false, sha: 'a', hunks: [] },
+        { path: 'docs/b.md', status: 'added', additions: 5, deletions: 0, isBinary: false, sha: 'b', hunks: [] },
+      ],
+    },
+  }
 }
 
 beforeEach(() => {
@@ -102,6 +123,23 @@ describe('createPullRequestListStore', () => {
 
     expect(store.error?.message).toBe('rate limited')
     expect(store.items.map(pr => pr.number)).toEqual([1])
+  })
+
+  it('decorates rows with what this browser already viewed: diff size, group count, AI availability', async () => {
+    await mocks.storage!.setItem('pr:github:o/r#1', viewedEntry('github:o/r#1'))
+    const aiGroups = [{ key: 'g1', label: 'One', filePaths: ['src/a.ts', 'docs/b.md'] }]
+    await mocks.storage!.setItem('pr:github:o/r#2', viewedEntry('github:o/r#2', { llm: { source: 'llm', schemaVersion: 1, generatedAt: '', groups: aiGroups } }))
+    await mocks.storage!.setItem('pr:github:other/r#3', viewedEntry('github:other/r#3'))
+    mocks.fetchOpenPullRequests.mockResolvedValue(page([2, 1], 2))
+    const store = createPullRequestListStore({ owner: 'o', repo: 'r' })
+
+    await store.load()
+    await vi.waitFor(() => expect(store.viewed.size).toBe(2))
+
+    // Two rule-based groups (source vs docs) when no AI result is stored.
+    expect(store.viewed.get(1)).toEqual({ additions: 15, deletions: 2, files: 2, groups: 2, hasAiResult: false })
+    expect(store.viewed.get(2)).toMatchObject({ groups: 1, hasAiResult: true })
+    expect(store.viewed.has(3)).toBe(false)
   })
 
   it('drops a continuation that resolves after a refresh replaced the list', async () => {

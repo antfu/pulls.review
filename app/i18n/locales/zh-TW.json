@@ -88,6 +88,9 @@
     "comments": "{n} 則留言",
     "linkedIssues": "{n} 個關聯 issue",
     "assignedTo": "已指派給 {login}",
+    "groups": "{n} 個分組",
+    "viewedHint": "已在此瀏覽器中查看",
+    "aiAvailable": "有 AI 分析",
     "sort": {
       "label": "排序",
       "recently-updated": "最近更新",

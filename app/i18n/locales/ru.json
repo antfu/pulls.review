@@ -88,6 +88,9 @@
     "comments": "{n} комментарий | {n} комментария | {n} комментариев",
     "linkedIssues": "{n} связанный issue | {n} связанных issue | {n} связанных issue",
     "assignedTo": "Назначен на {login}",
+    "groups": "{n} группа | {n} группы | {n} групп",
+    "viewedHint": "Просмотрен в этом браузере",
+    "aiAvailable": "Доступен ИИ-анализ",
     "sort": {
       "label": "Сортировка",
       "recently-updated": "Недавно обновлённые",

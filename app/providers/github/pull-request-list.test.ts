@@ -93,6 +93,9 @@ describe('fetchOpenPullRequests with a token (GraphQL search)', () => {
     reviewDecision: 'CHANGES_REQUESTED',
     closingIssuesReferences: { totalCount: 2 },
     commits: { nodes: [{ commit: { statusCheckRollup: { state: 'FAILURE' } } }] },
+    additions: 120,
+    deletions: 8,
+    changedFiles: 4,
   }
 
   it('posts the search query with the token and maps review, checks and linked issues', async () => {
@@ -125,6 +128,9 @@ describe('fetchOpenPullRequests with a token (GraphQL search)', () => {
       reviewDecision: 'changes_requested',
       checks: 'failure',
       linkedIssues: 2,
+      additions: 120,
+      deletions: 8,
+      changedFiles: 4,
     }])
   })
 

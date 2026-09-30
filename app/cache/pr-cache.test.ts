@@ -1,7 +1,7 @@
 import type { LlmSession, PrCacheEntry } from '../types/cache'
 import memoryDriver from 'unstorage/drivers/memory'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { computeEntrySizeBytes, enforceBudget, getEntry, listRecentEntries, putDiff, putEntry, setLlmSession, touchEntry } from './pr-cache'
+import { computeEntrySizeBytes, enforceBudget, getEntry, listRecentEntries, listRepoEntries, putDiff, putEntry, setLlmSession, touchEntry } from './pr-cache'
 import { getReviewed, setReviewed } from './review-cache'
 import { createCacheStorage } from './storage'
 
@@ -123,6 +123,15 @@ describe('pr-cache', () => {
 
     expect((await listRecentEntries(storage, 10)).map(entry => entry.key)).toEqual(['new', 'mid', 'old'])
     expect((await listRecentEntries(storage, 2)).map(entry => entry.key)).toEqual(['new', 'mid'])
+  })
+
+  it('listRepoEntries returns only the entries of that repo', async () => {
+    await putEntry(storage, makeEntry('github:o/r#1', 'sha-1', 1000))
+    await putEntry(storage, makeEntry('github:o/r#2', 'sha-2', 2000))
+    await putEntry(storage, makeEntry('github:o/r-other#3', 'sha-3', 3000))
+    await putEntry(storage, makeEntry('paste:abc', 'sha-4', 4000))
+
+    expect((await listRepoEntries(storage, 'o', 'r')).map(entry => entry.key).sort()).toEqual(['github:o/r#1', 'github:o/r#2'])
   })
 
   it('enforceBudget is a no-op when nothing exceeds the budget', async () => {

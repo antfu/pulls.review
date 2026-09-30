@@ -31,6 +31,9 @@ export const mockPullRequests: PullRequestListItem[] = [
     reviewDecision: 'approved',
     checks: 'success',
     linkedIssues: 2,
+    additions: 812,
+    deletions: 44,
+    changedFiles: 19,
   }),
   mockPullRequest({
     number: 41,
@@ -65,6 +68,10 @@ export function createMockPullRequestListStore(overrides: Partial<PullRequestLis
     isLoadingMore: false,
     hasMore: false,
     error: undefined,
+    viewed: new Map([
+      [42, { additions: 812, deletions: 44, files: 19, groups: 5, hasAiResult: true }],
+      [40, { additions: 30, deletions: 2, files: 1, groups: 1, hasAiResult: false }],
+    ]),
     load: async () => {},
     refresh: async () => {},
     loadMore: async () => {},

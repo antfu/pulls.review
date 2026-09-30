@@ -88,6 +88,9 @@
     "comments": "{n} comentario | {n} comentarios",
     "linkedIssues": "{n} issue vinculado | {n} issues vinculados",
     "assignedTo": "Asignado a {login}",
+    "groups": "{n} grupo | {n} grupos",
+    "viewedHint": "Visto en este navegador",
+    "aiAvailable": "Análisis de IA disponible",
     "sort": {
       "label": "Ordenar",
       "recently-updated": "Actualizados recientemente",

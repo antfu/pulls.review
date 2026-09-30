@@ -88,6 +88,9 @@
     "comments": "{n} 条评论",
     "linkedIssues": "{n} 个关联 issue",
     "assignedTo": "已分配给 {login}",
+    "groups": "{n} 个分组",
+    "viewedHint": "已在此浏览器中查看",
+    "aiAvailable": "有 AI 分析",
     "sort": {
       "label": "排序",
       "recently-updated": "最近更新",

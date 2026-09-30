@@ -88,6 +88,9 @@
     "comments": "{n} komentar | {n} komentar",
     "linkedIssues": "{n} issue terkait | {n} issue terkait",
     "assignedTo": "Ditugaskan kepada {login}",
+    "groups": "{n} grup | {n} grup",
+    "viewedHint": "Dilihat di browser ini",
+    "aiAvailable": "Analisis AI tersedia",
     "sort": {
       "label": "Urutkan",
       "recently-updated": "Baru diperbarui",

@@ -88,6 +88,9 @@
     "comments": "{n} 件のコメント",
     "linkedIssues": "{n} 件の関連 issue",
     "assignedTo": "{login} に割り当て",
+    "groups": "{n} グループ",
+    "viewedHint": "このブラウザで閲覧済み",
+    "aiAvailable": "AI 分析あり",
     "sort": {
       "label": "並べ替え",
       "recently-updated": "最近更新された順",

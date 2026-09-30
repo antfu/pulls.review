@@ -15,6 +15,10 @@ export const Full: Story = {
   args: { pr: mockPullRequests[0] },
 }
 
+export const ViewedWithAiResult: Story = {
+  args: { pr: mockPullRequests[0], viewed: { additions: 812, deletions: 44, files: 19, groups: 5, hasAiResult: true } },
+}
+
 export const Draft: Story = {
   args: { pr: mockPullRequests[1] },
 }

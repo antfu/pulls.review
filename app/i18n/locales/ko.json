@@ -88,6 +88,9 @@
     "comments": "댓글 {n}개",
     "linkedIssues": "연결된 issue {n}개",
     "assignedTo": "{login}에게 할당됨",
+    "groups": "{n}개 그룹",
+    "viewedHint": "이 브라우저에서 본 PR",
+    "aiAvailable": "AI 분석 있음",
     "sort": {
       "label": "정렬",
       "recently-updated": "최근 업데이트순",

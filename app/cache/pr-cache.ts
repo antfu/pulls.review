@@ -112,6 +112,16 @@ async function getAllEntries(storage: CacheStorage): Promise<PrCacheEntry[]> {
   return entries
 }
 
+/**
+ * Every previously viewed PR of one GitHub repo. Filtered on the entry's own key
+ * rather than via `getKeys(base)`: unstorage treats a base as a key *segment* and
+ * appends `:`, so a `github:owner/repo#` prefix can't be expressed as one.
+ */
+export async function listRepoEntries(storage: CacheStorage, owner: string, repo: string): Promise<PrCacheEntry[]> {
+  const entries = await getAllEntries(storage)
+  return entries.filter(entry => entry.key.startsWith(`github:${owner}/${repo}#`))
+}
+
 /** Most-recently-viewed entries first, for the home page's "recent" list. */
 export async function listRecentEntries(storage: CacheStorage, limit: number): Promise<PrCacheEntry[]> {
   const entries = await getAllEntries(storage)

@@ -106,6 +106,9 @@ interface GraphqlPullRequestNode {
   reviewDecision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REVIEW_REQUIRED' | null
   closingIssuesReferences: { totalCount: number } | null
   commits: { nodes: { commit: { statusCheckRollup: { state: 'EXPECTED' | 'ERROR' | 'FAILURE' | 'PENDING' | 'SUCCESS' } | null } }[] }
+  additions: number
+  deletions: number
+  changedFiles: number
 }
 
 interface OpenPullRequestsQueryData {
@@ -133,6 +136,7 @@ query OpenPullRequests($query: String!, $first: Int!, $cursor: String) {
         reviewDecision
         closingIssuesReferences { totalCount }
         commits(last: 1) { nodes { commit { statusCheckRollup { state } } } }
+        additions deletions changedFiles
       }
     }
   }
@@ -183,5 +187,8 @@ function normalizeGraphqlNode(node: GraphqlPullRequestNode): PullRequestListItem
     reviewDecision: node.reviewDecision ? REVIEW_DECISION[node.reviewDecision] : undefined,
     checks: rollup ? CHECKS_STATUS[rollup.state] : undefined,
     linkedIssues: node.closingIssuesReferences?.totalCount ?? 0,
+    additions: node.additions,
+    deletions: node.deletions,
+    changedFiles: node.changedFiles,
   }
 }
