@@ -216,7 +216,6 @@
     "cached": "已缓存的 pull request",
     "autoRefresh": "发现新提交时自动刷新",
     "language": "语言",
-    "languageHint": "用于界面语言以及 AI 分析生成的摘要语言。",
     "token": {
       "label": "GitHub Personal Access Token",
       "optional": "公开仓库可选；私有仓库或提交审查时必需。",

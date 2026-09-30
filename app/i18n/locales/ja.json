@@ -216,7 +216,6 @@
     "cached": "キャッシュされた pull request",
     "autoRefresh": "新しいコミットが見つかったら自動更新",
     "language": "言語",
-    "languageHint": "UI の言語と、AI 分析が書く要約の言語に使われます。",
     "token": {
       "label": "GitHub 個人アクセストークン",
       "optional": "公開リポジトリでは任意。非公開リポジトリやレビュー投稿には必須です。",

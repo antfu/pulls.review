@@ -2,6 +2,7 @@
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import { settingsModalOpen } from '../state/settingsModal'
 import DarkToggle from './DarkToggle.vue'
+import LanguageMenu from './LanguageMenu.vue'
 import SettingsModal from './settings/SettingsModal.vue'
 
 defineProps<{
@@ -20,6 +21,7 @@ const isEmbedded = import.meta.env.PR_EMBED
 <template>
   <div class="flex shrink-0 items-center gap-1">
     <slot />
+    <LanguageMenu />
     <ActionIconButton icon="i-ph:gear-duotone" :label="$t('common.settings')" :tooltip="$t('common.settings')" @click="settingsModalOpen = true" />
     <DarkToggle v-if="!isEmbedded" />
   </div>

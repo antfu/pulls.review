@@ -216,7 +216,6 @@
     "cached": "캐시된 pull request",
     "autoRefresh": "새 커밋이 발견되면 자동 새로 고침",
     "language": "언어",
-    "languageHint": "인터페이스와 AI 분석이 작성하는 요약의 언어에 사용됩니다.",
     "token": {
       "label": "GitHub 개인 액세스 토큰",
       "optional": "공개 저장소에는 선택 사항이며, 비공개 저장소나 리뷰 작성에는 필수입니다.",

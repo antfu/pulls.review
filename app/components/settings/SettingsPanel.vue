@@ -4,7 +4,6 @@ import type { StoredGithubTokenMeta } from '../../composables/useGithubTokenMeta
 import type { LlmSettings } from '../../state/settings'
 import AutoRefreshSettingsSection from './AutoRefreshSettingsSection.vue'
 import GithubTokenSettings from './GithubTokenSettings.vue'
-import LanguageSettingsSection from './LanguageSettingsSection.vue'
 import LayoutSettingsSection from './LayoutSettingsSection.vue'
 import LlmSettingsSection from './LlmSettingsSection.vue'
 
@@ -28,10 +27,6 @@ defineEmits<{
 
 <template>
   <div class="flex flex-col gap-4 p2">
-    <LanguageSettingsSection />
-
-    <div class="border-t border-base" />
-
     <LayoutSettingsSection />
 
     <div class="border-t border-base" />

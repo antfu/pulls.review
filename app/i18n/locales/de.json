@@ -216,7 +216,6 @@
     "cached": "Zwischengespeicherte Pull Requests",
     "autoRefresh": "Automatisch aktualisieren, wenn neue Commits gefunden werden",
     "language": "Sprache",
-    "languageHint": "Wird für die Oberfläche und für die Zusammenfassungen der KI-Analyse verwendet.",
     "token": {
       "label": "GitHub Personal Access Token",
       "optional": "Optional für öffentliche Repositories; erforderlich für private Repositories oder zum Reviewen.",

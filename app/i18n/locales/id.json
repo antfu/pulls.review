@@ -216,7 +216,6 @@
     "cached": "Pull request di cache",
     "autoRefresh": "Muat ulang otomatis saat ada commit baru",
     "language": "Bahasa",
-    "languageHint": "Digunakan untuk antarmuka dan untuk ringkasan yang ditulis analisis AI.",
     "token": {
       "label": "GitHub Personal Access Token",
       "optional": "Opsional untuk repositori publik; wajib untuk repositori privat atau untuk memberikan tinjauan.",

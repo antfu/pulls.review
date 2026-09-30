@@ -216,7 +216,6 @@
     "cached": "Pull requests en cache",
     "autoRefresh": "Actualiser automatiquement quand de nouveaux commits sont trouvés",
     "language": "Langue",
-    "languageHint": "Utilisée pour l'interface et pour les résumés rédigés par l'analyse IA.",
     "token": {
       "label": "Personal Access Token GitHub",
       "optional": "Facultatif pour les dépôts publics ; requis pour les dépôts privés ou pour laisser des revues.",

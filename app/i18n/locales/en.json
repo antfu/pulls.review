@@ -216,7 +216,6 @@
     "cached": "Cached pull requests",
     "autoRefresh": "Auto refresh when new commits are found",
     "language": "Language",
-    "languageHint": "Used for the interface and for the summaries the AI analysis writes.",
     "token": {
       "label": "GitHub Personal Access Token",
       "optional": "Optional for public repos; required for private repos, or leaving reviews.",

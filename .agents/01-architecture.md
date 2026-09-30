@@ -239,9 +239,9 @@ land later without a rewrite:
   bundled and is the key schema (`locales/en.json`, typed via
   `DefineLocaleMessage`); other locales load on demand. One `settings.locale`
   drives both the UI and the language the LLM writes summaries in; it is
-  seeded from `navigator.languages` (`i18n/locales.ts`) and edited in
-  Settings. Model-facing text (prompts, tool errors) and diagnostics that
-  embed URLs/status codes stay English.
+  seeded from `navigator.languages` (`i18n/locales.ts`) and switched from
+  the `LanguageMenu` icon in `NavControls`. Model-facing text (prompts, tool
+  errors) and diagnostics that embed URLs/status codes stay English.
 - Settings (GitHub PAT, later model keys) and loading a pasted/uploaded diff
   are both modals/panels (`SettingsModal.vue`/`LoadDiffModal.vue` wrapping
   pure `*Panel.vue` content), triggered from `AppHeader.vue` — never routed
