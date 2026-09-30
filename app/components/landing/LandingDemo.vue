@@ -6,6 +6,7 @@ import { useDebounceFn, useIntersectionObserver, usePreferredReducedMotion, useR
 import { createTimeline, stagger } from 'animejs'
 import { computed, onBeforeUnmount, onMounted, reactive, useTemplateRef, watch } from 'vue'
 import DiffStats from '../diff/DiffStats.vue'
+import GroupCategoryIcon from '../diff/GroupCategoryIcon.vue'
 import PrStatusIcon from '../diff/PrStatusIcon.vue'
 import { DEMO_FILES, DEMO_GROUPS, DEMO_PR } from './demo-data'
 import { buildSchedule, findBeat } from './demo-schedule'
@@ -205,6 +206,7 @@ useIntersectionObserver(root, ([entry]) => {
         <div v-for="(group, i) in groups" :key="group.label" class="flex flex-col">
           <div data-card class="ml--5 flex items-center gap-2 py-1" :class="{ 'op-0': !settled }">
             <span class="shrink-0 op-fade" :class="group.expanded ? 'i-ph-caret-down-bold' : 'i-ph-caret-right-bold'" />
+            <GroupCategoryIcon :category="group.category" class="text-sm" />
             <span data-label class="min-w-0 truncate text-sm font-medium">{{ group.label }}</span>
             <span class="flex-1" />
             <DiffStats :additions="group.additions" :deletions="group.deletions" />

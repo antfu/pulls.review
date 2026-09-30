@@ -61,7 +61,7 @@ function steeringCount(messages: { role: string, content?: unknown }[]) {
 function oneGroup(...filePaths: string[]): Analysis {
   return {
     overallSummary: 'Adds a feature.',
-    groups: [{ key: 'feature', label: 'Feature', filePaths }],
+    groups: [{ key: 'feature', label: 'Feature', category: 'core', filePaths }],
   }
 }
 
@@ -123,7 +123,7 @@ describe('runLlmAnalysis', () => {
 
     expect(result.source).toBe('llm')
     expect(result.overallSummary).toBe('Adds a feature.')
-    expect(result.groups).toEqual([{ key: 'feature', label: 'Feature', filePaths: ['a.ts', 'b.ts'] }])
+    expect(result.groups).toEqual([{ key: 'feature', label: 'Feature', category: 'core', filePaths: ['a.ts', 'b.ts'] }])
     expect(transcript[0]).toMatchObject({ role: 'system', content: AGENT_SYSTEM_PROMPT })
     expect(transcript.find(message => message.role !== 'system')).toMatchObject({ role: 'user', content: buildAnalysisPrompt(diff) })
     expect(transcript.filter(message => message.role === 'toolResult')).toHaveLength(2)
@@ -243,7 +243,7 @@ describe('reconcile', () => {
   it('keeps nested children', async () => {
     faux.setResponses([submit({
       overallSummary: 'Adds a feature.',
-      groups: [{ key: 'feature', label: 'Feature', filePaths: [], children: [{ key: 'feature/core', label: 'Core', filePaths: ['a.ts'] }] }],
+      groups: [{ key: 'feature', label: 'Feature', category: 'core', filePaths: [], children: [{ key: 'feature/core', label: 'Core', category: 'core', filePaths: ['a.ts'] }] }],
     })])
 
     const result = await llmAdapter.analyze(diffWithFiles(file('a.ts')))
@@ -255,8 +255,8 @@ describe('reconcile', () => {
     const analysis: Analysis = {
       overallSummary: 'Summary.',
       groups: [
-        { key: 'code', label: 'Code', filePaths: ['a.ts', 'made-up.ts'] },
-        { key: 'more', label: 'More', filePaths: ['a.ts'] },
+        { key: 'code', label: 'Code', category: 'core', filePaths: ['a.ts', 'made-up.ts'] },
+        { key: 'more', label: 'More', category: 'core', filePaths: ['a.ts'] },
       ],
     }
     faux.setResponses([submit(analysis), submit(analysis)])
@@ -264,7 +264,7 @@ describe('reconcile', () => {
     const result = await llmAdapter.analyze(diffWithFiles(file('a.ts'), file('b.ts')))
 
     expect(result.groups).toEqual([
-      { key: 'code', label: 'Code', filePaths: ['a.ts'], children: undefined },
+      { key: 'code', label: 'Code', category: 'core', filePaths: ['a.ts'], children: undefined },
     ])
   })
 })

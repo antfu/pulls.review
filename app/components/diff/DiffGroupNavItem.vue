@@ -5,6 +5,7 @@ import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { computed } from 'vue'
 import DiffStats from './DiffStats.vue'
 import { countGroupFiles, countGroupStats } from './group-utils'
+import GroupCategoryIcon from './GroupCategoryIcon.vue'
 
 const props = defineProps<{
   group: ResolvedGroupWithChildren
@@ -40,7 +41,10 @@ const progress = computed(() => {
       @click="$emit('select', group.key)"
     >
       <div class="flex flex-col items-start">
-        <div>{{ group.label }}</div>
+        <div class="flex items-center gap-1.5">
+          <GroupCategoryIcon :category="group.category" class="text-sm" />
+          <span>{{ group.label }}</span>
+        </div>
         <div class="flex items-center text-xs">
           <DiffStats :additions="stats.added" :deletions="stats.deleted" />
           <span class="op-mute">・{{ fileCount }} file{{ fileCount === 1 ? '' : 's' }}</span>

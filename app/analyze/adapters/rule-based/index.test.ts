@@ -29,7 +29,7 @@ describe('ruleBasedAdapter', () => {
     expect(byCategory.deps).toEqual(['package.json'])
   })
 
-  it('falls back to the code category for anything unmatched', async () => {
+  it('falls back to the code group for anything unmatched', async () => {
     const diff: DiffsPayload = {
       provider: 'github',
       id: 'github:o/r#1',
@@ -71,5 +71,18 @@ describe('ruleBasedAdapter', () => {
     const result = await ruleBasedAdapter.analyze(diff)
     expect(result.groups[0]?.label).toBe('Code')
     expect(result.groups[0]?.summary).toBeTruthy()
+  })
+
+  it('tags every group with a category, mapping code to core and generated to other', async () => {
+    const diff: DiffsPayload = {
+      provider: 'github',
+      id: 'github:o/r#1',
+      title: 't',
+      description: '',
+      files: [file('src/index.ts'), file('pnpm-lock.yaml'), file('README.md')],
+    }
+    const result = await ruleBasedAdapter.analyze(diff)
+    const categories = Object.fromEntries(result.groups.map(g => [g.key, g.category]))
+    expect(categories).toEqual({ code: 'core', generated: 'other', docs: 'docs' })
   })
 })

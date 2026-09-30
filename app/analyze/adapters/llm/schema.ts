@@ -1,5 +1,5 @@
 import * as v from 'valibot'
-import { DiffGroupSchema } from '../../../types/analyze'
+import { SubmittedGroupLeafSchema, withChildren } from '../../../types/analyze'
 
 /**
  * Shape the model submits via `submit_grouping`: everything
@@ -8,6 +8,6 @@ import { DiffGroupSchema } from '../../../types/analyze'
  */
 export const AnalysisSchema = v.object({
   overallSummary: v.pipe(v.string(), v.description('A short summary of the intention of the PR (why over what) for a reviewer who hasn\'t read it yet. Rendered as Markdown.')),
-  groups: v.array(DiffGroupSchema),
+  groups: v.array(withChildren(SubmittedGroupLeafSchema)),
 })
 export type Analysis = v.InferOutput<typeof AnalysisSchema>

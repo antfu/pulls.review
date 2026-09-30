@@ -4,6 +4,7 @@
       "key": "docs",
       "label": "Docs",
       "summary": "Documentation updates.",
+      "category": "docs",
       "filePaths": [
         "docs/content/1.guide/17.client-context.md",
         "docs/content/8.references/6.hub-api.md"
@@ -13,6 +14,7 @@
       "key": "code",
       "label": "Code",
       "summary": "Source changes.",
+      "category": "core",
       "filePaths": [
         "examples/custom-hub-next/src/client/devframe/next-devframe-hub.ts",
         "examples/custom-hub-vite/vite.config.ts",
@@ -27,6 +29,7 @@
       "key": "tests",
       "label": "Tests",
       "summary": "Test coverage for the change.",
+      "category": "tests",
       "filePaths": [
         "packages/hub-ui/src/client/state/client-script.integration.test.ts",
         "packages/hub-ui/src/client/state/context.test.ts",

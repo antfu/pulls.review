@@ -1,3 +1,5 @@
+import type { DiffCategory } from '../../types/analyze'
+
 /**
  * The pull request the landing-page animation walks through: antfu/pulls.review#9
  * with its real title and stats, its files bucketed into five groups whose stats
@@ -6,6 +8,7 @@
 
 export interface DemoGroup {
   label: string
+  category: DiffCategory
   additions: number
   deletions: number
   files: number
@@ -29,11 +32,11 @@ export const DEMO_PR = {
 }
 
 export const DEMO_GROUPS: DemoGroup[] = [
-  { label: 'Shared analysis store & comment contract', additions: 363, deletions: 3, files: 8, expanded: true },
-  { label: 'Share result UI', additions: 331, deletions: 31, files: 11, expanded: true },
-  { label: 'Store refactor: result to root', additions: 182, deletions: 77, files: 9 },
-  { label: 'Tests', additions: 353, deletions: 1, files: 4 },
-  { label: 'Docs & deps', additions: 129, deletions: 44, files: 5 },
+  { label: 'Shared analysis store & comment contract', category: 'api', additions: 363, deletions: 3, files: 8, expanded: true },
+  { label: 'Share result UI', category: 'ui', additions: 331, deletions: 31, files: 11, expanded: true },
+  { label: 'Store refactor: result to root', category: 'core', additions: 182, deletions: 77, files: 9 },
+  { label: 'Tests', category: 'tests', additions: 353, deletions: 1, files: 4 },
+  { label: 'Docs & deps', category: 'docs', additions: 129, deletions: 44, files: 5 },
 ]
 
 /** The rows shown in the flat state; the rest hide behind "N more files". */

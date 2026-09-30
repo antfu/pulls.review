@@ -13,6 +13,7 @@ import DiffStats from './DiffStats.vue'
 import FileDiff from './FileDiff.vue'
 import FileTree from './FileTree.vue'
 import { countGroupFiles, countGroupStats } from './group-utils'
+import GroupCategoryIcon from './GroupCategoryIcon.vue'
 
 const props = defineProps<{
   store: DiffsStore
@@ -108,7 +109,10 @@ function navigateToFile(sha: string) {
             as="span"
           />
           <div class="min-w-0 flex flex-1 flex-col gap-1.5">
-            <span class="truncate text-2xl font-medium leading-1em" :title="group.label">{{ group.label }}</span>
+            <div class="flex items-center gap-2 leading-1em">
+              <GroupCategoryIcon :category="group.category" class="text-xl" />
+              <span class="truncate text-2xl font-medium leading-1em" :title="group.label">{{ group.label }}</span>
+            </div>
             <div class="flex items-center gap-2 leading-1em">
               <DiffStats :additions="totalAdded" :deletions="totalDeleted" />
               <span class="text-xs op-fade">{{ totalFiles }} file{{ totalFiles === 1 ? '' : 's' }}</span>
@@ -164,6 +168,7 @@ function navigateToFile(sha: string) {
               />
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2 leading-1em">
+                  <GroupCategoryIcon :category="group.category" class="text-base" />
                   <span
                     ref="labelBox"
                     class="min-w-0 flex-1 truncate text-xl font-medium"

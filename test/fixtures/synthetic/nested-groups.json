@@ -64,12 +64,14 @@
       {
         "key": "docs",
         "label": "Documentation",
+        "category": "docs",
         "summary": "New docs pages for features A and B.",
         "filePaths": [],
         "children": [
           {
             "key": "docs/featureA",
             "label": "Feature A docs",
+            "category": "docs",
             "summary": "Intro page for feature A.",
             "filePaths": [
               "docs/featureA/intro.md"
@@ -78,6 +80,7 @@
           {
             "key": "docs/featureB",
             "label": "Feature B docs",
+            "category": "docs",
             "summary": "Intro page for feature B.",
             "filePaths": [
               "docs/featureB/intro.md"

@@ -4,6 +4,7 @@
       "key": "code",
       "label": "Code",
       "summary": "Source changes.",
+      "category": "core",
       "filePaths": [
         "packages/reactivity/src/arrayInstrumentations.ts",
         "packages/reactivity/src/computed.ts",
@@ -21,6 +22,7 @@
       "key": "tests",
       "label": "Tests",
       "summary": "Test coverage for the change.",
+      "category": "tests",
       "filePaths": [
         "packages/reactivity/__tests__/computed.spec.ts",
         "packages/reactivity/__tests__/effect.spec.ts",
@@ -33,6 +35,7 @@
       "key": "config",
       "label": "Config",
       "summary": "Configuration changes.",
+      "category": "config",
       "filePaths": [
         "vitest.config.ts"
       ]

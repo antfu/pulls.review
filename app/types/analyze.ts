@@ -9,16 +9,49 @@ export const GroupSourceSchema = v.picklist([
 ])
 export type GroupSource = v.InferOutput<typeof GroupSourceSchema>
 
+/**
+ * Which part of the system a group touches - one axis, language-agnostic, so the view
+ * can give every group a recognizable icon and color. Deliberately not the nature of
+ * the change (feature/fix/refactor): groups already partition the PR by intent.
+ */
 export const DiffCategorySchema = v.picklist([
-  'code',
+  'ui',
+  'api',
+  'core',
+  'data',
+  'cli',
+  'security',
   'tests',
   'docs',
+  'examples',
   'deps',
+  'build',
+  'scripts',
   'config',
-  'generated',
+  'i18n',
+  'assets',
   'other',
 ])
 export type DiffCategory = v.InferOutput<typeof DiffCategorySchema>
+
+const CATEGORY_GUIDE = [
+  'ui: components, views, styles, layout.',
+  'api: endpoints, handlers, contracts between services or packages, third-party integrations.',
+  'core: domain/business logic and internal modules; use only when ui/api/data/cli don\'t fit.',
+  'data: schemas, migrations, models, queries, storage.',
+  'cli: command-line entry points, arg parsing, terminal output.',
+  'security: auth, permissions, secrets handling, input validation.',
+  'tests: tests, fixtures, snapshots, stories, benchmarks.',
+  'docs: README, guides, changelog, comment-only edits.',
+  'examples: examples, playgrounds, demos.',
+  'deps: dependency bumps, lockfiles.',
+  'build: bundler/compiler/toolchain config, package manifests.',
+  'scripts: dev and one-off scripts, automation under bin/ or tools/.',
+  'config: runtime config, env, feature flags, linter config, CI/CD, deployment, containers, IaC.',
+  'i18n: translations, locales.',
+  'assets: images, fonts, static files.',
+  'other: generated/vendored code or anything that fits nothing above.',
+].join(' ')
 
 /**
  * Leaf group shape (no further nesting), reused for both root groups and their children,
@@ -28,18 +61,34 @@ export type DiffCategory = v.InferOutput<typeof DiffCategorySchema>
  * sees them directly in the `submit_grouping` tool's parameter schema, so `prompt.ts` only
  * needs high-level framing, not a restatement of these per-field rules.
  */
-export const DiffGroupLeafSchema = v.object({
+export const SubmittedGroupLeafSchema = v.object({
   key: v.pipe(v.string(), v.description('Stable, short, kebab-case-ish id, e.g. "docs" or "feature-a".')),
   label: v.pipe(v.string(), v.description('Short, human-readable display name for this group.')),
   summary: v.optional(v.pipe(v.string(), v.description('Concise explanation of the intention of this group (why over what). Rendered as Markdown.'))), // populated only when an llm/web-llm adapter has run
+  category: v.pipe(DiffCategorySchema, v.description(`Which part of the system this group touches. ${CATEGORY_GUIDE}`)),
   filePaths: v.pipe(v.array(v.string()), v.description('File paths belonging directly to this group (not to a child). Every file path given to you MUST end up in exactly one group or child - never both, never omitted.')), // references into DiffsPayload.files by path
+})
+
+/**
+ * The stored/shared shape: results cached or shared before `category` existed lack it,
+ * so only the llm adapter's tool schema (`SubmittedGroupLeafSchema`) requires it. The
+ * view falls back to 'other'.
+ */
+export const DiffGroupLeafSchema = v.object({
+  ...SubmittedGroupLeafSchema.entries,
+  category: v.optional(SubmittedGroupLeafSchema.entries.category),
 })
 export type DiffGroupLeaf = v.InferOutput<typeof DiffGroupLeafSchema>
 
-export const DiffGroupSchema = v.object({
-  ...DiffGroupLeafSchema.entries,
-  children: v.optional(v.pipe(v.array(DiffGroupLeafSchema), v.description('One extra level of nesting, e.g. splitting a large group by sub-area. Children cannot have children of their own.'))), // depth capped at 2 total (root -> children)
-})
+/** Adds the single allowed nesting level to a leaf shape (depth capped at 2 total: root -> children). */
+export function withChildren<const TEntries extends v.ObjectEntries>(leaf: v.ObjectSchema<TEntries, undefined>) {
+  return v.object({
+    ...leaf.entries,
+    children: v.optional(v.pipe(v.array(leaf), v.description('One extra level of nesting, e.g. splitting a large group by sub-area. Children cannot have children of their own.'))),
+  })
+}
+
+export const DiffGroupSchema = withChildren(DiffGroupLeafSchema)
 export type DiffGroup = v.InferOutput<typeof DiffGroupSchema>
 
 /**

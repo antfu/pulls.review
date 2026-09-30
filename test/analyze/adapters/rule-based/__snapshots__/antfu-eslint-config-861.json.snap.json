@@ -4,6 +4,7 @@
       "key": "docs",
       "label": "Docs",
       "summary": "Documentation updates.",
+      "category": "docs",
       "filePaths": [
         "README.md"
       ]
@@ -12,6 +13,7 @@
       "key": "code",
       "label": "Code",
       "summary": "Source changes.",
+      "category": "core",
       "filePaths": [
         "src/config-presets.ts",
         "src/configs/antislop.ts",
@@ -24,6 +26,7 @@
       "key": "tests",
       "label": "Tests",
       "summary": "Test coverage for the change.",
+      "category": "tests",
       "filePaths": [
         "test/__snapshots__/api/@antfu/eslint-config/index.snapshot.d.ts",
         "test/__snapshots__/api/@antfu/eslint-config/index.snapshot.js",
@@ -40,6 +43,7 @@
       "key": "deps",
       "label": "Dependencies",
       "summary": "Dependency version changes.",
+      "category": "deps",
       "filePaths": [
         "package.json",
         "pnpm-workspace.yaml"
@@ -49,6 +53,7 @@
       "key": "generated",
       "label": "Generated",
       "summary": "Generated or build output changes.",
+      "category": "other",
       "filePaths": [
         "pnpm-lock.yaml"
       ]

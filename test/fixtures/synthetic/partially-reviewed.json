@@ -99,7 +99,7 @@
       {
         "key": "code",
         "label": "code",
-        "category": "code",
+        "category": "core",
         "filePaths": [
           "src/a.ts",
           "src/b.ts"

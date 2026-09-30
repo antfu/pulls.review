@@ -21,6 +21,16 @@ describe('resolveGroups', () => {
     expect(countGroupStats(groups[0]!)).toEqual({ added: 4, deleted: 2 })
   })
 
+  it('falls back to the "other" category for groups stored before the field existed, and for Uncategorized', () => {
+    const groups = resolveGroups(
+      [{ key: 'a', label: 'A', filePaths: ['x.ts'], children: [{ key: 'a-1', label: 'A1', category: 'tests', filePaths: ['y.ts'] }] }],
+      [file('x.ts'), file('y.ts'), file('new.ts')],
+    )
+
+    expect(groups.map(group => group.category)).toEqual(['other', 'other'])
+    expect(groups[0]!.children[0]!.category).toBe('tests')
+  })
+
   it('collects files no group names into a trailing Uncategorized group', () => {
     const groups = resolveGroups(
       [{ key: 'a', label: 'A', filePaths: ['x.ts'] }],

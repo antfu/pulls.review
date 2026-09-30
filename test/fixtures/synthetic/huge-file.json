@@ -45,7 +45,7 @@
       {
         "key": "code",
         "label": "code",
-        "category": "code",
+        "category": "core",
         "filePaths": [
           "src/generated/huge.ts"
         ]

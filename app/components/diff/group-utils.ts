@@ -1,10 +1,11 @@
-import type { DiffGroup, DiffGroupLeaf } from '../../types/analyze'
+import type { DiffCategory, DiffGroup, DiffGroupLeaf } from '../../types/analyze'
 import type { FileChange } from '../../types/diff'
 
 export interface ResolvedGroup {
   key: string
   label: string
   summary?: string
+  category: DiffCategory
   files: FileChange[]
   /** Paths the analysis named that are no longer in the diff, rendered as removed. */
   missing: string[]
@@ -16,11 +17,12 @@ export interface ResolvedGroupWithChildren extends ResolvedGroup {
   children: ResolvedGroup[]
 }
 
-function toResolvedGroup(leaf: Pick<DiffGroupLeaf, 'key' | 'label' | 'summary'>, files: FileChange[], missing: string[]): ResolvedGroup {
+function toResolvedGroup(leaf: Pick<DiffGroupLeaf, 'key' | 'label' | 'summary' | 'category'>, files: FileChange[], missing: string[]): ResolvedGroup {
   return {
     key: leaf.key,
     label: leaf.label,
     summary: leaf.summary,
+    category: leaf.category ?? 'other', // results stored before the field existed
     files,
     missing,
     added: files.reduce((sum, file) => sum + file.additions, 0),
@@ -64,7 +66,7 @@ export function resolveGroups(groups: DiffGroup[], files: FileChange[]): Resolve
   const uncategorized = files.filter(file => !referenced.has(file))
   if (uncategorized.length > 0) {
     resolvedGroups.push({
-      ...toResolvedGroup({ key: 'uncategorized', label: 'Uncategorized', summary: 'Files not covered by the current analysis.' }, uncategorized, []),
+      ...toResolvedGroup({ key: 'uncategorized', label: 'Uncategorized', summary: 'Files not covered by the current analysis.', category: 'other' }, uncategorized, []),
       children: [],
     })
   }

@@ -2,10 +2,10 @@ import picomatch from 'picomatch'
 import { describe, expect, it } from 'vitest'
 import { defaultRules } from './rules'
 
-function categorize(path: string): string {
+function ruleKey(path: string): string {
   for (const rule of defaultRules) {
     if (rule.patterns && picomatch(rule.patterns)(path))
-      return rule.category
+      return rule.key
   }
   return 'code'
 }
@@ -28,7 +28,7 @@ describe('defaultRules', () => {
     ['dist/bundle.js', 'generated'],
     ['schema.generated.ts', 'generated'],
     ['src/index.ts', 'code'],
-  ])('categorizes %s as %s', (path, expected) => {
-    expect(categorize(path)).toBe(expected)
+  ])('files %s under the %s rule', (path, expected) => {
+    expect(ruleKey(path)).toBe(expected)
   })
 })
