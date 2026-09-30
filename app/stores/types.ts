@@ -19,8 +19,12 @@ export interface DiffsStoreLlm {
   readonly isSetup: boolean
   readonly isAnalyzing: boolean
   readonly progress: AnalyzeProgress | undefined
+  /** The current (or last failed) run's messages, streamed live; `[]` before the first run. */
+  readonly transcript: AgentMessage[]
   readonly error: Error | undefined
   reanalyze: () => Promise<void>
+  /** Stops the in-flight run (and any chat) - leaves `error` unset. */
+  abort: () => void
   readonly chat: {
     readonly available: boolean
     readonly messages: AgentMessage[]

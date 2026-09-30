@@ -26,7 +26,12 @@ function describeRead(args: unknown): string {
   return `Reading ${list.length} ${list.length === 1 ? 'file' : 'files'}: ${list[0] ?? ''}${more}`
 }
 
-export async function runAgent(diff: DiffsPayload, resolved: ResolvedModel, options?: AnalyzeOptions): Promise<{ analysis: Analysis, transcript: AgentMessage[] }> {
+export interface LlmAnalyzeOptions extends AnalyzeOptions {
+  /** Called with the full transcript so far whenever a message starts, streams, or ends. */
+  onTranscript?: (messages: AgentMessage[]) => void
+}
+
+export async function runAgent(diff: DiffsPayload, resolved: ResolvedModel, options?: LlmAnalyzeOptions): Promise<{ analysis: Analysis, transcript: AgentMessage[] }> {
   const ledger = createLedger()
   let steered = false
   let nudged = false
@@ -64,6 +69,10 @@ export async function runAgent(diff: DiffsPayload, resolved: ResolvedModel, opti
     },
   }
 
+  // The loop works on its own copy of the context, so the live transcript is rebuilt from
+  // message events: each message starts once, then streams updates that replace it.
+  const live: AgentMessage[] = [...context.messages]
+
   const emit = (event: AgentEvent) => {
     if (event.type === 'turn_start') {
       ledger.turn += 1
@@ -74,6 +83,14 @@ export async function runAgent(diff: DiffsPayload, resolved: ResolvedModel, opti
         options?.onProgress?.({ step: ledger.turn, message: describeRead(event.args) })
       else if (event.toolName === 'submit_grouping')
         options?.onProgress?.({ step: ledger.turn, message: 'Organizing groups…' })
+    }
+    else if (event.type === 'message_start') {
+      live.push(event.message)
+      options?.onTranscript?.([...live])
+    }
+    else if (event.type === 'message_update' || event.type === 'message_end') {
+      live[live.length - 1] = event.message
+      options?.onTranscript?.([...live])
     }
   }
 

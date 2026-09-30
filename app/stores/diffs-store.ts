@@ -3,8 +3,7 @@ import type { LlmSession, PrCacheEntry } from '../types/cache'
 import type { ReviewData } from '../types/comment-threads'
 import type { DiffsPayload } from '../types/diff'
 import type { FetchDiffParams } from '../types/provider'
-import type { LlmStore } from './llm-store'
-import type { DiffsStore } from './types'
+import type { DiffsStore, DiffsStoreLlm } from './types'
 import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef } from 'vue'
 import { resolveAdapter } from '../analyze'
 import { ruleBasedAdapter } from '../analyze/adapters/rule-based'
@@ -43,7 +42,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
   const cacheKey = ref<string>()
   const reviewed = ref(new Set<string>())
   const llmSession = shallowRef<LlmSession>()
-  const llm = shallowRef<LlmStore>()
+  const llm = shallowRef<DiffsStoreLlm>()
 
   if (getCurrentScope())
     onScopeDispose(() => llm.value?.abort())

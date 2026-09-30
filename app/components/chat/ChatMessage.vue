@@ -26,6 +26,11 @@ const groupingNotice = computed(() => {
   return count ? `Updated grouping: ${count} groups` : undefined
 })
 
+const toolError = computed(() => {
+  const message = props.message
+  return message.role === 'toolResult' && message.isError ? textOf(message.content) : undefined
+})
+
 function toolCallLabel(call: ToolCall) {
   if (call.name === 'read_diffs') {
     const paths = call.arguments.paths
@@ -33,6 +38,8 @@ function toolCallLabel(call: ToolCall) {
   }
   if (call.name === 'update_grouping')
     return 'Updating grouping…'
+  if (call.name === 'submit_grouping')
+    return 'Submitting grouping…'
   return call.name
 }
 </script>
@@ -66,6 +73,11 @@ function toolCallLabel(call: ToolCall) {
   <div v-else-if="groupingNotice" class="text-xs op-mute flex gap-1.5 items-center">
     <span class="i-ph:tree-structure-duotone" aria-hidden="true" />
     {{ groupingNotice }}
+  </div>
+
+  <div v-else-if="toolError" class="text-xs op-mute flex gap-1.5 items-start">
+    <span class="i-ph:warning-duotone mt-0.5 shrink-0" aria-hidden="true" />
+    <span class="whitespace-pre-wrap break-words">{{ toolError }}</span>
   </div>
 </template>
 

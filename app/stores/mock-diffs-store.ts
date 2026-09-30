@@ -161,6 +161,7 @@ export function createMockDiffsStore(input: {
   llm?: boolean
   isAnalyzing?: boolean
   llmProgress?: AnalyzeProgress
+  llmTranscript?: AgentMessage[]
   llmError?: Error
   chatMessages?: AgentMessage[]
   chatStreaming?: boolean
@@ -183,6 +184,7 @@ export function createMockDiffsStore(input: {
   const analyzeMode = ref<GroupSource>(grouped.value?.source ?? (llmEnabled ? 'llm' : 'rule-based'))
   const isAnalyzing = ref(input.isAnalyzing ?? false)
   const llmProgress = ref(input.llmProgress)
+  const llmTranscript = shallowRef(input.llmTranscript ?? [])
   const llmError = ref(input.llmError)
   const hasAiResult = ref(grouped.value?.source === 'llm')
   const isSetup = computed(() => input.isSetup ?? true)
@@ -223,8 +225,14 @@ export function createMockDiffsStore(input: {
   }
 
   async function reanalyze() {
+    llmError.value = undefined
     hasAiResult.value = true
     analyzeMode.value = 'llm'
+  }
+
+  function abort() {
+    isAnalyzing.value = false
+    llmProgress.value = undefined
   }
 
   const ui = reactive({
@@ -249,8 +257,10 @@ export function createMockDiffsStore(input: {
           isSetup,
           isAnalyzing,
           progress: llmProgress,
+          transcript: llmTranscript,
           error: llmError,
           reanalyze,
+          abort,
           chat,
         })
       : undefined,

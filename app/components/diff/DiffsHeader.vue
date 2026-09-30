@@ -118,7 +118,7 @@ function scrollToGroup(key: string) {
           <GithubAvatar :login="aiResult.sharedBy" :size="16" />
           {{ aiResult.sharedBy }}
         </span>
-        <DiffAnalyzeButton v-if="store.llm" :store="store" />
+        <DiffAnalyzeButton v-if="store.llm" :store="store" :document="document" />
         <DiffShareButton v-if="canShareResult" :store="store" :document="document" />
       </div>
       <!-- <template v-if="meta.description">

@@ -86,28 +86,44 @@ describe('createDiffsStore llm session/progress/error', () => {
     expect(store.llm!.progress).toBeUndefined()
   })
 
-  it('leaves llm.error unset when the run is aborted', async () => {
-    const OriginalAbortController = globalThis.AbortController
-    let captured: AbortController | undefined
-    function CapturingAbortController(this: AbortController) {
-      const controller = new OriginalAbortController()
-      captured = controller
-      return controller
-    }
-    vi.stubGlobal('AbortController', CapturingAbortController)
-
+  it('surfaces the transcript live and keeps it alongside the error when the run fails', async () => {
     const store = createDiffsStore({ kind: 'patch-text', text: PATCH_TEXT })
     await store.load()
 
-    runLlmAnalysisMock.mockImplementation(async () => {
-      captured!.abort()
-      throw new DOMException('Aborted', 'AbortError')
+    let capturedTranscript: AgentMessage[] | undefined
+    runLlmAnalysisMock.mockImplementation(async (_diff: unknown, options: { onTranscript?: (m: AgentMessage[]) => void }) => {
+      options.onTranscript?.(transcript().slice(0, 1))
+      capturedTranscript = store.llm!.transcript
+      options.onTranscript?.(transcript())
+      throw new Error('boom')
     })
 
     await store.llm!.reanalyze()
 
+    expect(capturedTranscript).toHaveLength(1)
+    expect(store.llm!.transcript).toEqual(transcript())
+    expect(store.llm!.error?.message).toBe('boom')
+
+    runLlmAnalysisMock.mockImplementation(() => new Promise(() => {}))
+    void store.llm!.reanalyze()
+    expect(store.llm!.transcript).toEqual([])
     expect(store.llm!.error).toBeUndefined()
-    vi.unstubAllGlobals()
+  })
+
+  it('leaves llm.error unset when the run is aborted through llm.abort', async () => {
+    const store = createDiffsStore({ kind: 'patch-text', text: PATCH_TEXT })
+    await store.load()
+
+    runLlmAnalysisMock.mockImplementation((_diff: unknown, options: { signal: AbortSignal }) =>
+      new Promise((_, reject) => options.signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))))
+
+    const running = store.llm!.reanalyze()
+    expect(store.llm!.isAnalyzing).toBe(true)
+    store.llm!.abort()
+    await running
+
+    expect(store.llm!.isAnalyzing).toBe(false)
+    expect(store.llm!.error).toBeUndefined()
   })
 
   it('never persists the rule-based result, recomputing it from the diff instead', async () => {

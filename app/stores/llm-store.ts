@@ -1,9 +1,10 @@
+import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import type { Ref } from 'vue'
 import type { AnalyzeProgress, GroupedResult } from '../types/analyze'
 import type { LlmSession } from '../types/cache'
 import type { DiffsPayload } from '../types/diff'
 import type { DiffsStoreLlm } from './types'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, shallowRef } from 'vue'
 import { llmAdapter, runLlmAnalysis } from '../analyze/adapters/llm'
 import { setAnalyzedResult, setLlmSession } from '../cache/pr-cache'
 import { getDefaultCacheStorage } from '../cache/storage'
@@ -21,19 +22,15 @@ export interface LlmStoreOptions {
   showLlmResult: () => Promise<void>
 }
 
-export interface LlmStore extends DiffsStoreLlm {
-  /** Aborts the in-flight run and chat: the diff they were for is being replaced. */
-  abort: () => void
-}
-
 /**
  * The LLM sub-store behind `DiffsStore.llm` - analysis runs, their progress/error, and
  * follow-up chat. Only ever loaded by `createDiffsStore` via `import()` behind
  * `import.meta.env.PR_LLM`, so a build with the flag off ships none of it.
  */
-export function createLlmStore(opts: LlmStoreOptions): LlmStore {
+export function createLlmStore(opts: LlmStoreOptions): DiffsStoreLlm {
   const isAnalyzing = ref(false)
   const progress = ref<AnalyzeProgress>()
+  const transcript = shallowRef<AgentMessage[]>([])
   const error = ref<Error>()
   const isSetup = computed(() => llmAdapter.available)
   let abortController: AbortController | undefined
@@ -65,18 +62,20 @@ export function createLlmStore(opts: LlmStoreOptions): LlmStore {
       return
     chat.stop()
     error.value = undefined
+    transcript.value = []
     isAnalyzing.value = true
     const controller = new AbortController()
     abortController = controller
     try {
-      const { result, transcript } = await runLlmAnalysis(currentDiff, {
+      const { result, transcript: messages } = await runLlmAnalysis(currentDiff, {
         onProgress: next => progress.value = next,
+        onTranscript: next => transcript.value = next,
         signal: controller.signal,
       })
       if (controller.signal.aborted)
         return
       await setResult(result)
-      await setSession({ messages: transcript, chatStartIndex: transcript.length })
+      await setSession({ messages, chatStartIndex: messages.length })
     }
     catch (err) {
       if (!controller.signal.aborted)
@@ -100,9 +99,10 @@ export function createLlmStore(opts: LlmStoreOptions): LlmStore {
     isSetup,
     isAnalyzing,
     progress,
+    transcript,
     error,
     reanalyze,
     chat: reactive(chat),
     abort,
-  }) as LlmStore
+  }) as DiffsStoreLlm
 }

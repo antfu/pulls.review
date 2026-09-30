@@ -1,4 +1,4 @@
-import type { StreamFn } from '@earendil-works/pi-agent-core'
+import type { AgentMessage, StreamFn } from '@earendil-works/pi-agent-core'
 import type { AnalyzeProgress } from '../../../types/analyze'
 import type { DiffsPayload } from '../../../types/diff'
 import type { Analysis } from './schema'
@@ -222,6 +222,18 @@ describe('runLlmAnalysis', () => {
       { step: 3, message: 'Thinking… (step 3)' },
       { step: 3, message: 'Organizing groups…' },
     ])
+  })
+
+  it('streams the growing transcript while the run is in progress, ending on the full one', async () => {
+    const snapshots: AgentMessage[][] = []
+    faux.setResponses([read('a.ts'), submit(oneGroup('a.ts'))])
+
+    const { transcript } = await runLlmAnalysis(diffWithFiles(file('a.ts')), { onTranscript: messages => snapshots.push(messages) })
+
+    expect(snapshots.length).toBeGreaterThan(1)
+    for (let i = 1; i < snapshots.length; i++)
+      expect(snapshots[i]!.length).toBeGreaterThanOrEqual(snapshots[i - 1]!.length)
+    expect(snapshots.at(-1)).toEqual(transcript)
   })
 })
 

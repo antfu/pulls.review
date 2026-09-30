@@ -1,6 +1,7 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
-import type { AnalyzeAdapter, AnalyzeOptions, DiffGroup, GroupedResult, GroupedResultCore } from '../../../types/analyze'
+import type { AnalyzeAdapter, DiffGroup, GroupedResult, GroupedResultCore } from '../../../types/analyze'
 import type { DiffsPayload } from '../../../types/diff'
+import type { LlmAnalyzeOptions } from './agent'
 import type { ResolvedModel } from './model'
 import type { Analysis } from './schema'
 import { normalizeGroupedResult } from '../../../types/analyze'
@@ -52,7 +53,7 @@ export function toGroupedResult(diff: DiffsPayload, analysis: Analysis, resolved
   return normalizeGroupedResult('llm', core, `${resolved.model.provider}/${resolved.model.id}`)
 }
 
-export async function runLlmAnalysis(diff: DiffsPayload, options?: AnalyzeOptions): Promise<{ result: GroupedResult, transcript: AgentMessage[] }> {
+export async function runLlmAnalysis(diff: DiffsPayload, options?: LlmAnalyzeOptions): Promise<{ result: GroupedResult, transcript: AgentMessage[] }> {
   // The flag is a compile-time literal: with it off, the branch holding the `import()`
   // is eliminated, so the embed bundle never discovers the pi runtime.
   if (!import.meta.env.PR_LLM)
