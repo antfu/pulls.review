@@ -139,20 +139,20 @@ function refreshFromBanner() {
       <template v-if="isLoading && !diff">
         <div class="mxa max-w-500 w-full px-4 py-12">
           <slot name="loading">
-            <FeedbackLoading text="Loading…" />
+            <FeedbackLoading :text="$t('common.loading')" />
           </slot>
         </div>
       </template>
       <template v-else-if="error">
         <div class="mxa max-w-500 w-full flex flex-col gap-8 px-4 py-12">
           <slot name="error" :error="error" :retry="() => store?.load()">
-            <FeedbackEmptyState icon="i-ph:warning-duotone" title="Something went wrong">
+            <FeedbackEmptyState icon="i-ph:warning-duotone" :title="$t('pr.somethingWrong')">
               <template #hint>
                 {{ error.message }}
               </template>
               <template #actions>
                 <ActionButton variant="primary" @click="store?.load()">
-                  Retry
+                  {{ $t('common.retry') }}
                 </ActionButton>
               </template>
             </FeedbackEmptyState>
@@ -176,11 +176,11 @@ function refreshFromBanner() {
         <div class="mxa max-w-500 w-full flex flex-col gap-4">
           <slot name="stale" :refresh="() => store?.refresh()">
             <div v-if="isStale" class="mb-4 flex flex-wrap items-center justify-between gap-3 border border-amber:20 rounded-lg bg-amber:10 bg-raised px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
-              <span>This pull request has new commits since it was cached.</span>
+              <span>{{ $t('pr.newCommits') }}</span>
               <div class="flex items-center gap-3">
-                <FormCheckbox v-model="autoRefreshNextTime" label="Auto refresh next time" />
+                <FormCheckbox v-model="autoRefreshNextTime" :label="$t('pr.autoRefreshNextTime')" />
                 <ActionButton size="sm" @click="refreshFromBanner">
-                  Refresh
+                  {{ $t('common.refresh') }}
                 </ActionButton>
               </div>
             </div>
@@ -205,7 +205,7 @@ function refreshFromBanner() {
 
           <!-- To leave some space at the end of the diff -->
           <div class="mt-200 p2 text-center text-xs italic op50">
-            You have reached the end of the diff.
+            {{ $t('pr.endOfDiff') }}
           </div>
         </div>
 

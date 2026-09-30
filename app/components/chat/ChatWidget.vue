@@ -66,8 +66,8 @@ function onKeydown(event: KeyboardEvent) {
     <ActionIconButton
       v-if="!open"
       icon="i-ph:chat-circle-dots-duotone"
-      title="Ask about this PR"
-      label="Ask about this PR"
+      :title="$t('chat.title')"
+      :label="$t('chat.title')"
       class="border border-base bg-base text-xl shadow-lg"
       @click="open = true"
     />
@@ -78,15 +78,15 @@ function onKeydown(event: KeyboardEvent) {
     >
       <div class="flex items-center gap-2 border-b border-base px-3 py-2">
         <span class="i-ph:chat-circle-dots-duotone op-mute" aria-hidden="true" />
-        <span class="flex-auto text-sm font-semibold">Ask about this PR</span>
+        <span class="flex-auto text-sm font-semibold">{{ $t('chat.title') }}</span>
         <ActionButton v-if="chat.available" size="sm" variant="text" @click="chat.clear()">
-          Clear
+          {{ $t('common.clear') }}
         </ActionButton>
-        <ActionIconButton compact icon="i-ph:caret-down" tooltip="Collapse" @click="open = false" />
+        <ActionIconButton compact icon="i-ph:caret-down" :tooltip="$t('chat.collapse')" @click="open = false" />
       </div>
 
       <div v-if="!chat.available" class="flex flex-auto items-center justify-center p-6 text-center text-sm op-mute">
-        Re-analyze to enable chat
+        {{ $t('chat.reanalyzeToEnable') }}
       </div>
 
       <template v-else>
@@ -101,7 +101,7 @@ function onKeydown(event: KeyboardEvent) {
             />
             <div v-if="showThinking" class="flex items-center gap-1.5 text-xs op-mute" role="status">
               <span class="i-ph:spinner-duotone animate-spin" aria-hidden="true" />
-              Thinking…
+              {{ $t('chat.thinking') }}
             </div>
           </div>
         </div>
@@ -114,17 +114,17 @@ function onKeydown(event: KeyboardEvent) {
           <textarea
             v-model="input"
             rows="2"
-            placeholder="Ask about this PR…"
-            aria-label="Ask about this PR"
+            :placeholder="$t('chat.placeholder')"
+            :aria-label="$t('chat.title')"
             :disabled="busy"
             class="flex-auto resize-none border border-base rounded bg-raised p-2 text-sm outline-none disabled:op-mute focus-visible:ring-2 focus-visible:ring-primary-500/40"
             @keydown="onKeydown"
           />
           <ActionButton v-if="chat.isStreaming" size="sm" icon="i-ph:stop-duotone" @click="chat.stop()">
-            Stop
+            {{ $t('common.stop') }}
           </ActionButton>
           <ActionButton v-else size="sm" variant="primary" icon="i-ph:paper-plane-right-duotone" :disabled="busy || !input.trim()" @click="submit()">
-            Send
+            {{ $t('common.send') }}
           </ActionButton>
         </div>
       </template>

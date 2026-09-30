@@ -99,14 +99,14 @@ const model = computed({
       <div>
         <div class="mb1 flex items-center gap-1 text-sm color-base font-medium">
           <div class="i-ph-sparkle-duotone text-lg" />
-          AI Analysis
+          {{ $t('settings.llm.title') }}
         </div>
         <p class="text-sm color-faint">
-          Configure a model provider to enable AI-generated summaries. Stored only in this browser and sent only to the provider you select.
+          {{ $t('settings.llm.description') }}
         </p>
       </div>
 
-      <FormField label="Provider">
+      <FormField :label="$t('settings.llm.provider')">
         <ActionToggleGroup
           :model-value="llmSettings.provider"
           :options="providerOptions"
@@ -115,14 +115,14 @@ const model = computed({
       </FormField>
 
       <template v-if="!token || editing">
-        <FormField v-if="isOpenAi" label="Base URL" description="Any OpenAI-compatible chat completions endpoint (OpenAI itself, a local server, etc.).">
+        <FormField v-if="isOpenAi" :label="$t('settings.llm.baseUrl')" :description="$t('settings.llm.baseUrlDescription')">
           <FormTextInput
             v-model="draftBaseUrl"
             placeholder="https://api.openai.com/v1"
           />
         </FormField>
 
-        <FormField label="API key">
+        <FormField :label="$t('settings.llm.apiKey')">
           <div class="flex items-center gap-2">
             <FormTextInput
               v-model="draftToken"
@@ -133,41 +133,45 @@ const model = computed({
               @keyup.enter="draftToken && save()"
             />
             <ActionButton :disabled="!draftToken" @click="save">
-              Save
+              {{ $t('common.save') }}
             </ActionButton>
             <ActionButton v-if="editing" variant="text" @click="cancel">
-              Cancel
+              {{ $t('common.cancel') }}
             </ActionButton>
             <ActionButton v-if="editing" variant="text" @click="remove">
-              Remove
+              {{ $t('common.remove') }}
             </ActionButton>
           </div>
           <template #description>
-            <template v-if="llmSettings.provider === 'gateway'">
-              A <a href="https://vercel.com/docs/ai-gateway" target="_blank" rel="noopener" class="hover:underline">Vercel AI Gateway</a> token, reaching any of its supported vendors with a single token.
-            </template>
-            <template v-else-if="llmSettings.provider === 'anthropic'">
-              An <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" class="hover:underline">Anthropic API key</a>, called directly from this browser (no gateway).
-            </template>
+            <i18n-t v-if="llmSettings.provider === 'gateway'" keypath="settings.llm.gatewayHint" scope="global">
+              <template #link>
+                <a href="https://vercel.com/docs/ai-gateway" target="_blank" rel="noopener" class="hover:underline">Vercel AI Gateway</a>
+              </template>
+            </i18n-t>
+            <i18n-t v-else-if="llmSettings.provider === 'anthropic'" keypath="settings.llm.anthropicHint" scope="global">
+              <template #link>
+                <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" class="hover:underline">{{ $t('settings.llm.anthropicLink') }}</a>
+              </template>
+            </i18n-t>
             <template v-else>
-              The API key for the endpoint above.
+              {{ $t('settings.llm.openaiHint') }}
             </template>
           </template>
         </FormField>
       </template>
 
       <template v-else>
-        <FormField label="API key">
+        <FormField :label="$t('settings.llm.apiKey')">
           <div class="h-9 flex items-center gap-2 border border-base rounded bg-raised px-3 text-sm">
             <span class="i-ph:check-circle-duotone shrink-0 color-active" aria-hidden="true" />
-            <span class="color-base">Configured</span>
+            <span class="color-base">{{ $t('settings.llm.configured') }}</span>
             <span class="font-mono op-mute">••••{{ token.slice(-4) }}</span>
             <span v-if="isOpenAi" class="flex-1 truncate text-xs op-mute">{{ llmSettings.openaiBaseUrl }}</span>
             <span v-else class="flex-1" />
             <ActionIconButton
               icon="i-ph:pencil-simple-duotone"
-              label="Change key"
-              tooltip="Change key"
+              :label="$t('settings.llm.changeKey')"
+              :tooltip="$t('settings.llm.changeKey')"
               compact
               class="text-sm"
               @click="editing = true"
@@ -175,7 +179,7 @@ const model = computed({
           </div>
         </FormField>
 
-        <FormField label="Model">
+        <FormField :label="$t('settings.llm.model')">
           <ModelPicker
             v-model="model"
             :models="models"
@@ -183,7 +187,7 @@ const model = computed({
             :error="modelsError"
           />
           <template v-if="modelsError" #error>
-            Could not load the model list ({{ modelsError }}). Enter a model id manually.
+            {{ $t('settings.llm.modelListFailed', { error: modelsError }) }}
           </template>
         </FormField>
       </template>
@@ -195,12 +199,13 @@ const model = computed({
     >
       <span class="i-ph:shield-warning-duotone text-2xl op-fade" aria-hidden="true" />
       <p class="text-sm color-base font-medium">
-        AI features aren't available in embedded mode
+        {{ $t('settings.llm.embedUnavailable') }}
       </p>
-      <p class="max-w-72 text-xs color-faint">
-        github.com's strict Content Security Policy blocks the requests AI features need here.
-        <a href="https://pulls.review" target="_blank" rel="noopener" class="color-base hover:underline">Go to the website</a> to use them.
-      </p>
+      <i18n-t keypath="settings.llm.embedReason" tag="p" class="max-w-72 text-xs color-faint" scope="global">
+        <template #link>
+          <a href="https://pulls.review" target="_blank" rel="noopener" class="color-base hover:underline">{{ $t('settings.llm.goToWebsite') }}</a>
+        </template>
+      </i18n-t>
     </div>
   </div>
 </template>

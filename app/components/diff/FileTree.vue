@@ -140,7 +140,7 @@ const virtualizer = useVirtualizer(computed(() => ({
           <CheckboxRoot
             class="h-4 w-4 flex shrink-0 items-center justify-center border border-base rounded bg-raised outline-none transition data-[state=checked]:border-primary-500 data-[state=indeterminate]:border-primary-500 data-[state=checked]:bg-primary-500 data-[state=indeterminate]:bg-primary-500 focus-visible:ring-2 focus-visible:ring-primary-500/40"
             :model-value="folderState(row.row.files!)"
-            :aria-label="`Mark all files in ${row.row.name} as reviewed`"
+            :aria-label="$t('file.markFolderReviewed', { name: row.row.name })"
             @update:model-value="value => toggleFolder(row.row.files!, value === true)"
           >
             <CheckboxIndicator class="text-white">
@@ -167,9 +167,9 @@ const virtualizer = useVirtualizer(computed(() => ({
         </template>
         <template v-else-if="row.row.type === 'missing'">
           <span class="w-4 shrink-0" aria-hidden="true" />
-          <span class="min-w-0 flex flex-1 items-center gap-1.5 op-50" title="No longer in this diff">
+          <span class="min-w-0 flex flex-1 items-center gap-1.5 op-50" :title="$t('file.noLongerInDiff')">
             <DisplayFilePath :path="row.row.name" :dim="false" class="min-w-0 flex-1 line-through" />
-            <span class="shrink-0 text-xs">removed</span>
+            <span class="shrink-0 text-xs">{{ $t('file.removed') }}</span>
           </span>
         </template>
       </div>

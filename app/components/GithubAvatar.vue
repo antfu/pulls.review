@@ -18,7 +18,7 @@ watch(src, () => {
 <template>
   <span
     role="img"
-    :aria-label="`${login}'s avatar`"
+    :aria-label="$t('common.avatar', { login })"
     :style="{ width: `${size}px`, height: `${size}px` }"
     class="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-raised"
   >

@@ -50,7 +50,7 @@ onMounted(() => store.load())
         </template>
         <template #actions>
           <ActionButton variant="primary" @click="retry">
-            Retry
+            {{ $t('common.retry') }}
           </ActionButton>
         </template>
       </FeedbackEmptyState>

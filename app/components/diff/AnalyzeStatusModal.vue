@@ -46,7 +46,7 @@ function rerun() {
 
 <template>
   <AppModal
-    title="AI analysis"
+    :title="$t('analyze.statusTitle')"
     :open="open"
     :document="document"
     @update:open="emit('update:open', $event)"
@@ -57,7 +57,7 @@ function rerun() {
           <ChatMessage v-for="(message, index) in messages" :key="index" :message="message" />
           <div v-if="llm.isAnalyzing" class="flex items-center gap-1.5 text-xs op-mute" role="status">
             <span class="i-ph:spinner-duotone animate-spin" aria-hidden="true" />
-            {{ llm.progress?.message ?? 'Starting…' }}
+            {{ llm.progress?.message ?? $t('analyze.starting') }}
           </div>
         </div>
       </div>
@@ -69,10 +69,10 @@ function rerun() {
 
     <template #footer>
       <ActionButton v-if="llm.isAnalyzing" size="sm" icon="i-ph:stop-duotone" @click="llm.abort()">
-        Abort
+        {{ $t('common.abort') }}
       </ActionButton>
       <ActionButton v-else size="sm" variant="primary" icon="i-ph:arrow-clockwise-duotone" @click="rerun">
-        Rerun
+        {{ $t('common.rerun') }}
       </ActionButton>
     </template>
   </AppModal>

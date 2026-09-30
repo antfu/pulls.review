@@ -55,7 +55,7 @@ function remove() {
     <template #label>
       <div class="flex items-center gap-1 pb1">
         <div class="i-carbon-logo-github text-lg" />
-        GitHub Personal Access Token
+        {{ $t('settings.token.label') }}
       </div>
     </template>
     <div class="flex items-center gap-2">
@@ -70,25 +70,32 @@ function remove() {
         @keyup.enter="draft && emit('save', draft)"
       />
       <ActionButton :loading="busy" :disabled="!draft" @click="emit('save', draft)">
-        Save
+        {{ $t('common.save') }}
       </ActionButton>
       <ActionButton v-if="editing" variant="text" :disabled="busy" @click="cancel">
-        Cancel
+        {{ $t('common.cancel') }}
       </ActionButton>
       <ActionButton v-if="editing" variant="text" :disabled="busy" @click="remove">
-        Remove
+        {{ $t('common.remove') }}
       </ActionButton>
     </div>
     <template #description>
-      Optional for public repos; required for private repos, or leaving reviews.<br>
-      Reviews need the <code class="rounded bg-sunken px1 font-medium">repo</code> scope (classic token) or <code class="rounded bg-sunken px1 font-medium">Pull requests: Read and write</code> (fine-grained token)<br>
-      Stored only in this browser.
+      {{ $t('settings.token.optional') }}<br>
+      <i18n-t keypath="settings.token.scopes" scope="global">
+        <template #repo>
+          <code class="rounded bg-sunken px1 font-medium">repo</code>
+        </template>
+        <template #fineGrained>
+          <code class="rounded bg-sunken px1 font-medium">Pull requests: Read and write</code>
+        </template>
+      </i18n-t><br>
+      {{ $t('settings.token.storedLocally') }}
       <br><a
         href="https://github.com/settings/tokens/new?description=pulls.review&scopes=repo"
         target="_blank"
         rel="noopener"
         class="text-primary hover:underline"
-      >Generate one on GitHub →</a>
+      >{{ $t('settings.token.generate') }}</a>
     </template>
   </FormField>
 
@@ -96,7 +103,7 @@ function remove() {
     <template #label>
       <div class="flex items-center gap-1">
         <div class="i-carbon-logo-github text-lg" />
-        GitHub Personal Access Token
+        {{ $t('settings.token.label') }}
       </div>
     </template>
     <div class="flex flex-col gap-2 border border-base rounded bg-raised p-3">
@@ -114,22 +121,22 @@ function remove() {
               :text="scope"
               class="text-xs"
             />
-            <span v-if="!meta.scopes.length" class="text-xs color-faint">Fine-grained token (no classic scopes)</span>
+            <span v-if="!meta.scopes.length" class="text-xs color-faint">{{ $t('settings.token.fineGrained') }}</span>
           </div>
           <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs color-faint">
             <span>
-              Updated <DisplayDate :date="meta.setAt" />
+              {{ $t('settings.token.updated') }} <DisplayDate :date="meta.setAt" />
             </span>
             <span v-if="meta.expiresAt">
-              Expires <DisplayDate :date="meta.expiresAt" />
+              {{ $t('settings.token.expires') }} <DisplayDate :date="meta.expiresAt" />
             </span>
-            <span v-else>Never expires</span>
+            <span v-else>{{ $t('settings.token.neverExpires') }}</span>
           </div>
         </div>
         <ActionIconButton
           icon="i-ph:pencil-simple-duotone"
-          label="Change token"
-          tooltip="Change token"
+          :label="$t('settings.token.change')"
+          :tooltip="$t('settings.token.change')"
           class="text-sm"
           @click="editing = true"
         />
@@ -138,14 +145,14 @@ function remove() {
       <div v-else class="flex items-center gap-2 text-sm color-faint">
         <template v-if="busy">
           <span class="i-ph:circle-notch animate-spin" aria-hidden="true" />
-          Checking token…
+          {{ $t('settings.token.checking') }}
         </template>
         <template v-else>
-          <span class="flex-1 text-red-600 dark:text-red-400">{{ error ?? 'Could not verify this token.' }}</span>
+          <span class="flex-1 text-red-600 dark:text-red-400">{{ error ?? $t('settings.token.couldNotVerify') }}</span>
           <ActionIconButton
             icon="i-ph:pencil-simple-duotone"
-            label="Change token"
-            tooltip="Change token"
+            :label="$t('settings.token.change')"
+            :tooltip="$t('settings.token.change')"
             class="text-sm"
             @click="editing = true"
           />

@@ -24,8 +24,8 @@ function handleSubmit(text: string, title?: string) {
 
 <template>
   <AppModal
-    title="Load a diff"
-    description="Paste or drop a unified diff / .patch file to review it."
+    :title="$t('load.title')"
+    :description="$t('load.description')"
     :open="open"
     :document="document"
     @update:open="emit('update:open', $event ?? false)"

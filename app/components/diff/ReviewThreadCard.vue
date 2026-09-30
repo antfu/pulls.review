@@ -68,17 +68,17 @@ async function sendReply() {
         <FormTextarea
           v-model="replyBody"
           :rows="2"
-          placeholder="Reply…"
+          :placeholder="$t('review.replyPlaceholder')"
           :disabled="busy"
           @keydown.enter.meta="sendReply"
           @keydown.enter.ctrl="sendReply"
         />
         <div class="flex justify-end gap-2">
           <ActionButton size="sm" variant="text" :disabled="busy" @click="replying = false">
-            Cancel
+            {{ $t('common.cancel') }}
           </ActionButton>
           <ActionButton size="sm" variant="primary" :loading="busy" :disabled="!replyBody.trim()" @click="sendReply">
-            Reply
+            {{ $t('common.reply') }}
           </ActionButton>
         </div>
       </template>
@@ -89,11 +89,11 @@ async function sendReply() {
           class="flex-1 border border-base rounded bg-base px-2 py-1 text-left text-sm color-base op-fade hover:op-100"
           @click="replying = true"
         >
-          Reply…
+          {{ $t('review.replyPlaceholder') }}
         </button>
         <div v-else class="flex-1" />
         <ActionButton v-if="canResolve" size="sm" :disabled="busy" icon="i-ph:check-circle-duotone" @click="run(() => reviews.resolveThread(thread.threadId!))">
-          Resolve
+          {{ $t('review.resolve') }}
         </ActionButton>
       </div>
     </footer>

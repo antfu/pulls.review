@@ -26,16 +26,16 @@ the `llm` result.
 
 ## Decisions
 
-| Topic           | Decision                                                                                               |
-| --------------- | ------------------------------------------------------------------------------------------------------ |
-| Agent runtime   | `@earendil-works/pi-agent-core` on `@earendil-works/pi-ai`, replacing the AI SDK for analysis and chat |
-| Agent context   | This PR's `DiffsPayload` only; no repository file reads                                                |
-| Progress        | Shown in the header while analyzing                                                                    |
-| Tests placement | Tests, stories, fixtures go with the feature they cover                                                |
-| Output language | Follows the PR title/description language (chat: follows the user's message)                           |
-| Chat placement  | Floating widget, bottom-right                                                                          |
-| Chat capability | Q&A plus regrouping via a tool                                                                         |
-| Persistence     | Transcript and chat stored in the existing `pr-cache` IndexedDB entry                                  |
+| Topic           | Decision                                                                                                |
+| --------------- | ------------------------------------------------------------------------------------------------------- |
+| Agent runtime   | `@earendil-works/pi-agent-core` on `@earendil-works/pi-ai`, replacing the AI SDK for analysis and chat  |
+| Agent context   | This PR's `DiffsPayload` only; no repository file reads                                                 |
+| Progress        | Shown in the header while analyzing                                                                     |
+| Tests placement | Tests, stories, fixtures go with the feature they cover                                                 |
+| Output language | `settings.locale`, named in the last line of the English user prompt (chat: follows the user's message) |
+| Chat placement  | Floating widget, bottom-right                                                                           |
+| Chat capability | Q&A plus regrouping via a tool                                                                          |
+| Persistence     | Transcript and chat stored in the existing `pr-cache` IndexedDB entry                                   |
 
 ## Provider mapping (`llm/model.ts`)
 
@@ -111,8 +111,8 @@ Static text (cache-friendly), four sections:
   uncertain, batching paths; never read generated/lockfile paths; call
   `submit_grouping` once; if it errors, fix exactly what it names and resubmit.
 - `<output>`: summaries explain why over what, 1-3 sentences of Markdown; `key`
-  kebab-case; `label` at most 4 words; write summaries in the language of the PR
-  title and description.
+  kebab-case; `label` at most 4 words; write summaries in the language named at
+  the end of the user message (`Respond and categorize in <language>.`).
 
 ### Tools (`llm/tools.ts`)
 

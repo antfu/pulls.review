@@ -13,7 +13,7 @@ export default meta
 
 type Story = StoryObj<typeof ShareResultModal>
 
-const grouped = { ...nested.grouped, source: 'llm', model: 'anthropic/claude-sonnet-4' } as GroupedResult
+const grouped = { ...nested.grouped, source: 'llm', model: 'anthropic/claude-sonnet-4', locale: 'en' } as GroupedResult
 
 export const FirstShare: Story = {
   args: { store: createMockDiffsStore({ diff: nested.diff as any, grouped, shared: {} }) },
@@ -21,6 +21,10 @@ export const FirstShare: Story = {
 
 export const UpdateExisting: Story = {
   args: { store: createMockDiffsStore({ diff: nested.diff as any, grouped, shared: { ownComment: { id: 1, url: 'https://github.com/owner/repo/pull/1#issuecomment-1' } } }) },
+}
+
+export const NotEnglish: Story = {
+  args: { store: createMockDiffsStore({ diff: nested.diff as any, grouped: { ...grouped, locale: 'zh-CN' }, shared: {} }) },
 }
 
 export const Failed: Story = {

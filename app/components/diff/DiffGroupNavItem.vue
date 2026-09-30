@@ -58,8 +58,8 @@ const progress = computed(() => {
         </div>
         <div class="flex items-center text-xs">
           <DiffStats :additions="stats.added" :deletions="stats.deleted" />
-          <span class="op-mute">・{{ fileCount }} file{{ fileCount === 1 ? '' : 's' }}</span>
-          <span v-if="subgroupCount" class="op-mute">・{{ subgroupCount }} subgroup{{ subgroupCount === 1 ? '' : 's' }}</span>
+          <span class="op-mute">・{{ $t('common.files', { n: fileCount }, fileCount) }}</span>
+          <span v-if="subgroupCount" class="op-mute">・{{ $t('common.subgroups', { n: subgroupCount }, subgroupCount) }}</span>
         </div>
       </div>
       <DisplayDonut v-if="progress !== 0" :value="progress" :size="18" :thickness="2" />
@@ -69,7 +69,7 @@ const progress = computed(() => {
         :icon="expanded ? 'i-ph:caret-up' : 'i-ph:caret-down'"
         :aria-expanded="expanded"
         class="mr--1 text-xs"
-        :aria-label="expanded ? 'Hide subgroups' : 'Show subgroups'"
+        :aria-label="$t(expanded ? 'group.hideSubgroups' : 'group.showSubgroups')"
         @click.stop="$emit('toggle')"
       />
     </button>

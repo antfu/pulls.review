@@ -2,6 +2,7 @@
 import type { DiffsStore } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { settingsModalOpen } from '../../state/settingsModal'
 import AnalyzeStatusModal from './AnalyzeStatusModal.vue'
 
@@ -9,6 +10,8 @@ const props = defineProps<{
   store: DiffsStore
   document?: Document | ShadowRoot
 }>()
+
+const { t } = useI18n()
 
 // Only rendered when `store.llm` is set - `DiffsHeader` gates on it.
 const llm = computed(() => props.store.llm!)
@@ -27,17 +30,17 @@ const icon = computed(() => {
 
 const label = computed(() => {
   if (llm.value.isAnalyzing)
-    return 'Analyzing…'
+    return t('analyze.analyzing')
   if (llm.value.error)
-    return 'Analysis failed'
-  return hasAiResult.value ? 'Re-analyze' : 'Analyze with AI'
+    return t('analyze.failed')
+  return hasAiResult.value ? t('analyze.reanalyze') : t('analyze.withAi')
 })
 
 const title = computed(() => {
   if (llm.value.isAnalyzing)
-    return llm.value.progress?.message ?? 'Analyzing…'
+    return llm.value.progress?.message ?? t('analyze.analyzing')
   if (llm.value.error)
-    return `AI analysis failed: ${llm.value.error.message}`
+    return t('analyze.failedTitle', { message: llm.value.error.message })
   return undefined
 })
 
@@ -58,7 +61,7 @@ function onClick() {
     variant="primary"
     @click="settingsModalOpen = true"
   >
-    Setup API Keys
+    {{ $t('analyze.setupKeys') }}
   </ActionButton>
   <ActionButton
     v-else-if="!hasAiResult || hasStatus || store.analyzeMode !== 'rule-based'"

@@ -36,7 +36,7 @@ function onFileInput(event: Event) {
 
 <template>
   <div class="flex flex-col gap-3">
-    <FormField label="Paste a unified diff / .patch">
+    <FormField :label="$t('load.pasteLabel')">
       <textarea
         v-model="text"
         rows="10"
@@ -49,11 +49,11 @@ function onFileInput(event: Event) {
       />
     </FormField>
     <label class="cursor-pointer text-sm color-muted">
-      Or choose a .diff/.patch file
+      {{ $t('load.chooseFile') }}
       <input type="file" accept=".diff,.patch,text/plain" class="hidden" @change="onFileInput">
     </label>
     <ActionButton variant="primary" :disabled="!text.trim()" @click="submit">
-      Load diff
+      {{ $t('load.loadButton') }}
     </ActionButton>
   </div>
 </template>

@@ -1,5 +1,6 @@
 import type { DiffCategory, DiffGroup, DiffGroupLeaf } from '../../types/analyze'
 import type { FileChange } from '../../types/diff'
+import { t } from '../../i18n'
 
 export interface ResolvedGroup {
   key: string
@@ -66,7 +67,7 @@ export function resolveGroups(groups: DiffGroup[], files: FileChange[]): Resolve
   const uncategorized = files.filter(file => !referenced.has(file))
   if (uncategorized.length > 0) {
     resolvedGroups.push({
-      ...toResolvedGroup({ key: 'uncategorized', label: 'Uncategorized', summary: 'Files not covered by the current analysis.', category: 'other' }, uncategorized, []),
+      ...toResolvedGroup({ key: 'uncategorized', label: t('group.uncategorized'), summary: t('group.uncategorizedSummary'), category: 'other' }, uncategorized, []),
       children: [],
     })
   }

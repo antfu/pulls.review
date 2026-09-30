@@ -41,5 +41,9 @@
   ],
   "interline-translate.knownPopularWordCount": 6000,
   "iconify.annotations": true,
-  "iconify.inplace": true
+  "iconify.inplace": true,
+  "i18n-ally.localesPaths": [
+    "app/i18n",
+    "app/i18n/locales"
+  ]
 }

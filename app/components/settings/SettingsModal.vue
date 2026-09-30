@@ -20,7 +20,7 @@ const llmModels = useLlmModels()
 
 <template>
   <AppModal
-    title="Settings"
+    :title="$t('common.settings')"
     :open="open"
     :document="document"
     @update:open="emit('update:open', $event ?? false)"

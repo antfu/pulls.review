@@ -19,11 +19,11 @@ const confirmOpen = ref(false)
     class="shrink-0 text-xs"
     variant="text"
     :disabled="shared.isSharing || !shared.canShare"
-    :title="shared.canShare ? 'Post this analysis as a comment on the pull request so others can load it' : 'A GitHub token with write access is required to share'"
+    :title="$t(shared.canShare ? 'share.tooltip' : 'share.needsToken')"
     :icon="shared.isSharing ? 'i-ph:spinner-duotone animate-spin' : 'i-ph:share-network-duotone'"
     @click="confirmOpen = true"
   >
-    {{ shared.isSharing ? 'Sharing…' : shared.ownComment ? 'Update shared comment' : 'Share result' }}
+    {{ $t(shared.isSharing ? 'share.sharing' : shared.ownComment ? 'share.updateButton' : 'share.button') }}
   </ActionButton>
   <!-- <a
     v-if="shared.ownComment && !shared.isSharing"
@@ -32,7 +32,7 @@ const confirmOpen = ref(false)
     rel="noopener"
     class="text-xs op-fade self-center hover:underline"
   >View comment</a> -->
-  <span v-if="shared.error && !confirmOpen" class="max-w-80 self-center truncate text-xs text-red-500" :title="`Sharing failed: ${shared.error.message}`">Sharing failed: {{ shared.error.message }}</span>
+  <span v-if="shared.error && !confirmOpen" class="max-w-80 self-center truncate text-xs text-red-500" :title="$t('share.failed', { message: shared.error.message })">{{ $t('share.failed', { message: shared.error.message }) }}</span>
 
   <ShareResultModal v-model:open="confirmOpen" :store="store" :document="document" />
 </template>

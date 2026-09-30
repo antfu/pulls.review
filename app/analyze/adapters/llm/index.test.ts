@@ -124,8 +124,9 @@ describe('runLlmAnalysis', () => {
     expect(result.source).toBe('llm')
     expect(result.overallSummary).toBe('Adds a feature.')
     expect(result.groups).toEqual([{ key: 'feature', label: 'Feature', category: 'core', filePaths: ['a.ts', 'b.ts'] }])
+    expect(result.locale).toBe('en')
     expect(transcript[0]).toMatchObject({ role: 'system', content: AGENT_SYSTEM_PROMPT })
-    expect(transcript.find(message => message.role !== 'system')).toMatchObject({ role: 'user', content: buildAnalysisPrompt(diff) })
+    expect(transcript.find(message => message.role !== 'system')).toMatchObject({ role: 'user', content: buildAnalysisPrompt(diff, 'en') })
     expect(transcript.filter(message => message.role === 'toolResult')).toHaveLength(2)
   })
 

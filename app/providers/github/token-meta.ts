@@ -1,3 +1,5 @@
+import { t } from '../../i18n'
+
 const GITHUB_API_BASE = 'https://api.github.com'
 
 /** Who a PAT authenticates as, plus what the token itself can do and until when. */
@@ -37,7 +39,7 @@ export async function fetchGithubTokenMeta(token: string): Promise<GithubTokenMe
   })
   if (!res.ok) {
     throw new Error(res.status === 401
-      ? 'GitHub rejected this token (401). Check that it was pasted completely and has not been revoked.'
+      ? t('errors.tokenRejected')
       : `GitHub API request failed (${res.status})`)
   }
   const user: { login: string, avatar_url: string, name: string | null } = await res.json()

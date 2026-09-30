@@ -33,8 +33,8 @@ export const ruleBasedAdapter: AnalyzeAdapter = {
       if (!group) {
         group = {
           key: rule.key,
-          label: rule.label,
-          summary: rule.summary,
+          label: rule.label(),
+          summary: rule.summary(),
           category: rule.category,
           filePaths: [],
         }

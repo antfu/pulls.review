@@ -1,5 +1,7 @@
+import type { Locale } from '../../../i18n/locales'
 import type { DiffsPayload, FileChange } from '../../../types/diff'
 import picomatch from 'picomatch'
+import { promptLanguageName } from '../../../i18n/locales'
 import { GENERATED_PATTERNS } from '../rule-based/rules'
 
 const isGeneratedPath = picomatch(GENERATED_PATTERNS)
@@ -44,12 +46,12 @@ You organize a GitHub pull request's changed files into review groups, so a revi
 <output>
 - "summary" and "overallSummary" explain why over what, in 1-3 sentences of Markdown.
 - "key" is short, stable kebab-case. "label" is at most 4 words.
-- Write summaries in the language of the PR title and description.
+- Write "label", "summary" and "overallSummary" in the language named at the end of the user message. Keep code, paths and identifiers as they are.
 </output>`
 
 export const CHAT_SYSTEM_SECTION = `<chat>
 The grouping has been submitted and the reviewer is now asking follow-up questions about this pull request.
-- Always reply in the same natural language as the user's latest message, even though the diffs, summaries and earlier messages are in English. Keep code, paths and identifiers as they are.
+- Always reply in the same natural language as the user's latest message, whatever language the diffs, summaries and earlier messages are in. Keep code, paths and identifiers as they are.
 - Answer from the diffs. Call read_diffs when you need a file you have not seen or whose diff was omitted.
 - Call update_grouping only when the user asks to change the grouping. Send the complete new grouping; every manifest path must appear exactly once.
 - Be concise; use Markdown and reference files by path.
@@ -105,7 +107,8 @@ export function buildManifest(files: FileChange[]): string {
   return lines.join('\n')
 }
 
-export function buildAnalysisPrompt(diff: DiffsPayload): string {
+/** The first user message. Stays English whatever `locale` is; only the closing instruction names the output language. */
+export function buildAnalysisPrompt(diff: DiffsPayload, locale: Locale): string {
   const parts = [`PR title: ${diff.title}`]
   if (diff.url)
     parts.push(`PR link: ${diff.url}`)
@@ -120,5 +123,6 @@ export function buildAnalysisPrompt(diff: DiffsPayload): string {
   const diffsText = renderFilesAsText(diff.files)
   if (diffsText.length <= INLINE_DIFF_CHAR_LIMIT)
     parts.push(`---DIFFS--- (all diffs included; you may submit directly)\n${diffsText}`)
+  parts.push(`Respond and categorize in ${promptLanguageName(locale)}.`)
   return parts.join('\n\n')
 }

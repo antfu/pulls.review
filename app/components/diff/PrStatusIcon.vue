@@ -23,5 +23,5 @@ const COLOR_CLASS: Record<PullRequestState, string> = {
 </script>
 
 <template>
-  <span :class="[ICON[state], COLOR_CLASS[state]]" class="shrink-0 text-lg" :title="state" />
+  <span :class="[ICON[state], COLOR_CLASS[state]]" class="shrink-0 text-lg" :title="$t(`prState.${state}`)" />
 </template>

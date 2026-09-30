@@ -2,8 +2,8 @@
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import FormTextInput from '@antfu/design/components/Form/FormTextInput.vue'
-import { formatTimeAgo } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import AppHeader from '../components/AppHeader.vue'
 import LandingDemo from '../components/landing/LandingDemo.vue'
@@ -13,6 +13,7 @@ import PullRequestPill from '../components/PullRequestPill.vue'
 import { UPLOAD_SESSION_STORAGE_KEY } from '../composables/uploadSession'
 import { useDocumentTitle } from '../composables/useDocumentTitle'
 import { useRecentPullRequests } from '../composables/useRecentPullRequests'
+import { formatTimeAgo } from '../i18n/time-ago'
 
 const DEMO_PRS = [
   { owner: 'slidevjs', repo: 'slidev', number: 2746, state: 'open', title: 'feat: arrange slides on a grid' },
@@ -22,6 +23,7 @@ const DEMO_PRS = [
 ] as const
 
 const router = useRouter()
+const { locale } = useI18n()
 const url = ref('')
 const loadDiffOpen = ref(false)
 
@@ -91,7 +93,7 @@ useDocumentTitle(() => undefined)
       v-if="isDragging"
       class="pointer-events-none fixed inset-4 z-toast flex items-center justify-center border-4 border-accent-teal-400 rounded-2xl border-dashed bg-accent-teal-400/10 text-lg color-accent-teal font-medium backdrop-blur-sm"
     >
-      Drop to load your diff / .patch file
+      {{ $t('landing.dropHint') }}
     </div>
 
     <main class="mxa max-w-6xl w-full flex flex-1 flex-col gap-20 px-6 py-16 sm:py-20">
@@ -99,7 +101,7 @@ useDocumentTitle(() => undefined)
         <div class="flex flex-col gap-8">
           <LandingHero />
           <p class="max-w-md text-sm leading-relaxed op-fade">
-            Groups changed files, summarizes what matters, review them one scope at a time. Everything works locally in your browser.
+            {{ $t('landing.tagline') }}
           </p>
           <div class="max-w-md flex flex-col gap-2">
             <form class="flex items-stretch gap-2" @submit.prevent="go">
@@ -111,11 +113,11 @@ useDocumentTitle(() => undefined)
                 icon="i-ph-arrow-right-bold"
                 :disabled="!parsed"
               >
-                Open
+                {{ $t('landing.open') }}
               </ActionButton>
             </form>
             <p class="text-xs op-fade">
-              Paste any GitHub pull request URL, or pick a demo below.
+              {{ $t('landing.pasteHint') }}
             </p>
           </div>
         </div>
@@ -125,7 +127,7 @@ useDocumentTitle(() => undefined)
 
       <section v-if="recent.length" class="flex flex-col gap-3">
         <h2 class="text-xs font-mono op-fade">
-          // recently viewed
+          {{ $t('landing.recentlyViewed') }}
         </h2>
         <div class="flex flex-wrap gap-2">
           <PullRequestPill
@@ -140,14 +142,14 @@ useDocumentTitle(() => undefined)
             <span class="flex color-accent-teal">
               <DisplayDonut :value="pr.totalFiles ? pr.reviewedCount / pr.totalFiles : 0" :size="14" :thickness="2.5" color="currentColor" />
             </span>
-            <span class="text-xs op-fade">{{ formatTimeAgo(new Date(pr.lastViewedAt)) }}</span>
+            <span class="text-xs op-fade">{{ formatTimeAgo(new Date(pr.lastViewedAt), locale) }}</span>
           </PullRequestPill>
         </div>
       </section>
 
       <section class="flex flex-col gap-3">
         <h2 class="text-xs font-mono op-fade">
-          // try some demos
+          {{ $t('landing.tryDemos') }}
         </h2>
         <div class="flex flex-wrap gap-2">
           <PullRequestPill
@@ -170,16 +172,21 @@ useDocumentTitle(() => undefined)
             <span class="i-ph:upload-simple-duotone mt-0.5 shrink-0 text-xl color-accent-teal" aria-hidden="true" />
             <div class="flex-1">
               <h2 class="font-semibold">
-                Review a diff without a PR
+                {{ $t('landing.uploadTitle') }}
               </h2>
-              <p class="text-sm op-fade">
-                Upload or paste a unified diff, or drop a <code class="rounded bg-code px-1">.diff</code> / <code class="rounded bg-code px-1">.patch</code> file anywhere on this page.
-              </p>
+              <i18n-t keypath="landing.uploadDescription" tag="p" class="text-sm op-fade" scope="global">
+                <template #diff>
+                  <code class="rounded bg-code px-1">.diff</code>
+                </template>
+                <template #patch>
+                  <code class="rounded bg-code px-1">.patch</code>
+                </template>
+              </i18n-t>
             </div>
           </div>
           <div class="mt-auto flex">
             <ActionButton icon="i-ph:upload-simple-duotone" @click="loadDiffOpen = true">
-              Upload a diff
+              {{ $t('landing.uploadButton') }}
             </ActionButton>
           </div>
         </div>
@@ -189,16 +196,21 @@ useDocumentTitle(() => undefined)
             <span class="i-ph:puzzle-piece-duotone mt-0.5 shrink-0 text-xl color-accent-magenta" aria-hidden="true" />
             <div class="flex-1">
               <h2 class="font-semibold">
-                Use it directly on github.com
+                {{ $t('landing.embedTitle') }}
               </h2>
-              <p class="text-sm op-fade">
-                With <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener" class="color-base hover:underline">Tampermonkey</a> or <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener" class="color-base hover:underline">Violentmonkey</a> installed, a pulls.review drawer appears on every pull request page.
-              </p>
+              <i18n-t keypath="landing.embedDescription" tag="p" class="text-sm op-fade" scope="global">
+                <template #tampermonkey>
+                  <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener" class="color-base hover:underline">Tampermonkey</a>
+                </template>
+                <template #violentmonkey>
+                  <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener" class="color-base hover:underline">Violentmonkey</a>
+                </template>
+              </i18n-t>
             </div>
           </div>
           <div class="mt-auto flex">
             <ActionButton href="https://pulls.review/pulls-review-github.user.js" icon="i-ph:download-duotone">
-              Install userscript
+              {{ $t('landing.installUserscript') }}
             </ActionButton>
           </div>
         </div>

@@ -15,8 +15,8 @@ defineEmits<{
     class="shrink-0"
     :class="showThreads ? '' : 'op-fade'"
     :icon="showThreads ? 'i-ph:chats-duotone' : 'i-ph:chats'"
-    :label="showThreads ? 'Hide review comments' : 'Show review comments'"
-    :tooltip="showThreads ? 'Hide review comments' : 'Show review comments'"
+    :label="$t(showThreads ? 'review.hideComments' : 'review.showComments')"
+    :tooltip="$t(showThreads ? 'review.hideComments' : 'review.showComments')"
     @click="$emit('update:showThreads', !showThreads)"
   />
 </template>

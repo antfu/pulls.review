@@ -2,6 +2,7 @@
 import type { DiffsStore } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppModal from '../AppModal.vue'
 import GithubAvatar from '../GithubAvatar.vue'
 
@@ -15,8 +16,21 @@ const emit = defineEmits<{
   'update:open': [open: boolean]
 }>()
 
+const { t } = useI18n()
+
 // Only opened when both are set - `DiffShareButton` gates on them.
 const shared = computed(() => props.store.shared!)
+// Results from before the language setting existed carry no locale and get no nudge.
+const notEnglish = computed(() => {
+  const locale = props.store.aiResult?.locale
+  return locale !== undefined && locale !== 'en'
+})
+
+const confirmLabel = computed(() => {
+  if (shared.value.ownComment)
+    return notEnglish.value ? t('share.updateAnyway') : t('share.update')
+  return notEnglish.value ? t('share.shareAnyway') : t('share.share')
+})
 
 async function confirm() {
   await shared.value.share()
@@ -27,49 +41,52 @@ async function confirm() {
 
 <template>
   <AppModal
-    :title="shared.ownComment ? 'Update your shared analysis' : 'Share this analysis on GitHub'"
+    :title="$t(shared.ownComment ? 'share.titleUpdate' : 'share.titleShare')"
     :open="open"
     :document="document"
     @update:open="emit('update:open', $event)"
   >
     <div class="w-full flex flex-col gap-3 text-sm">
-      <p>
-        <template v-if="shared.ownComment">
-          Your existing <a :href="shared.ownComment.url" target="_blank" rel="noopener" class="underline">comment</a> on this pull request will be updated
+      <i18n-t :keypath="shared.ownComment ? 'share.willUpdate' : 'share.willPost'" tag="p" scope="global">
+        <template #comment>
+          <a :href="shared.ownComment?.url" target="_blank" rel="noopener" class="underline">{{ $t('share.commentLink') }}</a>
         </template>
-        <template v-else>
-          A public comment will be posted on this pull request
+        <template #user>
+          <span v-if="shared.viewerLogin" class="inline-flex items-center gap-1 align-middle">
+            <span class="h-4 w-4 overflow-hidden rounded-full"><GithubAvatar :login="shared.viewerLogin" :size="16" /></span>
+            <strong>{{ shared.viewerLogin }}</strong>
+          </span>
+          <template v-else>
+            {{ $t('common.you') }}
+          </template>
         </template>
-        as
-        <span v-if="shared.viewerLogin" class="inline-flex items-center gap-1 align-middle">
-          <span class="h-4 w-4 overflow-hidden rounded-full"><GithubAvatar :login="shared.viewerLogin" :size="16" /></span>
-          <strong>{{ shared.viewerLogin }}</strong>
-        </span>
-        <template v-else>
-          you
-        </template>
-        with your GitHub token.
-      </p>
+      </i18n-t>
 
       <div class="flex flex-col gap-1">
         <p class="op-fade">
-          The comment contains:
+          {{ $t('share.contains') }}
         </p>
         <ul class="flex flex-col list-disc gap-0.5 pl-5">
-          <li>a link to open this review on <span class="text-primary font-bold">pulls.review</span></li>
-          <li>
-            the grouping and summaries of this AI analysis
-            as JSON inside a collapsed block
-          </li>
+          <i18n-t keypath="share.containsLink" tag="li" scope="global">
+            <template #site>
+              <span class="text-primary font-bold">pulls.review</span>
+            </template>
+          </i18n-t>
+          <li>{{ $t('share.containsJson') }}</li>
         </ul>
         <p class="op-fade">
-          Your chat messages, API keys, or anything else from your settings will not be included.
+          {{ $t('share.excludes') }}
         </p>
       </div>
 
       <p class="op-fade">
-        Anyone viewing the pull request can load the shared analysis.
+        {{ $t('share.anyoneCanLoad') }}
       </p>
+
+      <div v-if="notEnglish" class="flex items-start gap-2 border border-amber:20 rounded-lg bg-amber:10 px-3 py-2 text-amber-700 dark:text-amber-400">
+        <span class="i-ph:globe-duotone mt-0.5 shrink-0" aria-hidden="true" />
+        <span>{{ $t('share.englishRecommended') }}</span>
+      </div>
 
       <p v-if="shared.error" class="text-red-600 dark:text-red-400">
         {{ shared.error.message }}
@@ -77,10 +94,10 @@ async function confirm() {
 
       <div class="flex justify-end gap-2">
         <ActionButton variant="text" :disabled="shared.isSharing" @click="emit('update:open', false)">
-          Cancel
+          {{ $t('common.cancel') }}
         </ActionButton>
         <ActionButton variant="primary" icon="i-ph:share-network-duotone" :loading="shared.isSharing" @click="confirm">
-          {{ shared.ownComment ? 'Update comment' : 'Post comment' }}
+          {{ confirmLabel }}
         </ActionButton>
       </div>
     </div>

@@ -5,7 +5,8 @@ import type { GroupedResult } from '../types/analyze'
 import type { LlmSession } from '../types/cache'
 import type { DiffsPayload } from '../types/diff'
 import { computed, getCurrentScope, onScopeDispose, ref, shallowRef, toRaw } from 'vue'
-import { NOT_CONFIGURED_MESSAGE, resolveModel } from '../analyze/adapters/llm/model'
+import { notConfiguredError, resolveModel } from '../analyze/adapters/llm/model'
+import { t } from '../i18n'
 
 export interface LlmChatOptions {
   diff: Ref<DiffsPayload | undefined>
@@ -38,7 +39,7 @@ export function useLlmChat({ diff, session, onSessionChange, onGroupingUpdate }:
       return
     const resolved = resolveModel()
     if (!resolved) {
-      error.value = new Error(NOT_CONFIGURED_MESSAGE)
+      error.value = notConfiguredError()
       return
     }
 
@@ -78,7 +79,7 @@ export function useLlmChat({ diff, session, onSessionChange, onGroupingUpdate }:
       await onSessionChange(next)
       const last = next.messages.at(-1)
       if (isErrorReply(last))
-        error.value = new Error(last.errorMessage ?? 'Chat request failed')
+        error.value = new Error(last.errorMessage ?? t('analyze.chatFailed'))
     }
     catch (err) {
       if (!isStale())

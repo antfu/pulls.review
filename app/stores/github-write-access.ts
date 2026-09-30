@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { resolveStoredTokenMeta } from '../composables/useGithubTokenMeta'
+import { t } from '../i18n'
 import { GithubApiError } from '../providers/github/api'
 
 export const WRITE_BLOCKED_MESSAGE = 'This token cannot write to this repository. It needs the "repo" scope (classic token) or "Pull requests: Read and write" permission (fine-grained token).'
@@ -28,7 +29,7 @@ export function createGithubWriteAccess(token: string | undefined) {
   /** Wraps every write: a 403 means the token can't write here - flip the session read-only. */
   async function write<T>(action: (token: string) => Promise<T>): Promise<T> {
     if (!token)
-      throw new Error('A GitHub token is required to write to this pull request.')
+      throw new Error(t('errors.tokenRequired'))
     try {
       return await action(token)
     }

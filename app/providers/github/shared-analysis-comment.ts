@@ -1,6 +1,7 @@
 import type { SharedAnalysis } from '../../types/shared-analysis'
 import { compressToBase64, decompressFromBase64 } from 'lz-string'
 import * as v from 'valibot'
+import { t } from '../../i18n'
 import { SharedAnalysisSchema } from '../../types/shared-analysis'
 import { githubRequest } from './review-api'
 
@@ -72,7 +73,7 @@ export function renderSharedAnalysisComment(pr: PullRequestRef, login: string, a
     return plain
   const compressed = render(true)
   if (compressed.length > MAX_BODY_LENGTH)
-    throw new Error(`The analysis is too large to share as a comment (${compressed.length} characters).`)
+    throw new Error(t('errors.tooLarge', { n: compressed.length }))
   return compressed
 }
 

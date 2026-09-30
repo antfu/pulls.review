@@ -4,6 +4,7 @@ import type { DiffsStoreReviews } from './types'
 import { computed, reactive, ref } from 'vue'
 import { setReviewData } from '../cache/pr-cache'
 import { getDefaultCacheStorage } from '../cache/storage'
+import { t } from '../i18n'
 import {
   createPendingReview,
   createReview,
@@ -102,7 +103,7 @@ export function createReviewsStore(params: { owner: string, repo: string, number
       }
       const headSha = opts.getHeadSha()
       if (!headSha)
-        throw new Error('The diff has not finished loading yet.')
+        throw new Error(t('errors.diffNotLoaded'))
       const input = {
         body,
         commitId: headSha,

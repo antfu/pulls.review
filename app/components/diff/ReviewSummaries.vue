@@ -12,10 +12,10 @@ defineProps<{
 const open = ref(false)
 
 const STATE_DISPLAY = {
-  approved: { label: 'approved', icon: 'i-ph:check-circle-duotone text-green-600 dark:text-green-400' },
-  changes_requested: { label: 'requested changes', icon: 'i-ph:x-circle-duotone text-red-600 dark:text-red-400' },
-  commented: { label: 'commented', icon: 'i-ph:chat-circle-dots-duotone op-fade' },
-  dismissed: { label: 'review dismissed', icon: 'i-ph:prohibit op-mute' },
+  approved: { label: 'review.approved', icon: 'i-ph:check-circle-duotone text-green-600 dark:text-green-400' },
+  changes_requested: { label: 'review.changesRequested', icon: 'i-ph:x-circle-duotone text-red-600 dark:text-red-400' },
+  commented: { label: 'review.commented', icon: 'i-ph:chat-circle-dots-duotone op-fade' },
+  dismissed: { label: 'review.dismissed', icon: 'i-ph:prohibit op-mute' },
 } as const
 </script>
 
@@ -28,7 +28,7 @@ const STATE_DISPLAY = {
       @click="open = !open"
     >
       <span :class="open ? 'i-ph:caret-down' : 'i-ph:caret-right'" aria-hidden="true" />
-      <span class="font-medium">Reviews</span>
+      <span class="font-medium">{{ $t('review.reviews') }}</span>
       <span class="font-mono op-mute">{{ summaries.length }}</span>
     </button>
     <ul v-if="open" class="border-t border-base divide-y divide-#9992">
@@ -37,7 +37,7 @@ const STATE_DISPLAY = {
           <span :class="STATE_DISPLAY[summary.state].icon" aria-hidden="true" />
           <GithubAvatar v-if="summary.author" :login="summary.author.login" :avatar-url="summary.author.avatarUrl" :size="16" />
           <span class="font-medium">{{ summary.author?.login ?? 'ghost' }}</span>
-          <span class="op-fade">{{ STATE_DISPLAY[summary.state].label }}</span>
+          <span class="op-fade">{{ $t(STATE_DISPLAY[summary.state].label) }}</span>
           <DisplayDate v-if="summary.submittedAt" :date="summary.submittedAt" class="text-xs op-fade" />
         </div>
         <Suspense v-if="summary.body">

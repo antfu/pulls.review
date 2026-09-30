@@ -28,7 +28,7 @@ useEventListener(() => props.document ?? document, 'scroll', (event) => {
         target="_blank"
         rel="noopener"
         icon="i-carbon-logo-github"
-        label="GitHub repository"
+        :label="$t('common.githubRepository')"
         tooltip="GitHub"
       />
     </NavControls>

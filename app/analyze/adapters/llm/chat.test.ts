@@ -45,7 +45,7 @@ let resolved: ResolvedModel
 
 async function analysisTranscript(): Promise<AgentMessage[]> {
   faux.setResponses([toolUse('read_diffs', { paths: ['a.ts'] }), toolUse('submit_grouping', oneGroup('a.ts', 'b.ts'))])
-  const { transcript } = await runAgent(diff, resolved)
+  const { transcript } = await runAgent(diff, resolved, 'en')
   faux.state.callCount = 0
   return transcript
 }

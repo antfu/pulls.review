@@ -112,6 +112,8 @@ export const GroupedResultSchema = v.object({
   model: v.optional(v.string()),
   /** Login of the user whose shared PR comment this result was loaded from (see plans/07). */
   sharedBy: v.optional(v.string()),
+  /** BCP 47 tag of the language the summaries were written in; absent on rule-based results and on llm results from before the setting existed. */
+  locale: v.optional(v.string()),
 })
 export type GroupedResult = v.InferOutput<typeof GroupedResultSchema>
 

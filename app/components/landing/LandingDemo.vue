@@ -162,7 +162,7 @@ useIntersectionObserver(root, ([entry]) => {
   <div ref="root" class="select-none rounded-lg p4 text-xs lt-md:border lt-md:border-base" aria-hidden="true">
     <!-- TODO: the text should be dynamically "// before" / "// after" along the animation -->
     <h2 v-if="showHeader" class="mb2 text-xs font-mono op-fade">
-      // demo
+      {{ $t('landing.demo') }}
     </h2>
 
     <div class="flex items-start gap-2">
@@ -176,7 +176,7 @@ useIntersectionObserver(root, ([entry]) => {
         <div class="grid grid-cols-1 mt-1.5">
           <span data-total class="col-start-1 row-start-1 flex items-center self-start gap-2" :class="{ 'op-0': settled }">
             <DiffStats :additions="DEMO_PR.additions" :deletions="DEMO_PR.deletions" />
-            <span class="whitespace-nowrap op-fade">{{ DEMO_PR.files }} files</span>
+            <span class="whitespace-nowrap op-fade">{{ $t('common.files', { n: DEMO_PR.files }, DEMO_PR.files) }}</span>
           </span>
           <span data-summary class="col-start-1 row-start-1 flex items-start gap-1.5" :class="{ 'op-0': !settled }">
             <span class="i-ph-sparkle-duotone mt-0.5 shrink-0 color-accent-magenta" />
@@ -198,7 +198,7 @@ useIntersectionObserver(root, ([entry]) => {
           <span class="min-w-0 truncate"><span class="op-fade">{{ file.dir }}</span>{{ file.base }}</span>
         </li>
         <li data-tail class="h-8 flex items-center op-fade">
-          ... {{ hiddenFiles }} more files
+          {{ $t('landing.moreFiles', { n: hiddenFiles }) }}
         </li>
       </ul>
 
@@ -210,7 +210,7 @@ useIntersectionObserver(root, ([entry]) => {
             <span data-label class="min-w-0 truncate text-sm font-medium">{{ group.label }}</span>
             <span class="flex-1" />
             <DiffStats :additions="group.additions" :deletions="group.deletions" />
-            <span class="whitespace-nowrap op-fade">{{ group.files }} files</span>
+            <span class="whitespace-nowrap op-fade">{{ $t('common.files', { n: group.files }, group.files) }}</span>
             <span class="grid size-4 shrink-0 place-items-center color-accent-teal">
               <span data-donut class="col-start-1 row-start-1 flex" :class="{ 'op-0': settled }">
                 <DisplayDonut :value="settled ? 1 : progress[i]!.value" :size="14" :thickness="2.5" color="currentColor" />
@@ -230,7 +230,7 @@ useIntersectionObserver(root, ([entry]) => {
               <span class="min-w-0 truncate"><span class="op-fade">{{ file.dir }}</span>{{ file.base }}</span>
             </li>
             <li v-if="group.hidden" data-detail class="h-6 flex items-center" :class="{ 'op-0': !settled }">
-              <span class="op-fade">... {{ group.hidden }} more files</span>
+              <span class="op-fade">{{ $t('landing.moreFiles', { n: group.hidden }) }}</span>
             </li>
           </ul>
         </div>

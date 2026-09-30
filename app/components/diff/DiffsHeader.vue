@@ -5,6 +5,7 @@ import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.v
 import ActionToggleGroup from '@antfu/design/components/Action/ActionToggleGroup.vue'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { parseGithubDiffId } from '../../providers/github/diff-id'
 import GithubAvatar from '../GithubAvatar.vue'
@@ -25,6 +26,8 @@ const props = defineProps<{
   scrollY: number
 }>()
 
+const { t } = useI18n()
+
 // `store.diff` is guaranteed set - `DiffsPage` only renders this component once it is.
 const meta = computed(() => props.store.diff!)
 const groups = computed(() => props.store.groups)
@@ -39,8 +42,8 @@ const progress = computed(() => totalFiles.value === 0 ? 1 : reviewedCount.value
 
 const aiResult = computed(() => props.store.aiResult)
 const analyzeOptions = computed(() => [
-  { value: 'rule-based', label: 'Rules' },
-  { value: aiResult.value?.source ?? 'llm', label: 'AI', icon: 'i-ph-sparkle-duotone' },
+  { value: 'rule-based', label: t('pr.rules') },
+  { value: aiResult.value?.source ?? 'llm', label: t('pr.ai'), icon: 'i-ph-sparkle-duotone' },
 ])
 // Share is for results the viewer generated - a loaded shared result is credited, not re-shared.
 const canShareResult = computed(() => props.store.shared && props.store.llm && aiResult.value && !aiResult.value.sharedBy)
@@ -72,7 +75,7 @@ function scrollToGroup(key: string) {
           <ActionIconButton
             v-if="meta.provider === 'github'"
             icon="i-ph:arrows-clockwise-duotone"
-            label="Refresh" tooltip="Refresh"
+            :label="$t('common.refresh')" :tooltip="$t('common.refresh')"
             class="shrink-0 text-sm" @click="store.refresh()"
           />
         </h1>
@@ -81,7 +84,7 @@ function scrollToGroup(key: string) {
           v-if="aiResult"
           class="flex shrink-0 items-center gap-1.5 text-sm"
         >
-          <span class="op-fade">Analyze by</span>
+          <span class="op-fade">{{ $t('pr.analyzeBy') }}</span>
           <ActionToggleGroup
             :model-value="store.analyzeMode"
             :options="analyzeOptions"
@@ -104,7 +107,7 @@ function scrollToGroup(key: string) {
           <span>{{ githubRef.owner }}/{{ githubRef.repo }}</span>
         </a>
         <span v-if="meta.pullRequest?.author" class="flex items-center gap-1.5">
-          <span class="op-fade">by</span>
+          <span class="op-fade">{{ $t('pr.by') }}</span>
           <GithubAvatar :login="meta.pullRequest.author" :size="16" />
           <span class="op-fade">{{ meta.pullRequest.author }}</span>
         </span>
@@ -114,7 +117,7 @@ function scrollToGroup(key: string) {
           <span class="border border-base rounded bg-code px-2 py-0.5 text-xs font-mono">{{ meta.head.ref }}</span>
         </span>
         <span v-if="aiResult?.sharedBy && store.analyzeMode !== 'rule-based'" class="flex items-center gap-1.5 border border-base rounded px2" :title="aiResult.model">
-          Viewing AI analysis shared by
+          {{ $t('pr.sharedBy') }}
           <GithubAvatar :login="aiResult.sharedBy" :size="16" />
           {{ aiResult.sharedBy }}
         </span>
@@ -148,7 +151,7 @@ function scrollToGroup(key: string) {
         <div class="flex items-center self-end gap-2 pt-2 text-sm">
           <DiffStats :additions="additions" :deletions="deletions" />
           <DisplayDonut :value="progress" :size="18" :thickness="3" />
-          <span class="shrink-0 whitespace-nowrap">{{ reviewedCount }} <span class="text-xs opacity-50">/ {{ totalFiles }} reviewed</span></span>
+          <span class="shrink-0 whitespace-nowrap">{{ reviewedCount }} <span class="text-xs opacity-50">{{ $t('pr.reviewedOf', { total: totalFiles }) }}</span></span>
           <DiffReviewButton
             v-if="reviews?.canWrite"
             :pending-comment-count="reviews.pendingCommentCount"

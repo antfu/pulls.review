@@ -1041,3 +1041,5 @@ tests/__snapshots__/tsnapi/devframe/
      importFrom: string;
      importName?: string;
    };
+
+Respond and categorize in English.

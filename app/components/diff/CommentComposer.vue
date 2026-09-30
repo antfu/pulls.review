@@ -29,7 +29,7 @@ function submit(mode: 'single' | 'review') {
     <FormTextarea
       v-model="body"
       :rows="3"
-      placeholder="Leave a comment"
+      :placeholder="$t('review.leaveComment')"
       :disabled="busy"
       :invalid="!!error"
       @keydown.enter.meta="submit('review')"
@@ -40,7 +40,7 @@ function submit(mode: 'single' | 'review') {
     </p>
     <div class="flex flex-wrap justify-end gap-2">
       <ActionButton size="sm" variant="text" :disabled="busy" @click="emit('cancel')">
-        Cancel
+        {{ $t('common.cancel') }}
       </ActionButton>
       <ActionButton
         v-if="!props.hasPendingReview"
@@ -48,7 +48,7 @@ function submit(mode: 'single' | 'review') {
         :disabled="busy || !body.trim()"
         @click="submit('single')"
       >
-        Add single comment
+        {{ $t('review.addSingle') }}
       </ActionButton>
       <ActionButton
         size="sm"
@@ -57,7 +57,7 @@ function submit(mode: 'single' | 'review') {
         :disabled="!body.trim()"
         @click="submit('review')"
       >
-        {{ hasPendingReview ? 'Add review comment' : 'Start a review' }}
+        {{ $t(hasPendingReview ? 'review.addToReview' : 'review.startReview') }}
       </ActionButton>
     </div>
   </div>

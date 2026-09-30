@@ -1,11 +1,13 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
+import type { Locale } from '../../../i18n/locales'
 import type { AnalyzeAdapter, DiffGroup, GroupedResult, GroupedResultCore } from '../../../types/analyze'
 import type { DiffsPayload } from '../../../types/diff'
 import type { LlmAnalyzeOptions } from './agent'
 import type { ResolvedModel } from './model'
 import type { Analysis } from './schema'
+import { settings } from '../../../state/settings'
 import { normalizeGroupedResult } from '../../../types/analyze'
-import { NOT_COMPILED_MESSAGE, NOT_CONFIGURED_MESSAGE, resolveModel } from './model'
+import { NOT_COMPILED_MESSAGE, notConfiguredError, resolveModel } from './model'
 
 export const LLM_SCHEMA_VERSION = 1
 
@@ -44,13 +46,13 @@ function reconcile(diff: DiffsPayload, analysis: Analysis): DiffGroup[] {
   return groups
 }
 
-export function toGroupedResult(diff: DiffsPayload, analysis: Analysis, resolved: ResolvedModel): GroupedResult {
+export function toGroupedResult(diff: DiffsPayload, analysis: Analysis, resolved: ResolvedModel, locale: Locale): GroupedResult {
   const core: GroupedResultCore = {
     overallSummary: analysis.overallSummary,
     groups: reconcile(diff, analysis),
     schemaVersion: LLM_SCHEMA_VERSION,
   }
-  return normalizeGroupedResult('llm', core, `${resolved.model.provider}/${resolved.model.id}`)
+  return { ...normalizeGroupedResult('llm', core, `${resolved.model.provider}/${resolved.model.id}`), locale }
 }
 
 export async function runLlmAnalysis(diff: DiffsPayload, options?: LlmAnalyzeOptions): Promise<{ result: GroupedResult, transcript: AgentMessage[] }> {
@@ -60,11 +62,13 @@ export async function runLlmAnalysis(diff: DiffsPayload, options?: LlmAnalyzeOpt
     throw new Error(NOT_COMPILED_MESSAGE)
   const resolved = resolveModel()
   if (!resolved)
-    throw new Error(NOT_CONFIGURED_MESSAGE)
+    throw notConfiguredError()
 
+  // Read once per run so a mid-run settings change can't split the prompt and the stamp.
+  const locale = settings.value.locale
   const { runAgent } = await import('./agent')
-  const { analysis, transcript } = await runAgent(diff, resolved, options)
-  return { result: toGroupedResult(diff, analysis, resolved), transcript }
+  const { analysis, transcript } = await runAgent(diff, resolved, locale, options)
+  return { result: toGroupedResult(diff, analysis, resolved, locale), transcript }
 }
 
 export const llmAdapter: AnalyzeAdapter = {

@@ -5,6 +5,7 @@ import type { DiffsStoreShared, SharedAnalysisCandidate } from './types'
 import { reactive, ref } from 'vue'
 import { setSharedComment } from '../cache/pr-cache'
 import { getDefaultCacheStorage } from '../cache/storage'
+import { t } from '../i18n'
 import { GithubApiError } from '../providers/github/api'
 import {
   createIssueComment,
@@ -88,7 +89,7 @@ export function createSharedAnalysisStore(pr: { owner: string, repo: string, num
           await apply(toCandidate(target))
         return
       }
-      notice.value = `${from} has not shared an analysis of this pull request.`
+      notice.value = t('share.notShared', { login: from })
       if (current)
         return
     }
@@ -117,7 +118,7 @@ export function createSharedAnalysisStore(pr: { owner: string, repo: string, num
       await access.write(async (auth) => {
         const login = access.viewerLogin.value
         if (!login)
-          throw new Error('Could not determine the GitHub user of this token.')
+          throw new Error(t('errors.noViewer'))
         const body = renderSharedAnalysisComment(pr, login, { headSha: diff.head?.sha ?? '', result })
 
         let comment = ownComment.value

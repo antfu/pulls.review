@@ -105,7 +105,7 @@ function navigateToFile(sha: string) {
             compact
             class="ml--5 py2 op-mute hover:op-100"
             :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
-            label="Toggle group"
+            :label="$t('group.toggle')"
             as="span"
           />
           <div class="min-w-0 flex flex-1 flex-col gap-1.5">
@@ -115,8 +115,8 @@ function navigateToFile(sha: string) {
             </div>
             <div class="flex items-center gap-2 leading-1em">
               <DiffStats :additions="totalAdded" :deletions="totalDeleted" />
-              <span class="text-xs op-fade">{{ totalFiles }} file{{ totalFiles === 1 ? '' : 's' }}</span>
-              <span class="text-xs op-fade">{{ group.children.length }} subgroup{{ group.children.length === 1 ? '' : 's' }}</span>
+              <span class="text-xs op-fade">{{ $t('common.files', { n: totalFiles }, totalFiles) }}</span>
+              <span class="text-xs op-fade">{{ $t('common.subgroups', { n: group.children.length }, group.children.length) }}</span>
               <DisplayDonut :value="progress" :size="12" :thickness="2.5" />
             </div>
           </div>
@@ -163,7 +163,7 @@ function navigateToFile(sha: string) {
                 compact
                 class="ml--5 py1.5 op-mute hover:op-100"
                 :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
-                label="Toggle group"
+                :label="$t('group.toggle')"
                 as="span"
               />
               <div class="min-w-0 flex-1">
@@ -177,11 +177,11 @@ function navigateToFile(sha: string) {
                   >
                     <span ref="labelText">{{ group.label }}</span>
                   </span>
-                  <div class="flex shrink-0 items-center" :title="`${reviewedCount} / ${totalFiles} files reviewed`" />
+                  <div class="flex shrink-0 items-center" :title="$t('group.filesReviewed', { reviewed: reviewedCount, total: totalFiles })" />
                 </div>
                 <div class="flex items-center gap-2 leading-1em">
                   <DiffStats :additions="totalAdded" :deletions="totalDeleted" />
-                  <span class="text-xs op-fade">{{ totalFiles }} file{{ totalFiles === 1 ? '' : 's' }}</span>
+                  <span class="text-xs op-fade">{{ $t('common.files', { n: totalFiles }, totalFiles) }}</span>
                   <DisplayDonut :value="progress" :size="12" :thickness="2.5" />
                 </div>
               </div>

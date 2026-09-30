@@ -63,7 +63,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
             </p>
             <slot name="header" />
           </div>
-          <button type="button" class="btn-icon h-7 w-7 shrink-0" aria-label="Close" @click="close">
+          <button type="button" class="btn-icon h-7 w-7 shrink-0" :aria-label="$t('common.close')" @click="close">
             <span class="i-ph:x" aria-hidden="true" />
           </button>
         </header>

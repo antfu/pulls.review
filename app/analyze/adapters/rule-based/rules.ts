@@ -1,13 +1,15 @@
 import type { DiffCategory } from '../../../types/analyze'
+import { t } from '../../../i18n'
 
 export interface GroupRule {
   key: string
-  label: string
+  /** Resolved when the adapter runs, so the text follows the current UI language. */
+  label: () => string
   /**
    * No LLM available: a plain, deterministic blurb rather than an empty summary
    * field, so the UI always has something to show above a group's file tree.
    */
-  summary: string
+  summary: () => string
   category: DiffCategory
   patterns?: string[]
 }
@@ -31,8 +33,8 @@ export const GENERATED_PATTERNS = [
 /** Fallback for text files no pattern matches. */
 export const codeRule: GroupRule = {
   key: 'code',
-  label: 'Code',
-  summary: 'Source changes.',
+  label: () => t('rules.code.label'),
+  summary: () => t('rules.code.summary'),
   category: 'core',
 }
 
@@ -42,8 +44,8 @@ export const codeRule: GroupRule = {
  */
 export const otherRule: GroupRule = {
   key: 'other',
-  label: 'Other',
-  summary: 'Other changes that don\'t fit an existing category.',
+  label: () => t('rules.other.label'),
+  summary: () => t('rules.other.summary'),
   category: 'other',
 }
 
@@ -56,8 +58,8 @@ export const otherRule: GroupRule = {
 export const defaultRules: GroupRule[] = [
   {
     key: 'docs',
-    label: 'Docs',
-    summary: 'Documentation updates.',
+    label: () => t('rules.docs.label'),
+    summary: () => t('rules.docs.summary'),
     category: 'docs',
     patterns: [
       '**/*.md',
@@ -70,8 +72,8 @@ export const defaultRules: GroupRule[] = [
   codeRule,
   {
     key: 'tests',
-    label: 'Tests',
-    summary: 'Test coverage for the change.',
+    label: () => t('rules.tests.label'),
+    summary: () => t('rules.tests.summary'),
     category: 'tests',
     patterns: [
       '**/*.test.*',
@@ -83,8 +85,8 @@ export const defaultRules: GroupRule[] = [
   },
   {
     key: 'config',
-    label: 'Config',
-    summary: 'Configuration changes.',
+    label: () => t('rules.config.label'),
+    summary: () => t('rules.config.summary'),
     category: 'config',
     patterns: [
       '*.config.*',
@@ -103,8 +105,8 @@ export const defaultRules: GroupRule[] = [
   // something a reviewer edits by hand - see GENERATED_PATTERNS above.
   {
     key: 'deps',
-    label: 'Dependencies',
-    summary: 'Dependency version changes.',
+    label: () => t('rules.deps.label'),
+    summary: () => t('rules.deps.summary'),
     category: 'deps',
     patterns: [
       '**/package.json',
@@ -115,8 +117,8 @@ export const defaultRules: GroupRule[] = [
   },
   {
     key: 'generated',
-    label: 'Generated',
-    summary: 'Generated or build output changes.',
+    label: () => t('rules.generated.label'),
+    summary: () => t('rules.generated.summary'),
     category: 'other',
     patterns: GENERATED_PATTERNS,
   },

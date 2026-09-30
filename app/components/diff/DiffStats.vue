@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 defineProps<{
   additions: number | undefined
   deletions: number | undefined
 }>()
 
-const format = (n: number) => n.toLocaleString('en-US')
+const { locale } = useI18n()
+const format = (n: number) => n.toLocaleString(locale.value)
 </script>
 
 <template>

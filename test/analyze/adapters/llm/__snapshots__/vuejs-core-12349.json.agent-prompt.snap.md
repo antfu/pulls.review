@@ -2317,3 +2317,5 @@ packages/runtime-core/src/
      setupFiles: 'scripts/setup-vitest.ts',
      environmentMatchGlobs: [
        ['packages/{vue,vue-compat,runtime-dom}/**', 'jsdom'],
+
+Respond and categorize in English.

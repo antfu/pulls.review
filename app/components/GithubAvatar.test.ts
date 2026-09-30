@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { i18n } from '../i18n'
 import GithubAvatar from './GithubAvatar.vue'
 
 describe('github avatar source', () => {
@@ -7,6 +8,7 @@ describe('github avatar source', () => {
     const avatarUrl = 'https://avatars.githubusercontent.com/in/1144995?v=4'
     const wrapper = mount(GithubAvatar, {
       props: { login: 'chatgpt-codex-connector[bot]', avatarUrl, size: 18 },
+      global: { plugins: [i18n] },
     })
 
     expect(wrapper.find('img').attributes('src')).toBe(avatarUrl)
@@ -15,6 +17,7 @@ describe('github avatar source', () => {
   it('removes the bot suffix when only a login is available', () => {
     const wrapper = mount(GithubAvatar, {
       props: { login: 'chatgpt-codex-connector[bot]', size: 18 },
+      global: { plugins: [i18n] },
     })
 
     expect(wrapper.find('img').attributes('src')).toBe('https://github.com/chatgpt-codex-connector.png?size=36')
@@ -23,6 +26,7 @@ describe('github avatar source', () => {
   it('keeps a fixed-size accessible placeholder when the image fails', async () => {
     const wrapper = mount(GithubAvatar, {
       props: { login: 'chatgpt-codex-connector[bot]', size: 18 },
+      global: { plugins: [i18n] },
     })
 
     await wrapper.find('img').trigger('error')

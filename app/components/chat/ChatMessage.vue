@@ -4,6 +4,7 @@ import type { ToolCall } from '@earendil-works/pi-ai'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import { Markdown } from '@comark/vue'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   message: AgentMessage
@@ -11,6 +12,8 @@ const props = defineProps<{
 }>()
 
 defineEmits<{ retry: [] }>()
+
+const { t } = useI18n()
 
 function textOf(content: string | { type: string, text?: string }[]) {
   return typeof content === 'string' ? content : content.map(part => part.text ?? '').join('\n')
@@ -23,7 +26,7 @@ const groupingNotice = computed(() => {
   if (message.role !== 'toolResult' || message.toolName !== 'update_grouping' || message.isError)
     return undefined
   const count = textOf(message.content).match(/(\d+) groups?/)?.[1]
-  return count ? `Updated grouping: ${count} groups` : undefined
+  return count ? t('chat.updatedGrouping', { n: count }) : undefined
 })
 
 const toolError = computed(() => {
@@ -34,12 +37,13 @@ const toolError = computed(() => {
 function toolCallLabel(call: ToolCall) {
   if (call.name === 'read_diffs') {
     const paths = call.arguments.paths
-    return `Read ${Array.isArray(paths) ? paths.length : 0} file(s)`
+    const n = Array.isArray(paths) ? paths.length : 0
+    return t('chat.readFiles', { n }, n)
   }
   if (call.name === 'update_grouping')
-    return 'Updating grouping…'
+    return t('chat.updatingGrouping')
   if (call.name === 'submit_grouping')
-    return 'Submitting grouping…'
+    return t('chat.submittingGrouping')
   return call.name
 }
 </script>
@@ -62,12 +66,12 @@ function toolCallLabel(call: ToolCall) {
       </div>
     </template>
     <div v-if="message.stopReason === 'error'" class="flex flex-wrap items-center gap-2 text-sm text-red-500">
-      <span class="break-words">{{ message.errorMessage ?? 'Request failed' }}</span>
+      <span class="break-words">{{ message.errorMessage ?? $t('chat.requestFailed') }}</span>
       <ActionButton v-if="retryable" size="sm" icon="i-ph:arrow-clockwise-duotone" @click="$emit('retry')">
-        Retry
+        {{ $t('common.retry') }}
       </ActionButton>
     </div>
-    <span v-else-if="message.stopReason === 'aborted'" class="border border-base rounded px-1.5 text-xs op-mute">stopped</span>
+    <span v-else-if="message.stopReason === 'aborted'" class="border border-base rounded px-1.5 text-xs op-mute">{{ $t('chat.stopped') }}</span>
   </div>
 
   <div v-else-if="groupingNotice" class="flex items-center gap-1.5 text-xs op-mute">

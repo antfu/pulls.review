@@ -38,19 +38,19 @@ onMounted(() => store.load())
       :store="store"
     >
       <template #loading>
-        <FeedbackLoading text="Loading pull request…" />
+        <FeedbackLoading :text="$t('pr.loading')" />
       </template>
       <template #error="{ error: err, retry }">
         <FeedbackEmptyState
           icon="i-ph:warning-duotone"
-          title="Couldn't load this pull request"
+          :title="$t('pr.loadFailed')"
         >
           <template #hint>
             {{ err.message }}
           </template>
           <template #actions>
             <ActionButton variant="primary" @click="retry">
-              Retry
+              {{ $t('common.retry') }}
             </ActionButton>
           </template>
         </FeedbackEmptyState>

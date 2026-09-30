@@ -142,10 +142,10 @@ onBeforeUnmount(() => {
         <div class="flex-auto">
           pulls.review
         </div>
-        <a v-if="pr" target="_blank" :href="`https://pulls.review/gh/${pr.owner}/${pr.repo}/${pr.number}`" rel="noopener noreferrer" aria-label="Open in pulls.review" class="op-fade hover:op-100">
+        <a v-if="pr" target="_blank" :href="`https://pulls.review/gh/${pr.owner}/${pr.repo}/${pr.number}`" rel="noopener noreferrer" :aria-label="$t('pr.openInSite')" class="op-fade hover:op-100">
           <div class="i-ph-arrow-square-out-duotone" />
         </a>
-        <button type="button" aria-label="Close" class="op-fade hover:op-100" @click="toggleOpen">
+        <button type="button" :aria-label="$t('common.close')" class="op-fade hover:op-100" @click="toggleOpen">
           <div class="i-ph-x" />
         </button>
       </header>

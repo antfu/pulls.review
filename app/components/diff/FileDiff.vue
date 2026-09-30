@@ -342,36 +342,36 @@ defineExpose({
       <div class="min-w-0 flex items-center gap-2 text-sm">
         <FormCheckbox
           :model-value="isReviewed"
-          aria-label="Mark as reviewed"
+          :aria-label="$t('file.markReviewed')"
           @update:model-value="store.toggleReviewed(file.sha, $event)"
         />
         <DisplayFilePath :path="file.path" class="min-w-0" />
       </div>
       <div class="flex shrink-0 items-center gap-2">
-        <span v-if="resolvedCount" class="text-xs op-fade">{{ resolvedCount }} resolved</span>
+        <span v-if="resolvedCount" class="text-xs op-fade">{{ $t('file.resolved', { n: resolvedCount }) }}</span>
         <DiffStats v-if="!file.isBinary" :additions="file.additions" :deletions="file.deletions" />
-        <span v-else class="text-xs op-fade">Binary file</span>
+        <span v-else class="text-xs op-fade">{{ $t('file.binary') }}</span>
         <FileStatus :status="file.status" />
-        <span v-if="fullFileError" class="text-xs text-red-500" :title="fullFileError.message">Failed to load</span>
+        <span v-if="fullFileError" class="text-xs text-red-500" :title="fullFileError.message">{{ $t('file.loadFailed') }}</span>
         <ActionIconButton
           v-if="canLoadFullFile || isLoadingFullFile"
           compact
           :icon="isLoadingFullFile ? 'i-ph:spinner-duotone animate-spin' : 'i-ph:file-text-duotone'"
           :disabled="isLoadingFullFile"
-          label="Load full file content"
-          tooltip="Load full file content"
+          :label="$t('file.loadFull')"
+          :tooltip="$t('file.loadFull')"
           @click="loadFullFile"
         />
         <ActionIconButton
           compact
           :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
-          :label="collapsed ? 'Expand file' : 'Collapse file'"
+          :label="$t(collapsed ? 'file.expand' : 'file.collapse')"
           @click="collapsed = !collapsed"
         />
       </div>
     </header>
     <div v-if="file.isBinary" class="p-4 text-sm op-fade">
-      Binary file not shown.
+      {{ $t('file.binaryNotShown') }}
     </div>
     <div v-else-if="!collapsed" ref="container">
       <!--

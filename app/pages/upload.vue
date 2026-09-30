@@ -47,12 +47,12 @@ onMounted(loadAll)
       :store="store"
     >
       <template #loading>
-        <FeedbackLoading text="Parsing diff…" />
+        <FeedbackLoading :text="$t('load.parsing')" />
       </template>
       <template #error="{ error: err }">
         <FeedbackEmptyState
           icon="i-ph:warning-duotone"
-          title="Couldn't parse this diff"
+          :title="$t('load.parseFailed')"
         >
           <template #hint>
             {{ err.message }}
@@ -62,14 +62,14 @@ onMounted(loadAll)
       <template #empty>
         <FeedbackEmptyState
           icon="i-ph:upload-simple-duotone"
-          title="No diff loaded"
+          :title="$t('load.noDiff')"
         >
           <template #hint>
-            Go to the home page and use the upload button to paste or drop a diff.
+            {{ $t('load.noDiffHint') }}
           </template>
           <template #actions>
             <ActionButton variant="primary" @click="router.push('/')">
-              Go home
+              {{ $t('load.goHome') }}
             </ActionButton>
           </template>
         </FeedbackEmptyState>

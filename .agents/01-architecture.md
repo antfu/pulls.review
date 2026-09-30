@@ -68,7 +68,10 @@ analysis strategy later never touches the view layer:
     one commit, and the full diffs when they are small; the model pulls
     diffs on demand with `read_diffs` and finishes with `submit_grouping`,
     whose coverage check rejects a grouping that misses or invents paths so
-    the model must fix it. A read budget and a turn cap bound the run, and
+    the model must fix it. The prompt itself stays English whatever the
+    user's language; only its closing line (`Respond and categorize in
+    <language>.`) names `settings.locale`, and the result is stamped with
+    that `locale` so the view knows what language it is in. A read budget and a turn cap bound the run, and
     progress (`Reading 4 files: …`) streams to the header. Failures MUST
     surface as `llm.error` — there is no silent `rule-based` fallback, and
     nothing but real model output is ever stored under `llm`. Everything that
@@ -143,7 +146,11 @@ repos read one. Contract:
   the store has no AI result. `?from=` on the site loads that user directly
   unless it would replace a locally generated result (then it's offered).
 - A shared result whose `headSha` differs from the loaded diff is offered
-  labelled outdated, not hidden.
+  labelled outdated, not hidden. Likewise one whose `locale` differs from the
+  UI language is offered labelled with that language (results from before the
+  field existed are treated as matching). Sharing a non-English result shows a
+  banner recommending English for public projects; the confirm button reads
+  `Share anyway`.
 
 ## Canonical data structures
 
@@ -226,6 +233,15 @@ land later without a rewrite:
 
 ## UI conventions
 
+- Every user-facing string goes through vue-i18n (`app/i18n/`): `$t()` in
+  templates, `useI18n()` in component scripts, `i18n.global.t` in plain
+  modules (rule-based labels, agent progress, user-facing errors). English is
+  bundled and is the key schema (`locales/en.json`, typed via
+  `DefineLocaleMessage`); other locales load on demand. One `settings.locale`
+  drives both the UI and the language the LLM writes summaries in; it is
+  seeded from `navigator.languages` (`i18n/locales.ts`) and edited in
+  Settings. Model-facing text (prompts, tool errors) and diagnostics that
+  embed URLs/status codes stay English.
 - Settings (GitHub PAT, later model keys) and loading a pasted/uploaded diff
   are both modals/panels (`SettingsModal.vue`/`LoadDiffModal.vue` wrapping
   pure `*Panel.vue` content), triggered from `AppHeader.vue` — never routed

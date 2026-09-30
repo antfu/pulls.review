@@ -2,6 +2,7 @@
 import type { ModelOption } from '../../analyze/adapters/llm/list-models'
 import FormTextInput from '@antfu/design/components/Form/FormTextInput.vue'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 // Inline expandable picker (no floating popper: the embed build runs in a
 // Shadow DOM where teleported poppers escape the shadow root unstyled).
@@ -16,6 +17,7 @@ const props = defineProps<{
 }>()
 
 const modelId = defineModel<string>({ required: true })
+const { t } = useI18n()
 
 const open = ref(false)
 const query = ref('')
@@ -64,14 +66,14 @@ function priceLabel(model: ModelOption): string | undefined {
   if (!model.pricing)
     return undefined
   if (model.pricing.input === 0 && model.pricing.output === 0)
-    return 'Free'
+    return t('settings.models.free')
   return `${fmtRate(model.pricing.input)} / ${fmtRate(model.pricing.output)}`
 }
 
 function priceTitle(model: ModelOption): string | undefined {
   if (!model.pricing)
     return undefined
-  return `Input ${fmtRate(model.pricing.input)}/M · Output ${fmtRate(model.pricing.output)}/M tokens`
+  return t('settings.models.priceTitle', { input: fmtRate(model.pricing.input), output: fmtRate(model.pricing.output) })
 }
 </script>
 
@@ -79,7 +81,7 @@ function priceTitle(model: ModelOption): string | undefined {
   <FormTextInput
     v-if="error"
     v-model="modelId"
-    placeholder="model id"
+    :placeholder="$t('settings.models.placeholder')"
   />
 
   <div v-else class="flex flex-col border border-base rounded bg-raised">
@@ -91,7 +93,7 @@ function priceTitle(model: ModelOption): string | undefined {
     >
       <span v-if="loading" class="flex items-center gap-2 op-fade">
         <span class="i-ph:circle-notch animate-spin" aria-hidden="true" />
-        Loading models…
+        {{ $t('settings.models.loading') }}
       </span>
       <span v-else class="min-w-0 flex items-center gap-2 color-base">
         <span class="truncate">{{ current?.name ?? modelId }}</span>
@@ -108,17 +110,17 @@ function priceTitle(model: ModelOption): string | undefined {
           v-model="query"
           size="sm"
           icon="i-ph:magnifying-glass"
-          placeholder="Search models…"
+          :placeholder="$t('settings.models.search')"
           clearable
           class="w-full"
         />
       </div>
       <div class="max-h-56 of-y-auto pb-1" role="listbox">
         <div v-if="loading" class="px-3 py-4 text-center text-sm op-mute">
-          Loading models…
+          {{ $t('settings.models.loading') }}
         </div>
         <div v-else-if="!filtered.length && !customCandidate" class="px-3 py-4 text-center text-sm op-mute">
-          No matching model
+          {{ $t('settings.models.noMatch') }}
         </div>
         <button
           v-for="model in filtered"
@@ -134,7 +136,7 @@ function priceTitle(model: ModelOption): string | undefined {
           <span
             v-if="priceLabel(model)"
             class="shrink-0 text-xs tabular-nums"
-            :class="priceLabel(model) === 'Free' ? 'color-active' : 'op-mute'"
+            :class="model.pricing?.input === 0 && model.pricing.output === 0 ? 'color-active' : 'op-mute'"
             :title="priceTitle(model)"
           >{{ priceLabel(model) }}</span>
           <span v-if="model.id === modelId" class="i-ph:check shrink-0 text-xs" aria-hidden="true" />
@@ -146,7 +148,7 @@ function priceTitle(model: ModelOption): string | undefined {
           @click="pick(customCandidate)"
         >
           <span class="i-ph:plus shrink-0 text-xs" aria-hidden="true" />
-          <span class="min-w-0 flex-1 truncate">Use “{{ customCandidate }}”</span>
+          <span class="min-w-0 flex-1 truncate">{{ $t('settings.models.useCustom', { id: customCandidate }) }}</span>
         </button>
       </div>
     </div>

@@ -23,7 +23,7 @@ const fixtureNames = readdirSync(fixturesDir).filter(name => name.endsWith('.jso
 describe('buildAnalysisPrompt snapshot', () => {
   it.each(fixtureNames)('matches the snapshot for fixtures/real/%s', async (name) => {
     const { diff } = JSON.parse(readFileSync(join(fixturesDir, name), 'utf-8'))
-    const prompt = buildAnalysisPrompt(diff)
+    const prompt = buildAnalysisPrompt(diff, 'en')
     await expect(prompt).toMatchFileSnapshot(
       `./__snapshots__/${name}.agent-prompt.snap.md`,
     )
@@ -40,13 +40,22 @@ describe('buildAnalysisPrompt commits', () => {
         { sha: 'aaaaaaa111', message: 'feat: add parser\n\nlong body' },
         { sha: 'bbbbbbb222', message: 'test: cover parser' },
       ],
-    })
+    }, 'en')
     expect(prompt).toContain('---COMMITS--- (2, oldest first)\naaaaaaa feat: add parser\nbbbbbbb test: cover parser\n\n---MANIFEST---')
   })
 
   it('omits the section for a single commit', () => {
-    const prompt = buildAnalysisPrompt({ ...base, commits: [{ sha: 'aaaaaaa111', message: 'feat: x' }] })
+    const prompt = buildAnalysisPrompt({ ...base, commits: [{ sha: 'aaaaaaa111', message: 'feat: x' }] }, 'en')
     expect(prompt).not.toContain('---COMMITS---')
+  })
+})
+
+describe('buildAnalysisPrompt language', () => {
+  const base = { provider: 'github', id: 'github:o/r#1', title: 'T', files: [file({ path: 'a.ts' })] } as const
+
+  it('stays English and closes with the language to answer in', () => {
+    expect(buildAnalysisPrompt(base, 'en')).toMatch(/\n\nRespond and categorize in English\.$/)
+    expect(buildAnalysisPrompt(base, 'zh-CN')).toMatch(/\n\nRespond and categorize in Simplified Chinese \(简体中文\)\.$/)
   })
 })
 

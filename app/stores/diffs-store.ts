@@ -4,7 +4,7 @@ import type { ReviewData } from '../types/comment-threads'
 import type { DiffsPayload } from '../types/diff'
 import type { FetchDiffParams } from '../types/provider'
 import type { DiffsStore, DiffsStoreLlm } from './types'
-import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef } from 'vue'
+import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef, watch } from 'vue'
 import { resolveAdapter } from '../analyze'
 import { ruleBasedAdapter } from '../analyze/adapters/rule-based'
 import { getEntry, putDiff, setAnalyzedResult, setLlmSession, touchEntry } from '../cache/pr-cache'
@@ -12,6 +12,7 @@ import { getReviewed, setReviewed } from '../cache/review-cache'
 import { getDefaultCacheStorage } from '../cache/storage'
 import { resolveGroups } from '../components/diff/group-utils'
 import { useProvider } from '../composables/useProvider'
+import { i18n } from '../i18n'
 import { fetchPullRequest } from '../providers/github/api'
 import { autoRefresh } from '../state/auto-refresh'
 import { layout } from '../state/layout'
@@ -114,6 +115,14 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
     const result = await resolveAdapter(mode).analyze(diff.value)
     analyzedBy.value = { ...analyzedBy.value, [mode]: result }
   }
+
+  // The free modes' labels are translated when computed, so a language change recomputes them.
+  watch(i18n.global.locale, () => {
+    for (const mode of ['rule-based', 'none'] as const) {
+      if (analyzedBy.value[mode])
+        void runAnalysis(mode)
+    }
+  })
 
   async function setAnalyzeMode(mode: GroupSource) {
     analyzeMode.value = mode

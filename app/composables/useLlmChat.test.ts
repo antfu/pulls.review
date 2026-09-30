@@ -4,7 +4,7 @@ import type { DiffsPayload } from '../types/diff'
 import { fauxAssistantMessage } from '@earendil-works/pi-ai'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref, shallowRef } from 'vue'
-import { NOT_CONFIGURED_MESSAGE } from '../analyze/adapters/llm/model'
+import { notConfiguredError } from '../analyze/adapters/llm/model'
 import { useLlmChat } from './useLlmChat'
 
 const mocks = vi.hoisted(() => ({
@@ -89,7 +89,7 @@ describe('useLlmChat', () => {
 
     await chat.send('why?')
 
-    expect(chat.error.value?.message).toBe(NOT_CONFIGURED_MESSAGE)
+    expect(chat.error.value?.message).toBe(notConfiguredError().message)
     expect(mocks.createChatSession).not.toHaveBeenCalled()
   })
 

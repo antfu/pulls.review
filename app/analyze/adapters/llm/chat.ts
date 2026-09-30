@@ -3,6 +3,7 @@ import type { GroupedResult } from '../../../types/analyze'
 import type { DiffsPayload } from '../../../types/diff'
 import type { ResolvedModel } from './model'
 import { Agent } from '@earendil-works/pi-agent-core'
+import { settings } from '../../../state/settings'
 import { toLlmMessages } from './agent'
 import { toGroupedResult } from './index'
 import { CHAT_SYSTEM_SECTION } from './prompt'
@@ -82,7 +83,7 @@ export function createChatSession({ diff, resolved, messages, onGroupingUpdate }
       model: resolved.model,
       tools: [
         createReadDiffsTool(diff, ledger),
-        createUpdateGroupingTool(diff, analysis => onGroupingUpdate(toGroupedResult(diff, analysis, resolved))),
+        createUpdateGroupingTool(diff, analysis => onGroupingUpdate(toGroupedResult(diff, analysis, resolved, settings.value.locale))),
       ],
       messages: withChatInstructions(messages),
     },

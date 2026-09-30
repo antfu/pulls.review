@@ -1,10 +1,12 @@
 import type { AgentContext, AgentEvent, AgentLoopConfig, AgentMessage } from '@earendil-works/pi-agent-core'
 import type { AssistantMessage, Message } from '@earendil-works/pi-ai'
+import type { Locale } from '../../../i18n/locales'
 import type { AnalyzeOptions } from '../../../types/analyze'
 import type { DiffsPayload } from '../../../types/diff'
 import type { ResolvedModel } from './model'
 import type { Analysis } from './schema'
 import { runAgentLoop } from '@earendil-works/pi-agent-core'
+import { t } from '../../../i18n'
 import { AGENT_SYSTEM_PROMPT, buildAnalysisPrompt } from './prompt'
 import { createStreamFn } from './runtime'
 import { createLedger, createReadDiffsTool, createSubmitGroupingTool } from './tools'
@@ -23,7 +25,7 @@ function describeRead(args: unknown): string {
   const paths = (args as { paths?: unknown })?.paths
   const list = Array.isArray(paths) ? paths : []
   const more = list.length > 1 ? ', …' : ''
-  return `Reading ${list.length} ${list.length === 1 ? 'file' : 'files'}: ${list[0] ?? ''}${more}`
+  return t('analyze.reading', { n: list.length, first: `${list[0] ?? ''}${more}` }, list.length)
 }
 
 export interface LlmAnalyzeOptions extends AnalyzeOptions {
@@ -31,7 +33,7 @@ export interface LlmAnalyzeOptions extends AnalyzeOptions {
   onTranscript?: (messages: AgentMessage[]) => void
 }
 
-export async function runAgent(diff: DiffsPayload, resolved: ResolvedModel, options?: LlmAnalyzeOptions): Promise<{ analysis: Analysis, transcript: AgentMessage[] }> {
+export async function runAgent(diff: DiffsPayload, resolved: ResolvedModel, locale: Locale, options?: LlmAnalyzeOptions): Promise<{ analysis: Analysis, transcript: AgentMessage[] }> {
   const ledger = createLedger()
   let steered = false
   let nudged = false
@@ -40,7 +42,7 @@ export async function runAgent(diff: DiffsPayload, resolved: ResolvedModel, opti
     messages: [{ role: 'system', content: AGENT_SYSTEM_PROMPT, timestamp: Date.now() }],
     tools: [createReadDiffsTool(diff, ledger), createSubmitGroupingTool(diff, ledger)],
   }
-  const prompt: AgentMessage = { role: 'user', content: buildAnalysisPrompt(diff), timestamp: Date.now() }
+  const prompt: AgentMessage = { role: 'user', content: buildAnalysisPrompt(diff, locale), timestamp: Date.now() }
 
   const config: AgentLoopConfig = {
     model: resolved.model,
@@ -76,13 +78,13 @@ export async function runAgent(diff: DiffsPayload, resolved: ResolvedModel, opti
   const emit = (event: AgentEvent) => {
     if (event.type === 'turn_start') {
       ledger.turn += 1
-      options?.onProgress?.({ step: ledger.turn, message: `Thinking… (step ${ledger.turn})` })
+      options?.onProgress?.({ step: ledger.turn, message: t('analyze.thinking', { step: ledger.turn }) })
     }
     else if (event.type === 'tool_execution_start') {
       if (event.toolName === 'read_diffs')
         options?.onProgress?.({ step: ledger.turn, message: describeRead(event.args) })
       else if (event.toolName === 'submit_grouping')
-        options?.onProgress?.({ step: ledger.turn, message: 'Organizing groups…' })
+        options?.onProgress?.({ step: ledger.turn, message: t('analyze.organizing') })
     }
     else if (event.type === 'message_start') {
       live.push(event.message)

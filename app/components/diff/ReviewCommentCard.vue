@@ -43,21 +43,21 @@ function saveEdit() {
       <GithubAvatar v-if="comment.author" :login="comment.author.login" :avatar-url="comment.author.avatarUrl" :size="18" />
       <span class="font-medium">{{ comment.author?.login ?? 'ghost' }}</span>
       <DisplayDate :date="comment.createdAt" class="text-xs op-fade" />
-      <DisplayBadge v-if="comment.pending" text="Pending" class="text-xs text-amber-700 dark:text-amber-400" />
+      <DisplayBadge v-if="comment.pending" :text="$t('review.pending')" class="text-xs text-amber-700 dark:text-amber-400" />
       <div class="flex-auto" />
       <template v-if="isViewer && !editing">
-        <ActionIconButton compact icon="i-ph:pencil-simple-duotone" label="Edit comment" :disabled="busy" @click="startEditing" />
-        <ActionIconButton compact icon="i-ph:trash-duotone" label="Delete comment" :disabled="busy" @click="emit('delete')" />
+        <ActionIconButton compact icon="i-ph:pencil-simple-duotone" :label="$t('review.editComment')" :disabled="busy" @click="startEditing" />
+        <ActionIconButton compact icon="i-ph:trash-duotone" :label="$t('review.deleteComment')" :disabled="busy" @click="emit('delete')" />
       </template>
     </header>
     <div v-if="editing" class="flex flex-col gap-2">
       <FormTextarea v-model="draft" :rows="3" :disabled="busy" @keydown.enter.meta="saveEdit" @keydown.enter.ctrl="saveEdit" />
       <div class="flex justify-end gap-2">
         <ActionButton size="sm" variant="text" :disabled="busy" @click="editing = false">
-          Cancel
+          {{ $t('common.cancel') }}
         </ActionButton>
         <ActionButton size="sm" variant="primary" :disabled="busy || !draft.trim()" @click="saveEdit">
-          Save
+          {{ $t('common.save') }}
         </ActionButton>
       </div>
     </div>

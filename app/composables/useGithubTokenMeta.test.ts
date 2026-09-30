@@ -19,7 +19,7 @@ describe('useGithubTokenMeta', () => {
   beforeEach(() => {
     scope = effectScope()
     localStorage.removeItem(STORAGE_KEY)
-    settings.value = { githubToken: '', llm: { ...defaultLlmSettings } }
+    settings.value = { githubToken: '', llm: { ...defaultLlmSettings }, locale: 'en' }
   })
 
   afterEach(() => {

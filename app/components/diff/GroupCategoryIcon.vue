@@ -8,5 +8,5 @@ defineProps<{
 </script>
 
 <template>
-  <span :class="[CATEGORY_ICON[category], CATEGORY_COLOR_CLASS[category]]" class="shrink-0" :title="category" />
+  <span :class="[CATEGORY_ICON[category], CATEGORY_COLOR_CLASS[category]]" class="shrink-0" :title="$t(`category.${category}`)" />
 </template>

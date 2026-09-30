@@ -1,4 +1,6 @@
+import type { Locale } from '../i18n/locales'
 import { useLocalStorage } from '@vueuse/core'
+import { detectLocale, isLocale } from '../i18n/locales'
 
 export type LlmProvider = 'gateway' | 'anthropic' | 'openai-compatible'
 
@@ -32,11 +34,14 @@ export const defaultLlmSettings: LlmSettings = {
 export interface Settings {
   githubToken: string
   llm: LlmSettings
+  /** UI language and the language the LLM writes summaries in; seeded from the browser's preference. */
+  locale: Locale
 }
 
 const defaultSettings: Settings = {
   githubToken: '',
   llm: defaultLlmSettings,
+  locale: detectLocale(),
 }
 
 /**
@@ -64,6 +69,8 @@ export const settings = useLocalStorage<Settings>('diffs:settings', defaultSetti
     const llm: LlmSettings = { ...defaults.llm, ...storage?.llm }
     if (!storage?.llm?.provider)
       llm.provider = deriveProvider(llm)
-    return { ...defaults, ...storage, llm }
+    // A locale this build no longer ships (or none stored yet) falls back to the browser's.
+    const locale = isLocale(storage?.locale) ? storage.locale : defaults.locale
+    return { ...defaults, ...storage, llm, locale }
   },
 })

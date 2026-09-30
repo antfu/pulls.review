@@ -17,6 +17,7 @@ const result = { ...empty.grouped, source: 'llm', model: 'anthropic/claude-sonne
 const candidates = [
   { login: 'antfu', url: 'https://github.com/owner/repo/pull/1#issuecomment-1', result, own: false, stale: false },
   { login: 'octocat', url: 'https://github.com/owner/repo/pull/1#issuecomment-2', result, own: true, stale: true },
+  { login: 'posva', url: 'https://github.com/owner/repo/pull/1#issuecomment-3', result: { ...result, locale: 'ja' }, own: false, stale: false },
 ]
 
 export const Candidates: Story = {
