@@ -1,5 +1,5 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
-import type { CommentThread, DiffsPayload, GroupedResult, GroupSource, PendingReview, ReviewDraftTarget, ReviewSummary, ReviewVerdict } from '@pulls.review/core'
+import type { CommentThread, DiffsPayload, GroupedResult, GroupSource, PendingReview, ReviewDraftTarget, ReviewSummary, ReviewVerdict } from '@pulls.review/core/types'
 import type { ResolvedGroupWithChildren } from '../components/diff/group-utils'
 
 /** A step of the running analysis, already worded in the UI language. */

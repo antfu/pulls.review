@@ -1,5 +1,6 @@
-import type { Provider } from '@pulls.review/core'
-import { GithubProvider, PasteProvider } from '@pulls.review/core'
+import type { Provider } from '@pulls.review/core/types'
+import { GithubProvider } from '@pulls.review/core/github'
+import { PasteProvider } from '@pulls.review/core/paste'
 
 const providers: Record<'github' | 'paste', Provider> = {
   github: GithubProvider,

@@ -1,5 +1,5 @@
 import type { EffectScope } from 'vue'
-import { defaultLlmSettings } from '@pulls.review/core'
+import { defaultLlmSettings } from '@pulls.review/core/analyze'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { effectScope } from 'vue'
 import { settings } from '../state/settings'

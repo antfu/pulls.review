@@ -1,4 +1,4 @@
-import type { FileChange } from '@pulls.review/core'
+import type { FileChange } from '@pulls.review/core/types'
 import { describe, expect, it } from 'vitest'
 import { countGroupFiles, countGroupStats, resolveGroups } from './group-utils'
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { LlmProvider, LlmSettings } from '@pulls.review/core'
+import type { LlmProvider, LlmSettings } from '@pulls.review/core/analyze'
 import type { ModelOption } from '@pulls.review/core/llm'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'

@@ -17,13 +17,26 @@ through a server we run, which is the invariant behind "zero backend".
 
 The repo is a pnpm workspace:
 
-| Package         | Name                          | Build  | Role                                                                                                                                                                                                                                                                   |
-| --------------- | ----------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/app`  | `@pulls.review/app` (private) | Vite   | The SPA and the github.com embed.                                                                                                                                                                                                                                      |
-| `packages/core` | `@pulls.review/core`          | tsdown | Everything runtime-agnostic: `types/`, `patch-parser/`, `providers/{github,paste}`, `analyze/adapters/{llm,rule-based,none}`, `locales.ts`, `diagnostics.ts`. Two entries: `.` and `./llm` (the pi agent loop and model SDKs, loaded only when a model is configured). |
-| `packages/cli`  | `pulls-review`                | tsdown | `pulls-review [owner/repo#n]`: fetch, analyze, upsert the comment.                                                                                                                                                                                                     |
+| Package         | Name                          | Build  | Role                                                               |
+| --------------- | ----------------------------- | ------ | ------------------------------------------------------------------ |
+| `packages/app`  | `@pulls.review/app` (private) | Vite   | The SPA and the github.com embed.                                  |
+| `packages/core` | `@pulls.review/core`          | tsdown | Everything runtime-agnostic, as subpath entries (below).           |
+| `packages/cli`  | `pulls-review`                | tsdown | `pulls-review [owner/repo#n]`: fetch, analyze, upsert the comment. |
 
-The app resolves `@pulls.review/core` to source (`coreAlias` in
+Core has no root barrel; each subpath is one `src/<entry>.ts` and one tsdown entry:
+
+| Subpath                           | Holds                                                                                                                            |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `@pulls.review/core/types`        | The canonical valibot schemas and types (`DiffsPayload`, `GroupedResult`, review threads, provider params).                      |
+| `@pulls.review/core/patch-parser` | Unified-diff parsing.                                                                                                            |
+| `@pulls.review/core/github`       | `GithubProvider` and every REST/GraphQL call, including the shared-analysis comment.                                             |
+| `@pulls.review/core/paste`        | `PasteProvider`.                                                                                                                 |
+| `@pulls.review/core/analyze`      | `createRuleBasedAdapter`, `createNoneAdapter`, the rules, `LlmSettings` and `resolveModel` - grouping without the agent runtime. |
+| `@pulls.review/core/llm`          | The pi agent loop, chat, tools, prompt and model SDKs; load only once a model is configured.                                     |
+| `@pulls.review/core/diagnostics`  | The nostics catalog.                                                                                                             |
+| `@pulls.review/core/locales`      | The locale list and detection.                                                                                                   |
+
+The app resolves `@pulls.review/core/*` to source (`coreAlias` in
 `vite.config.shared.ts`, `paths` in its tsconfig), so it has no core build step
 and the embed's `PR_LLM` dead-code elimination keeps working through the alias.
 The embed build's forbidden-modules check is the regression guard for that.

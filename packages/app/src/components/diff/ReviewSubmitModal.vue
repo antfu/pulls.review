@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ReviewVerdict } from '@pulls.review/core'
+import type { ReviewVerdict } from '@pulls.review/core/types'
 import type { DiffsStoreReviews } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionToggleGroup from '@antfu/design/components/Action/ActionToggleGroup.vue'

@@ -1,5 +1,6 @@
-import type { GroupedResult } from '@pulls.review/core'
-import { defaultLlmSettings, parseSharedAnalysisComment, renderSharedAnalysisComment } from '@pulls.review/core'
+import type { GroupedResult } from '@pulls.review/core/types'
+import { defaultLlmSettings } from '@pulls.review/core/analyze'
+import { parseSharedAnalysisComment, renderSharedAnalysisComment } from '@pulls.review/core/github'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { run } from './run'
 

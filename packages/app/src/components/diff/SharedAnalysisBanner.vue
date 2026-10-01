@@ -2,7 +2,7 @@
 import type { DiffsStore, SharedAnalysisCandidate } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
-import { nativeLocaleName } from '@pulls.review/core'
+import { nativeLocaleName } from '@pulls.review/core/locales'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GithubAvatar from '../GithubAvatar.vue'

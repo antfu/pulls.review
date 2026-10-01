@@ -1,5 +1,5 @@
-import type { PullRequestListItem, PullRequestListPage } from '@pulls.review/core'
-import { fetchOpenPullRequests, parseGithubDiffId } from '@pulls.review/core'
+import type { PullRequestListItem, PullRequestListPage } from '@pulls.review/core/types'
+import { fetchOpenPullRequests, parseGithubDiffId } from '@pulls.review/core/github'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { ruleBasedAdapter } from '../analyze'
 import { listRepoEntries } from '../cache/pr-cache'

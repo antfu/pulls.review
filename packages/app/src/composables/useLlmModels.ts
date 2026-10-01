@@ -1,4 +1,4 @@
-import type { LlmProvider, LlmSettings } from '@pulls.review/core'
+import type { LlmProvider, LlmSettings } from '@pulls.review/core/analyze'
 import type { ModelOption } from '@pulls.review/core/llm'
 import type { Ref } from 'vue'
 import { listModels } from '@pulls.review/core/llm'

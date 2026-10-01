@@ -1,5 +1,5 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
-import type { DiffsPayload, GroupedResult } from '@pulls.review/core'
+import type { DiffsPayload, GroupedResult } from '@pulls.review/core/types'
 import type { Ref } from 'vue'
 import type { LlmSession } from '../types/cache'
 import type { DiffsStoreLlm, LlmProgress } from './types'

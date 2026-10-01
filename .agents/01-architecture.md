@@ -14,10 +14,12 @@ A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
 
 - `packages/app` — the SPA and the github.com embed (Vite + Vue). Paths
   below written as `app/…` live in `packages/app/src/`.
-- `packages/core` (`@pulls.review/core`) — everything runtime-agnostic:
-  canonical types, the patch parser, providers, the `llm`/`rule-based`/`none`
-  analyze adapters, the locale list and the diagnostics catalog. Built with
-  tsdown; the app resolves it to source through a Vite alias. Core MUST load
+- `packages/core` (`@pulls.review/core`) — everything runtime-agnostic,
+  exposed as subpaths rather than one barrel: `/types`, `/patch-parser`,
+  `/github`, `/paste`, `/analyze` (rule-based/none adapters, LLM settings and
+  model resolution), `/llm` (the agent runtime and SDKs), `/diagnostics`,
+  `/locales`. Built with tsdown; the app resolves `@pulls.review/core/*` to
+  source through a Vite alias. Core MUST load
   under plain Node: no Settings, vue-i18n, `localStorage`, `document`, or
   Vite-only syntax (`import.meta.glob`, `import.meta.env`) inside it.
   Callers pass model settings and locale in, inject group text, word the

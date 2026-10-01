@@ -1,6 +1,6 @@
-import type { PullRequestState } from '@pulls.review/core'
+import type { PullRequestState } from '@pulls.review/core/types'
 import type { Ref } from 'vue'
-import { parseGithubDiffId } from '@pulls.review/core'
+import { parseGithubDiffId } from '@pulls.review/core/github'
 import { ref } from 'vue'
 import { listRecentEntries } from '../cache/pr-cache'
 import { getReviewed } from '../cache/review-cache'

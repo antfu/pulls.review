@@ -1,5 +1,5 @@
-import type { AnalyzeAdapter, GroupSource } from '@pulls.review/core'
-import { createNoneAdapter, createRuleBasedAdapter } from '@pulls.review/core'
+import type { AnalyzeAdapter, GroupSource } from '@pulls.review/core/types'
+import { createNoneAdapter, createRuleBasedAdapter } from '@pulls.review/core/analyze'
 import { t } from '../i18n'
 import { llmAdapter } from './adapters/llm'
 import { webLlmAdapter } from './adapters/web-llm'

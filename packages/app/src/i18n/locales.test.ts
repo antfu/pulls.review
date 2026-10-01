@@ -1,4 +1,4 @@
-import { LOCALES } from '@pulls.review/core'
+import { LOCALES } from '@pulls.review/core/locales'
 import { describe, expect, it } from 'vitest'
 
 describe('locale message files', () => {

@@ -1,4 +1,4 @@
-import type { DiffCategory } from '@pulls.review/core'
+import type { DiffCategory } from '@pulls.review/core/types'
 
 /** @unocss-include */
 

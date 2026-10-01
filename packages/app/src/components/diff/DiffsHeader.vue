@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { GroupSource } from '@pulls.review/core'
+import type { GroupSource } from '@pulls.review/core/types'
 import type { DiffsStore } from '../../stores/types'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import ActionToggleGroup from '@antfu/design/components/Action/ActionToggleGroup.vue'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
-import { parseGithubDiffId } from '@pulls.review/core'
+import { parseGithubDiffId } from '@pulls.review/core/github'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FileChangeStatus } from '@pulls.review/core'
+import type { FileChangeStatus } from '@pulls.review/core/types'
 
 defineProps<{
   status: FileChangeStatus

@@ -1,7 +1,8 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
-import type { AnalyzeAdapter, DiffsPayload, GroupedResult } from '@pulls.review/core'
 import type { LlmAnalyzeOptions } from '@pulls.review/core/llm'
-import { diagnostics, resolveModel } from '@pulls.review/core'
+import type { AnalyzeAdapter, DiffsPayload, GroupedResult } from '@pulls.review/core/types'
+import { resolveModel } from '@pulls.review/core/analyze'
+import { diagnostics } from '@pulls.review/core/diagnostics'
 import { settings } from '../../../state/settings'
 
 export const NOT_COMPILED_MESSAGE = 'llm adapter is not compiled into this build (PR_LLM is off)'

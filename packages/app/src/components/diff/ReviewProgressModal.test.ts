@@ -1,4 +1,4 @@
-import type { DiffsPayload } from '@pulls.review/core'
+import type { DiffsPayload } from '@pulls.review/core/types'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import partiallyReviewed from '../../../test/fixtures/synthetic/partially-reviewed.json'

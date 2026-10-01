@@ -1,5 +1,5 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
-import type { DiffsPayload } from '@pulls.review/core'
+import type { DiffsPayload } from '@pulls.review/core/types'
 import type { LlmSession } from '../types/cache'
 import { fauxAssistantMessage } from '@earendil-works/pi-ai'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -13,8 +13,8 @@ const mocks = vi.hoisted(() => ({
   createChatSession: vi.fn(),
 }))
 
-vi.mock('@pulls.review/core', async importOriginal => ({
-  ...await importOriginal<typeof import('@pulls.review/core')>(),
+vi.mock('@pulls.review/core/analyze', async importOriginal => ({
+  ...await importOriginal<typeof import('@pulls.review/core/analyze')>(),
   resolveModel: mocks.resolveModel,
 }))
 

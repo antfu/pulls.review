@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FileChange } from '@pulls.review/core'
+import type { FileChange } from '@pulls.review/core/types'
 import type { DiffsStore } from '../../stores/types'
 import DisplayFileIcon from '@antfu/design/components/Display/DisplayFileIcon.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'

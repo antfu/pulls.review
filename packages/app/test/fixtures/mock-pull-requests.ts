@@ -1,4 +1,4 @@
-import type { PullRequestListItem } from '@pulls.review/core'
+import type { PullRequestListItem } from '@pulls.review/core/types'
 import type { PullRequestListStore } from '../../src/stores/pull-request-list-store'
 import { reactive } from 'vue'
 import { octocat, reviewer } from './mock-reviews'

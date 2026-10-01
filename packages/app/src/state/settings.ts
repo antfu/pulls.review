@@ -1,5 +1,7 @@
-import type { LlmSettings, Locale } from '@pulls.review/core'
-import { defaultLlmSettings, deriveProvider, detectLocale, isLocale } from '@pulls.review/core'
+import type { LlmSettings } from '@pulls.review/core/analyze'
+import type { Locale } from '@pulls.review/core/locales'
+import { defaultLlmSettings, deriveProvider } from '@pulls.review/core/analyze'
+import { detectLocale, isLocale } from '@pulls.review/core/locales'
 import { useLocalStorage } from '@vueuse/core'
 
 export interface Settings {

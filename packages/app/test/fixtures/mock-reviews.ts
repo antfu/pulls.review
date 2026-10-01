@@ -1,4 +1,4 @@
-import type { CommentAuthor, CommentThread, PendingReview, ReviewSummary } from '@pulls.review/core'
+import type { CommentAuthor, CommentThread, PendingReview, ReviewSummary } from '@pulls.review/core/types'
 
 /** Shared mock review fixtures for Storybook stories. */
 

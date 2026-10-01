@@ -1,4 +1,4 @@
-import type { DiffCategory, DiffGroup, DiffGroupLeaf, FileChange } from '@pulls.review/core'
+import type { DiffCategory, DiffGroup, DiffGroupLeaf, FileChange } from '@pulls.review/core/types'
 import { t } from '../../i18n'
 
 export interface ResolvedGroup {

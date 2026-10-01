@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ChecksStatus, PullRequestListItem, ReviewDecision } from '@pulls.review/core'
+import type { ChecksStatus, PullRequestListItem, ReviewDecision } from '@pulls.review/core/types'
 import type { ViewedPullRequest } from '../../stores/pull-request-list-store'
 import { labelStyle } from '@antfu/design/utils/color'
 import { computed } from 'vue'

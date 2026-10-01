@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ReviewSummary } from '@pulls.review/core'
+import type { ReviewSummary } from '@pulls.review/core/types'
 import DisplayDate from '@antfu/design/components/Display/DisplayDate.vue'
 import { Markdown } from '@comark/vue'
 import { ref } from 'vue'

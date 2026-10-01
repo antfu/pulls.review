@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DiffCategory } from '@pulls.review/core'
+import type { DiffCategory } from '@pulls.review/core/types'
 import { CATEGORY_COLOR_CLASS, CATEGORY_ICON } from './category-icons'
 
 defineProps<{

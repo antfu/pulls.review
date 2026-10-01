@@ -1,4 +1,4 @@
-import type { FileChange } from '@pulls.review/core'
+import type { FileChange } from '@pulls.review/core/types'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { buildAnalysisPrompt, buildManifest } from '@pulls.review/core/llm'

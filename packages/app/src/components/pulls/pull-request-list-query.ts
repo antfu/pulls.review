@@ -1,4 +1,4 @@
-import type { PullRequestListItem } from '@pulls.review/core'
+import type { PullRequestListItem } from '@pulls.review/core/types'
 import { Fzf } from 'fzf'
 
 export const PULL_REQUEST_SORTS = [

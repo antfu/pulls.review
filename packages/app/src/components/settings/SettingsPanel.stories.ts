@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { defaultLlmSettings } from '@pulls.review/core'
+import { defaultLlmSettings } from '@pulls.review/core/analyze'
 import SettingsPanel from './SettingsPanel.vue'
 
 const meta: Meta<typeof SettingsPanel> = {

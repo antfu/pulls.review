@@ -1,4 +1,4 @@
-import { GENERATED_PATTERNS } from '@pulls.review/core'
+import { GENERATED_PATTERNS } from '@pulls.review/core/analyze'
 import picomatch from 'picomatch'
 
 const isGenerated = picomatch(GENERATED_PATTERNS)

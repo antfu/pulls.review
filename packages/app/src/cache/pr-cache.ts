@@ -1,4 +1,4 @@
-import type { GroupedResult, ReviewData } from '@pulls.review/core'
+import type { GroupedResult, ReviewData } from '@pulls.review/core/types'
 import type { LlmSession, PersistedGroupSource, PrCacheEntry } from '../types/cache'
 import type { CacheStorage } from './storage'
 import * as v from 'valibot'

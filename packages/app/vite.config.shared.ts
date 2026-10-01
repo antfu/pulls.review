@@ -1,14 +1,10 @@
 import { fileURLToPath } from 'node:url'
 
-/** `@pulls.review/core` resolves to its source so the app needs no core build step. */
+/** `@pulls.review/core/*` resolves to its source entries so the app needs no core build step. */
 export const coreAlias = [
   {
-    find: /^@pulls\.review\/core$/,
-    replacement: fileURLToPath(new URL('../core/src/index.ts', import.meta.url)),
-  },
-  {
-    find: /^@pulls\.review\/core\/llm$/,
-    replacement: fileURLToPath(new URL('../core/src/llm.ts', import.meta.url)),
+    find: /^@pulls\.review\/core\/(.+)$/,
+    replacement: `${fileURLToPath(new URL('../core/src/', import.meta.url))}$1.ts`,
   },
 ]
 

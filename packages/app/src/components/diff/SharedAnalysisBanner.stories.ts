@@ -1,4 +1,4 @@
-import type { GroupedResult } from '@pulls.review/core'
+import type { GroupedResult } from '@pulls.review/core/types'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import empty from '../../../test/fixtures/synthetic/empty-group.json'
 import { createMockDiffsStore } from '../../stores/mock-diffs-store'

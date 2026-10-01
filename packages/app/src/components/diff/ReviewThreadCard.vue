@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CommentThread } from '@pulls.review/core'
+import type { CommentThread } from '@pulls.review/core/types'
 import type { DiffsStoreReviews } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FormTextarea from '@antfu/design/components/Form/FormTextarea.vue'

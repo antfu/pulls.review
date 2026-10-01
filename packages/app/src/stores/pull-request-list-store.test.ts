@@ -1,4 +1,4 @@
-import type { PullRequestListItem, PullRequestListPage } from '@pulls.review/core'
+import type { PullRequestListItem, PullRequestListPage } from '@pulls.review/core/types'
 import type { PrCacheEntry } from '../types/cache'
 import memoryDriver from 'unstorage/drivers/memory'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -10,8 +10,8 @@ const mocks = vi.hoisted(() => ({
   storage: undefined as ReturnType<typeof createCacheStorage> | undefined,
 }))
 
-vi.mock('@pulls.review/core', async importOriginal => ({
-  ...await importOriginal<typeof import('@pulls.review/core')>(),
+vi.mock('@pulls.review/core/github', async importOriginal => ({
+  ...await importOriginal<typeof import('@pulls.review/core/github')>(),
   fetchOpenPullRequests: mocks.fetchOpenPullRequests,
 }))
 

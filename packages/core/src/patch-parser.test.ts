@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parsePatch } from './index'
+import { parsePatch } from './patch-parser'
 
 const GIT_DIFF_FIXTURE = `diff --git a/src/foo.ts b/src/foo.ts
 index e69de29..4b825dc 100644

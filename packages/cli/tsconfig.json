@@ -5,8 +5,7 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "paths": {
-      "@pulls.review/core": ["../core/src/index.ts"],
-      "@pulls.review/core/llm": ["../core/src/llm.ts"]
+      "@pulls.review/core/*": ["../core/src/*.ts"]
     },
     "types": ["node"],
     "strict": true,

@@ -1,4 +1,4 @@
-import { GithubApiError } from '@pulls.review/core'
+import { GithubApiError } from '@pulls.review/core/github'
 import { computed, ref } from 'vue'
 import { resolveStoredTokenMeta } from '../composables/useGithubTokenMeta'
 import { t } from '../i18n'

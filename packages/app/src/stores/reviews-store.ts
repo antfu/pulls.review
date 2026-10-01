@@ -1,23 +1,7 @@
-import type { ReviewData, ReviewDraftTarget, ReviewVerdict } from '@pulls.review/core'
+import type { ReviewData, ReviewDraftTarget, ReviewVerdict } from '@pulls.review/core/types'
 import type { GithubWriteAccess } from './github-write-access'
 import type { DiffsStoreReviews } from './types'
-import {
-  addThreadToPendingReview,
-  createPendingReview,
-  createReview,
-  createReviewComment,
-  deletePendingReview,
-  deleteReviewComment,
-  fetchReviewComments,
-  fetchReviewCommentsForReview,
-  fetchReviews,
-  fetchThreadResolutions,
-  normalizeReviewData,
-  replyToReviewComment,
-  resolveThread as resolveThreadMutation,
-  submitPendingReview,
-  updateReviewComment,
-} from '@pulls.review/core'
+import { addThreadToPendingReview, createPendingReview, createReview, createReviewComment, deletePendingReview, deleteReviewComment, fetchReviewComments, fetchReviewCommentsForReview, fetchReviews, fetchThreadResolutions, normalizeReviewData, replyToReviewComment, resolveThread as resolveThreadMutation, submitPendingReview, updateReviewComment } from '@pulls.review/core/github'
 import { computed, reactive, ref } from 'vue'
 import { setReviewData } from '../cache/pr-cache'
 import { getDefaultCacheStorage } from '../cache/storage'

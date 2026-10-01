@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PullRequestState } from '@pulls.review/core'
+import type { PullRequestState } from '@pulls.review/core/types'
 
 defineProps<{
   state: PullRequestState

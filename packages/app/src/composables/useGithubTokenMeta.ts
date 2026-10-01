@@ -1,6 +1,6 @@
-import type { GithubTokenMeta } from '@pulls.review/core'
+import type { GithubTokenMeta } from '@pulls.review/core/github'
 import type { Ref } from 'vue'
-import { fetchGithubTokenMeta } from '@pulls.review/core'
+import { fetchGithubTokenMeta } from '@pulls.review/core/github'
 import { onScopeDispose, ref, watch } from 'vue'
 import { sha256Hex } from '../cache/token-hash'
 import { localizeError } from '../i18n/core-messages'

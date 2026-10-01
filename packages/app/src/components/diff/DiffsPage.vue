@@ -6,7 +6,7 @@ import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.v
 import FormCheckbox from '@antfu/design/components/Form/FormCheckbox.vue'
 import { Markdown } from '@comark/vue'
 import { Virtualizer } from '@pierre/diffs'
-import { parseGithubDiffId } from '@pulls.review/core'
+import { parseGithubDiffId } from '@pulls.review/core/github'
 import { useElementBounding, useEventListener } from '@vueuse/core'
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue'
 import { useProvider } from '../../composables/useProvider'

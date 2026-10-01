@@ -1,6 +1,11 @@
-import type { AnalyzeProgress, LlmSettings, Locale, PullRequestRef } from '@pulls.review/core'
+import type { LlmSettings } from '@pulls.review/core/analyze'
+import type { PullRequestRef } from '@pulls.review/core/github'
 import type { runLlmAnalysis } from '@pulls.review/core/llm'
-import { createIssueComment, diagnostics, fetchGithubTokenMeta, fetchSharedAnalysisComments, GithubProvider, renderSharedAnalysisComment, resolveModel, updateIssueComment } from '@pulls.review/core'
+import type { Locale } from '@pulls.review/core/locales'
+import type { AnalyzeProgress } from '@pulls.review/core/types'
+import { resolveModel } from '@pulls.review/core/analyze'
+import { diagnostics } from '@pulls.review/core/diagnostics'
+import { createIssueComment, fetchGithubTokenMeta, fetchSharedAnalysisComments, GithubProvider, renderSharedAnalysisComment, updateIssueComment } from '@pulls.review/core/github'
 
 /** The author GitHub shows for a workflow's `GITHUB_TOKEN`, which cannot look itself up at `/user`. */
 const ACTIONS_BOT_LOGIN = 'github-actions[bot]'

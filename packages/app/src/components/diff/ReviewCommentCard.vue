@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ReviewComment } from '@pulls.review/core'
+import type { ReviewComment } from '@pulls.review/core/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayBadge from '@antfu/design/components/Display/DisplayBadge.vue'

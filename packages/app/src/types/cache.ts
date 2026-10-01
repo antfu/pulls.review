@@ -1,5 +1,5 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
-import { DiffsPayloadSchema, GroupedResultSchema, ReviewDataSchema } from '@pulls.review/core'
+import { DiffsPayloadSchema, GroupedResultSchema, ReviewDataSchema } from '@pulls.review/core/types'
 import * as v from 'valibot'
 
 /**

@@ -3,7 +3,7 @@
 // Run with: GITHUB_TOKEN=... pnpm exec jiti scripts/capture-fixtures.ts
 import { writeFileSync } from 'node:fs'
 import process from 'node:process'
-import { GithubProvider } from '@pulls.review/core'
+import { GithubProvider } from '@pulls.review/core/github'
 import { ruleBasedAdapter } from '../src/analyze'
 
 const targets = [

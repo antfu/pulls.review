@@ -1,5 +1,5 @@
 import type { CacheStorage } from './storage'
-import { PullRequestListPageSchema } from '@pulls.review/core'
+import { PullRequestListPageSchema } from '@pulls.review/core/types'
 import * as v from 'valibot'
 
 const PULLS_KEY_PREFIX = 'pulls:'

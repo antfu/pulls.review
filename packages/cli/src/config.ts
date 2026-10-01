@@ -1,5 +1,8 @@
-import type { LlmSettings, Locale, PullRequestRef } from '@pulls.review/core'
-import { DEFAULT_LOCALE, defaultLlmSettings, deriveProvider, isLlmProvider, isLocale } from '@pulls.review/core'
+import type { LlmSettings } from '@pulls.review/core/analyze'
+import type { PullRequestRef } from '@pulls.review/core/github'
+import type { Locale } from '@pulls.review/core/locales'
+import { defaultLlmSettings, deriveProvider, isLlmProvider } from '@pulls.review/core/analyze'
+import { DEFAULT_LOCALE, isLocale } from '@pulls.review/core/locales'
 
 export type Env = Record<string, string | undefined>
 

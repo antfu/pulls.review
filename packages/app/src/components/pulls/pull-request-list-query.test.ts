@@ -1,4 +1,4 @@
-import type { PullRequestListItem } from '@pulls.review/core'
+import type { PullRequestListItem } from '@pulls.review/core/types'
 import { describe, expect, it } from 'vitest'
 import { filterPullRequests, sortPullRequests } from './pull-request-list-query'
 

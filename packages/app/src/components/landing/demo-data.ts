@@ -1,4 +1,4 @@
-import type { DiffCategory } from '@pulls.review/core'
+import type { DiffCategory } from '@pulls.review/core/types'
 
 /**
  * The pull request the landing-page animation walks through: antfu/pulls.review#9

@@ -1,4 +1,4 @@
-import type { Locale } from '@pulls.review/core'
+import type { Locale } from '@pulls.review/core/locales'
 import { watch } from 'vue'
 import { createI18n } from 'vue-i18n'
 import { settings } from '../state/settings'

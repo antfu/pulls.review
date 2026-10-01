@@ -15,11 +15,15 @@
   "bugs": "https://github.com/antfu/pulls.review/issues",
   "sideEffects": false,
   "exports": {
-    ".": "./dist/index.js",
-    "./llm": "./dist/llm.js"
+    "./types": "./dist/types.js",
+    "./patch-parser": "./dist/patch-parser.js",
+    "./github": "./dist/github.js",
+    "./paste": "./dist/paste.js",
+    "./analyze": "./dist/analyze.js",
+    "./llm": "./dist/llm.js",
+    "./diagnostics": "./dist/diagnostics.js",
+    "./locales": "./dist/locales.js"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],

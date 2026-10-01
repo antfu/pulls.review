@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { LlmSettings } from '@pulls.review/core'
+import type { LlmSettings } from '@pulls.review/core/analyze'
 import type { ModelOption } from '@pulls.review/core/llm'
 import type { StoredGithubTokenMeta } from '../../composables/useGithubTokenMeta'
 import AutoRefreshSettingsSection from './AutoRefreshSettingsSection.vue'

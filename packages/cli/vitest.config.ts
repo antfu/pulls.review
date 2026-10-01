@@ -3,10 +3,7 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   resolve: {
-    alias: {
-      '@pulls.review/core/llm': fileURLToPath(new URL('../core/src/llm.ts', import.meta.url)),
-      '@pulls.review/core': fileURLToPath(new URL('../core/src/index.ts', import.meta.url)),
-    },
+    alias: [{ find: /^@pulls\.review\/core\/(.+)$/, replacement: `${fileURLToPath(new URL('../core/src/', import.meta.url))}$1.ts` }],
   },
   test: {
     name: 'cli',

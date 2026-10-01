@@ -1,4 +1,4 @@
-import type { FileChange } from '@pulls.review/core'
+import type { FileChange } from '@pulls.review/core/types'
 import type { DiffsStore } from '../../stores/types'
 
 /** `changed`: reviewed at an earlier sha that later commits replaced, not yet re-marked. */

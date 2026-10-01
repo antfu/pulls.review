@@ -1,4 +1,4 @@
-import type { AnalyzeProgress } from '@pulls.review/core'
+import type { AnalyzeProgress } from '@pulls.review/core/types'
 import { Diagnostic } from 'nostics'
 import { t } from './index'
 

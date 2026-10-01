@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Locale } from '@pulls.review/core'
+import type { Locale } from '@pulls.review/core/locales'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
-import { LOCALES } from '@pulls.review/core'
+import { LOCALES } from '@pulls.review/core/locales'
 import { onClickOutside } from '@vueuse/core'
 import { ref, useTemplateRef } from 'vue'
 import { settings } from '../state/settings'

@@ -1,5 +1,5 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
-import type { CommentThread, DiffsPayload, GroupedResult, GroupSource, PendingReview, ReviewDraftTarget, ReviewSummary, ReviewVerdict } from '@pulls.review/core'
+import type { CommentThread, DiffsPayload, GroupedResult, GroupSource, PendingReview, ReviewDraftTarget, ReviewSummary, ReviewVerdict } from '@pulls.review/core/types'
 import type { DiffsStore, DiffsStoreReviews, DiffsStoreShared, LlmProgress, SharedAnalysisCandidate } from './types'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { resolveGroups } from '../components/diff/group-utils'

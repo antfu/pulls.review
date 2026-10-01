@@ -1,4 +1,4 @@
-import type { AnalyzeAdapter } from '@pulls.review/core'
+import type { AnalyzeAdapter } from '@pulls.review/core/types'
 
 /**
  * TODO(phase: web-llm-integration): fully in-browser model (e.g. WebGPU/WASM local

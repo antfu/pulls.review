@@ -1,4 +1,4 @@
-import type { DiffHunk, FileChange, FileChangeStatus } from '../types/diff'
+import type { DiffHunk, FileChange, FileChangeStatus } from './types/diff'
 
 const GIT_DIFF_HEADER_RE = /^diff --git a\/.* b\/(.*)$/
 const INDEX_LINE_RE = /^index ([0-9a-f]+)\.\.([0-9a-f]+)(?:\s+\d+)?$/
