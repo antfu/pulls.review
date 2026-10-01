@@ -1,4 +1,9 @@
-export type LlmProvider = 'gateway' | 'anthropic' | 'openai-compatible'
+export const LLM_PROVIDERS = ['gateway', 'anthropic', 'openai-compatible'] as const
+export type LlmProvider = typeof LLM_PROVIDERS[number]
+
+export function isLlmProvider(value: string): value is LlmProvider {
+  return (LLM_PROVIDERS as readonly string[]).includes(value)
+}
 
 /**
  * The `llm` analyze adapter's model access. `provider` picks which credentials

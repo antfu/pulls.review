@@ -1,0 +1,38 @@
+name: pulls.review
+description: Analyze a pull request with pulls.review and post the grouped summary as a PR comment.
+author: Anthony Fu
+branding:
+  icon: eye
+  color: orange
+
+inputs:
+  github-token:
+    description: 'Token with `pull-requests: write`. Comments are posted as its user (github-actions[bot] for the default token).'
+    default: ${{ github.token }}
+  provider:
+    description: '`gateway`, `anthropic` or `openai-compatible`. Defaults to whichever key is set.'
+  api-key:
+    description: API key or gateway token for the provider.
+    required: true
+  model:
+    description: Model id for the provider (the provider's default when empty).
+  base-url:
+    description: Endpoint for `openai-compatible` providers.
+  locale:
+    description: BCP 47 tag the summaries are written in (default `en`).
+  version:
+    description: pulls-review package version to run.
+    default: latest
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: npx -y pulls-review@${{ inputs.version }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        PULLS_REVIEW_PROVIDER: ${{ inputs.provider }}
+        PULLS_REVIEW_API_KEY: ${{ inputs.api-key }}
+        PULLS_REVIEW_MODEL: ${{ inputs.model }}
+        PULLS_REVIEW_BASE_URL: ${{ inputs.base-url }}
+        PULLS_REVIEW_LOCALE: ${{ inputs.locale }}

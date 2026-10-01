@@ -30,15 +30,18 @@ management product.
    should stay fast via virtualization, not degrade the way GitHub's own UI
    does.
 4. **Zero backend** — everything (fetching, caching, analysis) runs in the
-   visitor's browser. Auth is a self-supplied GitHub token; LLM access is a
-   self-supplied key or gateway token. Nothing is proxied through a server
-   we run.
+   visitor's browser, or in the user's own CI through the `pulls-review`
+   CLI. Auth is a self-supplied GitHub token; LLM access is a self-supplied
+   key or gateway token. Nothing is proxied through a server we run.
 
 ## Longer-term direction (see `01-architecture.md` for what's deferred vs. built)
 
 - LLM-powered analysis (richer summaries) as an opt-in alongside the
   always-available rule-based fallback, plus a fully in-browser (`web-llm`)
   option requiring no API key at all.
+- Analyzing every PR once from a workflow (built): the `pulls-review` CLI and
+  its GitHub Action post the same shared-analysis comment a reviewer can, so
+  the site and the embed show the result without anyone spending a key.
 - Reviewing PRs interactively from within pulls.review (built): inline review
   comment threads, replies, and GitHub-style review submission
   (approve/request changes/comment), degrading to read-only when the token
@@ -57,8 +60,9 @@ management product.
 
 ## Explicit non-goals
 
-- Being a general git hosting/PR management product (no merging, no CI
-  integration, no issue tracking).
+- Being a general git hosting/PR management product (no merging, no checks
+  or status reporting, no issue tracking). The CLI posts a comment the site
+  reads; it does not gate anything.
 - A dashboard or account system. pulls.review is deep-links (plus a per-repo
   open-PR list to reach them) and local (per-browser) history, not a hosted
   product with accounts.

@@ -1,0 +1,45 @@
+{
+  "name": "pulls-review",
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Analyze a GitHub pull request with pulls.review and post the grouped summary as a PR comment.",
+  "author": "Anthony Fu <hi@antfu.me>",
+  "license": "MIT",
+  "funding": "https://github.com/sponsors/antfu",
+  "homepage": "https://pulls.review",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antfu/pulls.review.git",
+    "directory": "packages/cli"
+  },
+  "bugs": "https://github.com/antfu/pulls.review/issues",
+  "keywords": [
+    "pull-request",
+    "code-review",
+    "github-actions",
+    "llm"
+  ],
+  "bin": {
+    "pulls-review": "./dist/index.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@pulls.review/core": "workspace:^",
+    "nostics": "catalog:frontend"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:dev",
+    "typescript": "catalog:dev",
+    "vitest": "catalog:testing"
+  }
+}

@@ -8,20 +8,37 @@ repo's open PRs as a way into those deep-links. See `plans/` for the
 phase-by-phase implementation plans; this doc is the standing contract those
 plans (and any future work) MUST follow.
 
+## Layout
+
+A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
+
+- `packages/app` — the SPA and the github.com embed (Vite + Vue). Paths
+  below written as `app/…` live in `packages/app/src/`.
+- `packages/core` (`@pulls.review/core`) — everything runtime-agnostic:
+  canonical types, the patch parser, providers, the `llm`/`rule-based`/`none`
+  analyze adapters, the locale list and the diagnostics catalog. Built with
+  tsdown; the app resolves it to source through a Vite alias. Core MUST load
+  under plain Node: no Settings, vue-i18n, `localStorage`, `document`, or
+  Vite-only syntax (`import.meta.glob`, `import.meta.env`) inside it.
+  Callers pass model settings and locale in, inject group text, word the
+  structured progress events, and translate nostics diagnostics by code.
+- `packages/cli` (`pulls-review`) — fetch, analyze, upsert the shared-analysis
+  comment; what the root `action.yml` composite action runs.
+
 ## Invariants
 
-- Everything MUST run in the browser. There is no backend — no server routes,
-  no OAuth client-secret exchange, no edge functions. Auth is a user-pasted
-  GitHub PAT (optional for public repos); LLM access is a user-pasted key or
-  gateway token. This rules out anything that needs a server to keep a secret.
-- The app MUST build as a static SPA (`ssr: false`, `nuxt generate`) and
-  deploy as static files, on Vercel. `vercel.json` carries a catch-all
-  rewrite to Nuxt's `/200.html` fallback so the dynamic route
-  `/gh/[owner]/[repo]/[number]` works on direct navigation/refresh, not just
-  client-side routing after landing on `/`.
-- Nuxt auto-imports MUST stay disabled (`imports: { autoImport: false }`,
-  `components: false`). Every composable, component, and Nuxt utility
-  (`useRoute`, `#imports`, etc.) is imported explicitly.
+- Nothing is proxied through a server we run. There is no backend — no server
+  routes, no OAuth client-secret exchange, no edge functions. Auth is a
+  user-supplied GitHub token (optional for public repos); LLM access is a
+  user-supplied key or gateway token. This rules out anything that needs a
+  server to keep a secret. The site does everything in the browser; the CLI
+  does the same work in the user's own CI with the user's own secrets.
+- The app MUST build as a static SPA and deploy as static files, on Vercel.
+  `vercel.json` carries a catch-all rewrite to `/index.html` so the dynamic
+  route `/gh/[owner]/[repo]/[number]` works on direct navigation/refresh, not
+  just client-side routing after landing on `/`.
+- Every composable, component and utility is imported explicitly — no
+  auto-import plugin.
 - Unit tests (Vitest) SHOULD be co-located with the source file they test
   (`foo.ts` + `foo.test.ts`) wherever possible. This applies to every pure
   module — `patch-parser`, analyze adapters, cache modules, provider
@@ -63,22 +80,25 @@ analysis strategy later never touches the view layer:
   - `rule-based` — implemented. Deterministic glob-pattern classification,
     flat (1-level) groups, no LLM, no network call.
   - `llm` — implemented. A pi-agent-core tool loop against whichever
-    provider is selected in Settings (AI Gateway, Anthropic, or
-    OpenAI-compatible — only the selected one is ever called). The prompt
+    provider the caller resolved (`resolveModel(llm)`: AI Gateway, Anthropic,
+    or OpenAI-compatible — only the selected one is ever called). Core's
+    `runLlmAnalysis(diff, resolved, locale)` knows nothing of Settings; the
+    app binds it to `settings.value` in `app/analyze/adapters/llm/index.ts`. The prompt
     carries a file manifest, the commit subject lines when there is more than
     one commit, and the full diffs when they are small; the model pulls
     diffs on demand with `read_diffs` and finishes with `submit_grouping`,
     whose coverage check rejects a grouping that misses or invents paths so
     the model must fix it. The prompt itself stays English whatever the
     user's language; only its closing line (`Respond and categorize in
-    <language>.`) names `settings.locale`, and the result is stamped with
+    <language>.`) names the locale, and the result is stamped with
     that `locale` so the view knows what language it is in. A read budget and a turn cap bound the run, and
-    progress (`Reading 4 files: …`) streams to the header. Failures MUST
+    structured progress (`{ kind: 'reading', paths }`) streams to the header,
+    worded by `app/i18n/core-messages.ts`. Failures MUST
     surface as `llm.error` — there is no silent `rule-based` fallback, and
     nothing but real model output is ever stored under `llm`. Everything that
     runs or chats with a model - `stores/llm-store.ts` (the `DiffsStore.llm`
     sub-store), `composables/useLlmChat.ts`, the chat components, and the pi
-    runtime (`agent.ts`, `runtime.ts`, `chat.ts`) behind them - is only
+    runtime (`@pulls.review/core/llm`) behind them - is only
     reached via dynamic `import()` behind the compile-time
     `import.meta.env.PR_LLM` flag: the site builds with it on (lazy chunks),
     the embed with it off (the `import()`s are dead code, so its single IIFE
@@ -234,7 +254,7 @@ land later without a rewrite:
 - Merging PRs. (Review comment threads and formal review submission are
   built — see `plans/05-comment-threads.md` — gated behind
   `Provider.capabilities.supportsComments`, true for `github` only.)
-- `local` CLI provider.
+- `local` provider (diffing a working tree) - would live in core.
 - Any cross-repo/history dashboard (the per-repo open-PR list at
   `/gh/owner/repo` is a navigation aid into the deep-links, not that) or
   social/OG link previews (no backend to render them).
@@ -251,13 +271,17 @@ land later without a rewrite:
 
 - Every user-facing string goes through vue-i18n (`app/i18n/`): `$t()` in
   templates, `useI18n()` in component scripts, `i18n.global.t` in plain
-  modules (rule-based labels, agent progress, user-facing errors). English is
-  bundled and is the key schema (`locales/en.json`, typed via
-  `DefineLocaleMessage`); other locales load on demand. One `settings.locale`
-  drives both the UI and the language the LLM writes summaries in; it is
-  seeded from `navigator.languages` (`i18n/locales.ts`) and switched from
-  the `LanguageMenu` icon in `NavControls`. Model-facing text (prompts, tool
-  errors) and diagnostics that embed URLs/status codes stay English.
+  modules. Core has no vue-i18n: the app's adapter registry
+  (`app/analyze/index.ts`) supplies the rule-based group text, and
+  `app/i18n/core-messages.ts` words core's progress events and translates its
+  nostics diagnostics by code (`localizeError`), falling back to the English
+  message. English is bundled and is the key schema (`locales/en.json`, typed
+  via `DefineLocaleMessage`); other locales load on demand. One
+  `settings.locale` drives both the UI and the language the LLM writes
+  summaries in; it is seeded from `navigator.languages` (core's `locales.ts`)
+  and switched from the `LanguageMenu` icon in `NavControls`. Model-facing
+  text (prompts, tool errors) and diagnostics that embed URLs/status codes
+  stay English.
 - Settings (GitHub PAT, later model keys) and loading a pasted/uploaded diff
   are both modals/panels (`SettingsModal.vue`/`LoadDiffModal.vue` wrapping
   pure `*Panel.vue` content), triggered from `AppHeader.vue` — never routed
