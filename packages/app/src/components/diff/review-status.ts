@@ -1,5 +1,5 @@
+import type { FileChange } from '@pulls.review/core'
 import type { DiffsStore } from '../../stores/types'
-import type { FileChange } from '../../types/diff'
 
 /** `changed`: reviewed at an earlier sha that later commits replaced, not yet re-marked. */
 export type ReviewStatus = 'reviewed' | 'changed' | 'unreviewed'
