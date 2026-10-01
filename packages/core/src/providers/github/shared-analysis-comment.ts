@@ -1,5 +1,5 @@
 import type { SharedAnalysis } from '../../types/shared-analysis'
-import LZString from 'lz-string'
+import { compressToBase64, decompressFromBase64 } from 'lz-string-es'
 import * as v from 'valibot'
 import { diagnostics } from '../../diagnostics'
 import { SharedAnalysisSchema } from '../../types/shared-analysis'
@@ -41,7 +41,7 @@ function formatUtcMinutes(iso: string): string {
  */
 function renderPayload(analysis: SharedAnalysis, compress: boolean): string {
   return compress
-    ? ['```lz-string', LZString.compressToBase64(JSON.stringify(analysis)), '```'].join('\n')
+    ? ['```lz-string', compressToBase64(JSON.stringify(analysis)), '```'].join('\n')
     : ['```json', JSON.stringify(analysis, null, 2), '```'].join('\n')
 }
 
@@ -85,7 +85,9 @@ export function parseSharedAnalysisComment(body: string): SharedAnalysis | undef
   if (!match)
     return undefined
   try {
-    const json = match[1] === 'lz-string' ? LZString.decompressFromBase64(match[2]!) : match[2]!
+    const json = match[1] === 'lz-string' ? decompressFromBase64(match[2]!) : match[2]!
+    if (!json)
+      return undefined
     const parsed = v.safeParse(SharedAnalysisSchema, JSON.parse(json))
     return parsed.success ? parsed.output : undefined
   }

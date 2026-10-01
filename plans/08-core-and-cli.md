@@ -49,9 +49,8 @@ Settings, vue-i18n, `localStorage`, `document` or Vite-only syntax:
   message for codes it has no translation for. The CLI prints
   `formatDiagnostic`. Core MUST NOT throw a bare string for a problem a person
   has to act on - add a code.
-- **CJS interop is Node's problem too.** `lz-string` is imported as a default
-  (`LZString.compressToBase64`) because named imports from a CommonJS module
-  only work through Vite.
+- **Dependencies MUST be real ESM.** `lz-string-es` replaces `lz-string`, whose
+  CommonJS build only resolved named imports through Vite, not under Node.
 
 ## CLI contract
 

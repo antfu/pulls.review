@@ -85,7 +85,7 @@ catalogs:
     diff: ^9.0.0
     fzf: ^0.5.2
     idb-keyval: ^6.3.0
-    lz-string: ^1.5.0
+    lz-string-es: ^1.0.0
     nostics: ^1.3.0
     picomatch: ^4.0.7
     reka-ui: ^2.10.5

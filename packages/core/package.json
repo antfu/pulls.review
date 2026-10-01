@@ -37,7 +37,7 @@
     "@earendil-works/pi-ai": "catalog:frontend",
     "@valibot/to-json-schema": "catalog:frontend",
     "diff": "catalog:frontend",
-    "lz-string": "catalog:frontend",
+    "lz-string-es": "catalog:frontend",
     "nostics": "catalog:frontend",
     "picomatch": "catalog:frontend",
     "valibot": "catalog:frontend"
