@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fetchFileContentAtRef } from './api'
+import { fetchFileContentAtRef, fetchPullRequestDiffText } from './api'
 
 describe('fetchFileContentAtRef', () => {
   afterEach(() => {
@@ -39,5 +39,23 @@ describe('fetchFileContentAtRef', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('nope', { status: 500 })))
 
     await expect(fetchFileContentAtRef('owner', 'repo', 'src/foo.ts', 'abc123')).rejects.toThrow(/GitHub API request failed \(500\)/)
+  })
+})
+
+describe('fetchPullRequestDiffText', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('returns undefined when GitHub refuses to render the diff (406)', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('too_large', { status: 406 })))
+
+    await expect(fetchPullRequestDiffText('owner', 'repo', '1')).resolves.toBeUndefined()
+  })
+
+  it('still throws on other failures', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('nope', { status: 500 })))
+
+    await expect(fetchPullRequestDiffText('owner', 'repo', '1')).rejects.toThrow(/\(500\)/)
   })
 })

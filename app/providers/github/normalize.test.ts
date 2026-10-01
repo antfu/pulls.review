@@ -2,6 +2,8 @@ import type { GithubPullRequestFileJson, GithubPullRequestJson } from './api'
 import { describe, expect, it, vi } from 'vitest'
 import { normalizePullRequest } from './normalize'
 
+const noFallbacks = { loadDiffText: async () => '', loadFileContent: async () => undefined }
+
 const PR_JSON: GithubPullRequestJson = {
   title: 'Add feature',
   body: 'Some description',
@@ -28,7 +30,7 @@ describe('normalizePullRequest', () => {
         patch: '@@ -1,2 +1,2 @@\n context\n-old\n+new',
       },
     ]
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], async () => '')
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], noFallbacks)
 
     expect(diff).toMatchObject({
       provider: 'github',
@@ -45,7 +47,7 @@ describe('normalizePullRequest', () => {
 
   it('keeps each commit\'s sha and full message', async () => {
     const commits = [{ sha: 'c1', commit: { message: 'feat: add x\n\nbody' } }]
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, [], commits, async () => '')
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, [], commits, noFallbacks)
     expect(diff.commits).toEqual([{ sha: 'c1', message: 'feat: add x\n\nbody' }])
   })
 
@@ -61,7 +63,7 @@ describe('normalizePullRequest', () => {
         patch: undefined,
       },
     ]
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], async () => '')
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], noFallbacks)
     expect(diff.files[0]).toMatchObject({ status: 'renamed', previousPath: 'src/old-name.ts', path: 'src/new-name.ts' })
   })
 
@@ -83,7 +85,7 @@ describe('normalizePullRequest', () => {
       + '-old\n'
       + '+new\n'
     const loadFallback = vi.fn(async () => fallbackText)
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], loadFallback)
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], { ...noFallbacks, loadDiffText: loadFallback })
 
     expect(loadFallback).toHaveBeenCalledOnce()
     expect(diff.files[0]).toMatchObject({ path: 'src/huge.ts', sha: 'ghi789', isBinary: false, additions: 500, deletions: 10 })
@@ -103,9 +105,49 @@ describe('normalizePullRequest', () => {
     const fallbackText = 'diff --git a/assets/logo.png b/assets/logo.png\n'
       + 'index aaa..jkl012 100644\n'
       + 'Binary files a/assets/logo.png and b/assets/logo.png differ\n'
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], async () => fallbackText)
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], { ...noFallbacks, loadDiffText: async () => fallbackText })
 
     expect(diff.files[0]).toMatchObject({ path: 'assets/logo.png', isBinary: true })
+  })
+
+  describe('when GitHub refuses to render the whole-PR diff', () => {
+    const tooLarge = { loadDiffText: async () => undefined }
+
+    it('diffs the base and head file contents itself', async () => {
+      const files: GithubPullRequestFileJson[] = [
+        { filename: 'src/huge.ts', status: 'modified', additions: 1, deletions: 1, sha: 'ghi789' },
+      ]
+      const loadFileContent = vi.fn(async (_path: string, ref: string) => ref === 'base123' ? 'a\nold\nc\n' : 'a\nnew\nc\n')
+      const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], { ...tooLarge, loadFileContent })
+
+      expect(diff.files[0]).toMatchObject({ path: 'src/huge.ts', isBinary: false, additions: 1, deletions: 1 })
+      expect(diff.files[0]!.hunks).toHaveLength(1)
+      expect(diff.files[0]!.hunks[0]!.patch).toContain('-old\n+new')
+    })
+
+    it('reads a renamed file\'s old side from its previous path and treats an added file as empty before', async () => {
+      const files: GithubPullRequestFileJson[] = [
+        { filename: 'new.ts', previous_filename: 'old.ts', status: 'renamed', additions: 1, deletions: 1, sha: 'r1' },
+        { filename: 'added.ts', status: 'added', additions: 2, deletions: 0, sha: 'a1' },
+      ]
+      const loadFileContent = vi.fn(async (path: string) => path === 'old.ts' ? 'x\n' : path === 'new.ts' ? 'y\n' : 'l1\nl2\n')
+      const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], { ...tooLarge, loadFileContent })
+
+      expect(loadFileContent).toHaveBeenCalledWith('old.ts', 'base123')
+      expect(loadFileContent).not.toHaveBeenCalledWith('added.ts', 'base123')
+      expect(diff.files[1]!.hunks[0]).toMatchObject({ oldStart: 0, oldLines: 0, newStart: 1, newLines: 2 })
+    })
+
+    it('keeps a file with no changed lines as binary without fetching content', async () => {
+      const files: GithubPullRequestFileJson[] = [
+        { filename: 'logo.png', status: 'modified', additions: 0, deletions: 0, sha: 'p1' },
+      ]
+      const loadFileContent = vi.fn(async () => 'binary')
+      const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], { ...tooLarge, loadFileContent })
+
+      expect(diff.files[0]).toMatchObject({ isBinary: true, hunks: [] })
+      expect(loadFileContent).not.toHaveBeenCalled()
+    })
   })
 
   it.each([
@@ -114,7 +156,7 @@ describe('normalizePullRequest', () => {
     [{ state: 'closed' as const, draft: false, merged: false }, 'closed'],
     [{ state: 'closed' as const, draft: false, merged: true }, 'merged'],
   ])('resolves pullRequest.state from %o to %s', async (overrides, expected) => {
-    const diff = await normalizePullRequest('owner', 'repo', '1', { ...PR_JSON, ...overrides }, [], [], async () => '')
+    const diff = await normalizePullRequest('owner', 'repo', '1', { ...PR_JSON, ...overrides }, [], [], noFallbacks)
     expect(diff.pullRequest?.state).toBe(expected)
   })
 
@@ -128,7 +170,7 @@ describe('normalizePullRequest', () => {
       'diff --git a/b.ts b/b.ts\nindex 0..b1 100644\n--- a/b.ts\n+++ b/b.ts\n@@ -0,0 +1,1 @@\n+b\n',
     ].join('')
     const loadFallback = vi.fn(async () => fallbackText)
-    await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], loadFallback)
+    await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], { ...noFallbacks, loadDiffText: loadFallback })
     expect(loadFallback).toHaveBeenCalledOnce()
   })
 })

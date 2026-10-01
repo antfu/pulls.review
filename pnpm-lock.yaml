@@ -261,6 +261,9 @@ catalogs:
     colorjs.io:
       specifier: ^0.7.1
       version: 0.7.1
+    diff:
+      specifier: ^9.0.0
+      version: 9.0.0
     fzf:
       specifier: ^0.5.2
       version: 0.5.2
@@ -434,6 +437,9 @@ importers:
       colorjs.io:
         specifier: catalog:frontend
         version: 0.7.1
+      diff:
+        specifier: catalog:frontend
+        version: 9.0.0
       eslint:
         specifier: catalog:dev
         version: 10.11.0(jiti@2.7.0)

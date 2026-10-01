@@ -1,5 +1,5 @@
 import type { Provider } from '../../types/provider'
-import { fetchPullRequest, fetchPullRequestCommits, fetchPullRequestDiffText, fetchPullRequestFiles } from './api'
+import { fetchFileContentAtRef, fetchPullRequest, fetchPullRequestCommits, fetchPullRequestDiffText, fetchPullRequestFiles } from './api'
 import { normalizePullRequest } from './normalize'
 
 export const GithubProvider: Provider = {
@@ -21,6 +21,9 @@ export const GithubProvider: Provider = {
       fetchPullRequestCommits(owner, repo, number, opts.token),
     ])
 
-    return normalizePullRequest(owner, repo, number, pr, files, commits, () => fetchPullRequestDiffText(owner, repo, number, opts.token))
+    return normalizePullRequest(owner, repo, number, pr, files, commits, {
+      loadDiffText: () => fetchPullRequestDiffText(owner, repo, number, opts.token),
+      loadFileContent: (path, ref) => fetchFileContentAtRef(owner, repo, path, ref, opts.token),
+    })
   },
 }

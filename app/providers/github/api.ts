@@ -83,10 +83,21 @@ export function fetchPullRequestCommits(owner: string, repo: string, number: str
   return fetchAllPages(`${GITHUB_API_BASE}/repos/${owner}/${repo}/pulls/${number}/commits`, token)
 }
 
-/** Raw unified-diff text for the whole PR, used as a fallback when GitHub omits a file's `patch` (very large diffs). */
-export async function fetchPullRequestDiffText(owner: string, repo: string, number: string, token?: string): Promise<string> {
-  const res = await githubFetch(`${GITHUB_API_BASE}/repos/${owner}/${repo}/pulls/${number}`, token, 'application/vnd.github.diff')
-  return res.text()
+/**
+ * Raw unified-diff text for the whole PR, used as a fallback when GitHub omits a file's `patch`
+ * (very large diffs). `undefined` when GitHub refuses to render the diff at all (406: over 300
+ * files or too large).
+ */
+export async function fetchPullRequestDiffText(owner: string, repo: string, number: string, token?: string): Promise<string | undefined> {
+  try {
+    const res = await githubFetch(`${GITHUB_API_BASE}/repos/${owner}/${repo}/pulls/${number}`, token, 'application/vnd.github.diff')
+    return await res.text()
+  }
+  catch (err) {
+    if (err instanceof GithubApiError && err.status === 406)
+      return undefined
+    throw err
+  }
 }
 
 /**

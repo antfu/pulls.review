@@ -60,6 +60,7 @@
     "@vueuse/core": "catalog:frontend",
     "animejs": "catalog:frontend",
     "colorjs.io": "catalog:frontend",
+    "diff": "catalog:frontend",
     "eslint": "catalog:dev",
     "eslint-plugin-format": "catalog:dev",
     "eslint-plugin-slop": "catalog:dev",

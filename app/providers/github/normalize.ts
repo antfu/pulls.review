@@ -1,5 +1,6 @@
-import type { DiffsPayload, FileChange, FileChangeStatus, PullRequestState } from '../../types/diff'
+import type { DiffHunk, DiffsPayload, FileChange, FileChangeStatus, PullRequestState } from '../../types/diff'
 import type { GithubPullRequestCommitJson, GithubPullRequestFileJson, GithubPullRequestJson } from './api'
+import { createTwoFilesPatch } from 'diff'
 import { parseHunks, parsePatch } from '../../patch-parser'
 
 const STATUS_MAP: Record<string, FileChangeStatus> = {
@@ -12,7 +13,25 @@ const STATUS_MAP: Record<string, FileChangeStatus> = {
   unchanged: 'modified',
 }
 
-async function normalizeFile(file: GithubPullRequestFileJson, fallbackDiffText?: () => Promise<string>): Promise<FileChange> {
+/** How to recover a patch GitHub left out of the files listing. */
+export interface PatchFallbacks {
+  /** Whole-PR `.diff` text; `undefined` when GitHub refuses to render it (too many files / too large). */
+  loadDiffText: () => Promise<string | undefined>
+  /** A file's content at a commit; `undefined` when the file doesn't exist there. */
+  loadFileContent: (path: string, ref: string) => Promise<string | undefined>
+}
+
+/** Last resort for diffs too large for GitHub to render: diff the two file versions ourselves. */
+async function diffFileContents(file: GithubPullRequestFileJson, pr: GithubPullRequestJson, loadFileContent: PatchFallbacks['loadFileContent']): Promise<DiffHunk[]> {
+  const oldPath = file.previous_filename ?? file.filename
+  const [oldContent, newContent] = await Promise.all([
+    file.status === 'added' ? undefined : loadFileContent(oldPath, pr.base.sha),
+    file.status === 'removed' ? undefined : loadFileContent(file.filename, pr.head.sha),
+  ])
+  return parseHunks(createTwoFilesPatch(oldPath, file.filename, oldContent ?? '', newContent ?? '').split('\n'))
+}
+
+async function normalizeFile(file: GithubPullRequestFileJson, pr: GithubPullRequestJson, fallbackDiffText: () => Promise<string | undefined>, loadFileContent: PatchFallbacks['loadFileContent']): Promise<FileChange> {
   const status = STATUS_MAP[file.status] ?? 'modified'
 
   if (file.patch !== undefined) {
@@ -33,20 +52,32 @@ async function normalizeFile(file: GithubPullRequestFileJson, fallbackDiffText?:
 
   // GitHub omits `patch` for very large diffs (and gives no direct signal for binary
   // files), fall back to the raw `.diff` text, which is authoritative for both.
-  if (fallbackDiffText) {
-    const fullText = await fallbackDiffText()
-    const parsed = await parsePatch(fullText)
-    const match = parsed.find(f => f.path === file.filename || (!!file.previous_filename && f.previousPath === file.previous_filename))
-    if (match) {
-      // The JSON API stays the source of truth for blob sha/status/counts whenever it has them.
-      return {
-        ...match,
-        status,
-        previousPath: file.previous_filename,
-        sha: file.sha,
-        additions: file.additions,
-        deletions: file.deletions,
-      }
+  const fullText = await fallbackDiffText()
+  const parsed = fullText === undefined ? [] : await parsePatch(fullText)
+  const match = parsed.find(f => f.path === file.filename || (!!file.previous_filename && f.previousPath === file.previous_filename))
+  if (match) {
+    // The JSON API stays the source of truth for blob sha/status/counts whenever it has them.
+    return {
+      ...match,
+      status,
+      previousPath: file.previous_filename,
+      sha: file.sha,
+      additions: file.additions,
+      deletions: file.deletions,
+    }
+  }
+
+  // Binary files report no changed lines; a text file with changes but no patch is just too large.
+  if (fullText === undefined && file.additions + file.deletions > 0) {
+    return {
+      path: file.filename,
+      previousPath: file.previous_filename,
+      status,
+      additions: file.additions,
+      deletions: file.deletions,
+      isBinary: false,
+      sha: file.sha,
+      hunks: await diffFileContents(file, pr, loadFileContent),
     }
   }
 
@@ -79,13 +110,13 @@ export async function normalizePullRequest(
   pr: GithubPullRequestJson,
   files: GithubPullRequestFileJson[],
   commits: GithubPullRequestCommitJson[],
-  loadFallbackDiffText: () => Promise<string>,
+  { loadDiffText, loadFileContent }: PatchFallbacks,
 ): Promise<DiffsPayload> {
-  let fallbackDiffTextPromise: Promise<string> | undefined
-  const fallbackDiffText = () => fallbackDiffTextPromise ??= loadFallbackDiffText()
+  let diffTextPromise: Promise<string | undefined> | undefined
+  const fallbackDiffText = () => diffTextPromise ??= loadDiffText()
 
   const normalizedFiles = await Promise.all(
-    files.map(file => normalizeFile(file, fallbackDiffText)),
+    files.map(file => normalizeFile(file, pr, fallbackDiffText, loadFileContent)),
   )
 
   return {
