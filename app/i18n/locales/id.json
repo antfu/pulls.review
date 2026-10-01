@@ -282,6 +282,7 @@
       "anthropicHint": "{link}, dipanggil langsung dari browser ini (tanpa gateway).",
       "anthropicLink": "API key Anthropic",
       "openaiHint": "API key untuk endpoint di atas.",
+      "createKey": "Buat di {provider} →",
       "configured": "Terkonfigurasi",
       "changeKey": "Ganti kunci",
       "model": "Model",

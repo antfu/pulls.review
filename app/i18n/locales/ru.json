@@ -282,6 +282,7 @@
       "anthropicHint": "{link}, вызываемый напрямую из этого браузера (без gateway).",
       "anthropicLink": "API-ключ Anthropic",
       "openaiHint": "API-ключ для указанного выше endpoint.",
+      "createKey": "Создать на {provider} →",
       "configured": "Настроен",
       "changeKey": "Сменить ключ",
       "model": "Модель",

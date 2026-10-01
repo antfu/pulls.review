@@ -282,6 +282,7 @@
       "anthropicHint": "一個 {link}，直接從此瀏覽器呼叫（不經過 gateway）。",
       "anthropicLink": "Anthropic API key",
       "openaiHint": "上述 endpoint 的 API key。",
+      "createKey": "在 {provider} 上建立 →",
       "configured": "已設定",
       "changeKey": "更換 key",
       "model": "模型",

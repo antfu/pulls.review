@@ -282,6 +282,7 @@
       "anthropicHint": "{link}。このブラウザから直接呼び出します（gateway なし）。",
       "anthropicLink": "Anthropic API キー",
       "openaiHint": "上記エンドポイントの API キー。",
+      "createKey": "{provider} で作成 →",
       "configured": "設定済み",
       "changeKey": "キーを変更",
       "model": "モデル",

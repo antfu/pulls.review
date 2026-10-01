@@ -282,6 +282,7 @@
       "anthropicHint": "{link}. 이 브라우저에서 직접 호출합니다 (gateway 없음).",
       "anthropicLink": "Anthropic API 키",
       "openaiHint": "위 엔드포인트의 API 키.",
+      "createKey": "{provider}에서 생성 →",
       "configured": "설정됨",
       "changeKey": "키 변경",
       "model": "모델",

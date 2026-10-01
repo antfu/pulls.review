@@ -282,6 +282,7 @@
       "anthropicHint": "Una {link}, chiamata direttamente da questo browser (senza gateway).",
       "anthropicLink": "API key Anthropic",
       "openaiHint": "L'API key per l'endpoint indicato sopra.",
+      "createKey": "Creane una su {provider} →",
       "configured": "Configurata",
       "changeKey": "Cambia chiave",
       "model": "Modello",

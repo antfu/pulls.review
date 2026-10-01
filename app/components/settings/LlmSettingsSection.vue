@@ -29,12 +29,13 @@ interface ProviderConfig {
   tokenKey: 'gatewayToken' | 'anthropicApiKey' | 'openaiApiKey'
   modelKey: 'gatewayModel' | 'anthropicModel' | 'openaiModel'
   placeholder: string
+  createKey: { vendor: string, url: string }
 }
 
 const providerConfigs: Record<LlmProvider, ProviderConfig> = {
-  'gateway': { tokenKey: 'gatewayToken', modelKey: 'gatewayModel', placeholder: 'vck_…' },
-  'anthropic': { tokenKey: 'anthropicApiKey', modelKey: 'anthropicModel', placeholder: 'sk-ant-…' },
-  'openai-compatible': { tokenKey: 'openaiApiKey', modelKey: 'openaiModel', placeholder: 'sk-…' },
+  'gateway': { tokenKey: 'gatewayToken', modelKey: 'gatewayModel', placeholder: 'vck_…', createKey: { vendor: 'Vercel', url: 'https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai-gateway%2Fapi-keys' } },
+  'anthropic': { tokenKey: 'anthropicApiKey', modelKey: 'anthropicModel', placeholder: 'sk-ant-…', createKey: { vendor: 'Anthropic', url: 'https://console.anthropic.com/settings/keys' } },
+  'openai-compatible': { tokenKey: 'openaiApiKey', modelKey: 'openaiModel', placeholder: 'sk-…', createKey: { vendor: 'OpenAI', url: 'https://platform.openai.com/api-keys' } },
 }
 
 const providerOptions = [
@@ -156,6 +157,12 @@ const model = computed({
             <template v-else>
               {{ $t('settings.llm.openaiHint') }}
             </template>
+            <br><a
+              :href="config.createKey.url"
+              target="_blank"
+              rel="noopener"
+              class="text-primary hover:underline"
+            >{{ $t('settings.llm.createKey', { provider: config.createKey.vendor }) }}</a>
           </template>
         </FormField>
       </template>
