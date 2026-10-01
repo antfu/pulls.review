@@ -7,7 +7,17 @@
 
 Pull request review made simple. Groups changed files, summarizes what matters, and reviews them one scope at a time.
 
-## Analyze pull requests from CI
+## Use on Website
+
+To use pulls.review on the website, simply visit [pulls.review](https://pulls.review) and follow the instructions to connect your GitHub account and start reviewing pull requests directly in your browser.
+
+## Use in GitHub
+
+You can optionally install userscript to enhance the GitHub interface with pulls.review features.
+
+Go to [pulls.review](https://pulls.review/) and scroll down to the GitHub section to install the userscript.
+
+## Analyze pull requests from CI (Experimental)
 
 Instead of each reviewer spending their own model key, let a workflow analyze every pull request once and post the result as a PR comment. pulls.review picks the comment up automatically for everyone who opens the PR there. Re-runs on an unchanged PR skip the model call.
 
@@ -29,7 +39,7 @@ jobs:
     steps:
       - uses: antfu/pulls.review@main
         with:
-          api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          api-key: ${{ secrets.VERCEL_AI_GATEWAY_API_KEY }}
 ```
 
 `provider` is inferred from the key you pass (`gateway` for a Vercel AI Gateway token, `anthropic`, or `openai-compatible` with `base-url`); set it explicitly, along with `model` and `locale`, when you want to.
