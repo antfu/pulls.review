@@ -8,8 +8,8 @@ export default antfu(
     pnpm: true,
     antislop: true,
     ignores: [
-      'app/components/diff/pierre-diffs-core.css',
-      'test/fixtures/real/**',
+      'packages/app/src/components/diff/pierre-diffs-core.css',
+      'packages/app/test/fixtures/real/**',
       '**/__snapshots__/**',
     ],
   },

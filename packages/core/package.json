@@ -1,0 +1,51 @@
+{
+  "name": "@pulls.review/core",
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Fetch, parse, group and summarize pull request diffs - the runtime-agnostic core of pulls.review.",
+  "author": "Anthony Fu <hi@antfu.me>",
+  "license": "MIT",
+  "funding": "https://github.com/sponsors/antfu",
+  "homepage": "https://pulls.review",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antfu/pulls.review.git",
+    "directory": "packages/core"
+  },
+  "bugs": "https://github.com/antfu/pulls.review/issues",
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.js",
+    "./llm": "./dist/llm.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ai-sdk/gateway": "catalog:frontend",
+    "@earendil-works/pi-agent-core": "catalog:frontend",
+    "@earendil-works/pi-ai": "catalog:frontend",
+    "@valibot/to-json-schema": "catalog:frontend",
+    "diff": "catalog:frontend",
+    "lz-string": "catalog:frontend",
+    "nostics": "catalog:frontend",
+    "picomatch": "catalog:frontend",
+    "valibot": "catalog:frontend"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:dev",
+    "@types/picomatch": "catalog:dev",
+    "typescript": "catalog:dev",
+    "vitest": "catalog:testing"
+  }
+}

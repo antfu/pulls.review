@@ -4,9 +4,9 @@ node_modules
 dist
 .env
 .idea/
-public/assets/fonts
-public/embed
-public/pulls-review-github.user.js
-public/diffs-github.user.js
-app/embed/.generated
+packages/app/public/assets/fonts
+packages/app/public/embed
+packages/app/public/pulls-review-github.user.js
+packages/app/public/diffs-github.user.js
+packages/app/src/embed/.generated
 .agents/skills

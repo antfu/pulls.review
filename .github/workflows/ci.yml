@@ -40,7 +40,7 @@ jobs:
         run: pnpm install
 
       - name: Build embed
-        run: pnpm run build:embed
+        run: pnpm -F @pulls.review/app run build:embed
 
       - name: Typecheck
         run: pnpm run typecheck
