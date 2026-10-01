@@ -170,6 +170,7 @@
   "file": {
     "markReviewed": "レビュー済みにする",
     "markFolderReviewed": "{name} 内のすべてのファイルをレビュー済みにする",
+    "changedSinceReviewed": "このファイルはレビュー済みでしたが、その後のコミットで変更されました",
     "resolved": "{n} 件解決済み",
     "binary": "バイナリファイル",
     "binaryNotShown": "バイナリファイルは表示されません。",
@@ -179,6 +180,17 @@
     "collapse": "ファイルを折りたたむ",
     "noLongerInDiff": "この diff にはもう含まれていません",
     "removed": "削除済み"
+  },
+  "reviewProgress": {
+    "title": "レビューの進捗",
+    "markAll": "すべてレビュー済みにする",
+    "reset": "レビュー状態をリセット",
+    "invert": "レビュー状態を反転",
+    "status": {
+      "reviewed": "レビュー済み",
+      "changed": "レビュー後に変更あり",
+      "unreviewed": "未レビュー"
+    }
   },
   "fileStatus": {
     "added": "追加",

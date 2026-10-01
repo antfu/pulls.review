@@ -170,6 +170,7 @@
   "file": {
     "markReviewed": "리뷰 완료로 표시",
     "markFolderReviewed": "{name}의 모든 파일을 리뷰 완료로 표시",
+    "changedSinceReviewed": "이 파일은 이전에 리뷰했지만 이후 커밋에서 변경되었습니다",
     "resolved": "{n}개 해결됨",
     "binary": "바이너리 파일",
     "binaryNotShown": "바이너리 파일은 표시되지 않습니다.",
@@ -179,6 +180,17 @@
     "collapse": "파일 접기",
     "noLongerInDiff": "더 이상 이 diff에 없음",
     "removed": "제거됨"
+  },
+  "reviewProgress": {
+    "title": "리뷰 진행 상황",
+    "markAll": "모두 리뷰 완료로 표시",
+    "reset": "리뷰 상태 초기화",
+    "invert": "리뷰 상태 반전",
+    "status": {
+      "reviewed": "리뷰 완료",
+      "changed": "리뷰 후 변경됨",
+      "unreviewed": "리뷰 안 함"
+    }
   },
   "fileStatus": {
     "added": "추가됨",

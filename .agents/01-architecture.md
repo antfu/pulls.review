@@ -111,7 +111,7 @@ analysis strategy later never touches the view layer:
 - **View components** (`app/components/`) MUST stay pure and data-driven: they
   receive a single `DiffsStore` (`app/stores/types.ts`) as a `store` prop,
   threaded explicitly down the tree (no provide/inject, no global singleton
-  registry), and call its methods directly (`store.toggleReviewed(...)`,
+  registry), and call its methods directly (`store.setReviewed(...)`,
   `store.llm?.reanalyze()`) instead of emitting events that bubble up to
   whoever created the store. `store.llm` is `undefined` when LLM analysis
   isn't compiled into the current build (`PR_LLM` off: the GitHub-embedded view),
@@ -202,7 +202,12 @@ is flat key-value, so there's no native "object store" split):
   not by path or PR. This is deliberate: if a PR gets new commits and a
   file's `sha` is unchanged, its reviewed mark MUST survive; only files whose
   `sha` changed lose their mark. Pruned opportunistically whenever `pr:*`
-  evicts, by walking the remaining entries' shas.
+  evicts, by walking the remaining entries' shas. Which of those files *had*
+  been reviewed is remembered on the `pr:*` entry as `changedSinceReviewed`
+  (paths): `putDiff` flags every path whose outgoing `sha` carried a mark and
+  whose incoming `sha` differs, and the flag survives further commits until
+  the user marks the file again (`DiffsStore.setReviewed`), which is how the
+  view shows "reviewed, but changed since" instead of plain "unreviewed".
 - `file-content:*` — a file's full raw content at a specific ref, fetched
   on demand from `FileDiff.vue`'s "load full file" action (github only -
   gated behind `ProviderCapabilities.supportsFullFileContent`), keyed by

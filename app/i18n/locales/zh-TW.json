@@ -170,6 +170,7 @@
   "file": {
     "markReviewed": "標記為已審閱",
     "markFolderReviewed": "將 {name} 中的所有檔案標記為已審閱",
+    "changedSinceReviewed": "此檔案之前已審閱，但在後續提交中發生了變更",
     "resolved": "{n} 已解決",
     "binary": "二進位檔案",
     "binaryNotShown": "不顯示二進位檔案。",
@@ -179,6 +180,17 @@
     "collapse": "折疊檔案",
     "noLongerInDiff": "已不在此 diff 中",
     "removed": "已移除"
+  },
+  "reviewProgress": {
+    "title": "審閱進度",
+    "markAll": "全部標記為已審閱",
+    "reset": "重設審閱狀態",
+    "invert": "反轉審閱狀態",
+    "status": {
+      "reviewed": "已審閱",
+      "changed": "審閱後已變更",
+      "unreviewed": "未審閱"
+    }
   },
   "fileStatus": {
     "added": "新增",

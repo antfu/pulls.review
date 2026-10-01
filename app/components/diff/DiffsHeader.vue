@@ -17,6 +17,7 @@ import DiffReviewThreadsToggle from './DiffReviewThreadsToggle.vue'
 import DiffShareButton from './DiffShareButton.vue'
 import DiffStats from './DiffStats.vue'
 import PrStatusIcon from './PrStatusIcon.vue'
+import ReviewProgressModal from './ReviewProgressModal.vue'
 import ReviewSubmitModal from './ReviewSubmitModal.vue'
 
 const props = defineProps<{
@@ -52,6 +53,7 @@ const githubRef = computed(() => meta.value.provider === 'github' ? parseGithubD
 
 const reviews = computed(() => props.store.reviews)
 const reviewModalOpen = ref(false)
+const progressModalOpen = ref(false)
 
 function scrollToGroup(key: string) {
   (props.document ?? document).getElementById(`group-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -150,8 +152,16 @@ function scrollToGroup(key: string) {
 
         <div class="flex items-center self-end gap-2 pt-2 text-sm">
           <DiffStats :additions="additions" :deletions="deletions" />
-          <DisplayDonut :value="progress" :size="18" :thickness="3" />
-          <span class="shrink-0 whitespace-nowrap">{{ reviewedCount }} <span class="text-xs opacity-50">{{ $t('pr.reviewedOf', { total: totalFiles }) }}</span></span>
+          <button
+            type="button"
+            class="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-1.5 py-0.5 transition -mx-1.5 hover:bg-hover"
+            :title="$t('reviewProgress.title')"
+            :aria-expanded="progressModalOpen"
+            @click="progressModalOpen = true"
+          >
+            <DisplayDonut :value="progress" :size="18" :thickness="3" />
+            <span>{{ reviewedCount }} <span class="text-xs opacity-50">{{ $t('pr.reviewedOf', { total: totalFiles }) }}</span></span>
+          </button>
           <DiffReviewButton
             v-if="reviews?.canWrite"
             :pending-comment-count="reviews.pendingCommentCount"
@@ -165,6 +175,11 @@ function scrollToGroup(key: string) {
       v-if="reviews"
       v-model:open="reviewModalOpen"
       :reviews="reviews"
+      :document="document"
+    />
+    <ReviewProgressModal
+      v-model:open="progressModalOpen"
+      :store="store"
       :document="document"
     />
   </header>

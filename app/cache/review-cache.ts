@@ -23,14 +23,11 @@ export async function getReviewed(storage: CacheStorage, shas: string[]): Promis
   return reviewed
 }
 
-export async function setReviewed(storage: CacheStorage, sha: string, reviewed: boolean): Promise<void> {
-  if (reviewed) {
-    const state: FileReviewState = { sha, reviewedAt: Date.now() }
-    await storage.setItem(reviewKey(sha), state)
-  }
-  else {
-    await storage.removeItem(reviewKey(sha))
-  }
+export async function setReviewed(storage: CacheStorage, shas: string[], reviewed: boolean): Promise<void> {
+  const reviewedAt = Date.now()
+  await Promise.all(shas.map(sha => reviewed
+    ? storage.setItem(reviewKey(sha), { sha, reviewedAt } satisfies FileReviewState)
+    : storage.removeItem(reviewKey(sha))))
 }
 
 /**

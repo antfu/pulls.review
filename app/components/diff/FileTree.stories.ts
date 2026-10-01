@@ -16,6 +16,10 @@ export const Default: Story = {
   args: { files: partiallyReviewed.diff.files as any, store: createMockDiffsStore({ reviewed: partiallyReviewed.reviewedShas }) },
 }
 
+export const ChangedSinceReviewed: Story = {
+  args: { files: partiallyReviewed.diff.files as any, store: createMockDiffsStore({ reviewed: partiallyReviewed.reviewedShas, changedSinceReviewed: ['src/b.ts'] }) },
+}
+
 export const Empty: Story = {
   args: { files: zeroFiles.diff.files as any, store: createMockDiffsStore({}) },
 }

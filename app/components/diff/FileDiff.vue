@@ -3,9 +3,9 @@ import type { DiffLineAnnotation, FileDiffOptions, SelectedLineRange } from '@pi
 import type { DiffsStore } from '../../stores/types'
 import type { CommentThread, DiffSide, ReviewDraftTarget } from '../../types/comment-threads'
 import type { FileChange } from '../../types/diff'
+import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
-import FormCheckbox from '@antfu/design/components/Form/FormCheckbox.vue'
 import { FileDiff as PierreFileDiff, processFile, VirtualizedFileDiff } from '@pierre/diffs'
 import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { getCachedFileContent, setCachedFileContent } from '../../cache/file-content-cache'
@@ -20,6 +20,8 @@ import { fileContentContextKey } from './file-content-context'
 import FileStatus from './FileStatus.vue'
 import { isNoisyFile } from './noisy-files'
 import { ensurePierreDiffsShadowRoot } from './pierre-diffs-shadow'
+import { reviewStatus } from './review-status'
+import ReviewCheckbox from './ReviewCheckbox.vue'
 import ReviewThreadCard from './ReviewThreadCard.vue'
 
 const props = defineProps<{
@@ -27,7 +29,8 @@ const props = defineProps<{
   file: FileChange
 }>()
 
-const isReviewed = computed(() => props.store.reviewed.has(props.file.sha))
+const status = computed(() => reviewStatus(props.store, props.file))
+const isReviewed = computed(() => status.value === 'reviewed')
 
 // Reads the embed's own scoped ref when provided (see `state/dark.ts`), otherwise the
 // app-wide singleton - never targets `document.documentElement` from inside the embed.
@@ -345,10 +348,10 @@ defineExpose({
     @click.self="collapsed = !collapsed"
   >
     <div class="min-w-0 flex items-center gap-2 text-sm">
-      <FormCheckbox
-        :model-value="isReviewed"
+      <ReviewCheckbox
+        :status="status"
         :aria-label="$t('file.markReviewed')"
-        @update:model-value="store.toggleReviewed(file.sha, $event)"
+        @update="store.setReviewed([file.sha], $event)"
       />
       <DisplayFilePath :path="file.path" class="min-w-0" />
     </div>
@@ -376,10 +379,19 @@ defineExpose({
     </div>
   </header>
   <div v-if="!collapsed" class="overflow-hidden border-x border-b border-base rounded-b-xl">
+    <div v-if="status === 'changed'" class="flex flex-wrap items-center justify-between gap-2 border-b border-orange:20 bg-orange:10 px-3 py-1.5 text-sm text-orange-700 dark:text-orange-400">
+      <span class="flex items-center gap-1.5">
+        <span class="i-ph:warning-circle-duotone shrink-0" aria-hidden="true" />
+        {{ $t('file.changedSinceReviewed') }}
+      </span>
+      <ActionButton size="sm" @click="store.setReviewed([file.sha], true)">
+        {{ $t('file.markReviewed') }}
+      </ActionButton>
+    </div>
     <div v-if="file.isBinary" class="p-4 text-sm op-fade">
       {{ $t('file.binaryNotShown') }}
     </div>
-    <div v-else ref="container" class="my--2">
+    <div v-else ref="container" :class="status === 'changed' ? 'mb--2' : 'my--2'">
       <!--
         Light-DOM children projected into pierre's shadow-DOM annotation rows via
         named slots (`annotation-<side>-<line>`), mirroring the library's own

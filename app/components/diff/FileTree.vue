@@ -3,12 +3,12 @@ import type { DiffsStore } from '../../stores/types'
 import type { FileChange } from '../../types/diff'
 import DisplayFileIcon from '@antfu/design/components/Display/DisplayFileIcon.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
-import FormCheckbox from '@antfu/design/components/Form/FormCheckbox.vue'
 import { useVirtualizer } from '@tanstack/vue-virtual'
-import { CheckboxIndicator, CheckboxRoot } from 'reka-ui'
 import { computed, useTemplateRef } from 'vue'
 import DiffStats from './DiffStats.vue'
 import FileStatus from './FileStatus.vue'
+import { reviewStatus } from './review-status'
+import ReviewCheckbox from './ReviewCheckbox.vue'
 
 const props = defineProps<{
   store: DiffsStore
@@ -95,18 +95,11 @@ const rows = computed<TreeRow[]>(() => {
   return result
 })
 
-function folderState(files: FileChange[]): boolean | 'indeterminate' {
+function folderStatus(files: FileChange[]): 'reviewed' | 'partial' | 'unreviewed' {
   const reviewedCount = files.filter(file => props.store.reviewed.has(file.sha)).length
   if (reviewedCount === 0)
-    return false
-  return reviewedCount === files.length ? true : 'indeterminate'
-}
-
-// One `toggleReviewed` call per file, same as clicking each checkbox individually -
-// there's no batched API on the store, so a very large folder toggles as N writes.
-function toggleFolder(files: FileChange[], reviewed: boolean) {
-  for (const file of files)
-    props.store.toggleReviewed(file.sha, reviewed)
+    return 'unreviewed'
+  return reviewedCount === files.length ? 'reviewed' : 'partial'
 }
 
 const scrollElRef = useTemplateRef<HTMLDivElement>('scrollEl')
@@ -137,27 +130,24 @@ const virtualizer = useVirtualizer(computed(() => ({
         }"
       >
         <template v-if="row.row.type === 'folder'">
-          <CheckboxRoot
-            class="h-4 w-4 flex shrink-0 items-center justify-center border border-base rounded bg-raised outline-none transition data-[state=checked]:border-primary-500 data-[state=indeterminate]:border-primary-500 data-[state=checked]:bg-primary-500 data-[state=indeterminate]:bg-primary-500 focus-visible:ring-2 focus-visible:ring-primary-500/40"
-            :model-value="folderState(row.row.files!)"
+          <ReviewCheckbox
+            :status="folderStatus(row.row.files!)"
             :aria-label="$t('file.markFolderReviewed', { name: row.row.name })"
-            @update:model-value="value => toggleFolder(row.row.files!, value === true)"
-          >
-            <CheckboxIndicator class="text-white">
-              <div :class="folderState(row.row.files!) === 'indeterminate' ? 'i-ph:minus-bold' : 'i-ph:check-bold'" class="mt--1px text-micro" aria-hidden="true" />
-            </CheckboxIndicator>
-          </CheckboxRoot>
+            @update="store.setReviewed(row.row.files!.map(file => file.sha), $event)"
+          />
           <DisplayFileIcon directory :path="row.row.name" class="op-fade" />
           <span class="truncate op-fade">{{ row.row.name }}</span>
         </template>
         <template v-else-if="row.row.file">
-          <FormCheckbox
-            :model-value="store.reviewed.has(row.row.file.sha)"
-            @update:model-value="store.toggleReviewed(row.row.file.sha, $event)"
+          <ReviewCheckbox
+            :status="reviewStatus(store, row.row.file)"
+            :aria-label="$t('file.markReviewed')"
+            @update="store.setReviewed([row.row.file.sha], $event)"
           />
           <button
             type="button"
             class="min-w-0 flex flex-1 items-center gap-1.5 text-left"
+            :title="reviewStatus(store, row.row.file) === 'changed' ? $t('file.changedSinceReviewed') : undefined"
             @click="emit('navigate', row.row.file.sha)"
           >
             <DisplayFilePath :path="row.row.name" :dim="false" class="min-w-0 flex-1" />

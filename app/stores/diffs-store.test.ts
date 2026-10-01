@@ -1,6 +1,7 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import memoryDriver from 'unstorage/drivers/memory'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { getEntry, setChangedSinceReviewed } from '../cache/pr-cache'
 import { createCacheStorage } from '../cache/storage'
 import { createDiffsStore } from './diffs-store'
 
@@ -33,6 +34,25 @@ function transcript(): AgentMessage[] {
 beforeEach(() => {
   mocks.storage = createCacheStorage(memoryDriver())
   runLlmAnalysisMock.mockReset()
+})
+
+describe('createDiffsStore review marks', () => {
+  it('loads the changed-since-reviewed flags from the cache and clears them on marking', async () => {
+    const seed = createDiffsStore({ kind: 'patch-text', text: PATCH_TEXT })
+    await seed.load()
+    await setChangedSinceReviewed(mocks.storage!, seed.diff!.id, ['a.ts'])
+
+    const store = createDiffsStore({ kind: 'patch-text', text: PATCH_TEXT })
+    await store.load()
+    const sha = store.diff!.files[0]!.sha
+    expect(store.changedSinceReviewed).toEqual(new Set(['a.ts']))
+    expect(store.reviewed.has(sha)).toBe(false)
+
+    await store.setReviewed([sha], true)
+    expect(store.reviewed.has(sha)).toBe(true)
+    expect(store.changedSinceReviewed.size).toBe(0)
+    expect((await getEntry(mocks.storage!, store.diff!.id))!.changedSinceReviewed).toEqual([])
+  })
 })
 
 describe('createDiffsStore llm session/progress/error', () => {

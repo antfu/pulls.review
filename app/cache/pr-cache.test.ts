@@ -1,7 +1,7 @@
 import type { LlmSession, PrCacheEntry } from '../types/cache'
 import memoryDriver from 'unstorage/drivers/memory'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { computeEntrySizeBytes, enforceBudget, getEntry, listRecentEntries, listRepoEntries, putDiff, putEntry, setLlmSession, touchEntry } from './pr-cache'
+import { computeEntrySizeBytes, enforceBudget, getEntry, listRecentEntries, listRepoEntries, putDiff, putEntry, setChangedSinceReviewed, setLlmSession, touchEntry } from './pr-cache'
 import { getReviewed, setReviewed } from './review-cache'
 import { createCacheStorage } from './storage'
 
@@ -66,6 +66,37 @@ describe('pr-cache', () => {
     expect(back!.lastViewedAt).toBeGreaterThan(1000)
   })
 
+  it('putDiff flags a reviewed file whose sha changed, and keeps the flag until it is cleared', async () => {
+    const entry = makeEntry('a', 'sha-1', 1000)
+    await putEntry(storage, entry)
+    await setReviewed(storage, ['sha-1'], true)
+
+    const file = entry.diff.files[0]!
+    const revised = { ...entry.diff, files: [{ ...file, sha: 'sha-2' }, { ...file, path: 'b.ts', sha: 'sha-b' }] }
+    await putDiff(storage, 'a', revised, 'sha-2')
+    expect((await getEntry(storage, 'a'))!.changedSinceReviewed).toEqual(['a.ts'])
+
+    // Further commits don't clear the flag; a file leaving the diff drops it.
+    await putDiff(storage, 'a', { ...revised, files: [{ ...file, sha: 'sha-3' }] }, 'sha-3')
+    expect((await getEntry(storage, 'a'))!.changedSinceReviewed).toEqual(['a.ts'])
+
+    await setChangedSinceReviewed(storage, 'a', [])
+    await putDiff(storage, 'a', { ...revised, files: [{ ...file, sha: 'sha-4' }] }, 'sha-4')
+    expect((await getEntry(storage, 'a'))!.changedSinceReviewed).toEqual([])
+  })
+
+  it('putDiff does not flag unreviewed or unchanged files', async () => {
+    const entry = makeEntry('a', 'sha-1', 1000)
+    await putEntry(storage, entry)
+    const file = entry.diff.files[0]!
+    await putDiff(storage, 'a', { ...entry.diff, files: [{ ...file, sha: 'sha-2' }] }, 'sha-2')
+    expect((await getEntry(storage, 'a'))!.changedSinceReviewed).toEqual([])
+
+    await setReviewed(storage, ['sha-2'], true)
+    await putDiff(storage, 'a', { ...entry.diff, files: [{ ...file, sha: 'sha-2' }] }, 'sha-2')
+    expect((await getEntry(storage, 'a'))!.changedSinceReviewed).toEqual([])
+  })
+
   it('putDiff creates the entry when none exists', async () => {
     const entry = makeEntry('a', 'sha-a', 0)
     await putDiff(storage, 'a', entry.diff, 'sha-a')
@@ -107,8 +138,7 @@ describe('pr-cache', () => {
   })
 
   it('prunes orphaned review marks after an eviction, but keeps marks still referenced', async () => {
-    await setReviewed(storage, 'sha-old', true)
-    await setReviewed(storage, 'sha-new', true)
+    await setReviewed(storage, ['sha-old', 'sha-new'], true)
     await putEntry(storage, makeEntry('old', 'sha-old', 1000), { maxEntries: 1 })
     await putEntry(storage, makeEntry('new', 'sha-new', 2000), { maxEntries: 1 })
 

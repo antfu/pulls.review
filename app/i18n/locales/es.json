@@ -170,6 +170,7 @@
   "file": {
     "markReviewed": "Marcar como revisado",
     "markFolderReviewed": "Marcar todos los archivos de {name} como revisados",
+    "changedSinceReviewed": "Este archivo ya fue revisado, pero cambió en commits posteriores",
     "resolved": "{n} resueltos",
     "binary": "Archivo binario",
     "binaryNotShown": "El archivo binario no se muestra.",
@@ -179,6 +180,17 @@
     "collapse": "Plegar archivo",
     "noLongerInDiff": "Ya no está en este diff",
     "removed": "eliminado"
+  },
+  "reviewProgress": {
+    "title": "Progreso de la revisión",
+    "markAll": "Marcar todos como revisados",
+    "reset": "Restablecer el estado de revisión",
+    "invert": "Invertir el estado de revisión",
+    "status": {
+      "reviewed": "Revisado",
+      "changed": "Cambió desde la revisión",
+      "unreviewed": "Sin revisar"
+    }
   },
   "fileStatus": {
     "added": "añadido",

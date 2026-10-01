@@ -4,7 +4,7 @@ import type { ReviewData } from '../types/comment-threads'
 import type { CacheStorage } from './storage'
 import * as v from 'valibot'
 import { PrCacheEntrySchema } from '../types/cache'
-import { pruneOrphanedReviewed } from './review-cache'
+import { getReviewed, pruneOrphanedReviewed } from './review-cache'
 
 const PR_KEY_PREFIX = 'pr:'
 export const DEFAULT_MAX_BUDGET_BYTES = 50 * 1024 * 1024
@@ -55,9 +55,34 @@ export async function putDiff(storage: CacheStorage, key: string, diff: PrCacheE
     analyzedBy,
     lastViewedAt: Date.now(),
     sizeBytes: computeEntrySizeBytes(diff, analyzedBy, existing?.llmSession),
+    changedSinceReviewed: existing ? await changedSinceReviewed(storage, existing, diff) : [],
   }
   await putEntry(storage, entry)
   return entry
+}
+
+/**
+ * Paths of `diff` whose previous `sha` was reviewed but has since changed, plus the
+ * still-present paths already flagged on `existing` - a flag only clears when the
+ * user marks the file again (`setChangedSinceReviewed`), not by further commits.
+ */
+async function changedSinceReviewed(storage: CacheStorage, existing: PrCacheEntry, diff: PrCacheEntry['diff']): Promise<string[]> {
+  const previousSha = new Map(existing.diff.files.map(file => [file.path, file.sha]))
+  const reviewed = await getReviewed(storage, [...previousSha.values()])
+  const flagged = new Set(existing.changedSinceReviewed)
+  return diff.files
+    .filter((file) => {
+      const previous = previousSha.get(file.path)
+      return flagged.has(file.path) || (previous !== undefined && previous !== file.sha && reviewed.has(previous))
+    })
+    .map(file => file.path)
+}
+
+export async function setChangedSinceReviewed(storage: CacheStorage, key: string, paths: string[]): Promise<void> {
+  const entry = await getEntry(storage, key)
+  if (!entry)
+    return
+  await storage.setItem(prKey(key), { ...entry, changedSinceReviewed: paths })
 }
 
 export async function touchEntry(storage: CacheStorage, key: string): Promise<void> {

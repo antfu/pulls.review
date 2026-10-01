@@ -170,6 +170,7 @@
   "file": {
     "markReviewed": "Marquer comme relu",
     "markFolderReviewed": "Marquer tous les fichiers de {name} comme relus",
+    "changedSinceReviewed": "Ce fichier avait été relu, mais a changé dans des commits ultérieurs",
     "resolved": "{n} résolus",
     "binary": "Fichier binaire",
     "binaryNotShown": "Fichier binaire non affiché.",
@@ -179,6 +180,17 @@
     "collapse": "Replier le fichier",
     "noLongerInDiff": "N'est plus dans ce diff",
     "removed": "supprimé"
+  },
+  "reviewProgress": {
+    "title": "Avancement de la relecture",
+    "markAll": "Tout marquer comme relu",
+    "reset": "Réinitialiser l'état de relecture",
+    "invert": "Inverser l'état de relecture",
+    "status": {
+      "reviewed": "Relu",
+      "changed": "Modifié depuis la relecture",
+      "unreviewed": "Non relu"
+    }
   },
   "fileStatus": {
     "added": "ajouté",

@@ -7,8 +7,8 @@ import type { DiffsStore, DiffsStoreLlm } from './types'
 import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef, watch } from 'vue'
 import { resolveAdapter } from '../analyze'
 import { ruleBasedAdapter } from '../analyze/adapters/rule-based'
-import { getEntry, putDiff, setAnalyzedResult, setLlmSession, touchEntry } from '../cache/pr-cache'
-import { getReviewed, setReviewed } from '../cache/review-cache'
+import { getEntry, putDiff, setAnalyzedResult, setChangedSinceReviewed, setLlmSession, touchEntry } from '../cache/pr-cache'
+import { getReviewed, setReviewed as setReviewedMarks } from '../cache/review-cache'
 import { getDefaultCacheStorage } from '../cache/storage'
 import { resolveGroups } from '../components/diff/group-utils'
 import { useProvider } from '../composables/useProvider'
@@ -42,6 +42,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
   const analyzeMode = ref<GroupSource>('llm')
   const cacheKey = ref<string>()
   const reviewed = ref(new Set<string>())
+  const changedSinceReviewed = ref(new Set<string>())
   const llmSession = shallowRef<LlmSession>()
   const llm = shallowRef<DiffsStoreLlm>()
 
@@ -95,15 +96,26 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
     reviewed.value = await getReviewed(storage, diff.value.files.map(file => file.sha))
   }
 
-  async function toggleReviewed(sha: string, isReviewed: boolean) {
+  async function setReviewed(shas: string[], isReviewed: boolean) {
     const storage = await getDefaultCacheStorage()
-    await setReviewed(storage, sha, isReviewed)
+    await setReviewedMarks(storage, shas, isReviewed)
     const next = new Set(reviewed.value)
-    if (isReviewed)
-      next.add(sha)
-    else
-      next.delete(sha)
+    for (const sha of shas)
+      isReviewed ? next.add(sha) : next.delete(sha)
     reviewed.value = next
+
+    // Either direction is the user's explicit verdict on the file's current content,
+    // so the "changed since you reviewed it" flag has served its purpose.
+    const touched = new Set(shas)
+    const paths = diff.value?.files.filter(file => touched.has(file.sha)).map(file => file.path) ?? []
+    if (!paths.some(path => changedSinceReviewed.value.has(path)))
+      return
+    const remaining = new Set(changedSinceReviewed.value)
+    for (const path of paths)
+      remaining.delete(path)
+    changedSinceReviewed.value = remaining
+    if (cacheKey.value)
+      await setChangedSinceReviewed(storage, cacheKey.value, [...remaining])
   }
 
   /** The free, instant modes; `llm` runs only through `llm.reanalyze` (see `llm-store.ts`). */
@@ -165,9 +177,10 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
    * are kept on purpose: `resolveGroups` reconciles them against the newer diff, so a
    * refresh never throws away a paid analysis.
    */
-  async function install(key: string, entry: Pick<PrCacheEntry, 'diff' | 'analyzedBy' | 'llmSession'>) {
+  async function install(key: string, entry: Pick<PrCacheEntry, 'diff' | 'analyzedBy' | 'llmSession' | 'changedSinceReviewed'>) {
     diff.value = entry.diff
     cacheKey.value = key
+    changedSinceReviewed.value = new Set(entry.changedSinceReviewed)
     analyzedBy.value = { ...entry.analyzedBy, 'rule-based': await ruleBasedAdapter.analyze(entry.diff) }
     llmSession.value = entry.llmSession as LlmSession | undefined
     await loadReviewed()
@@ -293,6 +306,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
     error,
     isStale,
     reviewed,
+    changedSinceReviewed,
     groups,
     aiResult,
     analyzeMode,
@@ -303,6 +317,6 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
     shared: shared?.store,
     load,
     refresh,
-    toggleReviewed,
+    setReviewed,
   }) as DiffsStore
 }

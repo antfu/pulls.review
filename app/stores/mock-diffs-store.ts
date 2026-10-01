@@ -154,6 +154,8 @@ export function createMockDiffsStore(input: {
   diff?: DiffsPayload
   grouped?: GroupedResult
   reviewed?: Iterable<string>
+  /** Paths flagged as reviewed-then-changed (see `DiffsStore.changedSinceReviewed`). */
+  changedSinceReviewed?: Iterable<string>
   isLoading?: boolean
   error?: Error
   isStale?: boolean
@@ -181,6 +183,7 @@ export function createMockDiffsStore(input: {
   const error = ref(input.error)
   const isStale = ref(input.isStale ?? false)
   const reviewed = ref(new Set(input.reviewed ?? []))
+  const changedSinceReviewed = ref(new Set(input.changedSinceReviewed ?? []))
   const analyzeMode = ref<GroupSource>(grouped.value?.source ?? (llmEnabled ? 'llm' : 'rule-based'))
   const isAnalyzing = ref(input.isAnalyzing ?? false)
   const llmProgress = ref(input.llmProgress)
@@ -211,13 +214,18 @@ export function createMockDiffsStore(input: {
   async function load() {}
   async function refresh() {}
 
-  async function toggleReviewed(sha: string, isReviewed: boolean) {
+  async function setReviewed(shas: string[], isReviewed: boolean) {
     const next = new Set(reviewed.value)
-    if (isReviewed)
-      next.add(sha)
-    else
-      next.delete(sha)
+    for (const sha of shas)
+      isReviewed ? next.add(sha) : next.delete(sha)
     reviewed.value = next
+    const touched = new Set(shas)
+    const remaining = new Set(changedSinceReviewed.value)
+    for (const file of diff.value?.files ?? []) {
+      if (touched.has(file.sha))
+        remaining.delete(file.path)
+    }
+    changedSinceReviewed.value = remaining
   }
 
   async function setAnalyzeMode(mode: GroupSource) {
@@ -247,6 +255,7 @@ export function createMockDiffsStore(input: {
     error,
     isStale,
     reviewed,
+    changedSinceReviewed,
     groups,
     aiResult,
     analyzeMode,
@@ -274,6 +283,6 @@ export function createMockDiffsStore(input: {
       : undefined,
     load,
     refresh,
-    toggleReviewed,
+    setReviewed,
   }) as DiffsStore
 }

@@ -141,6 +141,11 @@ export interface DiffsStore {
   /** Only meaningful once `diff`/`grouped` are loaded - a source with no live origin (paste) just never sets this. */
   readonly isStale: boolean
   readonly reviewed: Set<string>
+  /**
+   * Paths reviewed at an earlier `sha` that later commits replaced. Only meaningful for
+   * a path whose current `sha` is not in `reviewed` (see `reviewStatus`).
+   */
+  readonly changedSinceReviewed: Set<string>
   /** Each group's `filePaths` resolved into real `FileChange`s, `[]` until `diff`/`grouped` are both loaded. */
   readonly groups: ResolvedGroupWithChildren[]
   /** The AI (`llm`/`web-llm`) result for the current diff, locally generated or loaded from a shared comment (`sharedBy` set). */
@@ -157,5 +162,6 @@ export interface DiffsStore {
   readonly shared?: DiffsStoreShared
   load: () => Promise<void>
   refresh: () => Promise<void>
-  toggleReviewed: (sha: string, reviewed: boolean) => Promise<void>
+  /** Marks (or unmarks) files by `sha`; either way clears their `changedSinceReviewed` flag. */
+  setReviewed: (shas: string[], reviewed: boolean) => Promise<void>
 }

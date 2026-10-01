@@ -30,6 +30,11 @@ export const PrCacheEntrySchema = v.object({
   })),
   /** The viewer's own shared-analysis PR comment, reused (PATCHed) on later shares. */
   sharedComment: v.optional(v.object({ id: v.number(), url: v.string() })),
+  /**
+   * Paths whose reviewed `sha` was replaced by a refetch (see `putDiff`): the file was
+   * reviewed, then changed in later commits. Cleared per path when it's marked again.
+   */
+  changedSinceReviewed: v.optional(v.array(v.string())),
 })
 export type PrCacheEntry = v.InferOutput<typeof PrCacheEntrySchema>
 

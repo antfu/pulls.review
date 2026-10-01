@@ -170,6 +170,7 @@
   "file": {
     "markReviewed": "Tandai sudah ditinjau",
     "markFolderReviewed": "Tandai semua berkas di {name} sudah ditinjau",
+    "changedSinceReviewed": "Berkas ini sudah pernah ditinjau, tetapi berubah di commit berikutnya",
     "resolved": "{n} terselesaikan",
     "binary": "Berkas biner",
     "binaryNotShown": "Berkas biner tidak ditampilkan.",
@@ -179,6 +180,17 @@
     "collapse": "Tutup berkas",
     "noLongerInDiff": "Tidak lagi ada di diff ini",
     "removed": "dihapus"
+  },
+  "reviewProgress": {
+    "title": "Progres tinjauan",
+    "markAll": "Tandai semua sudah ditinjau",
+    "reset": "Atur ulang status tinjauan",
+    "invert": "Balik status tinjauan",
+    "status": {
+      "reviewed": "Sudah ditinjau",
+      "changed": "Berubah sejak ditinjau",
+      "unreviewed": "Belum ditinjau"
+    }
   },
   "fileStatus": {
     "added": "ditambahkan",

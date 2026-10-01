@@ -170,6 +170,7 @@
   "file": {
     "markReviewed": "Mark as reviewed",
     "markFolderReviewed": "Mark all files in {name} as reviewed",
+    "changedSinceReviewed": "This file was previously reviewed but changed in later commits",
     "resolved": "{n} resolved",
     "binary": "Binary file",
     "binaryNotShown": "Binary file not shown.",
@@ -179,6 +180,17 @@
     "collapse": "Collapse file",
     "noLongerInDiff": "No longer in this diff",
     "removed": "removed"
+  },
+  "reviewProgress": {
+    "title": "Review progress",
+    "markAll": "Mark all as reviewed",
+    "reset": "Reset review state",
+    "invert": "Invert review state",
+    "status": {
+      "reviewed": "Reviewed",
+      "changed": "Changed since review",
+      "unreviewed": "Not reviewed"
+    }
   },
   "fileStatus": {
     "added": "added",

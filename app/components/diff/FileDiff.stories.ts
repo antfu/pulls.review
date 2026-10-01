@@ -24,6 +24,10 @@ export const Reviewed: Story = {
   args: { file: partiallyReviewed.diff.files[0] as any, store: createMockDiffsStore({ reviewed: [(partiallyReviewed.diff.files[0] as any).sha] }) },
 }
 
+export const ChangedSinceReviewed: Story = {
+  args: { file: partiallyReviewed.diff.files[0] as any, store: createMockDiffsStore({ changedSinceReviewed: [(partiallyReviewed.diff.files[0] as any).path] }) },
+}
+
 export const Split: Story = {
   args: { file: partiallyReviewed.diff.files[0] as any, store: createMockDiffsStore({ layout: 'split' }) },
 }
