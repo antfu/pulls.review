@@ -15,6 +15,12 @@ export default meta
 
 type Story = StoryObj<typeof DiffsPage>
 
+const longFileList = Array.from({ length: 80 }, (_, index) => ({
+  ...partiallyReviewed.diff.files[0],
+  path: `packages/app/src/components/example-${index.toString().padStart(2, '0')}.ts`,
+  sha: `sha-${index}`,
+}))
+
 export const Synthetic: Story = {
   args: {
     store: createMockDiffsStore({
@@ -49,6 +55,21 @@ export const RealPullRequest: Story = {
     store: createMockDiffsStore({
       diff: real.diff as any,
       grouped: real.grouped as any,
+    }),
+  },
+}
+
+export const LongFileList: Story = {
+  args: {
+    store: createMockDiffsStore({
+      diff: { ...partiallyReviewed.diff, files: longFileList } as any,
+      grouped: {
+        ...partiallyReviewed.grouped,
+        groups: [{
+          ...partiallyReviewed.grouped.groups[0],
+          filePaths: longFileList.map(file => file.path),
+        }],
+      } as any,
     }),
   },
 }

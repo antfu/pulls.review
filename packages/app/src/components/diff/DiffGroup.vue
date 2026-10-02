@@ -142,7 +142,7 @@ function navigateToFile(sha: string) {
     <div v-if="!isChapter || (!collapsed && group.files.length)" class="flex flex-col gap-4 p-3 lg:grid lg:grid-cols-[1fr_4fr]">
       <!-- --diffs-header-height is the page's real, measured sticky DiffsHeader height
            (set on the DiffsPage root), so the aside sticks just below it, not under it. -->
-      <aside class="top-[calc(var(--diffs-header-height)+10px)] min-w-70 flex shrink-0 flex-col gap-3 lg:sticky lg:self-start">
+      <aside class="top-[calc(var(--diffs-header-height)+10px)] min-w-70 flex shrink-0 flex-col gap-3 lg:sticky lg:max-h-[calc(100vh-var(--diffs-header-height)-20px)] lg:self-start">
         <header v-if="!isChapter" class="w-full flex flex-col bg-base">
           <button
             v-if="parentLabel"
@@ -196,6 +196,7 @@ function navigateToFile(sha: string) {
             <Markdown :value="group.summary" class="border-b border-base pb-2 pl2 text-sm op-fade" />
           </Suspense>
           <FileTree
+            class="min-h-0 flex-1"
             :store="store"
             :files="group.files"
             :missing="group.missing"
