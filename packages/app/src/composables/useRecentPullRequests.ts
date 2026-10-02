@@ -2,9 +2,9 @@ import type { PullRequestState } from '@pulls.review/core/types'
 import type { Ref } from 'vue'
 import { parseGithubDiffId } from '@pulls.review/core/github'
 import { ref } from 'vue'
+import { useAppContext } from '../app-context'
 import { listRecentEntries } from '../cache/pr-cache'
 import { getReviewed } from '../cache/review-cache'
-import { getDefaultCacheStorage } from '../cache/storage'
 
 export interface RecentPullRequest {
   owner: string
@@ -32,10 +32,10 @@ export interface UseRecentPullRequestsReturn {
  * so only github-provider entries are surfaced here.
  */
 export function useRecentPullRequests(limit = 8): UseRecentPullRequestsReturn {
+  const { storage } = useAppContext()
   const recent = ref<RecentPullRequest[]>([])
 
   async function load() {
-    const storage = await getDefaultCacheStorage()
     const entries = await listRecentEntries(storage, limit)
 
     const items: RecentPullRequest[] = []

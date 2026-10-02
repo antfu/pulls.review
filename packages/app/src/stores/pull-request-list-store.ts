@@ -1,10 +1,10 @@
 import type { PullRequestListItem, PullRequestListPage } from '@pulls.review/core/types'
+import type { CacheStorage } from '../cache/storage'
 import { fetchOpenPullRequests, parseGithubDiffId } from '@pulls.review/core/github'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { ruleBasedAdapter } from '../analyze'
 import { listRepoEntries } from '../cache/pr-cache'
 import { getCachedPullRequestList, setCachedPullRequestList, touchCachedPullRequestList } from '../cache/pull-request-list-cache'
-import { getDefaultCacheStorage } from '../cache/storage'
 
 /** What this browser already holds for a PR it viewed before (see `pr:*` in the cache). */
 export interface ViewedPullRequest {
@@ -39,6 +39,7 @@ export interface PullRequestListStore {
 }
 
 export interface PullRequestListStoreOptions {
+  storage: CacheStorage
   token?: string
 }
 
@@ -48,8 +49,9 @@ export interface PullRequestListStoreOptions {
  * cost nothing to refetch (no AI run hangs off them), so unlike `DiffsStore` the
  * refresh happens silently on every visit.
  */
-export function createPullRequestListStore(params: { owner: string, repo: string }, opts: PullRequestListStoreOptions = {}): PullRequestListStore {
+export function createPullRequestListStore(params: { owner: string, repo: string }, opts: PullRequestListStoreOptions): PullRequestListStore {
   const { owner, repo } = params
+  const { storage } = opts
   const items = shallowRef<PullRequestListItem[]>([])
   const totalCount = ref<number>()
   const next = ref<string>()
@@ -75,7 +77,6 @@ export function createPullRequestListStore(params: { owner: string, repo: string
       if (current !== generation)
         return
       installFirstPage(page)
-      const storage = await getDefaultCacheStorage()
       await setCachedPullRequestList(storage, owner, repo, page)
     }
     catch (err) {
@@ -85,7 +86,6 @@ export function createPullRequestListStore(params: { owner: string, repo: string
   }
 
   async function loadViewed() {
-    const storage = await getDefaultCacheStorage()
     const next = new Map<number, ViewedPullRequest>()
     for (const entry of await listRepoEntries(storage, owner, repo)) {
       const ref = parseGithubDiffId(entry.diff.id)
@@ -106,7 +106,6 @@ export function createPullRequestListStore(params: { owner: string, repo: string
   async function load() {
     // Independent of the network: what's viewed locally decorates rows whenever they arrive.
     void loadViewed()
-    const storage = await getDefaultCacheStorage()
     const cached = await getCachedPullRequestList(storage, owner, repo)
     if (cached) {
       installFirstPage(cached.page)

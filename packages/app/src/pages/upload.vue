@@ -5,12 +5,14 @@ import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyS
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAppContext } from '../app-context'
 import DiffsPage from '../components/diff/DiffsPage.vue'
 import { UPLOAD_SESSION_STORAGE_KEY } from '../composables/uploadSession'
 import { useDocumentTitle } from '../composables/useDocumentTitle'
 import { createDiffsStore } from '../stores/diffs-store'
 
 const router = useRouter()
+const { storage } = useAppContext()
 const hasPending = ref(false)
 
 const pending = (() => {
@@ -24,7 +26,7 @@ const pending = (() => {
 // optional exactly for this case, so the empty-state slot renders around nothing
 // rather than a store wrapping empty text.
 const store: DiffsStore | undefined = pending
-  ? createDiffsStore({ kind: 'patch-text', text: pending.text, title: pending.title })
+  ? createDiffsStore({ kind: 'patch-text', text: pending.text, title: pending.title }, { storage })
   : undefined
 
 useDocumentTitle(() => store?.diff?.title)

@@ -199,7 +199,11 @@ raw IndexedDB calls, specifically so the backend can be swapped later (e.g. a
 future sync/remote layer) without touching `pr-cache.ts`/`review-cache.ts`
 call sites — the same swappable-adapter shape as `Provider`/`AnalyzeAdapter`.
 Runtime uses the `indexedDB` driver; tests use the `memory` driver against
-identical code, no separate IndexedDB-mocking dependency needed.
+identical code, no separate IndexedDB-mocking dependency needed. The storage
+instance belongs to the app context (`app/app-context.ts`), installed once per
+app (the SPA, the embed's custom element): pages and top-level composables
+inject it and pass it to store factories as `storage`; there is no module
+singleton.
 
 One `unstorage` instance, four logical collections via key prefix (unstorage
 is flat key-value, so there's no native "object store" split):

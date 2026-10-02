@@ -3,6 +3,7 @@ import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyState.vue'
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
 import { computed, onMounted } from 'vue'
+import { useAppContext } from '../app-context'
 import DiffsPage from '../components/diff/DiffsPage.vue'
 import { settings } from '../state/settings'
 import { createDiffsStore } from '../stores/diffs-store'
@@ -27,7 +28,7 @@ const params = computed(() => ({
   number: props.number,
 }))
 
-const store = createDiffsStore(params.value, { token: settings.value.githubToken })
+const store = createDiffsStore(params.value, { storage: useAppContext().storage, token: settings.value.githubToken })
 
 onMounted(() => store.load())
 </script>

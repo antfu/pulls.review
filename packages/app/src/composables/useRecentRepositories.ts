@@ -1,8 +1,8 @@
 import type { Ref } from 'vue'
 import type { PullRequestListCacheEntry } from '../cache/pull-request-list-cache'
 import { ref } from 'vue'
+import { useAppContext } from '../app-context'
 import { listRecentRepositories } from '../cache/pull-request-list-cache'
-import { getDefaultCacheStorage } from '../cache/storage'
 
 export interface RecentRepository {
   owner: string
@@ -16,10 +16,10 @@ export interface RecentRepository {
  * the same way `useRecentPullRequests` reads `pr:*`.
  */
 export function useRecentRepositories(limit = 8): { recent: Ref<RecentRepository[]>, load: () => Promise<void> } {
+  const { storage } = useAppContext()
   const recent = ref<RecentRepository[]>([])
 
   async function load() {
-    const storage = await getDefaultCacheStorage()
     recent.value = (await listRecentRepositories(storage, limit)).map((entry: PullRequestListCacheEntry) => ({
       owner: entry.owner,
       repo: entry.repo,

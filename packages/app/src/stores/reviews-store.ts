@@ -1,14 +1,15 @@
 import type { ReviewData, ReviewDraftTarget, ReviewVerdict } from '@pulls.review/core/types'
+import type { CacheStorage } from '../cache/storage'
 import type { GithubWriteAccess } from './github-write-access'
 import type { DiffsStoreReviews } from './types'
 import { addThreadToPendingReview, createPendingReview, createReview, createReviewComment, deletePendingReview, deleteReviewComment, fetchReviewComments, fetchReviewCommentsForReview, fetchReviews, fetchThreadResolutions, normalizeReviewData, replyToReviewComment, resolveThread as resolveThreadMutation, submitPendingReview, updateReviewComment } from '@pulls.review/core/github'
 import { computed, reactive, ref } from 'vue'
 import { setReviewData } from '../cache/pr-cache'
-import { getDefaultCacheStorage } from '../cache/storage'
 import { t } from '../i18n'
 import { showReviewComments } from '../state/review-comments'
 
 export interface ReviewsStoreOptions {
+  storage: CacheStorage
   token?: string
   access: GithubWriteAccess
   /** Head sha of the loaded diff - `commit_id` for new comments; unset until the diff loads. */
@@ -57,10 +58,8 @@ export function createReviewsStore(params: { owner: string, repo: string, number
     const fresh = await fetchFresh()
     data.value = fresh
     const key = opts.getCacheKey()
-    if (key) {
-      const storage = await getDefaultCacheStorage()
-      await setReviewData(storage, key, fresh)
-    }
+    if (key)
+      await setReviewData(opts.storage, key, fresh)
   }
 
   async function load() {

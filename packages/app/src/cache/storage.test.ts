@@ -4,7 +4,7 @@ import { createCacheStorage } from './storage'
 import 'fake-indexeddb/auto'
 
 describe('storage', () => {
-  it('lists keys by prefix through the real indexeddb driver (getDefaultCacheStorage\'s config)', async () => {
+  it('lists keys by prefix through the real indexeddb driver (createBrowserCacheStorage\'s config)', async () => {
     // Regression test - see storage.ts's own comment on why `dbName`/`storeName`
     // is used instead of `base`.
     const storage = createCacheStorage(indexedDbDriver({ dbName: 'diffs-cache-test', storeName: 'cache' }))
