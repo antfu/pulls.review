@@ -1,4 +1,5 @@
-const GITHUB_API_BASE = 'https://api.github.com'
+import type { GithubClient } from './client'
+import { GithubApiError } from './client'
 
 export interface GithubPullRequestJson {
   title: string
@@ -29,58 +30,21 @@ export interface GithubPullRequestCommitJson {
   commit: { message: string }
 }
 
-/** A non-ok GitHub response, keeping the status so callers can react to auth/permission failures (401/403). */
-export class GithubApiError extends Error {
-  constructor(readonly status: number, message: string) {
-    super(message)
-    this.name = 'GithubApiError'
-  }
-}
-
-export function buildHeaders(token?: string, accept = 'application/vnd.github+json'): HeadersInit {
-  const headers: Record<string, string> = {
-    'Accept': accept,
-    'X-GitHub-Api-Version': '2022-11-28',
-  }
-  if (token)
-    headers.Authorization = `Bearer ${token}`
-  return headers
-}
-
-async function githubFetch(url: string, token: string | undefined, accept?: string): Promise<Response> {
-  const res = await fetch(url, { headers: buildHeaders(token, accept) })
-  if (!res.ok)
-    throw new GithubApiError(res.status, `GitHub API request failed (${res.status}): ${url}`)
-  return res
-}
-
-export async function fetchPullRequest(owner: string, repo: string, number: string, token?: string): Promise<GithubPullRequestJson> {
-  const res = await githubFetch(`${GITHUB_API_BASE}/repos/${owner}/${repo}/pulls/${number}`, token)
-  return res.json()
-}
-
-async function fetchAllPages<T>(url: string, token: string | undefined): Promise<T[]> {
-  const items: T[] = []
-  for (let page = 1; ; page++) {
-    const res = await githubFetch(`${url}?per_page=100&page=${page}`, token)
-    const pageItems: T[] = await res.json()
-    items.push(...pageItems)
-    if (pageItems.length < 100)
-      return items
-  }
+export async function fetchPullRequest(client: GithubClient, owner: string, repo: string, number: string): Promise<GithubPullRequestJson> {
+  return (await client.request(`/repos/${owner}/${repo}/pulls/${number}`)).json()
 }
 
 /** GitHub caps this endpoint at 3000 files total across pages. */
-export function fetchPullRequestFiles(owner: string, repo: string, number: string, token?: string): Promise<GithubPullRequestFileJson[]> {
-  return fetchAllPages(`${GITHUB_API_BASE}/repos/${owner}/${repo}/pulls/${number}/files`, token)
+export function fetchPullRequestFiles(client: GithubClient, owner: string, repo: string, number: string): Promise<GithubPullRequestFileJson[]> {
+  return client.paginate(`/repos/${owner}/${repo}/pulls/${number}/files`)
 }
 
 /**
  * Oldest first; GitHub caps this endpoint at 250 commits. It carries no per-commit
  * file lists - those cost one request per commit, so they are deliberately not fetched.
  */
-export function fetchPullRequestCommits(owner: string, repo: string, number: string, token?: string): Promise<GithubPullRequestCommitJson[]> {
-  return fetchAllPages(`${GITHUB_API_BASE}/repos/${owner}/${repo}/pulls/${number}/commits`, token)
+export function fetchPullRequestCommits(client: GithubClient, owner: string, repo: string, number: string): Promise<GithubPullRequestCommitJson[]> {
+  return client.paginate(`/repos/${owner}/${repo}/pulls/${number}/commits`)
 }
 
 /**
@@ -88,10 +52,9 @@ export function fetchPullRequestCommits(owner: string, repo: string, number: str
  * (very large diffs). `undefined` when GitHub refuses to render the diff at all (406: over 300
  * files or too large).
  */
-export async function fetchPullRequestDiffText(owner: string, repo: string, number: string, token?: string): Promise<string | undefined> {
+export async function fetchPullRequestDiffText(client: GithubClient, owner: string, repo: string, number: string): Promise<string | undefined> {
   try {
-    const res = await githubFetch(`${GITHUB_API_BASE}/repos/${owner}/${repo}/pulls/${number}`, token, 'application/vnd.github.diff')
-    return await res.text()
+    return await (await client.request(`/repos/${owner}/${repo}/pulls/${number}`, { accept: 'application/vnd.github.diff' })).text()
   }
   catch (err) {
     if (err instanceof GithubApiError && err.status === 406)
@@ -106,13 +69,14 @@ export async function fetchPullRequestDiffText(owner: string, repo: string, numb
  * `undefined` means the file doesn't exist at that ref - expected for the base side of
  * an added file, or the head side of a removed one - not an error.
  */
-export async function fetchFileContentAtRef(owner: string, repo: string, path: string, ref: string, token?: string): Promise<string | undefined> {
+export async function fetchFileContentAtRef(client: GithubClient, owner: string, repo: string, path: string, ref: string): Promise<string | undefined> {
   const encodedPath = path.split('/').map(encodeURIComponent).join('/')
-  const url = `${GITHUB_API_BASE}/repos/${owner}/${repo}/contents/${encodedPath}?ref=${encodeURIComponent(ref)}`
-  const res = await fetch(url, { headers: buildHeaders(token, 'application/vnd.github.raw') })
-  if (res.status === 404)
-    return undefined
-  if (!res.ok)
-    throw new Error(`GitHub API request failed (${res.status}): ${url}`)
-  return res.text()
+  try {
+    return await (await client.request(`/repos/${owner}/${repo}/contents/${encodedPath}?ref=${encodeURIComponent(ref)}`, { accept: 'application/vnd.github.raw' })).text()
+  }
+  catch (err) {
+    if (err instanceof GithubApiError && err.status === 404)
+      return undefined
+    throw err
+  }
 }

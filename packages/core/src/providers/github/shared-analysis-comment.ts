@@ -1,11 +1,10 @@
 import type { SharedAnalysis } from '../../types/shared-analysis'
+import type { GithubClient } from './client'
 import { compressToBase64, decompressFromBase64 } from 'lz-string-es'
 import * as v from 'valibot'
 import { diagnostics } from '../../diagnostics'
 import { SharedAnalysisSchema } from '../../types/shared-analysis'
-import { githubRequest } from './review-api'
 
-const GITHUB_API_BASE = 'https://api.github.com'
 /** Never `location.origin`: the comment is public, a preview host must not leak into it. */
 const SITE_ORIGIN = 'https://pulls.review'
 const MARKER = '<!-- pulls.review data -->'
@@ -100,8 +99,8 @@ export function parseSharedAnalysisComment(body: string): SharedAnalysis | undef
  * Shared analyses on the PR, newest first. First page only (100 comments) -
  * discovery is best-effort and must stay one request.
  */
-export async function fetchSharedAnalysisComments(pr: PullRequestRef, token?: string): Promise<SharedAnalysisComment[]> {
-  const res = await githubRequest('GET', `${GITHUB_API_BASE}/repos/${pr.owner}/${pr.repo}/issues/${pr.number}/comments?per_page=100`, token)
+export async function fetchSharedAnalysisComments(client: GithubClient, pr: PullRequestRef): Promise<SharedAnalysisComment[]> {
+  const res = await client.request(`/repos/${pr.owner}/${pr.repo}/issues/${pr.number}/comments?per_page=100`)
   const comments: GithubIssueCommentJson[] = await res.json()
   return comments
     .flatMap((comment) => {
@@ -113,14 +112,14 @@ export async function fetchSharedAnalysisComments(pr: PullRequestRef, token?: st
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
 }
 
-export async function createIssueComment(pr: PullRequestRef, body: string, token: string): Promise<{ id: number, url: string }> {
-  const res = await githubRequest('POST', `${GITHUB_API_BASE}/repos/${pr.owner}/${pr.repo}/issues/${pr.number}/comments`, token, { body })
+export async function createIssueComment(client: GithubClient, pr: PullRequestRef, body: string): Promise<{ id: number, url: string }> {
+  const res = await client.request(`/repos/${pr.owner}/${pr.repo}/issues/${pr.number}/comments`, { method: 'POST', body: { body } })
   const json: GithubIssueCommentJson = await res.json()
   return { id: json.id, url: json.html_url }
 }
 
-export async function updateIssueComment(pr: PullRequestRef, commentId: number, body: string, token: string): Promise<{ id: number, url: string }> {
-  const res = await githubRequest('PATCH', `${GITHUB_API_BASE}/repos/${pr.owner}/${pr.repo}/issues/comments/${commentId}`, token, { body })
+export async function updateIssueComment(client: GithubClient, pr: PullRequestRef, commentId: number, body: string): Promise<{ id: number, url: string }> {
+  const res = await client.request(`/repos/${pr.owner}/${pr.repo}/issues/comments/${commentId}`, { method: 'PATCH', body: { body } })
   const json: GithubIssueCommentJson = await res.json()
   return { id: json.id, url: json.html_url }
 }

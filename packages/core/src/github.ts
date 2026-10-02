@@ -1,6 +1,7 @@
 /** The GitHub provider and the REST/GraphQL calls behind it. */
 export * from './providers/github'
 export * from './providers/github/api'
+export * from './providers/github/client'
 export * from './providers/github/diff-id'
 export * from './providers/github/normalize'
 export * from './providers/github/pull-request-list'

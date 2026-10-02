@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { GithubApiError } from './api'
+import { createGithubClient, GithubApiError } from './client'
 import { addThreadToPendingReview, fetchThreadResolutions, resolveThread } from './review-graphql'
 
 function graphqlResponse(data: unknown, errors?: { type?: string, message: string }[]) {
@@ -31,7 +31,7 @@ describe('fetchThreadResolutions', () => {
       ])))
     vi.stubGlobal('fetch', fetchMock)
 
-    const resolutions = await fetchThreadResolutions('owner', 'repo', '5', 'token')
+    const resolutions = await fetchThreadResolutions(createGithubClient('token'), 'owner', 'repo', '5')
 
     expect(resolutions.get(101)).toEqual({ threadId: 'T_1', isResolved: true })
     expect(resolutions.get(202)).toEqual({ threadId: 'T_2', isResolved: false })
@@ -42,7 +42,7 @@ describe('fetchThreadResolutions', () => {
   it('maps a FORBIDDEN GraphQL error to a 403 GithubApiError', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(graphqlResponse(null, [{ type: 'FORBIDDEN', message: 'nope' }])))
 
-    const failure = await fetchThreadResolutions('owner', 'repo', '5', 'token').catch((err: unknown) => err)
+    const failure = await fetchThreadResolutions(createGithubClient('token'), 'owner', 'repo', '5').catch((err: unknown) => err)
 
     expect(failure).toBeInstanceOf(GithubApiError)
     expect((failure as GithubApiError).status).toBe(403)
@@ -54,7 +54,7 @@ describe('mutations', () => {
     const fetchMock = vi.fn().mockResolvedValue(graphqlResponse({ resolveReviewThread: { thread: { id: 'T_1', isResolved: true } } }))
     vi.stubGlobal('fetch', fetchMock)
 
-    await resolveThread('T_1', 'token')
+    await resolveThread(createGithubClient('token'), 'T_1')
 
     const body = JSON.parse(fetchMock.mock.calls[0]![1].body)
     expect(body.query).toContain('resolveReviewThread')
@@ -65,7 +65,7 @@ describe('mutations', () => {
     const fetchMock = vi.fn().mockResolvedValue(graphqlResponse({ addPullRequestReviewThread: { thread: { id: 'T_9' } } }))
     vi.stubGlobal('fetch', fetchMock)
 
-    await addThreadToPendingReview('PRR_1', { path: 'src/a.ts', side: 'deletions', line: 9, startLine: 7, startSide: 'additions' }, 'my draft', 'token')
+    await addThreadToPendingReview(createGithubClient('token'), 'PRR_1', { path: 'src/a.ts', side: 'deletions', line: 9, startLine: 7, startSide: 'additions' }, 'my draft')
 
     const body = JSON.parse(fetchMock.mock.calls[0]![1].body)
     expect(body.variables).toEqual({

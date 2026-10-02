@@ -5,7 +5,7 @@ import type { Locale } from '@pulls.review/core/locales'
 import type { AnalyzeProgress } from '@pulls.review/core/types'
 import { resolveModel } from '@pulls.review/core/analyze'
 import { diagnostics } from '@pulls.review/core/diagnostics'
-import { createIssueComment, fetchGithubTokenMeta, fetchSharedAnalysisComments, GithubProvider, renderSharedAnalysisComment, updateIssueComment } from '@pulls.review/core/github'
+import { createGithubClient, createIssueComment, fetchGithubTokenMeta, fetchSharedAnalysisComments, GithubProvider, renderSharedAnalysisComment, updateIssueComment } from '@pulls.review/core/github'
 
 /** The author GitHub shows for a workflow's `GITHUB_TOKEN`, which cannot look itself up at `/user`. */
 const ACTIONS_BOT_LOGIN = 'github-actions[bot]'
@@ -44,10 +44,11 @@ export async function run({ pr, githubToken, llm, locale, log }: RunOptions, ana
   if (!resolved)
     throw diagnostics.llmNotConfigured()
 
+  const client = createGithubClient(githubToken)
   const [diff, login, comments] = await Promise.all([
     GithubProvider.fetchDiff({ kind: 'github-pr', ...pr }, { token: githubToken }),
     fetchGithubTokenMeta(githubToken).then(meta => meta.login, () => ACTIONS_BOT_LOGIN),
-    fetchSharedAnalysisComments(pr, githubToken),
+    fetchSharedAnalysisComments(client, pr),
   ])
   const headSha = diff.head?.sha ?? ''
   const existing = comments.find(comment => comment.login === login)
@@ -58,7 +59,7 @@ export async function run({ pr, githubToken, llm, locale, log }: RunOptions, ana
   const { result } = await analyze(diff, resolved, locale, { onProgress: progress => log(describeProgress(progress)) })
   const body = renderSharedAnalysisComment(pr, login, { headSha, result })
   const comment = existing
-    ? await updateIssueComment(pr, existing.id, body, githubToken)
-    : await createIssueComment(pr, body, githubToken)
+    ? await updateIssueComment(client, pr, existing.id, body)
+    : await createIssueComment(client, pr, body)
   return { status: 'posted', url: comment.url }
 }

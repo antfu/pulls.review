@@ -1,4 +1,5 @@
-import { GithubApiError } from '@pulls.review/core/github'
+import type { GithubClient } from '@pulls.review/core/github'
+import { createGithubClient, GithubApiError } from '@pulls.review/core/github'
 import { computed, ref } from 'vue'
 import { resolveStoredTokenMeta } from '../composables/useGithubTokenMeta'
 import { t } from '../i18n'
@@ -27,11 +28,11 @@ export function createGithubWriteAccess(token: string | undefined) {
   }
 
   /** Wraps every write: a 403 means the token can't write here - flip the session read-only. */
-  async function write<T>(action: (token: string) => Promise<T>): Promise<T> {
+  async function write<T>(action: (client: GithubClient) => Promise<T>): Promise<T> {
     if (!token)
       throw new Error(t('errors.tokenRequired'))
     try {
-      return await action(token)
+      return await action(createGithubClient(token))
     }
     catch (err) {
       if (err instanceof GithubApiError && err.status === 403)

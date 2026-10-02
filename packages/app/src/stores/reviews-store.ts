@@ -2,7 +2,7 @@ import type { CacheRepositories } from '@pulls.review/core/cache'
 import type { ReviewData, ReviewDraftTarget, ReviewVerdict } from '@pulls.review/core/types'
 import type { GithubWriteAccess } from './github-write-access'
 import type { DiffsStoreReviews } from './types'
-import { addThreadToPendingReview, createPendingReview, createReview, createReviewComment, deletePendingReview, deleteReviewComment, fetchReviewComments, fetchReviewCommentsForReview, fetchReviews, fetchThreadResolutions, normalizeReviewData, replyToReviewComment, resolveThread as resolveThreadMutation, submitPendingReview, updateReviewComment } from '@pulls.review/core/github'
+import { addThreadToPendingReview, createGithubClient, createPendingReview, createReview, createReviewComment, deletePendingReview, deleteReviewComment, fetchReviewComments, fetchReviewCommentsForReview, fetchReviews, fetchThreadResolutions, normalizeReviewData, replyToReviewComment, resolveThread as resolveThreadMutation, submitPendingReview, updateReviewComment } from '@pulls.review/core/github'
 import { computed, reactive, ref } from 'vue'
 import { t } from '../i18n'
 import { showReviewComments } from '../state/review-comments'
@@ -31,6 +31,7 @@ function toGithubSide(side: 'additions' | 'deletions'): 'LEFT' | 'RIGHT' {
 export function createReviewsStore(params: { owner: string, repo: string, number: string }, opts: ReviewsStoreOptions): DiffsStoreReviews {
   const { owner, repo, number } = params
   const token = opts.token || undefined
+  const client = createGithubClient(token)
   const { write } = opts.access
 
   const data = ref<ReviewData>({ threads: [], summaries: [], pendingReview: undefined })
@@ -40,15 +41,15 @@ export function createReviewsStore(params: { owner: string, repo: string, number
 
   async function fetchFresh(): Promise<ReviewData> {
     const [comments, reviews] = await Promise.all([
-      fetchReviewComments(owner, repo, number, token),
-      fetchReviews(owner, repo, number, token),
+      fetchReviewComments(client, owner, repo, number),
+      fetchReviews(client, owner, repo, number),
     ])
     const pending = reviews.find(review => review.state === 'PENDING')
     const [pendingComments, resolutions] = await Promise.all([
-      pending ? fetchReviewCommentsForReview(owner, repo, number, pending.id, token) : Promise.resolve([]),
+      pending ? fetchReviewCommentsForReview(client, owner, repo, number, pending.id) : Promise.resolve([]),
       // Resolution lives in GraphQL only, which needs a token - degrade to
       // "resolution unknown" silently for anonymous viewers or on failure.
-      token ? fetchThreadResolutions(owner, repo, number, token).catch(() => undefined) : Promise.resolve(undefined),
+      token ? fetchThreadResolutions(client, owner, repo, number).catch(() => undefined) : Promise.resolve(undefined),
     ])
     return normalizeReviewData({ comments, reviews, pendingComments, resolutions })
   }
@@ -80,9 +81,9 @@ export function createReviewsStore(params: { owner: string, repo: string, number
   }
 
   async function addComment(target: ReviewDraftTarget, body: string, mode: 'single' | 'review') {
-    await write(async (auth) => {
+    await write(async (writer) => {
       if (mode === 'review' && data.value.pendingReview) {
-        await addThreadToPendingReview(data.value.pendingReview.nodeId, target, body, auth)
+        await addThreadToPendingReview(writer, data.value.pendingReview.nodeId, target, body)
         return
       }
       const headSha = opts.getHeadSha()
@@ -98,40 +99,40 @@ export function createReviewsStore(params: { owner: string, repo: string, number
         startSide: target.startSide ? toGithubSide(target.startSide) : undefined,
       }
       if (mode === 'review')
-        await createPendingReview(owner, repo, number, input, auth)
+        await createPendingReview(writer, owner, repo, number, input)
       else
-        await createReviewComment(owner, repo, number, input, auth)
+        await createReviewComment(writer, owner, repo, number, input)
     })
     await refetch()
   }
 
   async function reply(rootCommentId: number, body: string) {
-    await write(auth => replyToReviewComment(owner, repo, number, rootCommentId, body, auth))
+    await write(writer => replyToReviewComment(writer, owner, repo, number, rootCommentId, body))
     await refetch()
   }
 
   async function editComment(commentId: number, body: string) {
-    await write(auth => updateReviewComment(owner, repo, commentId, body, auth))
+    await write(writer => updateReviewComment(writer, owner, repo, commentId, body))
     await refetch()
   }
 
   async function deleteComment(commentId: number) {
-    await write(auth => deleteReviewComment(owner, repo, commentId, auth))
+    await write(writer => deleteReviewComment(writer, owner, repo, commentId))
     await refetch()
   }
 
   async function resolveThread(threadId: string) {
-    await write(auth => resolveThreadMutation(threadId, auth))
+    await write(writer => resolveThreadMutation(writer, threadId))
     await refetch()
   }
 
   async function submitReview(verdict: ReviewVerdict, body: string) {
-    await write(async (auth) => {
+    await write(async (writer) => {
       const pending = data.value.pendingReview
       if (pending)
-        await submitPendingReview(owner, repo, number, pending.id, verdict, body, auth)
+        await submitPendingReview(writer, owner, repo, number, pending.id, verdict, body)
       else
-        await createReview(owner, repo, number, verdict, body, auth)
+        await createReview(writer, owner, repo, number, verdict, body)
     })
     await refetch()
   }
@@ -140,7 +141,7 @@ export function createReviewsStore(params: { owner: string, repo: string, number
     const pending = data.value.pendingReview
     if (!pending)
       return
-    await write(auth => deletePendingReview(owner, repo, number, pending.id, auth))
+    await write(writer => deletePendingReview(writer, owner, repo, number, pending.id))
     await refetch()
   }
 

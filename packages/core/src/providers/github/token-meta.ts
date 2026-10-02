@@ -1,6 +1,5 @@
 import { diagnostics } from '../../diagnostics'
-
-const GITHUB_API_BASE = 'https://api.github.com'
+import { createGithubClient, GithubApiError } from './client'
 
 /** Who a PAT authenticates as, plus what the token itself can do and until when. */
 export interface GithubTokenMeta {
@@ -30,17 +29,13 @@ function parseExpiration(header: string | null): number | null {
  * works".
  */
 export async function fetchGithubTokenMeta(token: string): Promise<GithubTokenMeta> {
-  const res = await fetch(`${GITHUB_API_BASE}/user`, {
-    headers: {
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'Authorization': `Bearer ${token}`,
-    },
-  })
-  if (res.status === 401)
-    throw diagnostics.tokenRejected()
-  if (!res.ok)
-    throw new Error(`GitHub API request failed (${res.status})`)
+  let res: Response
+  try {
+    res = await createGithubClient(token).request('/user')
+  }
+  catch (err) {
+    throw err instanceof GithubApiError && err.status === 401 ? diagnostics.tokenRejected() : err
+  }
   const user: { login: string, avatar_url: string, name: string | null } = await res.json()
   const scopesHeader = res.headers.get('x-oauth-scopes') ?? ''
   return {

@@ -1,7 +1,7 @@
 import type { CacheRepositories, LlmSession, PrCacheEntry } from '@pulls.review/core/cache'
 import type { DiffsPayload, FetchDiffParams, GroupedResult, GroupSource, ReviewData } from '@pulls.review/core/types'
 import type { DiffsStore, DiffsStoreLlm } from './types'
-import { fetchPullRequest } from '@pulls.review/core/github'
+import { createGithubClient, fetchPullRequest } from '@pulls.review/core/github'
 import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef, watch } from 'vue'
 import { resolveAdapter, ruleBasedAdapter } from '../analyze'
 import { resolveGroups } from '../components/diff/group-utils'
@@ -206,7 +206,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
     if (params.kind !== 'github-pr')
       return
     try {
-      const pr = await fetchPullRequest(params.owner, params.repo, params.number, opts.token)
+      const pr = await fetchPullRequest(createGithubClient(opts.token), params.owner, params.repo, params.number)
       if (pr.head.sha === cachedHeadSha)
         return
       // The user opted into auto-refresh (banner checkbox or Settings): fetch the new

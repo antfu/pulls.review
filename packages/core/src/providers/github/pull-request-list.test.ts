@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createGithubClient } from './client'
 import { fetchOpenPullRequests } from './pull-request-list'
 
 afterEach(() => {
@@ -28,7 +29,7 @@ describe('fetchOpenPullRequests without a token (REST search)', () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ total_count: 1, items: [restItem] }))
     vi.stubGlobal('fetch', fetchMock)
 
-    const page = await fetchOpenPullRequests('o', 'r', undefined)
+    const page = await fetchOpenPullRequests(createGithubClient(), 'o', 'r')
 
     const url = new URL(fetchMock.mock.calls[0]![0])
     expect(url.pathname).toBe('/search/issues')
@@ -59,11 +60,11 @@ describe('fetchOpenPullRequests without a token (REST search)', () => {
     const fetchMock = vi.fn().mockImplementation(async () => jsonResponse({ total_count: 250, items }))
     vi.stubGlobal('fetch', fetchMock)
 
-    const first = await fetchOpenPullRequests('o', 'r', undefined)
+    const first = await fetchOpenPullRequests(createGithubClient(), 'o', 'r')
     expect(first.next).toBe('2')
     expect(first.items[0]).toMatchObject({ state: 'open', author: undefined, assignees: [], milestone: undefined })
 
-    const third = await fetchOpenPullRequests('o', 'r', undefined, '3')
+    const third = await fetchOpenPullRequests(createGithubClient(), 'o', 'r', '3')
     expect(new URL(fetchMock.mock.calls[1]![0]).searchParams.get('page')).toBe('3')
     expect(third.next).toBeUndefined()
   })
@@ -72,7 +73,7 @@ describe('fetchOpenPullRequests without a token (REST search)', () => {
     const items = Array.from({ length: 100 }, (_, i) => ({ ...restItem, number: i }))
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ total_count: 5000, items })))
 
-    const page = await fetchOpenPullRequests('o', 'r', undefined, '10')
+    const page = await fetchOpenPullRequests(createGithubClient(), 'o', 'r', '10')
     expect(page.next).toBeUndefined()
   })
 })
@@ -104,7 +105,7 @@ describe('fetchOpenPullRequests with a token (GraphQL search)', () => {
     }))
     vi.stubGlobal('fetch', fetchMock)
 
-    const page = await fetchOpenPullRequests('o', 'r', 'tok')
+    const page = await fetchOpenPullRequests(createGithubClient('tok'), 'o', 'r')
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe('https://api.github.com/graphql')
@@ -141,7 +142,7 @@ describe('fetchOpenPullRequests with a token (GraphQL search)', () => {
     }))
     vi.stubGlobal('fetch', fetchMock)
 
-    const page = await fetchOpenPullRequests('o', 'r', 'tok', 'abc')
+    const page = await fetchOpenPullRequests(createGithubClient('tok'), 'o', 'r', 'abc')
 
     expect(JSON.parse(fetchMock.mock.calls[0]![1].body).variables.cursor).toBe('abc')
     expect(page.next).toBeUndefined()

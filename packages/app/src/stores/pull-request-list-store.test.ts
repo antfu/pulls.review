@@ -70,7 +70,8 @@ describe('createPullRequestListStore', () => {
 
     await store.load()
 
-    expect(mocks.fetchOpenPullRequests).toHaveBeenCalledWith('o', 'r', 'tok')
+    const [client, owner, repo] = mocks.fetchOpenPullRequests.mock.calls[0]!
+    expect([await client.token(), owner, repo]).toEqual(['tok', 'o', 'r'])
     expect(store.items.map(pr => pr.number)).toEqual([3, 2, 1])
     expect(store.totalCount).toBe(3)
     expect(store.hasMore).toBe(false)

@@ -1,9 +1,7 @@
 import type { ChecksStatus, PullRequestListItem, PullRequestListPage, ReviewDecision } from '../../types/pull-request-list'
+import type { GithubClient } from './client'
 import type { GithubUserJson } from './review-api'
-import { githubRequest } from './review-api'
-import { githubGraphql } from './review-graphql'
 
-const GITHUB_API_BASE = 'https://api.github.com'
 const PAGE_SIZE = 100
 
 /**
@@ -13,10 +11,10 @@ const PAGE_SIZE = 100
  * REST can't see - review decision, CI rollup, linked issues. Pages chain through
  * the opaque `next` continuation (a page number for REST, a cursor for GraphQL).
  */
-export function fetchOpenPullRequests(owner: string, repo: string, token: string | undefined, next?: string): Promise<PullRequestListPage> {
-  return token
-    ? fetchViaGraphql(owner, repo, token, next)
-    : fetchViaRest(owner, repo, next)
+export async function fetchOpenPullRequests(client: GithubClient, owner: string, repo: string, next?: string): Promise<PullRequestListPage> {
+  return await client.token()
+    ? fetchViaGraphql(client, owner, repo, next)
+    : fetchViaRest(client, owner, repo, next)
 }
 
 function searchQuery(owner: string, repo: string): string {
@@ -51,7 +49,7 @@ interface GithubSearchIssuesJson {
 /** The search API refuses to page past its first 1000 results. */
 const REST_SEARCH_RESULT_CAP = 1000
 
-async function fetchViaRest(owner: string, repo: string, next: string | undefined): Promise<PullRequestListPage> {
+async function fetchViaRest(client: GithubClient, owner: string, repo: string, next: string | undefined): Promise<PullRequestListPage> {
   const page = next ? Number(next) : 1
   const params = new URLSearchParams({
     q: searchQuery(owner, repo),
@@ -60,7 +58,7 @@ async function fetchViaRest(owner: string, repo: string, next: string | undefine
     per_page: String(PAGE_SIZE),
     page: String(page),
   })
-  const res = await githubRequest('GET', `${GITHUB_API_BASE}/search/issues?${params}`, undefined)
+  const res = await client.request(`/search/issues?${params}`)
   const json: GithubSearchIssuesJson = await res.json()
   const loaded = page * PAGE_SIZE
   const hasMore = json.items.length === PAGE_SIZE && loaded < Math.min(json.total_count, REST_SEARCH_RESULT_CAP)
@@ -142,12 +140,12 @@ query OpenPullRequests($query: String!, $first: Int!, $cursor: String) {
   }
 }`
 
-async function fetchViaGraphql(owner: string, repo: string, token: string, cursor: string | undefined): Promise<PullRequestListPage> {
-  const data: OpenPullRequestsQueryData = await githubGraphql(OPEN_PULL_REQUESTS_QUERY, {
+async function fetchViaGraphql(client: GithubClient, owner: string, repo: string, cursor: string | undefined): Promise<PullRequestListPage> {
+  const data: OpenPullRequestsQueryData = await client.graphql(OPEN_PULL_REQUESTS_QUERY, {
     query: `${searchQuery(owner, repo)} sort:updated-desc`,
     first: PAGE_SIZE,
     cursor: cursor ?? null,
-  }, token)
+  })
   const { issueCount, pageInfo, nodes } = data.search
   return {
     totalCount: issueCount,

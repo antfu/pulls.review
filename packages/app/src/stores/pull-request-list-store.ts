@@ -1,6 +1,6 @@
 import type { CacheRepositories } from '@pulls.review/core/cache'
 import type { PullRequestListItem, PullRequestListPage } from '@pulls.review/core/types'
-import { fetchOpenPullRequests, parseGithubDiffId } from '@pulls.review/core/github'
+import { createGithubClient, fetchOpenPullRequests, parseGithubDiffId } from '@pulls.review/core/github'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { ruleBasedAdapter } from '../analyze'
 
@@ -50,6 +50,7 @@ export interface PullRequestListStoreOptions {
 export function createPullRequestListStore(params: { owner: string, repo: string }, opts: PullRequestListStoreOptions): PullRequestListStore {
   const { owner, repo } = params
   const { cache } = opts
+  const client = createGithubClient(opts.token)
   const items = shallowRef<PullRequestListItem[]>([])
   const totalCount = ref<number>()
   const next = ref<string>()
@@ -71,7 +72,7 @@ export function createPullRequestListStore(params: { owner: string, repo: string
     const current = ++generation
     error.value = undefined
     try {
-      const page = await fetchOpenPullRequests(owner, repo, opts.token)
+      const page = await fetchOpenPullRequests(client, owner, repo)
       if (current !== generation)
         return
       installFirstPage(page)
@@ -138,7 +139,7 @@ export function createPullRequestListStore(params: { owner: string, repo: string
     isLoadingMore.value = true
     error.value = undefined
     try {
-      const page = await fetchOpenPullRequests(owner, repo, opts.token, cursor)
+      const page = await fetchOpenPullRequests(client, owner, repo, cursor)
       // A refresh landed meanwhile: its first page supersedes this continuation.
       if (current !== generation)
         return

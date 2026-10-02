@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { GithubApiError } from './api'
+import { createGithubClient, GithubApiError } from './client'
 import {
   createPendingReview,
   createReview,
@@ -29,7 +29,7 @@ describe('fetchReviewComments', () => {
       .mockResolvedValueOnce(jsonResponse(pageTwo))
     vi.stubGlobal('fetch', fetchMock)
 
-    const comments = await fetchReviewComments('owner', 'repo', '1', 'token')
+    const comments = await fetchReviewComments(createGithubClient('token'), 'owner', 'repo', '1')
 
     expect(comments).toHaveLength(101)
     expect(fetchMock.mock.calls[0]![0]).toBe('https://api.github.com/repos/owner/repo/pulls/1/comments?per_page=100&page=1')
@@ -39,7 +39,7 @@ describe('fetchReviewComments', () => {
   it('surfaces GitHub\'s own error message with the status', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ message: 'Resource not accessible by personal access token' }, 403)))
 
-    const failure = await fetchReviewComments('owner', 'repo', '1', 'token').catch((err: unknown) => err)
+    const failure = await fetchReviewComments(createGithubClient('token'), 'owner', 'repo', '1').catch((err: unknown) => err)
 
     expect(failure).toBeInstanceOf(GithubApiError)
     expect((failure as GithubApiError).status).toBe(403)
@@ -62,7 +62,7 @@ describe('write endpoints', () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({}, 201))
     vi.stubGlobal('fetch', fetchMock)
 
-    await createReviewComment('owner', 'repo', '1', input, 'token')
+    await createReviewComment(createGithubClient('token'), 'owner', 'repo', '1', input)
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe('https://api.github.com/repos/owner/repo/pulls/1/comments')
@@ -82,7 +82,7 @@ describe('write endpoints', () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({}, 200))
     vi.stubGlobal('fetch', fetchMock)
 
-    await createPendingReview('owner', 'repo', '1', input, 'token')
+    await createPendingReview(createGithubClient('token'), 'owner', 'repo', '1', input)
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe('https://api.github.com/repos/owner/repo/pulls/1/reviews')
@@ -102,7 +102,7 @@ describe('write endpoints', () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({}, 200))
     vi.stubGlobal('fetch', fetchMock)
 
-    await submitPendingReview('owner', 'repo', '1', 42, 'APPROVE', 'LGTM', 'token')
+    await submitPendingReview(createGithubClient('token'), 'owner', 'repo', '1', 42, 'APPROVE', 'LGTM')
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe('https://api.github.com/repos/owner/repo/pulls/1/reviews/42/events')
@@ -113,7 +113,7 @@ describe('write endpoints', () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({}, 200))
     vi.stubGlobal('fetch', fetchMock)
 
-    await createReview('owner', 'repo', '1', 'REQUEST_CHANGES', 'Please fix', 'token')
+    await createReview(createGithubClient('token'), 'owner', 'repo', '1', 'REQUEST_CHANGES', 'Please fix')
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe('https://api.github.com/repos/owner/repo/pulls/1/reviews')
@@ -124,10 +124,10 @@ describe('write endpoints', () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({}, 200))
     vi.stubGlobal('fetch', fetchMock)
 
-    await replyToReviewComment('owner', 'repo', '1', 7, 'Agreed', 'token')
-    await updateReviewComment('owner', 'repo', 8, 'Edited', 'token')
-    await deleteReviewComment('owner', 'repo', 8, 'token')
-    await deletePendingReview('owner', 'repo', '1', 42, 'token')
+    await replyToReviewComment(createGithubClient('token'), 'owner', 'repo', '1', 7, 'Agreed')
+    await updateReviewComment(createGithubClient('token'), 'owner', 'repo', 8, 'Edited')
+    await deleteReviewComment(createGithubClient('token'), 'owner', 'repo', 8)
+    await deletePendingReview(createGithubClient('token'), 'owner', 'repo', '1', 42)
 
     expect(fetchMock.mock.calls.map(([url, init]) => [init.method, url])).toEqual([
       ['POST', 'https://api.github.com/repos/owner/repo/pulls/1/comments/7/replies'],
