@@ -32,6 +32,19 @@ export const Split: Story = {
   args: { file: partiallyReviewed.diff.files[0] as any, store: createMockDiffsStore({ layout: 'split' }) },
 }
 
+/** A source that can fetch full files: the header offers "load full file". */
+export const LoadFullFile: Story = {
+  args: {
+    file: partiallyReviewed.diff.files[0] as any,
+    store: createMockDiffsStore({
+      fileContent: {
+        old: 'context\nold\nconst untouched = true\n',
+        new: 'context\nnew\nextra\nconst untouched = true\n',
+      },
+    }),
+  },
+}
+
 export const Renamed: Story = {
   args: { file: renamedFile.diff.files[0] as any },
 }

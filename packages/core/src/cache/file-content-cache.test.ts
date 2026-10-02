@@ -10,22 +10,24 @@ beforeEach(() => {
 })
 
 describe('file content cache', () => {
-  it('round-trips content for a given path + sha', async () => {
-    await cache.set('src/foo.ts', 'sha-a', 'export const x = 1')
-    await expect(cache.get('src/foo.ts', 'sha-a')).resolves.toBe('export const x = 1')
+  it('round-trips content for a given diff + sha + path', async () => {
+    await cache.set('github:o/r#1', 'sha-a', 'src/foo.ts', 'export const x = 1')
+    await expect(cache.get('github:o/r#1', 'sha-a', 'src/foo.ts')).resolves.toBe('export const x = 1')
   })
 
-  it('misses on an unknown path/sha pair', async () => {
-    await expect(cache.get('src/foo.ts', 'sha-a')).resolves.toBeUndefined()
+  it('misses on an unknown entry', async () => {
+    await expect(cache.get('github:o/r#1', 'sha-a', 'src/foo.ts')).resolves.toBeUndefined()
   })
 
-  it('keys by both path and sha', async () => {
-    await cache.set('src/foo.ts', 'sha-a', 'old content')
-    await cache.set('src/foo.ts', 'sha-b', 'new content')
-    await cache.set('src/bar.ts', 'sha-a', 'bar content')
+  it('keys by diff, sha and path', async () => {
+    await cache.set('github:o/r#1', 'sha-a', 'src/foo.ts', 'old content')
+    await cache.set('github:o/r#1', 'sha-b', 'src/foo.ts', 'new content')
+    await cache.set('github:o/r#1', 'sha-a', 'src/bar.ts', 'bar content')
+    await cache.set('local:repo', 'sha-a', 'src/foo.ts', 'local content')
 
-    await expect(cache.get('src/foo.ts', 'sha-a')).resolves.toBe('old content')
-    await expect(cache.get('src/foo.ts', 'sha-b')).resolves.toBe('new content')
-    await expect(cache.get('src/bar.ts', 'sha-a')).resolves.toBe('bar content')
+    await expect(cache.get('github:o/r#1', 'sha-a', 'src/foo.ts')).resolves.toBe('old content')
+    await expect(cache.get('github:o/r#1', 'sha-b', 'src/foo.ts')).resolves.toBe('new content')
+    await expect(cache.get('github:o/r#1', 'sha-a', 'src/bar.ts')).resolves.toBe('bar content')
+    await expect(cache.get('local:repo', 'sha-a', 'src/foo.ts')).resolves.toBe('local content')
   })
 })

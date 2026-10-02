@@ -1,21 +1,16 @@
 <script setup lang="ts">
 import type { DiffLineAnnotation, FileDiffOptions, SelectedLineRange } from '@pierre/diffs'
-import type { FileContentCache } from '@pulls.review/core/cache'
-import type { GithubClient } from '@pulls.review/core/github'
 import type { CommentThread, DiffSide, FileChange, ReviewDraftTarget } from '@pulls.review/core/types'
 import type { DiffsStore } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
 import { FileDiff as PierreFileDiff, processFile, VirtualizedFileDiff } from '@pierre/diffs'
-import { createGithubClient, fetchFileContentAtRef } from '@pulls.review/core/github'
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
-import { appContextKey } from '../../app-context'
 import { isDark as globalIsDark, isDarkKey } from '../../state/dark'
 import CommentComposer from './CommentComposer.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffStats from './DiffStats.vue'
-import { fileContentContextKey } from './file-content-context'
 import FileStatus from './FileStatus.vue'
 import { isNoisyFile } from './noisy-files'
 import { ensurePierreDiffsShadowRoot } from './pierre-diffs-shadow'
@@ -34,8 +29,6 @@ const isReviewed = computed(() => status.value === 'reviewed')
 // Reads the embed's own scoped ref when provided (see `state/dark.ts`), otherwise the
 // app-wide singleton - never targets `document.documentElement` from inside the embed.
 const isDark = inject(isDarkKey, globalIsDark)
-// `undefined` for a source that can't refetch full file content (see `file-content-context.ts`).
-const fileContentContext = inject(fileContentContextKey, undefined)
 const virtualizer = inject(diffVirtualizerKey, undefined)
 
 const containerRef = useTemplateRef<HTMLDivElement>('container')
@@ -61,47 +54,27 @@ function buildUnifiedDiffText(file: FileChange): string {
   return lines.join('\n')
 }
 
-// Full file content, fetched on demand (see `loadFullFile`) and cached by
-// `(path, ref sha)` - `undefined` means "not fetched" for a side that *could* exist,
-// distinct from a side that structurally doesn't (an added file's old side, a removed
-// file's new side), which `loadFullFile` never even tries to fetch.
+// Full file content, fetched on demand through the store (see `loadFullFile`) -
+// `undefined` means "not fetched" for a side that *could* exist, distinct from a side
+// that structurally doesn't (an added file's old side, a removed file's new side).
 const fullOldContent = ref<string>()
 const fullNewContent = ref<string>()
 const isLoadingFullFile = ref(false)
 const fullFileError = ref<Error>()
 const fullFileLoaded = computed(() => fullOldContent.value !== undefined || fullNewContent.value !== undefined)
-// Temporary until full-file loading moves into the store (plans/10, step 5).
-const appContext = inject(appContextKey, undefined)
-const canLoadFullFile = computed(() => !!fileContentContext?.value && !!appContext && !props.file.isBinary && !fullFileLoaded.value)
-
-async function loadFileSide(fileContents: FileContentCache, path: string, sha: string, client: GithubClient, owner: string, repo: string): Promise<string | undefined> {
-  const cached = await fileContents.get(path, sha)
-  if (cached !== undefined)
-    return cached
-  const content = await fetchFileContentAtRef(client, owner, repo, path, sha)
-  if (content !== undefined)
-    await fileContents.set(path, sha, content)
-  return content
-}
+const canLoadFullFile = computed(() => !!props.store.fileContent && !props.file.isBinary && !fullFileLoaded.value)
 
 async function loadFullFile() {
-  const context = fileContentContext?.value
-  const fileContents = appContext?.cache.fileContents
-  if (!appContext || !context || !fileContents || isLoadingFullFile.value || fullFileLoaded.value)
+  const { fileContent } = props.store
+  if (!fileContent || isLoadingFullFile.value || fullFileLoaded.value)
     return
 
   isLoadingFullFile.value = true
   fullFileError.value = undefined
   try {
-    const { owner, repo, baseSha, headSha } = context
-    const client = createGithubClient(appContext.credentials)
-    const oldPath = props.file.previousPath ?? props.file.path
-    const [oldContent, newContent] = await Promise.all([
-      props.file.status === 'added' ? undefined : loadFileSide(fileContents, oldPath, baseSha, client, owner, repo),
-      props.file.status === 'removed' ? undefined : loadFileSide(fileContents, props.file.path, headSha, client, owner, repo),
-    ])
-    fullOldContent.value = oldContent
-    fullNewContent.value = newContent
+    const content = await fileContent.load(props.file)
+    fullOldContent.value = content.old
+    fullNewContent.value = content.new
   }
   catch (err) {
     fullFileError.value = err instanceof Error ? err : new Error(String(err))

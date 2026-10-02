@@ -1,10 +1,10 @@
 import type { CacheRepositories, LlmSession, PrCacheEntry } from '@pulls.review/core/cache'
-import type { Credentials, DiffSource, DiffsPayload, GroupedResult, GroupSource, ReviewData } from '@pulls.review/core/types'
+import type { Credentials, DiffSource, DiffsPayload, FileChange, GroupedResult, GroupSource, ReviewData } from '@pulls.review/core/types'
 import type { DiffsStore, DiffsStoreLlm } from './types'
 import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef, watch } from 'vue'
 import { resolveAdapter, ruleBasedAdapter } from '../analyze'
 import { resolveGroups } from '../components/diff/group-utils'
-import { i18n } from '../i18n'
+import { i18n, t } from '../i18n'
 import { autoRefresh } from '../state/auto-refresh'
 import { layout } from '../state/layout'
 import { createGithubWriteAccess } from './github-write-access'
@@ -262,6 +262,30 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
     }
   }
 
+  const { loadFile } = source
+  const fileContent = loadFile && {
+    async load(file: FileChange) {
+      const loaded = diff.value
+      const key = cacheKey.value
+      if (!loaded?.base || !loaded.head || !key)
+        throw new Error(t('errors.diffNotLoaded'))
+      const loadSide = async (path: string, sha: string) => {
+        const cached = await cache.fileContents.get(key, sha, path)
+        if (cached !== undefined)
+          return cached
+        const content = await loadFile(path, sha)
+        if (content !== undefined)
+          await cache.fileContents.set(key, sha, path, content)
+        return content
+      }
+      const [old, current] = await Promise.all([
+        file.status === 'added' ? undefined : loadSide(file.previousPath ?? file.path, loaded.base.sha),
+        file.status === 'removed' ? undefined : loadSide(file.path, loaded.head.sha),
+      ])
+      return { old, new: current }
+    },
+  }
+
   const ui = reactive({
     layout,
     setLayout: (mode: 'split' | 'unified') => { layout.value = mode },
@@ -283,6 +307,7 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
     llm,
     reviews,
     shared: shared?.store,
+    fileContent,
     load,
     refresh,
     setReviewed,

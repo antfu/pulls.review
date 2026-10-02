@@ -172,8 +172,11 @@ export function createMockDiffsStore(input: {
   reviews?: MockReviewsInput
   /** Enables the shared-analysis sub-store (absent = a source with no PR comments). */
   shared?: MockSharedInput
+  /** Enables "load full file": every file loads these contents (absent = a source that can't, like a paste). */
+  fileContent?: { old?: string, new?: string }
 }): DiffsStore {
   const llmEnabled = input.llm ?? true
+  const { fileContent } = input
 
   const diff = ref(input.diff)
   const grouped = ref(input.grouped)
@@ -279,6 +282,7 @@ export function createMockDiffsStore(input: {
           analyzeMode.value = result.source
         })
       : undefined,
+    fileContent: fileContent && { load: async () => fileContent },
     load,
     refresh,
     setReviewed,

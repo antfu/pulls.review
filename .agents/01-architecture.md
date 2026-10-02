@@ -250,11 +250,13 @@ flat key-value, so there's no native "object store" split):
   the user marks the file again (`DiffsStore.setReviewed`), which is how the
   view shows "reviewed, but changed since" instead of plain "unreviewed".
 - `file-content:*` — a file's full raw content at a specific ref, fetched
-  on demand from `FileDiff.vue`'s "load full file" action (github only -
-  shown only for a `github-pr` diff with base/head refs), keyed by
-  `file-content:{ref sha}:{path}`. `ref` is the PR's base/head **commit**
-  sha, not a per-blob sha - equally content-addressed for caching purposes,
-  without a separate request to look one up. No eviction of its own yet
+  on demand by `FileDiff.vue`'s "load full file" action through
+  `DiffsStore.fileContent` (present only when the source has `loadFile`;
+  github only today), keyed by `file-content:{diff key}:{ref sha}:{path}`.
+  `ref` is the diff's base/head **commit** sha, not a per-blob sha - equally
+  content-addressed for caching purposes, without a separate request to look
+  one up; the diff key scopes it so a non-commit ref can't collide across
+  sources. No eviction of its own yet
   (unlike the diff cache and review marks), a known gap for later.
 - `pulls:*` — a repo's first page of open PRs (`PullRequestListPage`), keyed
   `pulls:{owner}/{repo}`. Stale-while-revalidate: it renders instantly on

@@ -13,7 +13,6 @@ import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffGroup from './DiffGroup.vue'
 import DiffsHeader from './DiffsHeader.vue'
-import { fileContentContextKey } from './file-content-context'
 import ReviewSummaries from './ReviewSummaries.vue'
 import SharedAnalysisBanner from './SharedAnalysisBanner.vue'
 
@@ -37,17 +36,6 @@ const error = computed(() => props.store?.error)
 const isGithub = computed(() => !!props.store?.reviews)
 const isStale = computed(() => props.store?.isStale ?? false)
 const groups = computed(() => props.store?.groups ?? [])
-
-// `undefined` for any source that can't refetch a file's full content (a pasted patch
-// has no live source, and no base/head refs to fetch at) - `FileDiff.vue` uses this to
-// hide its "load full file" action entirely rather than show a button that would fail.
-const fileContentContext = computed(() => {
-  const d = diff.value
-  if (!d || d.ref.kind !== 'github-pr' || !d.base || !d.head)
-    return undefined
-  return { owner: d.ref.owner, repo: d.ref.repo, baseSha: d.base.sha, headSha: d.head.sha }
-})
-provide(fileContentContextKey, fileContentContext)
 
 // Inside the embed this component's own root is the `overflow-auto` scroller (see
 // `EmbedApp.ce.vue`); on the site the window scrolls. In element mode the virtualizer

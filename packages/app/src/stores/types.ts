@@ -1,5 +1,5 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
-import type { CommentThread, DiffsPayload, GroupedResult, GroupSource, PendingReview, ReviewDraftTarget, ReviewSummary, ReviewVerdict } from '@pulls.review/core/types'
+import type { CommentThread, DiffsPayload, FileChange, GroupedResult, GroupSource, PendingReview, ReviewDraftTarget, ReviewSummary, ReviewVerdict } from '@pulls.review/core/types'
 import type { ResolvedGroupWithChildren } from '../components/diff/group-utils'
 
 /** A step of the running analysis, already worded in the UI language. */
@@ -134,6 +134,12 @@ export interface DiffsStoreUi {
  * keeps it safe to pass through contexts that wrap values in their own `reactive()`
  * (e.g. Storybook args) without double-unwrapping.
  */
+/** Full file content at the diff's base/head, for expanding a file past its hunks. */
+export interface DiffsStoreFileContent {
+  /** Each side is `undefined` when the file doesn't exist there (an added file's old side, a removed file's new side). */
+  load: (file: FileChange) => Promise<{ old?: string, new?: string }>
+}
+
 export interface DiffsStore {
   readonly diff: DiffsPayload | undefined
   readonly grouped: GroupedResult | undefined
@@ -161,6 +167,8 @@ export interface DiffsStore {
   readonly reviews?: DiffsStoreReviews
   /** `undefined` = this source has no PR comments to share into / load from. */
   readonly shared?: DiffsStoreShared
+  /** `undefined` = this source can't fetch a file's full content (a paste has no live origin). */
+  readonly fileContent?: DiffsStoreFileContent
   load: () => Promise<void>
   refresh: () => Promise<void>
   /** Marks (or unmarks) files by `sha`; either way clears their `changedSinceReviewed` flag. */

@@ -37,6 +37,8 @@ export interface DiffSource {
   fetch: () => Promise<DiffsPayload>
   /** Cheap probe compared against the cached diff's head sha to detect new commits. */
   fingerprint?: () => Promise<string>
+  /** A file's full content at one of the diff's `base`/`head` shas; `undefined` when the file doesn't exist there. */
+  loadFile?: (path: string, sha: string) => Promise<string | undefined>
   /**
    * The GitHub PR behind this diff, for its review threads and shared analyses.
    * Replaced by review/sharing capability APIs (plans/10, step 7).

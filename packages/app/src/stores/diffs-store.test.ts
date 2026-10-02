@@ -238,6 +238,30 @@ describe('createDiffsStore over any source', () => {
     expect(store.isStale).toBe(false)
   })
 
+  it('loads full file content through the source once, then from the cache', async () => {
+    const loads: string[] = []
+    const source: DiffSource = {
+      ...fakeSource({ sha: 'head' }),
+      fetch: async () => ({ ref: { kind: 'paste', hash: 'fake' }, title: 't', base: { sha: 'base', ref: 'main' }, head: { sha: 'head', ref: 'f' }, files: [] }),
+      loadFile: async (path, sha) => {
+        loads.push(`${sha}:${path}`)
+        return `${path}@${sha}`
+      },
+    }
+    const store = createDiffsStore(source, { cache, credentials: staticCredentials() })
+    await store.load()
+    const renamed = { path: 'new.ts', previousPath: 'old.ts', status: 'renamed' as const, additions: 0, deletions: 0, isBinary: false, sha: 's', hunks: [] }
+
+    expect(await store.fileContent!.load(renamed)).toEqual({ old: 'old.ts@base', new: 'new.ts@head' })
+    expect(await store.fileContent!.load(renamed)).toEqual({ old: 'old.ts@base', new: 'new.ts@head' })
+    expect(await store.fileContent!.load({ ...renamed, path: 'added.ts', status: 'added' })).toEqual({ old: undefined, new: 'added.ts@head' })
+    expect(loads).toEqual(['base:old.ts', 'head:new.ts', 'head:added.ts'])
+  })
+
+  it('offers no full file content for a source that cannot load files', () => {
+    expect(createDiffsStore(createPasteSource(PATCH_TEXT), { cache, credentials: staticCredentials() }).fileContent).toBeUndefined()
+  })
+
   it('offers no review threads or shared analyses for a source that is not a GitHub PR', () => {
     const store = createDiffsStore(fakeSource({ sha: 'a' }), { cache, credentials: staticCredentials() })
     expect(store.reviews).toBeUndefined()
