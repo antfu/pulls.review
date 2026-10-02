@@ -16,7 +16,7 @@ A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
   below written as `app/…` live in `packages/app/src/`.
 - `packages/core` (`@pulls.review/core`) — everything runtime-agnostic,
   exposed as subpaths rather than one barrel: `/types`, `/patch-parser`,
-  `/github`, `/paste`, `/analyze` (rule-based/none adapters, LLM settings and
+  `/github`, `/paste`, `/cache` (persistence repositories), `/analyze` (rule-based/none adapters, LLM settings and
   model resolution), `/llm` (the agent runtime and SDKs), `/diagnostics`,
   `/locales`. Built with tsdown; the app resolves `@pulls.review/core/*` to
   source through a Vite alias. Core MUST load
@@ -108,7 +108,7 @@ analysis strategy later never touches the view layer:
     `vite.config.embed.ts` fails the build if an LLM SDK slips in anyway.
     `store.llm` is `undefined` iff the flag is off.
   - Follow-up chat reuses the analysis transcript: `llmSession` (`messages`
-    + `chatStartIndex`) is persisted alongside the result in the `pr:*`
+    + `chatStartIndex`) is persisted alongside the result in the cached diff
     entry, and `composables/useLlmChat.ts` builds a fresh pi `Agent` from it
     per message (`read_diffs` plus `update_grouping`, which replaces
     `analyzedBy.llm` in store and cache). Re-analyze or loading a shared
@@ -163,7 +163,7 @@ repos read one. Contract:
   block `{ headSha, result }` (`SharedAnalysisSchema`). Exact template in
   `plans/07-share-result.md`. Unmarked or invalid comments are ignored, never an
   error. Only the `GroupedResult` is shared — never the chat transcript.
-- Loading writes the result into the `pr:*` entry under its own `source` with
+- Loading writes the result into the cached diff under its own `source` with
   `sharedBy: login`, so the view credits it and never offers to re-share it.
   Discovery is one best-effort `GET` of the first 100 comments, run only when
   the store has no AI result. `?from=` on the site loads that user directly
@@ -192,33 +192,41 @@ paste). This is the key primitive that lets the app tell whether a file
 actually changed between two fetches of the same PR without diffing patch
 text, and is also the key for persisted review state (see below).
 
-## Caching (unstorage, IndexedDB driver)
+## Caching (`@pulls.review/core/cache`, unstorage)
 
-Persistence goes through [`unstorage`](https://github.com/unjs/unstorage), not
-raw IndexedDB calls, specifically so the backend can be swapped later (e.g. a
-future sync/remote layer) without touching `pr-cache.ts`/`review-cache.ts`
-call sites — the same swappable-adapter shape as `Provider`/`AnalyzeAdapter`.
-Runtime uses the `indexedDB` driver; tests use the `memory` driver against
-identical code, no separate IndexedDB-mocking dependency needed. The storage
-instance belongs to the app context (`app/app-context.ts`), installed once per
-app (the SPA, the embed's custom element): pages and top-level composables
-inject it and pass it to store factories as `storage`; there is no module
-singleton.
+Persistence is a set of repositories in core (`DiffCache`, `ReviewMarks`,
+`FileContentCache`, `PullRequestListCache`, built together by
+`createCacheRepositories(storage)`) over any
+[`unstorage`](https://github.com/unjs/unstorage) `Storage`, so the backend can
+be swapped (IndexedDB in the browser, `memory` in tests, a server-side driver
+later) without touching a call site. The app builds its repositories once, in
+the app context (`app/app-context.ts`, IndexedDB via `app/cache/browser-cache.ts`),
+installed once per app (the SPA, the embed's custom element): pages and
+top-level composables inject it and pass it to store factories as `cache`;
+there is no module singleton.
 
-One `unstorage` instance, four logical collections via key prefix (unstorage
-is flat key-value, so there's no native "object store" split):
+One `unstorage` instance, logical collections via key prefix (unstorage is
+flat key-value, so there's no native "object store" split):
 
-- `pr:*` — raw diff + the `llm`/`web-llm` `GroupedResult`s (+ the `llmSession`
-  chat transcript, counted toward the size budget), keyed by
-  `pr:{provider}:{owner}/{repo}#{number}` for github or `pr:paste:{contentHash}`
-  for paste (content hash is an internal cache key only, never exposed in a
-  URL — see the `paste` provider note above). App-managed LRU eviction
+- `pr-meta:*` + `pr-body:*` — one cached diff, split in two documents under the
+  same key. The meta half holds what eviction, the recent lists and per-view
+  bookkeeping need (`headSha`, title, counts, file shas, `lastViewedAt`, size,
+  shared comment, `changedSinceReviewed`), so none of them reads a whole diff;
+  the body holds the raw diff, the `llm`/`web-llm` `GroupedResult`s, the review
+  snapshot and the `llmSession` chat transcript (counted toward the size
+  budget). Keyed by the diff's id, `github:{owner}/{repo}#{number}` for github
+  or `paste:{contentHash}` for paste (content hash is an internal cache key
+  only, never exposed in a URL — see the `paste` provider note above). Writes
+  to one key run one at a time inside `DiffCache`, so overlapping
+  read-modify-writes never drop each other's changes. Entries from before the
+  split (`pr:*`) are deleted on the next eviction pass. App-managed LRU eviction
   (size/count budget), not left to browser eviction heuristics. For `github`,
-  staleness is detected by comparing cached vs. live `headSha` and surfaced
-  as a non-intrusive refresh banner — the app MUST NOT silently auto-refetch
-  (that could re-trigger a paid LLM analysis) or silently go stale. `paste`
-  entries have no live source, so no staleness check applies; if evicted,
-  `/upload` simply has nothing to show until the user pastes again.
+  staleness is detected by comparing cached vs. live `headSha` and surfaced as
+  a non-intrusive refresh banner, unless the user opted into auto-refresh
+  (banner checkbox or Settings) — the app MUST NOT re-run a paid LLM analysis
+  on refetch, and MUST NOT silently go stale. `paste` entries have no live
+  source, so no staleness check applies; if evicted, `/upload` simply has
+  nothing to show until the user pastes again.
   Only results that cost a model call are persisted: `rule-based` and `none`
   MUST be recomputed from the diff on every load, so they can never disagree
   with it. A refetch replaces the entry's diff but keeps its AI result and
@@ -227,9 +235,9 @@ is flat key-value, so there's no native "object store" split):
 - `review:*` — per-file "reviewed" marks, keyed by `review:{FileChange.sha}`,
   not by path or PR. This is deliberate: if a PR gets new commits and a
   file's `sha` is unchanged, its reviewed mark MUST survive; only files whose
-  `sha` changed lose their mark. Pruned opportunistically whenever `pr:*`
+  `sha` changed lose their mark. Pruned opportunistically whenever the diff cache
   evicts, by walking the remaining entries' shas. Which of those files *had*
-  been reviewed is remembered on the `pr:*` entry as `changedSinceReviewed`
+  been reviewed is remembered on the cached diff as `changedSinceReviewed`
   (paths): `putDiff` flags every path whose outgoing `sha` carried a mark and
   whose incoming `sha` differs, and the flag survives further commits until
   the user marks the file again (`DiffsStore.setReviewed`), which is how the
@@ -240,11 +248,11 @@ is flat key-value, so there's no native "object store" split):
   `file-content:{ref sha}:{path}`. `ref` is the PR's base/head **commit**
   sha, not a per-blob sha - equally content-addressed for caching purposes,
   without a separate request to look one up. No eviction of its own yet
-  (unlike `pr:*`/`review:*`), a known gap for later.
+  (unlike the diff cache and review marks), a known gap for later.
 - `pulls:*` — a repo's first page of open PRs (`PullRequestListPage`), keyed
   `pulls:{owner}/{repo}`. Stale-while-revalidate: it renders instantly on
   revisit and is silently replaced by a fresh first page every time — unlike
-  `pr:*`, nothing paid hangs off a list, so auto-refetching costs nothing.
+  a cached diff, nothing paid hangs off a list, so auto-refetching costs nothing.
   Later pages chain off it via `next` and are never persisted. Search is
   client-side (fzf over the loaded rows) and drains the remaining pages so
   its results cover the whole repo; only open/draft PRs are ever listed. With

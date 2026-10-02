@@ -580,6 +580,9 @@ importers:
       picomatch:
         specifier: catalog:frontend
         version: 4.0.7
+      unstorage:
+        specifier: catalog:frontend
+        version: 1.17.5(idb-keyval@6.3.0)
       valibot:
         specifier: catalog:frontend
         version: 1.5.0(typescript@6.0.3)

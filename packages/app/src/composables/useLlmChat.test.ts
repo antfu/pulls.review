@@ -1,6 +1,6 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
+import type { LlmSession } from '@pulls.review/core/cache'
 import type { DiffsPayload } from '@pulls.review/core/types'
-import type { LlmSession } from '../types/cache'
 import { fauxAssistantMessage } from '@earendil-works/pi-ai'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref, shallowRef } from 'vue'

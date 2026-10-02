@@ -1,12 +1,14 @@
+import type { CacheRepositories, PrCacheEntry } from '@pulls.review/core/cache'
 import type { PullRequestListItem, PullRequestListPage } from '@pulls.review/core/types'
-import type { CacheStorage } from '../cache/storage'
-import type { PrCacheEntry } from '../types/cache'
+import type { Storage } from 'unstorage'
+import { createCacheRepositories } from '@pulls.review/core/cache'
+import { createStorage } from 'unstorage'
 import memoryDriver from 'unstorage/drivers/memory'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createCacheStorage } from '../cache/storage'
 import { createPullRequestListStore } from './pull-request-list-store'
 
-let storage: CacheStorage
+let storage: Storage
+let cache: CacheRepositories
 
 const mocks = vi.hoisted(() => ({
   fetchOpenPullRequests: vi.fn(),
@@ -56,14 +58,15 @@ function viewedEntry(key: string, analyzedBy: PrCacheEntry['analyzedBy'] = {}): 
 }
 
 beforeEach(() => {
-  storage = createCacheStorage(memoryDriver())
+  storage = createStorage({ driver: memoryDriver() })
+  cache = createCacheRepositories(storage)
   mocks.fetchOpenPullRequests.mockReset()
 })
 
 describe('createPullRequestListStore', () => {
   it('fetches the first page, exposes it and caches it', async () => {
     mocks.fetchOpenPullRequests.mockResolvedValue(page([3, 2, 1], 3))
-    const store = createPullRequestListStore({ owner: 'o', repo: 'r' }, { storage, token: 'tok' })
+    const store = createPullRequestListStore({ owner: 'o', repo: 'r' }, { cache, token: 'tok' })
 
     await store.load()
 
@@ -79,7 +82,7 @@ describe('createPullRequestListStore', () => {
     await storage.setItem('pulls:o/r', { owner: 'o', repo: 'r', page: page([5, 4], 2), lastViewedAt: 0 })
     const { promise, resolve: resolveFetch } = Promise.withResolvers<PullRequestListPage>()
     mocks.fetchOpenPullRequests.mockReturnValue(promise)
-    const store = createPullRequestListStore({ owner: 'o', repo: 'r' }, { storage })
+    const store = createPullRequestListStore({ owner: 'o', repo: 'r' }, { cache })
 
     const loading = store.load()
     await vi.waitFor(() => expect(store.items.map(pr => pr.number)).toEqual([5, 4]))
@@ -98,7 +101,7 @@ describe('createPullRequestListStore', () => {
       .mockResolvedValueOnce(page([9, 8], 5, 'p2'))
       .mockResolvedValueOnce(page([7, 6], 5, 'p3'))
       .mockResolvedValueOnce(page([5], 5))
-    const store = createPullRequestListStore({ owner: 'o', repo: 'r' }, { storage })
+    const store = createPullRequestListStore({ owner: 'o', repo: 'r' }, { cache })
 
     await store.load()
     expect(store.hasMore).toBe(true)
@@ -115,7 +118,7 @@ describe('createPullRequestListStore', () => {
   it('surfaces a failed first load as an error and keeps cached rows visible', async () => {
     await storage.setItem('pulls:o/r', { owner: 'o', repo: 'r', page: page([1], 1), lastViewedAt: 0 })
     mocks.fetchOpenPullRequests.mockRejectedValue(new Error('rate limited'))
-    const store = createPullRequestListStore({ owner: 'o', repo: 'r' }, { storage })
+    const store = createPullRequestListStore({ owner: 'o', repo: 'r' }, { cache })
 
     await store.load()
 
@@ -124,12 +127,12 @@ describe('createPullRequestListStore', () => {
   })
 
   it('decorates rows with what this browser already viewed: diff size, group count, AI availability', async () => {
-    await storage.setItem('pr:github:o/r#1', viewedEntry('github:o/r#1'))
+    await cache.diffs.put(viewedEntry('github:o/r#1'))
     const aiGroups = [{ key: 'g1', label: 'One', filePaths: ['src/a.ts', 'docs/b.md'] }]
-    await storage.setItem('pr:github:o/r#2', viewedEntry('github:o/r#2', { llm: { source: 'llm', schemaVersion: 1, generatedAt: '', groups: aiGroups } }))
-    await storage.setItem('pr:github:other/r#3', viewedEntry('github:other/r#3'))
+    await cache.diffs.put(viewedEntry('github:o/r#2', { llm: { source: 'llm', schemaVersion: 1, generatedAt: '', groups: aiGroups } }))
+    await cache.diffs.put(viewedEntry('github:other/r#3'))
     mocks.fetchOpenPullRequests.mockResolvedValue(page([2, 1], 2))
-    const store = createPullRequestListStore({ owner: 'o', repo: 'r' }, { storage })
+    const store = createPullRequestListStore({ owner: 'o', repo: 'r' }, { cache })
 
     await store.load()
     await vi.waitFor(() => expect(store.viewed.size).toBe(2))
@@ -146,7 +149,7 @@ describe('createPullRequestListStore', () => {
       .mockResolvedValueOnce(page([2, 1], 4, 'p2'))
       .mockReturnValueOnce(promise)
       .mockResolvedValueOnce(page([3, 2], 3))
-    const store = createPullRequestListStore({ owner: 'o', repo: 'r' }, { storage })
+    const store = createPullRequestListStore({ owner: 'o', repo: 'r' }, { cache })
     await store.load()
 
     const more = store.loadMore()

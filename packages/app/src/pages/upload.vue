@@ -12,7 +12,7 @@ import { useDocumentTitle } from '../composables/useDocumentTitle'
 import { createDiffsStore } from '../stores/diffs-store'
 
 const router = useRouter()
-const { storage } = useAppContext()
+const { cache } = useAppContext()
 const hasPending = ref(false)
 
 const pending = (() => {
@@ -26,7 +26,7 @@ const pending = (() => {
 // optional exactly for this case, so the empty-state slot renders around nothing
 // rather than a store wrapping empty text.
 const store: DiffsStore | undefined = pending
-  ? createDiffsStore({ kind: 'patch-text', text: pending.text, title: pending.title }, { storage })
+  ? createDiffsStore({ kind: 'patch-text', text: pending.text, title: pending.title }, { cache })
   : undefined
 
 useDocumentTitle(() => store?.diff?.title)

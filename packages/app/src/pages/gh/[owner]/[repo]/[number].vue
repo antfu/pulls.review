@@ -22,7 +22,7 @@ const params = computed(() => ({
 // `?from=<login>` deep-links a shared analysis (see plans/07); read once, never rewritten.
 const from = typeof route.query.from === 'string' ? route.query.from : undefined
 
-const store = createDiffsStore(params.value, { storage: useAppContext().storage, token: settings.value.githubToken, from })
+const store = createDiffsStore(params.value, { cache: useAppContext().cache, token: settings.value.githubToken, from })
 
 // The PR title matches the header's `{{ meta.title }} #number`; before it loads, fall
 // back to the route so the tab still identifies which PR is opening.

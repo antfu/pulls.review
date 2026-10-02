@@ -1,17 +1,15 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
+import type { CacheRepositories, LlmSession } from '@pulls.review/core/cache'
 import type { DiffsPayload, GroupedResult } from '@pulls.review/core/types'
 import type { Ref } from 'vue'
-import type { CacheStorage } from '../cache/storage'
-import type { LlmSession } from '../types/cache'
 import type { DiffsStoreLlm, LlmProgress } from './types'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { llmAdapter, runLlmAnalysis } from '../analyze/adapters/llm'
-import { setAnalyzedResult, setLlmSession } from '../cache/pr-cache'
 import { useLlmChat } from '../composables/useLlmChat'
 import { describeProgress, localizeError } from '../i18n/core-messages'
 
 export interface LlmStoreOptions {
-  storage: CacheStorage
+  cache: CacheRepositories
   diff: Ref<DiffsPayload | undefined>
   /** The analysis transcript the chat continues from; `createDiffsStore` owns it because it is loaded from and reset with the PR cache entry. */
   session: Ref<LlmSession | undefined>
@@ -40,14 +38,14 @@ export function createLlmStore(opts: LlmStoreOptions): DiffsStoreLlm {
     opts.session.value = session
     const key = opts.getCacheKey()
     if (key)
-      await setLlmSession(opts.storage, key, session)
+      await opts.cache.diffs.setLlmSession(key, session)
   }
 
   async function setResult(result: GroupedResult) {
     opts.setResult(result)
     const key = opts.getCacheKey()
     if (key)
-      await setAnalyzedResult(opts.storage, key, 'llm', result)
+      await opts.cache.diffs.setAnalyzedResult(key, 'llm', result)
   }
 
   const chat = useLlmChat({

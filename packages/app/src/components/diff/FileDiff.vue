@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DiffLineAnnotation, FileDiffOptions, SelectedLineRange } from '@pierre/diffs'
+import type { FileContentCache } from '@pulls.review/core/cache'
 import type { CommentThread, DiffSide, FileChange, ReviewDraftTarget } from '@pulls.review/core/types'
-import type { CacheStorage } from '../../cache/storage'
 import type { DiffsStore } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
@@ -10,7 +10,6 @@ import { FileDiff as PierreFileDiff, processFile, VirtualizedFileDiff } from '@p
 import { fetchFileContentAtRef } from '@pulls.review/core/github'
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { appContextKey } from '../../app-context'
-import { getCachedFileContent, setCachedFileContent } from '../../cache/file-content-cache'
 import { isDark as globalIsDark, isDarkKey } from '../../state/dark'
 import { settings } from '../../state/settings'
 import CommentComposer from './CommentComposer.vue'
@@ -75,20 +74,20 @@ const fullFileLoaded = computed(() => fullOldContent.value !== undefined || full
 const appContext = inject(appContextKey, undefined)
 const canLoadFullFile = computed(() => !!fileContentContext?.value && !!appContext && !props.file.isBinary && !fullFileLoaded.value)
 
-async function loadFileSide(storage: CacheStorage, path: string, sha: string, token: string | undefined, owner: string, repo: string): Promise<string | undefined> {
-  const cached = await getCachedFileContent(storage, path, sha)
+async function loadFileSide(fileContents: FileContentCache, path: string, sha: string, token: string | undefined, owner: string, repo: string): Promise<string | undefined> {
+  const cached = await fileContents.get(path, sha)
   if (cached !== undefined)
     return cached
   const content = await fetchFileContentAtRef(owner, repo, path, sha, token)
   if (content !== undefined)
-    await setCachedFileContent(storage, path, sha, content)
+    await fileContents.set(path, sha, content)
   return content
 }
 
 async function loadFullFile() {
   const context = fileContentContext?.value
-  const storage = appContext?.storage
-  if (!context || !storage || isLoadingFullFile.value || fullFileLoaded.value)
+  const fileContents = appContext?.cache.fileContents
+  if (!context || !fileContents || isLoadingFullFile.value || fullFileLoaded.value)
     return
 
   isLoadingFullFile.value = true
@@ -98,8 +97,8 @@ async function loadFullFile() {
     const token = settings.value.githubToken || undefined
     const oldPath = props.file.previousPath ?? props.file.path
     const [oldContent, newContent] = await Promise.all([
-      props.file.status === 'added' ? undefined : loadFileSide(storage, oldPath, baseSha, token, owner, repo),
-      props.file.status === 'removed' ? undefined : loadFileSide(storage, props.file.path, headSha, token, owner, repo),
+      props.file.status === 'added' ? undefined : loadFileSide(fileContents, oldPath, baseSha, token, owner, repo),
+      props.file.status === 'removed' ? undefined : loadFileSide(fileContents, props.file.path, headSha, token, owner, repo),
     ])
     fullOldContent.value = oldContent
     fullNewContent.value = newContent

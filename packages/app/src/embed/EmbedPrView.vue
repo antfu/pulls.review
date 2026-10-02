@@ -28,7 +28,7 @@ const params = computed(() => ({
   number: props.number,
 }))
 
-const store = createDiffsStore(params.value, { storage: useAppContext().storage, token: settings.value.githubToken })
+const store = createDiffsStore(params.value, { cache: useAppContext().cache, token: settings.value.githubToken })
 
 onMounted(() => store.load())
 </script>

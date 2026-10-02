@@ -16,6 +16,7 @@
   "sideEffects": false,
   "exports": {
     "./types": "./dist/types.js",
+    "./cache": "./dist/cache.js",
     "./patch-parser": "./dist/patch-parser.js",
     "./github": "./dist/github.js",
     "./paste": "./dist/paste.js",
@@ -44,6 +45,7 @@
     "lz-string-es": "catalog:frontend",
     "nostics": "catalog:frontend",
     "picomatch": "catalog:frontend",
+    "unstorage": "catalog:frontend",
     "valibot": "catalog:frontend"
   },
   "devDependencies": {

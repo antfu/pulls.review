@@ -1,7 +1,7 @@
+import type { CacheRepositories } from '@pulls.review/core/cache'
 import type { App, InjectionKey } from 'vue'
-import type { CacheStorage } from './cache/storage'
 import { inject } from 'vue'
-import { createBrowserCacheStorage } from './cache/storage'
+import { createBrowserCache } from './cache/browser-cache'
 
 /**
  * Backends one app instance runs on (the SPA, the GitHub embed). Pages and
@@ -9,12 +9,12 @@ import { createBrowserCacheStorage } from './cache/storage'
  * view components never read it.
  */
 export interface AppContext {
-  storage: CacheStorage
+  cache: CacheRepositories
 }
 
 export const appContextKey: InjectionKey<AppContext> = Symbol('app-context')
 
-export function installAppContext(app: App, context: AppContext = { storage: createBrowserCacheStorage() }): void {
+export function installAppContext(app: App, context: AppContext = { cache: createBrowserCache() }): void {
   app.provide(appContextKey, context)
 }
 

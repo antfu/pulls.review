@@ -1,12 +1,9 @@
+import type { CacheRepositories, LlmSession, PrCacheEntry } from '@pulls.review/core/cache'
 import type { DiffsPayload, FetchDiffParams, GroupedResult, GroupSource, ReviewData } from '@pulls.review/core/types'
-import type { CacheStorage } from '../cache/storage'
-import type { LlmSession, PrCacheEntry } from '../types/cache'
 import type { DiffsStore, DiffsStoreLlm } from './types'
 import { fetchPullRequest } from '@pulls.review/core/github'
 import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef, watch } from 'vue'
 import { resolveAdapter, ruleBasedAdapter } from '../analyze'
-import { getEntry, putDiff, setAnalyzedResult, setChangedSinceReviewed, setLlmSession, touchEntry } from '../cache/pr-cache'
-import { getReviewed, setReviewed as setReviewedMarks } from '../cache/review-cache'
 import { resolveGroups } from '../components/diff/group-utils'
 import { useProvider } from '../composables/useProvider'
 import { i18n } from '../i18n'
@@ -22,14 +19,14 @@ import { createSharedAnalysisStore } from './shared-analysis-store'
  * params, matching `FetchDiffParams`'s discriminated union.
  */
 export interface DiffsStoreOptions {
-  storage: CacheStorage
+  cache: CacheRepositories
   token?: string
   /** Login from the page's `?from=` query: load that user's shared analysis (see plans/07). */
   from?: string
 }
 
 export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOptions): DiffsStore {
-  const { storage } = opts
+  const { cache } = opts
   const diff = ref<DiffsPayload>()
   const analyzedBy = ref<Partial<Record<GroupSource, GroupedResult>>>({})
   const isLoading = ref(false)
@@ -57,7 +54,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
 
   const reviews = github
     ? createReviewsStore(github.params, {
-        storage,
+        cache,
         token: opts.token,
         access: github.access,
         getHeadSha: () => diff.value?.head?.sha,
@@ -79,7 +76,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
   const llmReady = import.meta.env.PR_LLM
     ? import('./llm-store').then(({ createLlmStore }) => {
         llm.value = createLlmStore({
-          storage,
+          cache,
           diff,
           session: llmSession,
           getCacheKey: () => cacheKey.value,
@@ -92,11 +89,11 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
   async function loadReviewed() {
     if (!diff.value)
       return
-    reviewed.value = await getReviewed(storage, diff.value.files.map(file => file.sha))
+    reviewed.value = await cache.reviewMarks.get(diff.value.files.map(file => file.sha))
   }
 
   async function setReviewed(shas: string[], isReviewed: boolean) {
-    await setReviewedMarks(storage, shas, isReviewed)
+    await cache.reviewMarks.set(shas, isReviewed)
     const next = new Set(reviewed.value)
     for (const sha of shas)
       isReviewed ? next.add(sha) : next.delete(sha)
@@ -113,7 +110,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
       remaining.delete(path)
     changedSinceReviewed.value = remaining
     if (cacheKey.value)
-      await setChangedSinceReviewed(storage, cacheKey.value, [...remaining])
+      await cache.diffs.setChangedSinceReviewed(cacheKey.value, [...remaining])
   }
 
   /** The free, instant modes; `llm` runs only through `llm.reanalyze` (see `llm-store.ts`). */
@@ -152,14 +149,14 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
     llmSession.value = undefined
     analyzeMode.value = source
     if (cacheKey.value) {
-      await setAnalyzedResult(storage, cacheKey.value, source, result)
-      await setLlmSession(storage, cacheKey.value, undefined)
+      await cache.diffs.setAnalyzedResult(cacheKey.value, source, result)
+      await cache.diffs.setLlmSession(cacheKey.value, undefined)
     }
   }
 
   const shared = github
     ? createSharedAnalysisStore(github.params, {
-        storage,
+        cache,
         token: opts.token,
         access: github.access,
         getDiff: () => diff.value,
@@ -187,7 +184,7 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
   async function analyzeAndStore(key: string, freshDiff: DiffsPayload) {
     // An in-flight run analyzed the diff being replaced; the last persisted result stands.
     llm.value?.abort()
-    const entry = await putDiff(storage, key, freshDiff, freshDiff.head?.sha ?? '')
+    const entry = await cache.diffs.putDiff(key, freshDiff, freshDiff.head?.sha ?? '')
     await install(key, entry)
     // `llm` is never auto-run, even here - a paid/slow call must always be an explicit
     // click (the "(Re-)Analyze with AI" button), never a side effect of loading or
@@ -231,11 +228,11 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
     try {
       if (params.kind === 'github-pr') {
         const key = `github:${params.owner}/${params.repo}#${params.number}`
-        const cached = await getEntry(storage, key)
+        const cached = await cache.diffs.get(key)
         if (cached) {
           cachedReviewData = cached.reviews
           cachedSharedComment = cached.sharedComment
-          await touchEntry(storage, key)
+          await cache.diffs.touch(key)
           await install(key, cached)
           void checkStaleness(cached.headSha)
         }
@@ -253,9 +250,9 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
         const provider = useProvider('paste')
         const freshDiff = await provider.fetchDiff(params, { token: opts.token })
         const key = freshDiff.id // already `github:owner/repo#number` or `paste:<contentHash>`, matching pr-cache's key scheme
-        const cached = await getEntry(storage, key)
+        const cached = await cache.diffs.get(key)
         if (cached) {
-          await touchEntry(storage, key)
+          await cache.diffs.touch(key)
           await install(key, cached)
         }
         else {

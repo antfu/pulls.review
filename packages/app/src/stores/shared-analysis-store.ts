@@ -1,15 +1,14 @@
+import type { CacheRepositories } from '@pulls.review/core/cache'
 import type { DiffsPayload, GroupedResult } from '@pulls.review/core/types'
-import type { CacheStorage } from '../cache/storage'
 import type { GithubWriteAccess } from './github-write-access'
 import type { DiffsStoreShared, SharedAnalysisCandidate } from './types'
 import { createIssueComment, fetchSharedAnalysisComments, GithubApiError, renderSharedAnalysisComment, updateIssueComment } from '@pulls.review/core/github'
 import { reactive, ref } from 'vue'
-import { setSharedComment } from '../cache/pr-cache'
 import { t } from '../i18n'
 import { localizeError } from '../i18n/core-messages'
 
 export interface SharedAnalysisStoreOptions {
-  storage: CacheStorage
+  cache: CacheRepositories
   token?: string
   access: GithubWriteAccess
   getDiff: () => DiffsPayload | undefined
@@ -137,7 +136,7 @@ export function createSharedAnalysisStore(pr: { owner: string, repo: string, num
         ownComment.value = comment
         const key = opts.getCacheKey()
         if (key)
-          await setSharedComment(opts.storage, key, comment)
+          await opts.cache.diffs.setSharedComment(key, comment)
       })
     }
     catch (err) {

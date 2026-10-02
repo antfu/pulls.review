@@ -1,10 +1,8 @@
+import type { CacheRepositories } from '@pulls.review/core/cache'
 import type { PullRequestListItem, PullRequestListPage } from '@pulls.review/core/types'
-import type { CacheStorage } from '../cache/storage'
 import { fetchOpenPullRequests, parseGithubDiffId } from '@pulls.review/core/github'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { ruleBasedAdapter } from '../analyze'
-import { listRepoEntries } from '../cache/pr-cache'
-import { getCachedPullRequestList, setCachedPullRequestList, touchCachedPullRequestList } from '../cache/pull-request-list-cache'
 
 /** What this browser already holds for a PR it viewed before (see `pr:*` in the cache). */
 export interface ViewedPullRequest {
@@ -39,7 +37,7 @@ export interface PullRequestListStore {
 }
 
 export interface PullRequestListStoreOptions {
-  storage: CacheStorage
+  cache: CacheRepositories
   token?: string
 }
 
@@ -51,7 +49,7 @@ export interface PullRequestListStoreOptions {
  */
 export function createPullRequestListStore(params: { owner: string, repo: string }, opts: PullRequestListStoreOptions): PullRequestListStore {
   const { owner, repo } = params
-  const { storage } = opts
+  const { cache } = opts
   const items = shallowRef<PullRequestListItem[]>([])
   const totalCount = ref<number>()
   const next = ref<string>()
@@ -77,7 +75,7 @@ export function createPullRequestListStore(params: { owner: string, repo: string
       if (current !== generation)
         return
       installFirstPage(page)
-      await setCachedPullRequestList(storage, owner, repo, page)
+      await cache.pullRequestLists.set(owner, repo, page)
     }
     catch (err) {
       if (current === generation)
@@ -87,7 +85,7 @@ export function createPullRequestListStore(params: { owner: string, repo: string
 
   async function loadViewed() {
     const next = new Map<number, ViewedPullRequest>()
-    for (const entry of await listRepoEntries(storage, owner, repo)) {
+    for (const entry of await cache.diffs.listByKeyPrefix(`github:${owner}/${repo}#`)) {
       const ref = parseGithubDiffId(entry.diff.id)
       if (!ref)
         continue
@@ -106,11 +104,11 @@ export function createPullRequestListStore(params: { owner: string, repo: string
   async function load() {
     // Independent of the network: what's viewed locally decorates rows whenever they arrive.
     void loadViewed()
-    const cached = await getCachedPullRequestList(storage, owner, repo)
+    const cached = await cache.pullRequestLists.get(owner, repo)
     if (cached) {
       installFirstPage(cached.page)
       // Counts as a visit even if the refresh below fails (offline, rate-limited).
-      await touchCachedPullRequestList(storage, owner, repo)
+      await cache.pullRequestLists.touch(owner, repo)
     }
     const flag = cached ? isRefreshing : isLoading
     flag.value = true
