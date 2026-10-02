@@ -34,8 +34,7 @@ function file(path: string, patch = '+x'): DiffsPayload['files'][number] {
 
 function diffWithFiles(...files: DiffsPayload['files']): DiffsPayload {
   return {
-    provider: 'github',
-    id: 'github:o/r#1',
+    ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' },
     title: 'My PR',
     description: 'Does things',
     files,

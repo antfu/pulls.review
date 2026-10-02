@@ -1,4 +1,5 @@
 import type { GithubClient } from '@pulls.review/core/github'
+import type { Credentials } from '@pulls.review/core/types'
 import { createGithubClient, GithubApiError } from '@pulls.review/core/github'
 import { computed, ref } from 'vue'
 import { resolveStoredTokenMeta } from '../composables/useGithubTokenMeta'
@@ -12,15 +13,20 @@ export const WRITE_BLOCKED_MESSAGE = 'This token cannot write to this repository
  * (`repo`/`public_repo`); fine-grained PATs expose no scopes, so they start
  * optimistic and flip off on the first 403.
  */
-export function createGithubWriteAccess(token: string | undefined) {
+export function createGithubWriteAccess(credentials: Credentials) {
+  const hasToken = ref(false)
   const viewerLogin = ref<string>()
   const scopesAllowWrite = ref(false)
   const writeBlockedReason = ref<string>()
-  const canWrite = computed(() => !!token && scopesAllowWrite.value && !writeBlockedReason.value)
+  const canWrite = computed(() => hasToken.value && scopesAllowWrite.value && !writeBlockedReason.value)
 
   async function resolve() {
-    if (!token)
+    const token = await credentials.githubToken()
+    hasToken.value = !!token
+    if (!token) {
+      viewerLogin.value = undefined
       return
+    }
     const meta = await resolveStoredTokenMeta(token)
     viewerLogin.value = meta?.login
     scopesAllowWrite.value = meta !== undefined
@@ -29,10 +35,10 @@ export function createGithubWriteAccess(token: string | undefined) {
 
   /** Wraps every write: a 403 means the token can't write here - flip the session read-only. */
   async function write<T>(action: (client: GithubClient) => Promise<T>): Promise<T> {
-    if (!token)
+    if (!await credentials.githubToken())
       throw new Error(t('errors.tokenRequired'))
     try {
-      return await action(createGithubClient(token))
+      return await action(createGithubClient(credentials))
     }
     catch (err) {
       if (err instanceof GithubApiError && err.status === 403)

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { staticCredentials } from '../../types/source'
 import { createGithubClient } from './client'
 import { fetchOpenPullRequests } from './pull-request-list'
 
@@ -105,7 +106,7 @@ describe('fetchOpenPullRequests with a token (GraphQL search)', () => {
     }))
     vi.stubGlobal('fetch', fetchMock)
 
-    const page = await fetchOpenPullRequests(createGithubClient('tok'), 'o', 'r')
+    const page = await fetchOpenPullRequests(createGithubClient(staticCredentials('tok')), 'o', 'r')
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe('https://api.github.com/graphql')
@@ -142,7 +143,7 @@ describe('fetchOpenPullRequests with a token (GraphQL search)', () => {
     }))
     vi.stubGlobal('fetch', fetchMock)
 
-    const page = await fetchOpenPullRequests(createGithubClient('tok'), 'o', 'r', 'abc')
+    const page = await fetchOpenPullRequests(createGithubClient(staticCredentials('tok')), 'o', 'r', 'abc')
 
     expect(JSON.parse(fetchMock.mock.calls[0]![1].body).variables.cursor).toBe('abc')
     expect(page.next).toBeUndefined()

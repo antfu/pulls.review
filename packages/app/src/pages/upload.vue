@@ -3,6 +3,7 @@ import type { DiffsStore } from '../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyState.vue'
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
+import { createPasteSource } from '@pulls.review/core/paste'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppContext } from '../app-context'
@@ -12,7 +13,7 @@ import { useDocumentTitle } from '../composables/useDocumentTitle'
 import { createDiffsStore } from '../stores/diffs-store'
 
 const router = useRouter()
-const { cache } = useAppContext()
+const { cache, credentials } = useAppContext()
 const hasPending = ref(false)
 
 const pending = (() => {
@@ -26,7 +27,7 @@ const pending = (() => {
 // optional exactly for this case, so the empty-state slot renders around nothing
 // rather than a store wrapping empty text.
 const store: DiffsStore | undefined = pending
-  ? createDiffsStore({ kind: 'patch-text', text: pending.text, title: pending.title }, { cache })
+  ? createDiffsStore(createPasteSource(pending.text, pending.title), { cache, credentials })
   : undefined
 
 useDocumentTitle(() => store?.diff?.title)

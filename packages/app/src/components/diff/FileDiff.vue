@@ -12,7 +12,6 @@ import { createGithubClient, fetchFileContentAtRef } from '@pulls.review/core/gi
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { appContextKey } from '../../app-context'
 import { isDark as globalIsDark, isDarkKey } from '../../state/dark'
-import { settings } from '../../state/settings'
 import CommentComposer from './CommentComposer.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffStats from './DiffStats.vue'
@@ -88,14 +87,14 @@ async function loadFileSide(fileContents: FileContentCache, path: string, sha: s
 async function loadFullFile() {
   const context = fileContentContext?.value
   const fileContents = appContext?.cache.fileContents
-  if (!context || !fileContents || isLoadingFullFile.value || fullFileLoaded.value)
+  if (!appContext || !context || !fileContents || isLoadingFullFile.value || fullFileLoaded.value)
     return
 
   isLoadingFullFile.value = true
   fullFileError.value = undefined
   try {
     const { owner, repo, baseSha, headSha } = context
-    const client = createGithubClient(settings.value.githubToken || undefined)
+    const client = createGithubClient(appContext.credentials)
     const oldPath = props.file.previousPath ?? props.file.path
     const [oldContent, newContent] = await Promise.all([
       props.file.status === 'added' ? undefined : loadFileSide(fileContents, oldPath, baseSha, client, owner, repo),

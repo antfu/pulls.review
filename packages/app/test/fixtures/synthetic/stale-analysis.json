@@ -1,7 +1,11 @@
 {
   "diff": {
-    "provider": "github",
-    "id": "github:antfu/diffs#1",
+    "ref": {
+      "kind": "github-pr",
+      "owner": "antfu",
+      "repo": "diffs",
+      "number": "1"
+    },
     "title": "Example pull request with commits newer than its analysis",
     "description": "An LLM analysis was produced at an earlier head; since then one file was removed, one renamed and one added.",
     "url": "https://github.com/antfu/diffs/pull/1",

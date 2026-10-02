@@ -11,8 +11,7 @@ function file(path: string, isBinary = false): DiffsPayload['files'][number] {
 describe('ruleBasedAdapter', () => {
   it('groups files across multiple categories, flat (no nesting)', async () => {
     const diff: DiffsPayload = {
-      provider: 'github',
-      id: 'github:o/r#1',
+      ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' },
       title: 't',
       description: '',
       files: [file('src/index.ts'), file('src/index.test.ts'), file('README.md'), file('package.json')],
@@ -33,8 +32,7 @@ describe('ruleBasedAdapter', () => {
 
   it('falls back to the code group for anything unmatched', async () => {
     const diff: DiffsPayload = {
-      provider: 'github',
-      id: 'github:o/r#1',
+      ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' },
       title: 't',
       description: '',
       files: [file('src/weird-file.xyz')],
@@ -46,8 +44,7 @@ describe('ruleBasedAdapter', () => {
 
   it('puts binary files (images, fonts, ...) under "other", regardless of path', async () => {
     const diff: DiffsPayload = {
-      provider: 'github',
-      id: 'github:o/r#1',
+      ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' },
       title: 't',
       description: '',
       files: [file('docs/logo.png', true), file('src/index.ts')],
@@ -64,8 +61,7 @@ describe('ruleBasedAdapter', () => {
 
   it('labels every group with the supplied text, even without an LLM', async () => {
     const diff: DiffsPayload = {
-      provider: 'github',
-      id: 'github:o/r#1',
+      ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' },
       title: 't',
       description: '',
       files: [file('src/index.ts')],
@@ -77,8 +73,7 @@ describe('ruleBasedAdapter', () => {
 
   it('tags every group with a category, mapping code to core and generated to other', async () => {
     const diff: DiffsPayload = {
-      provider: 'github',
-      id: 'github:o/r#1',
+      ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' },
       title: 't',
       description: '',
       files: [file('src/index.ts'), file('pnpm-lock.yaml'), file('README.md')],

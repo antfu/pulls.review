@@ -4,7 +4,6 @@ import type { DiffsStore } from '../../stores/types'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import ActionToggleGroup from '@antfu/design/components/Action/ActionToggleGroup.vue'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
-import { parseGithubDiffId } from '@pulls.review/core/github'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -49,7 +48,7 @@ const analyzeOptions = computed(() => [
 // Share is for results the viewer generated - a loaded shared result is credited, not re-shared.
 const canShareResult = computed(() => props.store.shared && props.store.llm && aiResult.value && !aiResult.value.sharedBy)
 
-const githubRef = computed(() => meta.value.provider === 'github' ? parseGithubDiffId(meta.value.id) : undefined)
+const githubRef = computed(() => meta.value.ref.kind === 'github-pr' ? meta.value.ref : undefined)
 
 const reviews = computed(() => props.store.reviews)
 const reviewModalOpen = ref(false)
@@ -75,7 +74,7 @@ function scrollToGroup(key: string) {
           {{ meta.title }}
           <a v-if="githubRef" :href="meta.url" target="_blank" rel="noopener" class="text-base font-normal op-fade hover:underline">#{{ githubRef.number }}</a>
           <ActionIconButton
-            v-if="meta.provider === 'github'"
+            v-if="githubRef"
             icon="i-ph:arrows-clockwise-duotone"
             :label="$t('common.refresh')" :tooltip="$t('common.refresh')"
             class="shrink-0 text-sm" @click="store.refresh()"

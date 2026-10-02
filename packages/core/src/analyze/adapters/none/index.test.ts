@@ -11,8 +11,7 @@ function file(path: string): DiffsPayload['files'][number] {
 describe('noneAdapter', () => {
   it('puts every file into a single flat group', async () => {
     const diff: DiffsPayload = {
-      provider: 'github',
-      id: 'github:o/r#1',
+      ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' },
       title: 't',
       description: '',
       files: [file('src/index.ts'), file('README.md'), file('package.json')],

@@ -19,8 +19,7 @@ function file(overrides: Partial<FileChange> & { path: string }): FileChange {
 
 function diffWithFiles(files: FileChange[]): DiffsPayload {
   return {
-    provider: 'github',
-    id: 'github:owner/repo#1',
+    ref: { kind: 'github-pr', owner: 'owner', repo: 'repo', number: '1' },
     title: 'Test PR',
     files,
   }

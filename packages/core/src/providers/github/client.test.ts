@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { staticCredentials } from '../../types/source'
 import { createGithubClient, GithubApiError } from './client'
 
 function json(body: unknown, status = 200) {
@@ -14,7 +15,7 @@ describe('createGithubClient', () => {
     const fetchMock = vi.fn(async (_url: string, _init: RequestInit) => json({}))
     vi.stubGlobal('fetch', fetchMock)
 
-    await createGithubClient('tok').request('/user')
+    await createGithubClient(staticCredentials('tok')).request('/user')
     await createGithubClient().request('/user')
 
     const [withToken, anonymous] = fetchMock.mock.calls.map(([, init]) => new Headers(init.headers))
@@ -38,7 +39,7 @@ describe('createGithubClient', () => {
   it('surfaces GitHub\'s own error message with the status', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => json({ message: 'Resource not accessible' }, 403)))
 
-    const failure = await createGithubClient('tok').request('/repos/o/r').catch((err: unknown) => err)
+    const failure = await createGithubClient(staticCredentials('tok')).request('/repos/o/r').catch((err: unknown) => err)
 
     expect(failure).toBeInstanceOf(GithubApiError)
     expect(failure).toMatchObject({ status: 403, message: 'Resource not accessible' })

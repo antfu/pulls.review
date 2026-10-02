@@ -1,5 +1,5 @@
 import type { CacheRepositories } from '@pulls.review/core/cache'
-import type { ReviewData, ReviewDraftTarget, ReviewVerdict } from '@pulls.review/core/types'
+import type { Credentials, ReviewData, ReviewDraftTarget, ReviewVerdict } from '@pulls.review/core/types'
 import type { GithubWriteAccess } from './github-write-access'
 import type { DiffsStoreReviews } from './types'
 import { addThreadToPendingReview, createGithubClient, createPendingReview, createReview, createReviewComment, deletePendingReview, deleteReviewComment, fetchReviewComments, fetchReviewCommentsForReview, fetchReviews, fetchThreadResolutions, normalizeReviewData, replyToReviewComment, resolveThread as resolveThreadMutation, submitPendingReview, updateReviewComment } from '@pulls.review/core/github'
@@ -9,7 +9,7 @@ import { showReviewComments } from '../state/review-comments'
 
 export interface ReviewsStoreOptions {
   cache: CacheRepositories
-  token?: string
+  credentials: Credentials
   access: GithubWriteAccess
   /** Head sha of the loaded diff - `commit_id` for new comments; unset until the diff loads. */
   getHeadSha: () => string | undefined
@@ -25,13 +25,12 @@ function toGithubSide(side: 'additions' | 'deletions'): 'LEFT' | 'RIGHT' {
 
 /**
  * The github-only review sub-store behind `DiffsStore.reviews` - same
- * `reactive()` construction as `createDiffsStore`, created by it for
- * `github-pr` params when the provider's `supportsComments` capability is on.
+ * `reactive()` construction as `createDiffsStore`, created by it when the
+ * source names a GitHub PR (`DiffSource.githubPullRequest`).
  */
 export function createReviewsStore(params: { owner: string, repo: string, number: string }, opts: ReviewsStoreOptions): DiffsStoreReviews {
   const { owner, repo, number } = params
-  const token = opts.token || undefined
-  const client = createGithubClient(token)
+  const client = createGithubClient(opts.credentials)
   const { write } = opts.access
 
   const data = ref<ReviewData>({ threads: [], summaries: [], pendingReview: undefined })
@@ -45,6 +44,7 @@ export function createReviewsStore(params: { owner: string, repo: string, number
       fetchReviews(client, owner, repo, number),
     ])
     const pending = reviews.find(review => review.state === 'PENDING')
+    const token = await client.token()
     const [pendingComments, resolutions] = await Promise.all([
       pending ? fetchReviewCommentsForReview(client, owner, repo, number, pending.id) : Promise.resolve([]),
       // Resolution lives in GraphQL only, which needs a token - degrade to

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { PasteProvider } from './index'
+import { createPasteSource } from './index'
 
 const PATCH_TEXT = `diff --git a/README.md b/README.md
 index e69de29..4b825dc 100644
@@ -9,28 +9,26 @@ index e69de29..4b825dc 100644
 +hello
 `
 
-describe('pasteProvider', () => {
+describe('paste source', () => {
   it('parses raw patch text into a DiffsPayload keyed by content hash', async () => {
-    const diff = await PasteProvider.fetchDiff({ kind: 'patch-text', text: PATCH_TEXT }, {})
-    expect(diff.provider).toBe('paste')
-    expect(diff.id).toMatch(/^paste:[0-9a-f]{64}$/)
+    const source = createPasteSource(PATCH_TEXT)
+    const diff = await source.fetch()
+    expect(diff.ref).toEqual({ kind: 'paste', hash: expect.stringMatching(/^[0-9a-f]{64}$/) })
+    expect(await source.key()).toBe(`paste:${diff.ref.kind === 'paste' && diff.ref.hash}`)
     expect(diff.title).toBe('Pasted diff')
     expect(diff.files).toHaveLength(1)
     expect(diff.files[0]!.path).toBe('README.md')
   })
 
   it('uses a supplied title when given', async () => {
-    const diff = await PasteProvider.fetchDiff({ kind: 'patch-text', text: PATCH_TEXT, title: 'My diff' }, {})
-    expect(diff.title).toBe('My diff')
+    expect((await createPasteSource(PATCH_TEXT, 'My diff').fetch()).title).toBe('My diff')
   })
 
-  it('produces the same content hash for identical text (dedupes cache key)', async () => {
-    const a = await PasteProvider.fetchDiff({ kind: 'patch-text', text: PATCH_TEXT }, {})
-    const b = await PasteProvider.fetchDiff({ kind: 'patch-text', text: PATCH_TEXT }, {})
-    expect(a.id).toBe(b.id)
+  it('produces the same key for identical text (dedupes cache key)', async () => {
+    expect(await createPasteSource(PATCH_TEXT).key()).toBe(await createPasteSource(PATCH_TEXT).key())
   })
 
-  it('rejects params of the wrong kind', async () => {
-    await expect(PasteProvider.fetchDiff({ kind: 'github-pr', owner: 'a', repo: 'b', number: '1' } as any, {})).rejects.toThrow()
+  it('has no staleness check', () => {
+    expect(createPasteSource(PATCH_TEXT).fingerprint).toBeUndefined()
   })
 })

@@ -2,10 +2,10 @@
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyState.vue'
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
-import { computed, onMounted } from 'vue'
+import { createGithubPullRequestSource } from '@pulls.review/core/github'
+import { onMounted } from 'vue'
 import { useAppContext } from '../app-context'
 import DiffsPage from '../components/diff/DiffsPage.vue'
-import { settings } from '../state/settings'
 import { createDiffsStore } from '../stores/diffs-store'
 
 // Mirrors `pages/gh/[owner]/[repo]/[number].vue`'s wiring, from plain props instead of
@@ -21,14 +21,8 @@ const props = defineProps<{
   number: string
 }>()
 
-const params = computed(() => ({
-  kind: 'github-pr' as const,
-  owner: props.owner,
-  repo: props.repo,
-  number: props.number,
-}))
-
-const store = createDiffsStore(params.value, { cache: useAppContext().cache, token: settings.value.githubToken })
+const { cache, credentials } = useAppContext()
+const store = createDiffsStore(createGithubPullRequestSource(props, credentials), { cache, credentials })
 
 onMounted(() => store.load())
 </script>

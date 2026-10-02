@@ -33,8 +33,7 @@ describe('normalizePullRequest', () => {
     const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], noFallbacks)
 
     expect(diff).toMatchObject({
-      provider: 'github',
-      id: 'github:owner/repo#1',
+      ref: { kind: 'github-pr', owner: 'owner', repo: 'repo', number: '1' },
       title: 'Add feature',
       pullRequest: { author: 'antfu' },
       base: { ref: 'main' },

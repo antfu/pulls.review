@@ -4,6 +4,7 @@ import { GroupedResultSchema } from '../types/analyze'
 import { ReviewDataSchema } from '../types/comment-threads'
 import { DiffsPayloadSchema, PullRequestStateSchema } from '../types/diff'
 import { PullRequestListPageSchema } from '../types/pull-request-list'
+import { SourceRefSchema } from '../types/source'
 
 /**
  * Only results that cost something to produce (a model call) are persisted. The
@@ -30,6 +31,7 @@ export interface LlmSession { messages: AgentMessage[], chatStartIndex: number }
  */
 export const PrCacheMetaSchema = v.object({
   key: v.string(),
+  ref: SourceRefSchema,
   headSha: v.string(),
   title: v.string(),
   url: v.optional(v.string()),

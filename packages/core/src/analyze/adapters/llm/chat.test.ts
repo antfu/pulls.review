@@ -31,7 +31,7 @@ function file(path: string): DiffsPayload['files'][number] {
   }
 }
 
-const diff: DiffsPayload = { provider: 'github', id: 'github:o/r#1', title: 'My PR', files: [file('a.ts'), file('b.ts')] }
+const diff: DiffsPayload = { ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' }, title: 'My PR', files: [file('a.ts'), file('b.ts')] }
 
 function oneGroup(...filePaths: string[]): Analysis {
   return { overallSummary: 'Adds a feature.', groups: [{ key: 'feature', label: 'Feature', category: 'core', filePaths }] }

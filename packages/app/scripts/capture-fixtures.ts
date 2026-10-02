@@ -1,9 +1,10 @@
-// One-off script: captures real GitHub PRs through GithubProvider + ruleBasedAdapter
+// One-off script: captures real GitHub PRs through the GitHub PR source + ruleBasedAdapter
 // into test/fixtures/real/*.json, for Storybook and manual testing against real data.
 // Run with: GITHUB_TOKEN=... pnpm exec jiti scripts/capture-fixtures.ts
 import { writeFileSync } from 'node:fs'
 import process from 'node:process'
-import { GithubProvider } from '@pulls.review/core/github'
+import { createGithubPullRequestSource } from '@pulls.review/core/github'
+import { staticCredentials } from '@pulls.review/core/types'
 import { ruleBasedAdapter } from '../src/analyze'
 
 const targets = [
@@ -24,10 +25,7 @@ async function main() {
   for (const url of targets) {
     const target = parseTarget(url)
     console.log(`Fetching ${target.owner}/${target.repo}#${target.number}...`)
-    const diff = await GithubProvider.fetchDiff(
-      { kind: 'github-pr', owner: target.owner, repo: target.repo, number: target.number },
-      { token: process.env.GITHUB_TOKEN },
-    )
+    const diff = await createGithubPullRequestSource(target, staticCredentials(process.env.GITHUB_TOKEN)).fetch()
     const grouped = await ruleBasedAdapter.analyze(diff)
     const path = `test/fixtures/real/${target.name}.json`
     writeFileSync(path, `${JSON.stringify({ diff, grouped }, null, 2)}\n`)

@@ -17,8 +17,7 @@ function cacheWith(budget?: CacheBudget) {
 
 function makeEntry(key: string, sha: string, lastViewedAt: number, sizeBytes = 100): PrCacheEntry {
   const diff: PrCacheEntry['diff'] = {
-    provider: 'github',
-    id: key,
+    ref: { kind: 'paste', hash: key },
     title: 't',
     description: '',
     files: [{ path: 'a.ts', status: 'modified', additions: 1, deletions: 0, isBinary: false, sha, hunks: [] }],
@@ -212,14 +211,13 @@ describe('diff cache', () => {
     expect((await cache.listRecent(2)).map(meta => meta.key)).toEqual(['new', 'mid'])
   })
 
-  it('listByKeyPrefix returns only the matching entries', async () => {
+  it('listMatching returns only the entries whose metadata matches', async () => {
     const { cache } = cacheWith()
-    await cache.put(makeEntry('github:o/r#1', 'sha-1', 1000))
-    await cache.put(makeEntry('github:o/r#2', 'sha-2', 2000))
-    await cache.put(makeEntry('github:o/r-other#3', 'sha-3', 3000))
-    await cache.put(makeEntry('paste:abc', 'sha-4', 4000))
+    await cache.put(makeEntry('a', 'sha-1', 1000))
+    await cache.put(makeEntry('b', 'sha-2', 2000))
+    await cache.put(makeEntry('c', 'sha-3', 3000))
 
-    expect((await cache.listByKeyPrefix('github:o/r#')).map(entry => entry.key).sort()).toEqual(['github:o/r#1', 'github:o/r#2'])
+    expect((await cache.listMatching(meta => meta.key !== 'b')).map(entry => entry.key).sort()).toEqual(['a', 'c'])
   })
 
   it('computeEntrySizeBytes counts the llmSession toward the size', () => {

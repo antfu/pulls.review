@@ -1,4 +1,5 @@
 import { diagnostics } from '../../diagnostics'
+import { staticCredentials } from '../../types/source'
 import { createGithubClient, GithubApiError } from './client'
 
 /** Who a PAT authenticates as, plus what the token itself can do and until when. */
@@ -31,7 +32,7 @@ function parseExpiration(header: string | null): number | null {
 export async function fetchGithubTokenMeta(token: string): Promise<GithubTokenMeta> {
   let res: Response
   try {
-    res = await createGithubClient(token).request('/user')
+    res = await createGithubClient(staticCredentials(token)).request('/user')
   }
   catch (err) {
     throw err instanceof GithubApiError && err.status === 401 ? diagnostics.tokenRejected() : err

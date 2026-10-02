@@ -1,5 +1,5 @@
 import type { CacheRepositories } from '@pulls.review/core/cache'
-import type { DiffsPayload, GroupedResult } from '@pulls.review/core/types'
+import type { Credentials, DiffsPayload, GroupedResult } from '@pulls.review/core/types'
 import type { GithubWriteAccess } from './github-write-access'
 import type { DiffsStoreShared, SharedAnalysisCandidate } from './types'
 import { createGithubClient, createIssueComment, fetchSharedAnalysisComments, GithubApiError, renderSharedAnalysisComment, updateIssueComment } from '@pulls.review/core/github'
@@ -9,7 +9,7 @@ import { localizeError } from '../i18n/core-messages'
 
 export interface SharedAnalysisStoreOptions {
   cache: CacheRepositories
-  token?: string
+  credentials: Credentials
   access: GithubWriteAccess
   getDiff: () => DiffsPayload | undefined
   getCacheKey: () => string | undefined
@@ -26,7 +26,7 @@ export interface SharedAnalysisStoreOptions {
  */
 export function createSharedAnalysisStore(pr: { owner: string, repo: string, number: string }, opts: SharedAnalysisStoreOptions) {
   const { access } = opts
-  const client = createGithubClient(opts.token || undefined)
+  const client = createGithubClient(opts.credentials)
 
   const candidates = ref<SharedAnalysisCandidate[]>([])
   const notice = ref<string>()

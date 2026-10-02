@@ -49,18 +49,25 @@ A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
   together, e.g. provider + adapter + cache end-to-end), not a dumping
   ground for what should be co-located unit tests.
 
-## Data flow: Provider -> Analyze adapter -> Cache -> View
+## Data flow: DiffSource -> Analyze adapter -> Cache -> View
 
 Two pluggable-adapter boundaries exist so that adding a data source or an
 analysis strategy later never touches the view layer:
 
-- **`Provider`** (`app/providers/`) fetches + normalizes a diff from some
-  source into the canonical `DiffsPayload` shape, and declares its
-  capabilities (`supportsAuth`, `supportsComments`, ...). `FetchDiffParams` is
-  a discriminated union (by `kind`) so each provider only accepts params that
-  make sense for its source. Implementations:
-  - `github` — GitHub REST API (PR metadata + paginated file list/patches).
-  - `paste` — accepts raw unified-diff/patch text (pasted, or an uploaded
+- **`DiffSource`** (`core/types/source.ts`) is one diff's origin, already bound
+  to its target and `Credentials`: `key()` (the cache key, known before any
+  fetch), `fetch()` (normalized into the canonical `DiffsPayload`), and optional
+  capability members - `fingerprint()` for staleness, `githubPullRequest` for
+  review threads and shared analyses. `createDiffsStore(source, ...)` has one
+  load path and derives what it offers from those members, never from which
+  kind of source it holds. Every payload carries a structured `ref`
+  (`SourceRef`, a valibot variant by `kind`); `serializeRef(ref)` is the only
+  key formula, and nothing parses ids back. `Credentials.githubToken()` is read
+  per request, so a token saved later applies without rebuilding a store.
+  Implementations (`core/providers/`):
+  - `github-pr` (`createGithubPullRequestSource`) — GitHub REST API (PR
+    metadata + paginated file list/patches) through one `GithubClient`.
+  - `paste` (`createPasteSource`) — accepts raw unified-diff/patch text (pasted, or an uploaded
     `.diff`/`.patch` file, e.g. GitHub's `.diff` endpoint or `git diff >
     diff.patch` output) via the shared `app/patch-parser/`. Fed to the
     `/upload` route (no param) via a fixed `sessionStorage` key, not a URL —
@@ -244,7 +251,7 @@ flat key-value, so there's no native "object store" split):
   view shows "reviewed, but changed since" instead of plain "unreviewed".
 - `file-content:*` — a file's full raw content at a specific ref, fetched
   on demand from `FileDiff.vue`'s "load full file" action (github only -
-  gated behind `ProviderCapabilities.supportsFullFileContent`), keyed by
+  shown only for a `github-pr` diff with base/head refs), keyed by
   `file-content:{ref sha}:{path}`. `ref` is the PR's base/head **commit**
   sha, not a per-blob sha - equally content-addressed for caching purposes,
   without a separate request to look one up. No eviction of its own yet
@@ -266,8 +273,8 @@ land later without a rewrite:
 
 - `web-llm` analyze adapter (stub only).
 - Merging PRs. (Review comment threads and formal review submission are
-  built — see `plans/05-comment-threads.md` — gated behind
-  `Provider.capabilities.supportsComments`, true for `github` only.)
+  built — see `plans/05-comment-threads.md` — offered
+  only for a source with `githubPullRequest`.)
 - `local` provider (diffing a working tree) - would live in core.
 - Any cross-repo/history dashboard (the per-repo open-PR list at
   `/gh/owner/repo` is a navigation aid into the deep-links, not that) or

@@ -1,4 +1,5 @@
 import * as v from 'valibot'
+import { SourceRefSchema } from './source'
 
 export const FileChangeStatusSchema = v.picklist(['added', 'removed', 'modified', 'renamed', 'copied'])
 export type FileChangeStatus = v.InferOutput<typeof FileChangeStatusSchema>
@@ -59,8 +60,7 @@ const RefSchema = v.object({
  * Carries its own `files` directly - there is no separate "diff" wrapper type.
  */
 export const DiffsPayloadSchema = v.object({
-  provider: v.picklist(['github', 'local', 'paste']),
-  id: v.string(), // e.g. "github:owner/repo#123" or "paste:<contentHash>"
+  ref: SourceRefSchema,
   title: v.string(), // "Pasted diff" default for paste, no PR title available
   description: v.optional(v.string()), // raw markdown body; absent for paste
   url: v.optional(v.string()), // permalink to source, absent for local/paste

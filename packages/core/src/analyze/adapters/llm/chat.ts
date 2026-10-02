@@ -4,6 +4,7 @@ import type { GroupedResult } from '../../../types/analyze'
 import type { DiffsPayload } from '../../../types/diff'
 import type { ResolvedModel } from './model'
 import { Agent } from '@earendil-works/pi-agent-core'
+import { serializeRef } from '../../../types/source'
 import { toLlmMessages } from './agent'
 import { toGroupedResult } from './index'
 import { CHAT_SYSTEM_SECTION } from './prompt'
@@ -91,7 +92,7 @@ export function createChatSession({ diff, resolved, locale, messages, onGrouping
     },
     streamFn: createStreamFn(resolved),
     getApiKey: () => resolved.apiKey,
-    sessionId: diff.id,
+    sessionId: serializeRef(diff.ref),
     convertToLlm: toLlmMessages,
     transformContext: async (messages) => {
       const compacted = compactContext(messages)

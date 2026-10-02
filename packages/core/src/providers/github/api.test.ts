@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { staticCredentials } from '../../types/source'
 import { fetchFileContentAtRef, fetchPullRequestDiffText } from './api'
 import { createGithubClient } from './client'
 
@@ -11,7 +12,7 @@ describe('fetchFileContentAtRef', () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response('file contents', { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)
 
-    const content = await fetchFileContentAtRef(createGithubClient('my-token'), 'owner', 'repo', 'src/foo.ts', 'abc123')
+    const content = await fetchFileContentAtRef(createGithubClient(staticCredentials('my-token')), 'owner', 'repo', 'src/foo.ts', 'abc123')
 
     expect(content).toBe('file contents')
     const [url, init] = fetchMock.mock.calls[0]!

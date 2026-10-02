@@ -35,7 +35,7 @@ function fakeAgent({ messages }: { messages: AgentMessage[] }) {
   }
 }
 
-const diff = { provider: 'github', id: 'github:o/r#1', title: 'PR', files: [] } as DiffsPayload
+const diff = { ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' }, title: 'PR', files: [] } as DiffsPayload
 const transcript: AgentMessage[] = [{ role: 'user', content: 'analyze', timestamp: 0 }]
 
 function setup() {

@@ -37,11 +37,8 @@ export interface DiffCache {
   setReviewData: (key: string, reviews: ReviewData) => Promise<void>
   /** Most-recently-viewed first. Reads metadata only. */
   listRecent: (limit: number) => Promise<PrCacheMeta[]>
-  /**
-   * Whole entries whose key starts with `prefix`. Matched on the entry's own key, not
-   * via `getKeys(base)`: unstorage treats a base as a key *segment* and appends `:`.
-   */
-  listByKeyPrefix: (prefix: string) => Promise<PrCacheEntry[]>
+  /** Whole entries whose metadata matches; only those bodies are read. */
+  listMatching: (match: (meta: PrCacheMeta) => boolean) => Promise<PrCacheEntry[]>
 }
 
 /** Rough approximation of an entry's on-disk footprint, used for LRU budget accounting. */
@@ -53,6 +50,7 @@ function split(entry: PrCacheEntry): { meta: PrCacheMeta, body: PrCacheBody } {
   const { diff, analyzedBy, reviews, llmSession, ...rest } = entry
   const meta: PrCacheMeta = {
     ...rest,
+    ref: diff.ref,
     title: diff.title,
     url: diff.url,
     pullRequestState: diff.pullRequest?.state,
@@ -228,8 +226,8 @@ export function createDiffCache(storage: Storage, reviewMarks: ReviewMarks, budg
     async listRecent(limit) {
       return (await listMetas()).sort((a, b) => b.lastViewedAt - a.lastViewedAt).slice(0, limit)
     },
-    async listByKeyPrefix(prefix) {
-      const metas = (await listMetas()).filter(meta => meta.key.startsWith(prefix))
+    async listMatching(match) {
+      const metas = (await listMetas()).filter(match)
       const entries = await Promise.all(metas.map(async (meta) => {
         const body = await getBody(meta.key)
         return body && join(meta, body)

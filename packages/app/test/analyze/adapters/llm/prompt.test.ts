@@ -30,7 +30,7 @@ describe('buildAnalysisPrompt snapshot', () => {
 })
 
 describe('buildAnalysisPrompt commits', () => {
-  const base = { provider: 'github', id: 'github:o/r#1', title: 'T', files: [file({ path: 'a.ts' })] } as const
+  const base = { ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' }, title: 'T', files: [file({ path: 'a.ts' })] } as const
 
   it('lists short sha and subject line of each commit, oldest first', () => {
     const prompt = buildAnalysisPrompt({
@@ -50,7 +50,7 @@ describe('buildAnalysisPrompt commits', () => {
 })
 
 describe('buildAnalysisPrompt language', () => {
-  const base = { provider: 'github', id: 'github:o/r#1', title: 'T', files: [file({ path: 'a.ts' })] } as const
+  const base = { ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' }, title: 'T', files: [file({ path: 'a.ts' })] } as const
 
   it('stays English and closes with the language to answer in', () => {
     expect(buildAnalysisPrompt(base, 'en')).toMatch(/\n\nRespond and categorize in English\.$/)

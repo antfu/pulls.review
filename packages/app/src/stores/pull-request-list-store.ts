@@ -1,6 +1,6 @@
 import type { CacheRepositories } from '@pulls.review/core/cache'
-import type { PullRequestListItem, PullRequestListPage } from '@pulls.review/core/types'
-import { createGithubClient, fetchOpenPullRequests, parseGithubDiffId } from '@pulls.review/core/github'
+import type { Credentials, PullRequestListItem, PullRequestListPage } from '@pulls.review/core/types'
+import { createGithubClient, fetchOpenPullRequests } from '@pulls.review/core/github'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { ruleBasedAdapter } from '../analyze'
 
@@ -38,7 +38,7 @@ export interface PullRequestListStore {
 
 export interface PullRequestListStoreOptions {
   cache: CacheRepositories
-  token?: string
+  credentials: Credentials
 }
 
 /**
@@ -50,7 +50,7 @@ export interface PullRequestListStoreOptions {
 export function createPullRequestListStore(params: { owner: string, repo: string }, opts: PullRequestListStoreOptions): PullRequestListStore {
   const { owner, repo } = params
   const { cache } = opts
-  const client = createGithubClient(opts.token)
+  const client = createGithubClient(opts.credentials)
   const items = shallowRef<PullRequestListItem[]>([])
   const totalCount = ref<number>()
   const next = ref<string>()
@@ -86,9 +86,10 @@ export function createPullRequestListStore(params: { owner: string, repo: string
 
   async function loadViewed() {
     const next = new Map<number, ViewedPullRequest>()
-    for (const entry of await cache.diffs.listByKeyPrefix(`github:${owner}/${repo}#`)) {
-      const ref = parseGithubDiffId(entry.diff.id)
-      if (!ref)
+    const entries = await cache.diffs.listMatching(({ ref }) => ref.kind === 'github-pr' && ref.owner === owner && ref.repo === repo)
+    for (const entry of entries) {
+      const { ref } = entry.diff
+      if (ref.kind !== 'github-pr')
         continue
       const aiResult = entry.analyzedBy.llm ?? entry.analyzedBy['web-llm']
       next.set(Number(ref.number), {

@@ -1,3 +1,5 @@
+import type { Credentials } from '../../types/source'
+
 const GITHUB_API_BASE = 'https://api.github.com'
 const PAGE_SIZE = 100
 
@@ -27,14 +29,18 @@ export interface GithubClient {
   graphql: <T>(query: string, variables: Record<string, string | number | null>) => Promise<T>
 }
 
-export function createGithubClient(token?: string): GithubClient {
+/** Without credentials every request is anonymous. The token is read per request, never captured. */
+export function createGithubClient(credentials?: Credentials): GithubClient {
+  const token = async () => credentials?.githubToken()
+
   async function request(path: string, options: GithubRequestOptions = {}): Promise<Response> {
+    const auth = await token()
     const headers: Record<string, string> = {
       'Accept': options.accept ?? 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
     }
-    if (token)
-      headers.Authorization = `Bearer ${token}`
+    if (auth)
+      headers.Authorization = `Bearer ${auth}`
     if (options.body !== undefined)
       headers['Content-Type'] = 'application/json'
     const url = `${GITHUB_API_BASE}${path}`
@@ -57,7 +63,7 @@ export function createGithubClient(token?: string): GithubClient {
   }
 
   return {
-    token: async () => token,
+    token,
     request,
     async paginate<T>(path: string) {
       const items: T[] = []

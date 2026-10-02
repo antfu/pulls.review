@@ -6,6 +6,7 @@ import type { DiffsPayload } from '../../../types/diff'
 import type { ResolvedModel } from './model'
 import type { Analysis } from './schema'
 import { runAgentLoop } from '@earendil-works/pi-agent-core'
+import { serializeRef } from '../../../types/source'
 import { AGENT_SYSTEM_PROMPT, buildAnalysisPrompt } from './prompt'
 import { createStreamFn } from './runtime'
 import { createLedger, createReadDiffsTool, createSubmitGroupingTool } from './tools'
@@ -44,7 +45,7 @@ export async function runAgent(diff: DiffsPayload, resolved: ResolvedModel, loca
   const config: AgentLoopConfig = {
     model: resolved.model,
     apiKey: resolved.apiKey,
-    sessionId: diff.id,
+    sessionId: serializeRef(diff.ref),
     cacheRetention: 'short',
     convertToLlm: toLlmMessages,
     getSteeringMessages: async () => {

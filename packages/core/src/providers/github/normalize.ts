@@ -120,8 +120,7 @@ export async function normalizePullRequest(
   )
 
   return {
-    provider: 'github',
-    id: `github:${owner}/${repo}#${number}`,
+    ref: { kind: 'github-pr', owner, repo, number },
     title: pr.title,
     description: pr.body ?? '',
     url: pr.html_url,

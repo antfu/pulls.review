@@ -2,7 +2,8 @@ import type { CacheRepositories, PrCacheEntry } from '@pulls.review/core/cache'
 import type { GroupedResult } from '@pulls.review/core/types'
 import type { MockedFunction } from 'vitest'
 import { computeEntrySizeBytes, createCacheRepositories } from '@pulls.review/core/cache'
-import { renderSharedAnalysisComment } from '@pulls.review/core/github'
+import { createGithubPullRequestSource, renderSharedAnalysisComment } from '@pulls.review/core/github'
+import { staticCredentials } from '@pulls.review/core/types'
 import { createStorage } from 'unstorage'
 import memoryDriver from 'unstorage/drivers/memory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -34,6 +35,11 @@ async function seedCache(analyzedBy: PrCacheEntry['analyzedBy'], extra: Partial<
     sizeBytes: computeEntrySizeBytes(diff, analyzedBy),
     ...extra,
   })
+}
+
+function storeFor({ token, from }: { token?: string, from?: string } = {}) {
+  const credentials = staticCredentials(token)
+  return createDiffsStore(createGithubPullRequestSource(pr, credentials), { cache, credentials, from })
 }
 
 interface Route {
@@ -98,7 +104,7 @@ describe('discovery', () => {
       issueComment(2, 'antfu', aiResult(), diff.head!.sha, '2026-09-27T00:00:00Z'),
       issueComment(3, 'octocat', aiResult(), 'old-sha', '2026-09-28T00:00:00Z'),
     ])])
-    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { cache, token: 't' })
+    const store = storeFor({ token: 't' })
 
     await store.load()
     await settle()
@@ -114,7 +120,7 @@ describe('discovery', () => {
   it('does not scan when an AI result already exists', async () => {
     await seedCache({ llm: aiResult() })
     const fetchMock = stubFetch([userRoute, commentsRoute([issueComment(2, 'antfu', aiResult())])])
-    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { cache, token: 't' })
+    const store = storeFor({ token: 't' })
 
     await store.load()
     await settle()
@@ -126,7 +132,7 @@ describe('discovery', () => {
   it('loads a candidate into the cache under its source, credited and without chat', async () => {
     await seedCache({})
     stubFetch([commentsRoute([issueComment(2, 'antfu', aiResult({ overallSummary: 'Shared summary' }))])])
-    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { cache })
+    const store = storeFor()
     await store.load()
     await settle()
 
@@ -144,7 +150,7 @@ describe('discovery', () => {
     vi.stubEnv('PR_LLM', undefined)
     await seedCache({})
     stubFetch([commentsRoute([issueComment(2, 'antfu', aiResult())])])
-    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { cache })
+    const store = storeFor()
     await store.load()
     await settle()
 
@@ -155,7 +161,7 @@ describe('discovery', () => {
     expect(store.shared!.canShare).toBe(false)
 
     // A fresh embed store (e.g. next page view) shows the cached shared result without toggling.
-    const next = createDiffsStore({ kind: 'github-pr', ...pr }, { cache })
+    const next = storeFor()
     await next.load()
     expect(next.grouped?.sharedBy).toBe('antfu')
   })
@@ -165,7 +171,7 @@ describe('?from=', () => {
   it('auto-loads that user when there is no local AI result', async () => {
     await seedCache({})
     stubFetch([commentsRoute([issueComment(2, 'antfu', aiResult()), issueComment(3, 'other', aiResult())])])
-    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { cache, from: 'antfu' })
+    const store = storeFor({ from: 'antfu' })
 
     await store.load()
     await settle()
@@ -177,7 +183,7 @@ describe('?from=', () => {
   it('only offers that user when a local AI result would be replaced', async () => {
     await seedCache({ llm: aiResult({ overallSummary: 'mine' }) })
     stubFetch([commentsRoute([issueComment(2, 'antfu', aiResult()), issueComment(3, 'other', aiResult())])])
-    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { cache, from: 'antfu' })
+    const store = storeFor({ from: 'antfu' })
 
     await store.load()
     await settle()
@@ -189,7 +195,7 @@ describe('?from=', () => {
   it('notices a user who shared nothing and falls back to discovery', async () => {
     await seedCache({})
     stubFetch([commentsRoute([issueComment(3, 'other', aiResult())])])
-    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { cache, from: 'antfu' })
+    const store = storeFor({ from: 'antfu' })
 
     await store.load()
     await settle()
@@ -214,7 +220,7 @@ describe('share', () => {
       { match: (url, init) => url.endsWith('/issues/comments/42') && init?.method === 'PATCH', respond: () => json({ id: 42, html_url: 'https://github.com/antfu/diffs/pull/1#issuecomment-42' }) },
       commentsRoute([]),
     ])
-    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { cache, token: 't' })
+    const store = storeFor({ token: 't' })
     await store.load()
     await settle()
     expect(store.shared!.canShare).toBe(true)
@@ -238,7 +244,7 @@ describe('share', () => {
       { match: (url, init) => url.endsWith('/issues/comments/9') && init?.method === 'PATCH', respond: () => json({ id: 9, html_url: 'u9' }) },
       commentsRoute([issueComment(9, 'octocat', aiResult())]),
     ])
-    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { cache, token: 't' })
+    const store = storeFor({ token: 't' })
     await store.load()
     await settle()
 
@@ -255,7 +261,7 @@ describe('share', () => {
       { match: (url, init) => url.endsWith('/issues/1/comments') && init?.method === 'POST', respond: () => json({ message: 'Resource not accessible' }, 403) },
       commentsRoute([]),
     ])
-    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { cache, token: 't' })
+    const store = storeFor({ token: 't' })
     await store.load()
     await settle()
 
@@ -269,7 +275,7 @@ describe('share', () => {
   it('never shares a result that was itself loaded from a comment', async () => {
     await seedCache({ llm: aiResult({ sharedBy: 'antfu' }) })
     const fetchMock = stubFetch([userRoute, commentsRoute([])])
-    const store = createDiffsStore({ kind: 'github-pr', ...pr }, { cache, token: 't' })
+    const store = storeFor({ token: 't' })
     await store.load()
     await settle()
 

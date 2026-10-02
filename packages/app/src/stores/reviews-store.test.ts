@@ -1,5 +1,6 @@
 import type { MockedFunction } from 'vitest'
 import { createCacheRepositories } from '@pulls.review/core/cache'
+import { staticCredentials } from '@pulls.review/core/types'
 import { createStorage } from 'unstorage'
 import memoryDriver from 'unstorage/drivers/memory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -46,8 +47,8 @@ function stubFetch(routes: Route[]): MockedFunction<typeof fetch> {
 function makeStore(token?: string) {
   return createReviewsStore({ owner: 'owner', repo: 'repo', number: '1' }, {
     cache: createCacheRepositories(createStorage({ driver: memoryDriver() })),
-    token,
-    access: createGithubWriteAccess(token),
+    credentials: staticCredentials(token),
+    access: createGithubWriteAccess(staticCredentials(token)),
     getHeadSha: () => 'head-sha',
     getCacheKey: () => undefined,
   })

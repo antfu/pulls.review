@@ -1,30 +1,19 @@
-import type { Provider } from '../../types/provider'
+import type { DiffSource } from '../../types/source'
 import { computeContentHash, parsePatch } from '../../patch-parser'
+import { serializeRef } from '../../types/source'
 
-export const PasteProvider: Provider = {
-  id: 'paste',
-  capabilities: {
-    supportsAuth: false,
-    supportsComments: false,
-    requiresNetwork: false,
-    supportsFullFileContent: false,
-  },
-  async fetchDiff(params) {
-    if (params.kind !== 'patch-text')
-      throw new Error(`PasteProvider cannot handle params of kind "${params.kind}"`)
-
-    const { text, title } = params
-    const [files, contentHash] = await Promise.all([
-      parsePatch(text),
-      computeContentHash(text),
-    ])
-
-    return {
-      provider: 'paste',
-      id: `paste:${contentHash}`,
-      title: title ?? 'Pasted diff',
-      description: '',
-      files,
-    }
-  },
+/** A pasted or uploaded patch: no live source, so no staleness check. */
+export function createPasteSource(text: string, title?: string): DiffSource {
+  const hash = computeContentHash(text)
+  return {
+    key: async () => serializeRef({ kind: 'paste', hash: await hash }),
+    async fetch() {
+      return {
+        ref: { kind: 'paste', hash: await hash },
+        title: title ?? 'Pasted diff',
+        description: '',
+        files: await parsePatch(text),
+      }
+    },
+  }
 }

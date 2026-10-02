@@ -6,10 +6,8 @@ import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.v
 import FormCheckbox from '@antfu/design/components/Form/FormCheckbox.vue'
 import { Markdown } from '@comark/vue'
 import { Virtualizer } from '@pierre/diffs'
-import { parseGithubDiffId } from '@pulls.review/core/github'
 import { useElementBounding, useEventListener } from '@vueuse/core'
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue'
-import { useProvider } from '../../composables/useProvider'
 import { autoRefresh } from '../../state/auto-refresh'
 import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
@@ -45,14 +43,9 @@ const groups = computed(() => props.store?.groups ?? [])
 // hide its "load full file" action entirely rather than show a button that would fail.
 const fileContentContext = computed(() => {
   const d = diff.value
-  if (!d || d.provider !== 'github' || !d.base || !d.head)
+  if (!d || d.ref.kind !== 'github-pr' || !d.base || !d.head)
     return undefined
-  if (!useProvider('github').capabilities.supportsFullFileContent)
-    return undefined
-  const ref = parseGithubDiffId(d.id)
-  if (!ref)
-    return undefined
-  return { owner: ref.owner, repo: ref.repo, baseSha: d.base.sha, headSha: d.head.sha }
+  return { owner: d.ref.owner, repo: d.ref.repo, baseSha: d.base.sha, headSha: d.head.sha }
 })
 provide(fileContentContextKey, fileContentContext)
 

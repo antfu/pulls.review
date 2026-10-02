@@ -42,7 +42,7 @@ export interface DiffsStoreLlm {
  * GitHub PR review threads and review submission, isolated behind `DiffsStore.reviews`
  * the same way LLM analysis sits behind `DiffsStore.llm`: components gate the whole
  * review affordance on its presence (`undefined` = the source has no review lifecycle -
- * paste, or `supportsComments: false`). Mutations post directly browser -> GitHub with
+ * a source without `githubPullRequest`). Mutations post directly browser -> GitHub with
  * the user's own PAT; every mutation refetches so the view always reflects GitHub.
  */
 export interface DiffsStoreReviews {

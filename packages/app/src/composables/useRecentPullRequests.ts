@@ -1,6 +1,5 @@
 import type { PullRequestState } from '@pulls.review/core/types'
 import type { Ref } from 'vue'
-import { parseGithubDiffId } from '@pulls.review/core/github'
 import { ref } from 'vue'
 import { useAppContext } from '../app-context'
 
@@ -27,7 +26,7 @@ export interface UseRecentPullRequestsReturn {
  * The home page's "recent" list - the diff cache already tracks every previously
  * viewed PR's `lastViewedAt` for LRU eviction, so this just reads it back. Paste/local
  * entries have no stable route to revisit (paste's key is a content hash, not a URL),
- * so only github-provider entries are surfaced here.
+ * so only `github-pr` entries are surfaced here.
  */
 export function useRecentPullRequests(limit = 8): UseRecentPullRequestsReturn {
   const { cache } = useAppContext()
@@ -36,12 +35,14 @@ export function useRecentPullRequests(limit = 8): UseRecentPullRequestsReturn {
   async function load() {
     const items: RecentPullRequest[] = []
     for (const meta of await cache.diffs.listRecent(limit)) {
-      const ref = parseGithubDiffId(meta.key)
-      if (!ref)
+      const { ref } = meta
+      if (ref.kind !== 'github-pr')
         continue
       const reviewed = await cache.reviewMarks.get(meta.fileShas)
       items.push({
-        ...ref,
+        owner: ref.owner,
+        repo: ref.repo,
+        number: ref.number,
         title: meta.title,
         url: meta.url,
         state: meta.pullRequestState,

@@ -1,7 +1,11 @@
 {
   "diff": {
-    "provider": "github",
-    "id": "github:antfu/diffs#1",
+    "ref": {
+      "kind": "github-pr",
+      "owner": "antfu",
+      "repo": "diffs",
+      "number": "1"
+    },
     "title": "Example pull request",
     "description": "An example description for Storybook fixtures.",
     "url": "https://github.com/antfu/diffs/pull/1",

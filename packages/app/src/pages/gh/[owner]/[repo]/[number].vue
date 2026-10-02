@@ -2,33 +2,34 @@
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyState.vue'
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
-import { computed, onMounted } from 'vue'
+import { createGithubPullRequestSource } from '@pulls.review/core/github'
+import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppContext } from '../../../../app-context'
 import DiffsPage from '../../../../components/diff/DiffsPage.vue'
 import { useDocumentTitle } from '../../../../composables/useDocumentTitle'
-import { settings } from '../../../../state/settings'
 import { createDiffsStore } from '../../../../stores/diffs-store'
 
 const route = useRoute()
+const { cache, credentials } = useAppContext()
 
-const params = computed(() => ({
-  kind: 'github-pr' as const,
+// Read once: `App.vue` keys the routed page by path, so another PR mounts a fresh page and store.
+const pr = {
   owner: route.params.owner as string,
   repo: route.params.repo as string,
   number: route.params.number as string,
-}))
+}
 
 // `?from=<login>` deep-links a shared analysis (see plans/07); read once, never rewritten.
 const from = typeof route.query.from === 'string' ? route.query.from : undefined
 
-const store = createDiffsStore(params.value, { cache: useAppContext().cache, token: settings.value.githubToken, from })
+const store = createDiffsStore(createGithubPullRequestSource(pr, credentials), { cache, credentials, from })
 
 // The PR title matches the header's `{{ meta.title }} #number`; before it loads, fall
 // back to the route so the tab still identifies which PR is opening.
 useDocumentTitle(() => store.diff
-  ? `${store.diff.title} (#${params.value.number})`
-  : `${params.value.owner}/${params.value.repo} #${params.value.number}`)
+  ? `${store.diff.title} (#${pr.number})`
+  : `${pr.owner}/${pr.repo} #${pr.number}`)
 
 onMounted(() => store.load())
 </script>

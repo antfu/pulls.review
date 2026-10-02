@@ -1,11 +1,9 @@
 import type { CacheRepositories, LlmSession, PrCacheEntry } from '@pulls.review/core/cache'
-import type { DiffsPayload, FetchDiffParams, GroupedResult, GroupSource, ReviewData } from '@pulls.review/core/types'
+import type { Credentials, DiffSource, DiffsPayload, GroupedResult, GroupSource, ReviewData } from '@pulls.review/core/types'
 import type { DiffsStore, DiffsStoreLlm } from './types'
-import { createGithubClient, fetchPullRequest } from '@pulls.review/core/github'
 import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef, watch } from 'vue'
 import { resolveAdapter, ruleBasedAdapter } from '../analyze'
 import { resolveGroups } from '../components/diff/group-utils'
-import { useProvider } from '../composables/useProvider'
 import { i18n } from '../i18n'
 import { autoRefresh } from '../state/auto-refresh'
 import { layout } from '../state/layout'
@@ -14,18 +12,18 @@ import { createReviewsStore } from './reviews-store'
 import { createSharedAnalysisStore } from './shared-analysis-store'
 
 /**
- * Creates a `DiffsStore` backed by real providers/cache/adapters - the isomorphic
- * counterpart to `createMockDiffsStore`. Works for both `github-pr` and `patch-text`
- * params, matching `FetchDiffParams`'s discriminated union.
+ * Creates a `DiffsStore` backed by a real source, cache and adapters - the isomorphic
+ * counterpart to `createMockDiffsStore`. What the store offers follows from what the
+ * source can do, never from which kind of source it is.
  */
 export interface DiffsStoreOptions {
   cache: CacheRepositories
-  token?: string
+  credentials: Credentials
   /** Login from the page's `?from=` query: load that user's shared analysis (see plans/07). */
   from?: string
 }
 
-export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOptions): DiffsStore {
+export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): DiffsStore {
   const { cache } = opts
   const diff = ref<DiffsPayload>()
   const analyzedBy = ref<Partial<Record<GroupSource, GroupedResult>>>({})
@@ -48,14 +46,13 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
   let cachedReviewData: ReviewData | undefined
   let cachedSharedComment: PrCacheEntry['sharedComment']
 
-  const github = params.kind === 'github-pr' && useProvider('github').capabilities.supportsComments
-    ? { params, access: createGithubWriteAccess(opts.token || undefined) }
-    : undefined
+  const pr = source.githubPullRequest
+  const github = pr && { pr, access: createGithubWriteAccess(opts.credentials) }
 
   const reviews = github
-    ? createReviewsStore(github.params, {
+    ? createReviewsStore(github.pr, {
         cache,
-        token: opts.token,
+        credentials: opts.credentials,
         access: github.access,
         getHeadSha: () => diff.value?.head?.sha,
         getCacheKey: () => cacheKey.value,
@@ -155,9 +152,9 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
   }
 
   const shared = github
-    ? createSharedAnalysisStore(github.params, {
+    ? createSharedAnalysisStore(github.pr, {
         cache,
-        token: opts.token,
+        credentials: opts.credentials,
         access: github.access,
         getDiff: () => diff.value,
         getCacheKey: () => cacheKey.value,
@@ -195,19 +192,15 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
   }
 
   async function fetchFresh() {
-    const provider = useProvider(params.kind === 'github-pr' ? 'github' : 'paste')
-    const freshDiff = await provider.fetchDiff(params, { token: opts.token })
-    const key = freshDiff.id // already `github:owner/repo#number` or `paste:<contentHash>`, matching pr-cache's key scheme
-    await analyzeAndStore(key, freshDiff)
-    return key
+    const key = await source.key()
+    await analyzeAndStore(key, await source.fetch())
   }
 
   async function checkStaleness(cachedHeadSha: string) {
-    if (params.kind !== 'github-pr')
+    if (!source.fingerprint)
       return
     try {
-      const pr = await fetchPullRequest(createGithubClient(opts.token), params.owner, params.repo, params.number)
-      if (pr.head.sha === cachedHeadSha)
+      if (await source.fingerprint() === cachedHeadSha)
         return
       // The user opted into auto-refresh (banner checkbox or Settings): fetch the new
       // commits silently instead of parking behind the "new commits" banner.
@@ -226,39 +219,22 @@ export function createDiffsStore(params: FetchDiffParams, opts: DiffsStoreOption
     error.value = undefined
     isStale.value = false
     try {
-      if (params.kind === 'github-pr') {
-        const key = `github:${params.owner}/${params.repo}#${params.number}`
-        const cached = await cache.diffs.get(key)
-        if (cached) {
-          cachedReviewData = cached.reviews
-          cachedSharedComment = cached.sharedComment
-          await cache.diffs.touch(key)
-          await install(key, cached)
-          void checkStaleness(cached.headSha)
-        }
-        else {
-          await fetchFresh()
-        }
-        // Threads and shared analyses load after (and independently of) the diff -
-        // a failure there never blocks the diff view itself.
-        void reviews?.load()
-        void shared?.discover(opts.from)
+      const key = await source.key()
+      const cached = await cache.diffs.get(key)
+      if (cached) {
+        cachedReviewData = cached.reviews
+        cachedSharedComment = cached.sharedComment
+        await cache.diffs.touch(key)
+        await install(key, cached)
+        void checkStaleness(cached.headSha)
       }
       else {
-        // A paste has no live source: parsing is cheap and local, so always run it, then
-        // let the cache short-circuit re-analysis on a same-session revisit (e.g. a reload).
-        const provider = useProvider('paste')
-        const freshDiff = await provider.fetchDiff(params, { token: opts.token })
-        const key = freshDiff.id // already `github:owner/repo#number` or `paste:<contentHash>`, matching pr-cache's key scheme
-        const cached = await cache.diffs.get(key)
-        if (cached) {
-          await cache.diffs.touch(key)
-          await install(key, cached)
-        }
-        else {
-          await analyzeAndStore(key, freshDiff)
-        }
+        await fetchFresh()
       }
+      // Threads and shared analyses load after (and independently of) the diff -
+      // a failure there never blocks the diff view itself.
+      void reviews?.load()
+      void shared?.discover(opts.from)
       await llmReady
     }
     catch (err) {
