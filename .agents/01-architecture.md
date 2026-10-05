@@ -24,8 +24,12 @@ A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
   Vite-only syntax (`import.meta.glob`, `import.meta.env`) inside it.
   Callers pass model settings and locale in, inject group text, word the
   structured progress events, and translate nostics diagnostics by code.
-- `packages/cli` (`pulls.review`) — fetch, analyze, upsert the shared-analysis
-  comment; what the root `action.yml` composite action runs.
+- `packages/actions` (`@pulls.review/actions`) — the GitHub Actions CLI: fetch,
+  analyze, upsert the shared-analysis comment; what the root `action.yml`
+  composite action runs.
+- `pulls.review` (the unscoped name) is reserved for the standalone CLI: local
+  git inspection served through devframe (Plan 04's `local` provider). It is not
+  built yet and MUST NOT take over the Actions entry point.
 
 ## Invariants
 

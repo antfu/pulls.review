@@ -48,21 +48,22 @@ jobs:
 
 `provider` is inferred from the key you pass (`gateway` for a Vercel AI Gateway token, `anthropic`, or `openai-compatible` with `base-url`); set it explicitly, along with `model` and `locale`, when you want to.
 
-The action is a thin wrapper around the `pulls.review` CLI, which works anywhere a GitHub token and a model key are in the environment:
+The action is a thin wrapper around the `@pulls.review/actions` CLI, which works anywhere a GitHub token and a model key are in the environment:
 
 ```sh
-GITHUB_TOKEN=... ANTHROPIC_API_KEY=... npx pulls.review owner/repo#123
+GITHUB_TOKEN=... ANTHROPIC_API_KEY=... npx @pulls.review/actions owner/repo#123
 ```
 
-Every variable also has a `PULLS_REVIEW_*` form that takes precedence (`PULLS_REVIEW_GITHUB_TOKEN`, `PULLS_REVIEW_PROVIDER`, `PULLS_REVIEW_API_KEY`, `PULLS_REVIEW_MODEL`, `PULLS_REVIEW_BASE_URL`, `PULLS_REVIEW_LOCALE`); `npx pulls.review --help` lists everything.
+Every variable also has a `PULLS_REVIEW_*` form that takes precedence (`PULLS_REVIEW_GITHUB_TOKEN`, `PULLS_REVIEW_PROVIDER`, `PULLS_REVIEW_API_KEY`, `PULLS_REVIEW_MODEL`, `PULLS_REVIEW_BASE_URL`, `PULLS_REVIEW_LOCALE`); `npx @pulls.review/actions --help` lists everything.
 
 ## Packages
 
-| Package                                 | What it is                                                                           |
-| --------------------------------------- | ------------------------------------------------------------------------------------ |
-| [`packages/app`](./packages/app)        | The site at [pulls.review](https://pulls.review) and the github.com embed.           |
-| [`@pulls.review/core`](./packages/core) | Fetching, parsing, grouping and summarizing diffs - runs in the browser and in Node. |
-| [`pulls.review`](./packages/cli)        | The CLI the GitHub Action runs.                                                      |
+| Package                                       | What it is                                                                                      |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [`packages/app`](./packages/app)              | The site at [pulls.review](https://pulls.review) and the github.com embed.                      |
+| [`@pulls.review/core`](./packages/core)       | Fetching, parsing, grouping and summarizing diffs - runs in the browser and in Node.            |
+| [`@pulls.review/actions`](./packages/actions) | The CLI the GitHub Action runs.                                                                 |
+| [`pulls.review`](./packages/cli)              | The standalone CLI for reviewing local git changes. Not implemented yet - the name is reserved. |
 
 ## Credits
 

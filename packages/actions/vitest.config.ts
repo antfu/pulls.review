@@ -6,7 +6,7 @@ export default defineConfig({
     alias: [{ find: /^@pulls\.review\/core\/(.+)$/, replacement: `${fileURLToPath(new URL('../core/src/', import.meta.url))}$1.ts` }],
   },
   test: {
-    name: 'cli',
+    name: 'actions',
     environment: 'node',
   },
 })

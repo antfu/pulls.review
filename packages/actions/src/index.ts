@@ -8,7 +8,7 @@ import { Diagnostic, formatDiagnostic } from 'nostics'
 import { resolveGithubToken, resolveLocale, resolveTarget } from './config'
 import { run } from './run'
 
-const HELP = `Usage: pulls.review [owner/repo#123 | https://github.com/owner/repo/pull/123] [options]
+const HELP = `Usage: pulls-review-actions [owner/repo#123 | https://github.com/owner/repo/pull/123] [options]
 
 Analyzes the pull request with an LLM and posts (or updates) the grouped summary as
 a PR comment that pulls.review picks up. Without a target, reads the pull_request

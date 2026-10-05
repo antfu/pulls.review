@@ -21,14 +21,14 @@ inputs:
   locale:
     description: BCP 47 tag the summaries are written in (default `en`).
   version:
-    description: pulls.review package version to run.
+    description: @pulls.review/actions package version to run.
     default: latest
 
 runs:
   using: composite
   steps:
     - shell: bash
-      run: npx -y pulls.review@${{ inputs.version }}
+      run: npx -y @pulls.review/actions@${{ inputs.version }}
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         PULLS_REVIEW_PROVIDER: ${{ inputs.provider }}

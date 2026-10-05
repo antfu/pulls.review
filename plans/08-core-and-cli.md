@@ -1,4 +1,4 @@
-# Plan 08: `@pulls.review/core` and the `pulls.review` CLI / GitHub Action
+# Plan 08: `@pulls.review/core` and the `@pulls.review/actions` CLI / GitHub Action
 
 Status: **built**.
 
@@ -17,11 +17,11 @@ through a server we run, which is the invariant behind "zero backend".
 
 The repo is a pnpm workspace:
 
-| Package         | Name                          | Build  | Role                                                               |
-| --------------- | ----------------------------- | ------ | ------------------------------------------------------------------ |
-| `packages/app`  | `@pulls.review/app` (private) | Vite   | The SPA and the github.com embed.                                  |
-| `packages/core` | `@pulls.review/core`          | tsdown | Everything runtime-agnostic, as subpath entries (below).           |
-| `packages/cli`  | `pulls.review`                | tsdown | `pulls.review [owner/repo#n]`: fetch, analyze, upsert the comment. |
+| Package            | Name                          | Build  | Role                                                                       |
+| ------------------ | ----------------------------- | ------ | -------------------------------------------------------------------------- |
+| `packages/app`     | `@pulls.review/app` (private) | Vite   | The SPA and the github.com embed.                                          |
+| `packages/core`    | `@pulls.review/core`          | tsdown | Everything runtime-agnostic, as subpath entries (below).                   |
+| `packages/actions` | `@pulls.review/actions`       | tsdown | `pulls-review-actions [owner/repo#n]`: fetch, analyze, upsert the comment. |
 
 Core has no root barrel; each subpath is one `src/<entry>.ts` and one tsdown entry:
 
@@ -81,7 +81,7 @@ Resolution order everywhere: flag > `PULLS_REVIEW_*` > conventional variable.
 Target: a positional `owner/repo#123` or github.com PR URL; otherwise
 `GITHUB_REPOSITORY` + the `pull_request.number` in `GITHUB_EVENT_PATH`.
 
-Behaviour (`packages/cli/src/run.ts`):
+Behaviour (`packages/actions/src/run.ts`):
 
 1. Fetch the diff, the token's login and the PR's shared-analysis comments in
    parallel. A token that cannot call `/user` (the workflow `GITHUB_TOKEN`) is
@@ -94,16 +94,22 @@ Behaviour (`packages/cli/src/run.ts`):
 ## GitHub Action
 
 `action.yml` at the repo root is a composite action running
-`npx -y pulls.review@<version>` with the inputs mapped onto `PULLS_REVIEW_*`.
+`npx -y @pulls.review/actions@<version>` with the inputs mapped onto `PULLS_REVIEW_*`.
 Blank inputs arrive as `''`, which the CLI treats as unset.
 
 The README recommends `pull_request_target`: the CLI never checks out PR code
 (it reads the diff through the API), so exposing secrets to the job is safe and
 fork PRs get a comment too. `permissions: pull-requests: write` is required.
 
+## Naming
+
+`@pulls.review/actions` is only the CI entry point. The unscoped `pulls.review`
+package is for the standalone CLI (local git inspection through devframe, built
+on the `local` provider of Plan 04); it is not built yet.
+
 ## Publishing
 
-Both `@pulls.review/core` and `pulls.review` are publishable; the CLI depends on
+Both `@pulls.review/core` and `@pulls.review/actions` are publishable; the CLI depends on
 core as a normal dependency. The `@pulls.review` npm scope has to be claimed
 before the first release. Releases require explicit human approval.
 

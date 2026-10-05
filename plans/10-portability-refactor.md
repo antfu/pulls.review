@@ -63,7 +63,7 @@ more implementation of an interface that already exists.
   The getters are read on every call, so a token saved later applies without
   rebuilding anything. The app implements it from localStorage settings; the CLI
   implements it from env, using the resolver lifted from
-  `packages/cli/src/config.ts`.
+  `packages/actions/src/config.ts`.
 - **One GitHub client** (`createGithubClient({ credentials })`) owns the base
   URL, the request helper, pagination, GraphQL and `GithubApiError`. Every GitHub
   function takes the client instead of a token.
