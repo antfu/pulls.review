@@ -58,7 +58,7 @@
   "guide": {
     "userscript": {
       "title": "pulls.review を github.com に埋め込んで使う",
-      "intro": "プルリクエストを、いつもの場所でレビューしましょう。ユーザースクリプトは github.com のすべてのプルリクエストに pulls.review のパネルを追加し、グループ化されたファイルと要約をタブを切り替えずに表示します。",
+      "intro": "ユーザースクリプトは github.com のプルリクエストページに pulls.review のパネルを直接追加し、グループ化されたファイルと要約を表示します。タブを切り替える必要はありません。",
       "manager": "ユーザースクリプトマネージャーをインストールします: {tampermonkey} または {violentmonkey}。",
       "install": "pulls.review のユーザースクリプトをインストールします。マネージャーが確認を求めます。",
       "open": "github.com で任意のプルリクエストを開き、\"Files changed\" の隣にある {tab} タブをクリックします。",

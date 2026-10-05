@@ -58,7 +58,7 @@
   "guide": {
     "userscript": {
       "title": "Gunakan pulls.review tertanam di github.com",
-      "intro": "Tinjau pull request di tempatnya. Userscript menambahkan panel pulls.review ke setiap pull request di github.com, lengkap dengan file yang dikelompokkan dan ringkasan, tanpa berpindah tab.",
+      "intro": "Userscript menambahkan panel pulls.review langsung ke halaman pull request di github.com, lengkap dengan file yang dikelompokkan dan ringkasan, sehingga Anda tidak perlu berpindah tab.",
       "manager": "Pasang pengelola userscript: {tampermonkey} atau {violentmonkey}.",
       "install": "Pasang userscript pulls.review. Pengelola Anda akan meminta konfirmasi.",
       "open": "Buka pull request apa pun di github.com lalu klik tab {tab} di samping \"Files changed\".",

@@ -58,7 +58,7 @@
   "guide": {
     "userscript": {
       "title": "將 pulls.review 嵌入到 github.com 中使用",
-      "intro": "在拉取請求所在的地方直接審閱。使用者腳本會為 github.com 上的每個拉取請求加入 pulls.review 面板，顯示分組後的檔案與摘要，不必切換分頁。",
+      "intro": "使用者腳本會直接在 github.com 的拉取請求頁面中加入 pulls.review 面板，顯示分組後的檔案與摘要，不必切換分頁。",
       "manager": "安裝使用者腳本管理器：{tampermonkey} 或 {violentmonkey}。",
       "install": "安裝 pulls.review 使用者腳本，管理器會請你確認。",
       "open": "在 github.com 上開啟任一拉取請求，點擊 \"Files changed\" 旁的 {tab} 分頁。",

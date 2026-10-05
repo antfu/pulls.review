@@ -58,7 +58,7 @@
   "guide": {
     "userscript": {
       "title": "Utiliser pulls.review intégré à github.com",
-      "intro": "Relisez les pull requests là où elles se trouvent déjà. Le userscript ajoute un panneau pulls.review à chaque pull request sur github.com, avec fichiers groupés et résumés, sans changer d'onglet.",
+      "intro": "Le userscript ajoute un panneau pulls.review directement aux pages de pull request sur github.com, avec fichiers groupés et résumés, pour que vous n'ayez pas à changer d'onglet.",
       "manager": "Installez un gestionnaire de userscripts : {tampermonkey} ou {violentmonkey}.",
       "install": "Installez le userscript pulls.review. Votre gestionnaire vous demande de confirmer.",
       "open": "Ouvrez n'importe quelle pull request sur github.com et cliquez sur l'onglet {tab} à côté de \"Files changed\".",

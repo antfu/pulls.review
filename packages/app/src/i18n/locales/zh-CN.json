@@ -58,7 +58,7 @@
   "guide": {
     "userscript": {
       "title": "将 pulls.review 嵌入到 github.com 中使用",
-      "intro": "在拉取请求所在的地方直接审阅。用户脚本会为 github.com 上的每个拉取请求添加 pulls.review 面板，展示分组后的文件和摘要，无需切换标签页。",
+      "intro": "用户脚本会直接在 github.com 的拉取请求页面中添加 pulls.review 面板，展示分组后的文件和摘要，无需切换标签页。",
       "manager": "安装用户脚本管理器：{tampermonkey} 或 {violentmonkey}。",
       "install": "安装 pulls.review 用户脚本，管理器会请你确认。",
       "open": "在 github.com 上打开任意拉取请求，点击 \"Files changed\" 旁的 {tab} 标签。",

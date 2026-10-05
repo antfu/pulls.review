@@ -58,7 +58,7 @@
   "guide": {
     "userscript": {
       "title": "github.com에 임베드해서 pulls.review 사용",
-      "intro": "풀 리퀘스트가 있는 그 자리에서 리뷰하세요. 유저스크립트는 github.com의 모든 풀 리퀘스트에 pulls.review 패널을 추가해, 탭을 바꾸지 않고도 그룹화된 파일과 요약을 보여 줍니다.",
+      "intro": "유저스크립트는 github.com의 풀 리퀘스트 페이지에 pulls.review 패널을 바로 추가해 그룹화된 파일과 요약을 보여 주므로, 탭을 바꿀 필요가 없습니다.",
       "manager": "유저스크립트 관리자를 설치하세요: {tampermonkey} 또는 {violentmonkey}.",
       "install": "pulls.review 유저스크립트를 설치하세요. 관리자가 확인을 요청합니다.",
       "open": "github.com에서 아무 풀 리퀘스트나 열고 \"Files changed\" 옆의 {tab} 탭을 클릭하세요.",

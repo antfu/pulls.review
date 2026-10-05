@@ -58,7 +58,7 @@
   "guide": {
     "userscript": {
       "title": "pulls.review eingebettet auf github.com nutzen",
-      "intro": "Prüfe Pull Requests dort, wo sie ohnehin sind. Das Userscript fügt jedem Pull Request auf github.com eine pulls.review-Seitenleiste mit gruppierten Dateien und Zusammenfassungen hinzu, ganz ohne Tabwechsel.",
+      "intro": "Das Userscript fügt Pull-Request-Seiten auf github.com direkt eine pulls.review-Seitenleiste mit gruppierten Dateien und Zusammenfassungen hinzu, sodass du keinen Tab wechseln musst.",
       "manager": "Installiere einen Userscript-Manager: {tampermonkey} oder {violentmonkey}.",
       "install": "Installiere das pulls.review-Userscript. Dein Manager fragt nach einer Bestätigung.",
       "open": "Öffne einen beliebigen Pull Request auf github.com und klicke auf den Tab {tab} neben \"Files changed\".",

@@ -58,7 +58,7 @@
   "guide": {
     "userscript": {
       "title": "Use pulls.review embedded on github.com",
-      "intro": "Review pull requests where they already live. The userscript adds a pulls.review drawer to every pull request on github.com, with grouped files and summaries, so you never have to switch tabs.",
+      "intro": "The userscript adds a pulls.review drawer directly to pull request pages on github.com, with grouped files and summaries, so you don't have to switch tabs.",
       "manager": "Install a userscript manager: {tampermonkey} or {violentmonkey}.",
       "install": "Install the pulls.review userscript. Your manager asks you to confirm.",
       "open": "Open any pull request on github.com and click the {tab} tab next to \"Files changed\".",

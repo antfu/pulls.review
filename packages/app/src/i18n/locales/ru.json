@@ -58,7 +58,7 @@
   "guide": {
     "userscript": {
       "title": "pulls.review, встроенный в github.com",
-      "intro": "Проверяйте pull request'ы там, где они уже есть. Пользовательский скрипт добавляет панель pulls.review к каждому pull request на github.com: сгруппированные файлы и описания без переключения вкладок.",
+      "intro": "Пользовательский скрипт добавляет панель pulls.review прямо на страницы pull request'ов на github.com: сгруппированные файлы и описания, без переключения вкладок.",
       "manager": "Установите менеджер пользовательских скриптов: {tampermonkey} или {violentmonkey}.",
       "install": "Установите пользовательский скрипт pulls.review. Менеджер попросит подтверждение.",
       "open": "Откройте любой pull request на github.com и нажмите вкладку {tab} рядом с \"Files changed\".",

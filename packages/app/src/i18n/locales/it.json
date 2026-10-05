@@ -58,7 +58,7 @@
   "guide": {
     "userscript": {
       "title": "Usa pulls.review integrato su github.com",
-      "intro": "Rivedi le pull request dove si trovano già. Lo userscript aggiunge un pannello pulls.review a ogni pull request su github.com, con file raggruppati e riassunti, senza cambiare scheda.",
+      "intro": "Lo userscript aggiunge un pannello pulls.review direttamente alle pagine delle pull request su github.com, con file raggruppati e riassunti, così non devi cambiare scheda.",
       "manager": "Installa un gestore di userscript: {tampermonkey} o {violentmonkey}.",
       "install": "Installa lo userscript di pulls.review. Il gestore ti chiederà di confermare.",
       "open": "Apri una qualsiasi pull request su github.com e fai clic sulla scheda {tab} accanto a \"Files changed\".",
