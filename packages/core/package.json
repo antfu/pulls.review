@@ -38,20 +38,22 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
-  "devDependencies": {
+  "dependencies": {
     "@ai-sdk/gateway": "catalog:frontend",
     "@earendil-works/pi-agent-core": "catalog:frontend",
     "@earendil-works/pi-ai": "catalog:frontend",
-    "@types/node": "catalog:dev",
-    "@types/picomatch": "catalog:dev",
     "@valibot/to-json-schema": "catalog:frontend",
     "diff": "catalog:frontend",
     "lz-string-es": "catalog:frontend",
     "nostics": "catalog:frontend",
     "picomatch": "catalog:frontend",
-    "typescript": "catalog:dev",
     "unstorage": "catalog:frontend",
-    "valibot": "catalog:frontend",
+    "valibot": "catalog:frontend"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:dev",
+    "@types/picomatch": "catalog:dev",
+    "typescript": "catalog:dev",
     "vitest": "catalog:testing"
   }
 }
