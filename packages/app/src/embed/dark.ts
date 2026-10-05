@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 import { usePreferredDark } from '@vueuse/core'
-import { provide, ref, watch } from 'vue'
+import { provide, ref } from 'vue'
 import { isDarkKey } from '../state/dark'
 
 /**
@@ -9,7 +9,7 @@ import { isDarkKey } from '../state/dark'
  * Toggling a class on the root still works for UnoCSS's `.dark <selector>` dark-variant
  * classes, since normal descendant combinators apply fine within a shadow tree.
  */
-export function useEmbedDark(rootRef: Ref<HTMLElement | null>): Ref<boolean> {
+export function useEmbedDark(): Ref<boolean> {
   const colorMode = document.documentElement.dataset.colorMode
   const isDark = colorMode === 'auto'
     ? usePreferredDark()
@@ -18,14 +18,6 @@ export function useEmbedDark(rootRef: Ref<HTMLElement | null>): Ref<boolean> {
       : ref(false)
 
   provide(isDarkKey, isDark)
-
-  watch(
-    [rootRef, isDark],
-    ([root, dark]) => {
-      root?.classList.toggle('dark', dark)
-    },
-    { immediate: true },
-  )
 
   return isDark
 }

@@ -35,7 +35,7 @@ function loadWidth(): number {
 }
 
 const rootRef = useTemplateRef<HTMLDivElement>('root')
-useEmbedDark(rootRef)
+const isDark = useEmbedDark()
 // Not `useI18n()`: inside a custom element it needs its own `provide`; the global composer is the one installed anyway.
 const { t } = i18n.global
 const { updateAvailable } = useUserscriptUpdate(useAppContext().credentials)
@@ -140,7 +140,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="root">
+  <div ref="root" :class="{ dark: isDark }">
     <button
       v-if="pr && !open"
       type="button"
