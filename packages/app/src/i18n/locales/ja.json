@@ -74,6 +74,7 @@
     "ai": "AI",
     "by": "作成者",
     "sharedBy": "共有された AI 分析を表示中：",
+    "sharedAnalysis": "共有された分析を表示中",
     "reviewedOf": "/ {total} レビュー済み",
     "openInSite": "pulls.review で開く"
   },

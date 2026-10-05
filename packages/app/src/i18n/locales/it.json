@@ -74,6 +74,7 @@
     "ai": "IA",
     "by": "di",
     "sharedBy": "Analisi IA condivisa da",
+    "sharedAnalysis": "Analisi condivisa",
     "reviewedOf": "/ {total} revisionati",
     "openInSite": "Apri in pulls.review"
   },

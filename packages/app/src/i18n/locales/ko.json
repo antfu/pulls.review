@@ -74,6 +74,7 @@
     "ai": "AI",
     "by": "작성자",
     "sharedBy": "다음 사용자가 공유한 AI 분석을 보고 있습니다:",
+    "sharedAnalysis": "공유된 분석을 보고 있습니다",
     "reviewedOf": "/ {total} 리뷰 완료",
     "openInSite": "pulls.review에서 열기"
   },

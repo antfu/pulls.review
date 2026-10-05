@@ -74,6 +74,7 @@
     "ai": "AI",
     "by": "oleh",
     "sharedBy": "Melihat analisis AI yang dibagikan oleh",
+    "sharedAnalysis": "Melihat analisis bersama",
     "reviewedOf": "/ {total} ditinjau",
     "openInSite": "Buka di pulls.review"
   },

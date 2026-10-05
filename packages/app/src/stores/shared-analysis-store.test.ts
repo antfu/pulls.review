@@ -129,6 +129,21 @@ describe('discovery', () => {
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/issues/1/comments'))).toBe(false)
   })
 
+  it('auto-loads the github-actions[bot] analysis when there is no AI result', async () => {
+    await seedCache({})
+    stubFetch([commentsRoute([
+      issueComment(2, 'antfu', aiResult(), diff.head!.sha, '2026-09-29T00:00:00Z'),
+      issueComment(3, 'github-actions[bot]', aiResult({ overallSummary: 'CI summary' })),
+    ])])
+    const store = storeFor()
+
+    await store.load()
+    await settle()
+
+    expect(store.grouped).toMatchObject({ overallSummary: 'CI summary', sharedBy: 'github-actions[bot]' })
+    expect(store.shared!.candidates).toEqual([])
+  })
+
   it('loads a candidate into the cache under its source, credited and without chat', async () => {
     await seedCache({})
     stubFetch([commentsRoute([issueComment(2, 'antfu', aiResult({ overallSummary: 'Shared summary' }))])])

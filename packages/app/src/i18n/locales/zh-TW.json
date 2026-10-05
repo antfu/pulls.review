@@ -74,6 +74,7 @@
     "ai": "AI",
     "by": "作者",
     "sharedBy": "正在檢視由以下使用者分享的 AI 分析",
+    "sharedAnalysis": "正在檢視共享的分析",
     "reviewedOf": "/ {total} 已審閱",
     "openInSite": "在 pulls.review 中開啟"
   },

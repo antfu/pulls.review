@@ -74,6 +74,7 @@
     "ai": "IA",
     "by": "por",
     "sharedBy": "Vendo a análise de IA compartilhada por",
+    "sharedAnalysis": "Vendo a análise compartilhada",
     "reviewedOf": "/ {total} revisados",
     "openInSite": "Abrir no pulls.review"
   },

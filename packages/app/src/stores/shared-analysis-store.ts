@@ -2,6 +2,7 @@ import type { CacheRepositories } from '@pulls.review/core/cache'
 import type { DiffsPayload, GroupedResult, SharingApi } from '@pulls.review/core/types'
 import type { DiffsStoreShared, SharedAnalysisCandidate } from './types'
 import type { WriteAccess } from './write-access'
+import { ACTIONS_BOT_LOGIN } from '@pulls.review/core/github'
 import { reactive, ref } from 'vue'
 import { t } from '../i18n'
 import { localizeError } from '../i18n/core-messages'
@@ -40,8 +41,9 @@ export function createSharedAnalysisStore(api: SharingApi, opts: SharedAnalysisS
 
   /**
    * Scans the PR's comments for shared analyses. Without `from`, only when the
-   * store holds no AI result yet (one request, best-effort). With `from`, always:
-   * that user's result loads directly unless it would replace a locally generated one.
+   * store holds no AI result yet (one request, best-effort); a `github-actions[bot]`
+   * result loads directly. With `from`, always: that user's result loads directly
+   * unless it would replace a locally generated one.
    */
   async function discover(from?: string) {
     await access.resolve()
@@ -71,21 +73,20 @@ export function createSharedAnalysisStore(api: SharingApi, opts: SharedAnalysisS
       stale: comment.analysis.headSha !== headSha,
     })
 
-    if (from) {
-      const target = found.find(comment => comment.login === from)
-      if (target) {
-        const hasLocalResult = current !== undefined && current.sharedBy === undefined
-        if (hasLocalResult)
-          candidates.value = [toCandidate(target)]
-        else
-          await apply(toCandidate(target))
-        return
-      }
-      notice.value = t('share.notShared', { login: from })
-      if (current)
-        return
+    // Without `from`, the repo's CI analysis stands in for one the viewer has not generated.
+    const target = found.find(comment => comment.login === (from ?? ACTIONS_BOT_LOGIN))
+    if (target) {
+      const hasLocalResult = current !== undefined && current.sharedBy === undefined
+      if (hasLocalResult)
+        candidates.value = [toCandidate(target)]
+      else
+        await apply(toCandidate(target))
+      return
     }
-    candidates.value = found.map(toCandidate)
+    if (from)
+      notice.value = t('share.notShared', { login: from })
+    if (!current)
+      candidates.value = found.map(toCandidate)
   }
 
   async function load(login: string) {

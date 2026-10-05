@@ -11,6 +11,9 @@ const MARKER = '<!-- pulls.review data -->'
 /** GitHub caps comment bodies at 65536 characters. */
 const MAX_BODY_LENGTH = 60_000
 
+/** The author GitHub shows for a workflow's `GITHUB_TOKEN` - the CLI's comments in CI. */
+export const ACTIONS_BOT_LOGIN = 'github-actions[bot]'
+
 export interface PullRequestRef { owner: string, repo: string, number: string }
 
 export interface GithubIssueCommentJson {

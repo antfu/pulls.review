@@ -3,6 +3,7 @@ import type { GroupSource } from '@pulls.review/core/types'
 import type { DiffsStore } from '../../stores/types'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import ActionToggleGroup from '@antfu/design/components/Action/ActionToggleGroup.vue'
+import { ACTIONS_BOT_LOGIN } from '@pulls.review/core/github'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -115,9 +116,14 @@ function scrollToGroup(key: string) {
           <span class="border border-base rounded bg-code px-2 py-0.5 text-xs font-mono">{{ meta.head.ref }}</span>
         </span>
         <span v-if="aiResult?.sharedBy && store.analyzeMode !== 'rule-based'" class="flex items-center gap-1.5 border border-base rounded px2" :title="aiResult.model">
-          {{ $t('pr.sharedBy') }}
-          <GithubAvatar :login="aiResult.sharedBy" :size="16" />
-          {{ aiResult.sharedBy }}
+          <template v-if="aiResult.sharedBy === ACTIONS_BOT_LOGIN">
+            {{ $t('pr.sharedAnalysis') }}
+          </template>
+          <template v-else>
+            {{ $t('pr.sharedBy') }}
+            <GithubAvatar :login="aiResult.sharedBy" :size="16" />
+            {{ aiResult.sharedBy }}
+          </template>
         </span>
         <DiffAnalyzeButton v-if="store.llm" :store="store" :document="document" />
         <DiffShareButton v-if="canShareResult" :store="store" :document="document" />

@@ -74,6 +74,7 @@
     "ai": "AI",
     "by": "by",
     "sharedBy": "Viewing AI analysis shared by",
+    "sharedAnalysis": "Viewing Shared Analysis",
     "reviewedOf": "/ {total} reviewed",
     "openInSite": "Open in pulls.review"
   },

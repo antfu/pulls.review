@@ -5,11 +5,8 @@ import type { Locale } from '@pulls.review/core/locales'
 import type { AnalyzeProgress } from '@pulls.review/core/types'
 import { resolveModel } from '@pulls.review/core/analyze'
 import { diagnostics } from '@pulls.review/core/diagnostics'
-import { createGithubPullRequestSource } from '@pulls.review/core/github'
+import { ACTIONS_BOT_LOGIN, createGithubPullRequestSource } from '@pulls.review/core/github'
 import { staticCredentials } from '@pulls.review/core/types'
-
-/** The author GitHub shows for a workflow's `GITHUB_TOKEN`, which cannot look itself up at `/user`. */
-const ACTIONS_BOT_LOGIN = 'github-actions[bot]'
 
 export interface RunOptions {
   pr: PullRequestRef
@@ -48,6 +45,7 @@ export async function run({ pr, githubToken, llm, locale, log }: RunOptions, ana
   const source = createGithubPullRequestSource(pr, staticCredentials(githubToken))
   const [diff, login, comments] = await Promise.all([
     source.fetch(),
+    // A workflow's `GITHUB_TOKEN` cannot look itself up at `/user`.
     source.viewer().then(viewer => viewer?.login ?? ACTIONS_BOT_LOGIN, () => ACTIONS_BOT_LOGIN),
     source.sharing.list(),
   ])

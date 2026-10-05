@@ -61,7 +61,9 @@ there instead of paying for their own run.
 - **Discovery** runs after the diff loads, only when the store holds no AI
   result yet: one `GET .../issues/{n}/comments?per_page=100` (first page
   only, best-effort). Candidates are ordered newest first; the viewer's own
-  comment is offered too, labelled "you". Dismiss is in-memory.
+  comment is offered too, labelled "you". Dismiss is in-memory. A
+  `github-actions[bot]` comment (the CLI in CI) loads silently instead, and is
+  labelled "Viewing Shared Analysis" rather than credited to the bot.
 - **`?from=login`** (site): no AI result -> load that user's comment silently;
   a local AI result exists -> banner "X shared an analysis - Load (replaces
   yours)"; not found -> notice plus normal discovery. The URL is untouched.

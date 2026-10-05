@@ -74,6 +74,7 @@
     "ai": "KI",
     "by": "von",
     "sharedBy": "Geteilte KI-Analyse von",
+    "sharedAnalysis": "Geteilte Analyse",
     "reviewedOf": "/ {total} reviewt",
     "openInSite": "In pulls.review öffnen"
   },

@@ -74,6 +74,7 @@
     "ai": "ИИ",
     "by": "автор",
     "sharedBy": "Просмотр ИИ-анализа, которым поделился",
+    "sharedAnalysis": "Просмотр общего анализа",
     "reviewedOf": "/ {total} проверено",
     "openInSite": "Открыть в pulls.review"
   },
