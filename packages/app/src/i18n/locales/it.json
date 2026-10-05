@@ -77,7 +77,7 @@
       "intro": "Rivedi la tua modifica prima di chiunque altro. La CLI apre in pulls.review il lavoro non ancora committato, un commit o un intero branch, così vedi come si legge la modifica, raggruppata e riassunta, prima del push o di aprire una PR.",
       "workingTree": "In un repository git, esegui questo per rivedere tutto ciò che non hai ancora committato, file nuovi compresi:",
       "target": "Passa un commit o un intervallo per rivedere quello:",
-      "live": "Tieni la scheda aperta mentre lavori. Quando i file cambiano, propone di caricare il nuovo diff, e i file già segnati come rivisti restano segnati finché non cambiano. Se il tuo branch ha già una PR aperta, un banner la collega."
+      "browser": "Apre {url} nel browser per visualizzare le tue modifiche locali. Da lì puoi anche scegliere branch o commit da confrontare."
     }
   },
   "load": {

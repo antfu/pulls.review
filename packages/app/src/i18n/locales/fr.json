@@ -77,7 +77,7 @@
       "intro": "Relisez votre propre modification avant les autres. La CLI ouvre votre travail non commité, un commit ou une branche entière dans pulls.review, pour voir comment la modification se lit, groupée et résumée, avant de pousser ou d'ouvrir une PR.",
       "workingTree": "Dans un dépôt git, lancez ceci pour relire tout ce qui n'est pas encore commité, nouveaux fichiers compris :",
       "target": "Passez un commit ou une plage pour relire cela à la place :",
-      "live": "Gardez l'onglet ouvert pendant que vous travaillez. Quand des fichiers changent, il propose de charger le nouveau diff, et les fichiers déjà marqués comme relus le restent tant qu'ils ne changent pas. Si votre branche a déjà une PR ouverte, un bandeau y renvoie."
+      "browser": "Elle ouvre {url} dans votre navigateur pour visualiser vos modifications locales. Vous pouvez aussi y choisir des branches ou des commits à comparer."
     }
   },
   "load": {

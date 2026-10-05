@@ -77,7 +77,7 @@
       "intro": "Tinjau perubahan Anda sendiri sebelum orang lain. CLI membuka pekerjaan yang belum di-commit, sebuah commit, atau seluruh branch di pulls.review, sehingga Anda bisa melihat perubahan dalam bentuk kelompok dan ringkasan sebelum push atau membuka PR.",
       "workingTree": "Di repositori git, jalankan ini untuk meninjau semua yang belum di-commit, termasuk file baru:",
       "target": "Berikan commit atau rentang untuk meninjaunya:",
-      "live": "Biarkan tab tetap terbuka saat bekerja. Saat file berubah, tab menawarkan untuk memuat diff baru, dan file yang sudah ditandai ditinjau tetap ditandai selama tidak berubah. Jika branch Anda sudah punya PR terbuka, sebuah banner menautkannya."
+      "browser": "CLI membuka {url} di browser untuk menampilkan perubahan lokal Anda. Di sana Anda juga bisa memilih branch atau commit untuk dibandingkan."
     }
   },
   "load": {

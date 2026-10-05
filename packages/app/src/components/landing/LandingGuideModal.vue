@@ -96,13 +96,17 @@ npx pulls.review main...HEAD # everything your branch adds`
       <ol v-else-if="guide === 'cli'" class="guide-steps">
         <li>
           {{ $t('guide.cli.workingTree') }}
-          <GuideCode code="npx pulls.review --open" lang="shellscript" />
+          <GuideCode code="npx pulls.review" lang="shellscript" />
         </li>
         <li>
           {{ $t('guide.cli.target') }}
           <GuideCode :code="CLI_TARGETS" lang="shellscript" />
         </li>
-        <li>{{ $t('guide.cli.live') }}</li>
+        <i18n-t keypath="guide.cli.browser" tag="li" scope="global">
+          <template #url>
+            <code>http://localhost:&lt;port&gt;/</code>
+          </template>
+        </i18n-t>
       </ol>
     </div>
   </AppModal>

@@ -77,7 +77,7 @@
       "intro": "Revisa tu propio cambio antes que nadie. La CLI abre tu trabajo sin commit, un commit o una rama entera en pulls.review, para que veas cómo se lee el cambio, agrupado y resumido, antes de hacer push o abrir un PR.",
       "workingTree": "En un repositorio git, ejecuta esto para revisar todo lo que aún no has confirmado, incluidos los archivos nuevos:",
       "target": "Pasa un commit o un rango para revisarlo en su lugar:",
-      "live": "Deja la pestaña abierta mientras trabajas. Cuando cambian los archivos, ofrece cargar el nuevo diff, y los archivos que ya marcaste como revisados siguen marcados si no cambian. Si tu rama ya tiene un PR abierto, un aviso enlaza a él."
+      "browser": "Abre {url} en tu navegador para visualizar tus cambios locales. Desde ahí también puedes elegir ramas o commits para comparar."
     }
   },
   "load": {

@@ -77,7 +77,7 @@
       "intro": "Prüfe deine eigene Änderung, bevor es andere tun. Die CLI öffnet deine nicht committete Arbeit, einen Commit oder einen ganzen Branch in pulls.review. So siehst du gruppiert und zusammengefasst, wie sich die Änderung liest, bevor du pushst oder einen PR öffnest.",
       "workingTree": "Führe das in einem Git-Repository aus, um alles zu prüfen, was noch nicht committet ist, inklusive neuer Dateien:",
       "target": "Übergib einen Commit oder einen Bereich, um stattdessen diesen zu prüfen:",
-      "live": "Lass den Tab beim Arbeiten offen. Ändern sich Dateien, bietet er an, den neuen Diff zu laden. Als geprüft markierte Dateien bleiben markiert, solange sie sich nicht ändern. Hat dein Branch schon einen offenen PR, verlinkt ein Banner darauf."
+      "browser": "Sie öffnet {url} im Browser und zeigt deine lokalen Änderungen an. Dort kannst du auch Branches oder Commits zum Vergleichen auswählen."
     }
   },
   "load": {

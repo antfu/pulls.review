@@ -77,7 +77,7 @@
       "intro": "Review your own change before anyone else does. The CLI opens your uncommitted work, a commit or a whole branch in pulls.review, so you can see how the change reads, grouped and summarized, before you push or open a PR.",
       "workingTree": "In a git repository, run this to review everything you haven't committed yet, new files included:",
       "target": "Pass a commit or a range to review that instead:",
-      "live": "Keep the tab open while you work. When files change, it offers to load the new diff, and files you already marked as reviewed stay marked unless they change. If your branch already has an open PR, a banner links to it."
+      "browser": "It opens {url} in your browser to visualize your local changes. From there, you can also pick branches or commits to compare."
     }
   },
   "load": {
