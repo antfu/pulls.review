@@ -312,6 +312,7 @@
   },
   "settings": {
     "layout": "diff レイアウト",
+    "wrapLines": "行を折り返す",
     "unified": "統合",
     "split": "分割",
     "syntaxTheme": {

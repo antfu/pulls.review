@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import ActionToggleGroup from '@antfu/design/components/Action/ActionToggleGroup.vue'
+import FormCheckbox from '@antfu/design/components/Form/FormCheckbox.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { layout } from '../../state/layout'
+import { wrapLines } from '../../state/wrap-lines'
 
 // Same singleton `DiffsHeader.vue`'s layout toggle used to write through
 // `store.ui.setLayout` - a shared app-wide preference, so this section reads
@@ -24,5 +26,8 @@ const layoutOptions = computed(() => [
       :options="layoutOptions"
       @update:model-value="layout = ($event as 'split' | 'unified')"
     />
+    <div class="mt-3">
+      <FormCheckbox v-model="wrapLines" :label="$t('settings.wrapLines')" />
+    </div>
   </div>
 </template>

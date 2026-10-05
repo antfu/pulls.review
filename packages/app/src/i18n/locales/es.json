@@ -312,6 +312,7 @@
   },
   "settings": {
     "layout": "Disposición del diff",
+    "wrapLines": "Ajustar líneas",
     "unified": "Unificada",
     "split": "Dividida",
     "syntaxTheme": {

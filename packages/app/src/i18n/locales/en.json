@@ -312,6 +312,7 @@
   },
   "settings": {
     "layout": "Diff layout",
+    "wrapLines": "Wrap lines",
     "unified": "Unified",
     "split": "Split",
     "syntaxTheme": {

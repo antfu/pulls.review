@@ -312,6 +312,7 @@
   },
   "settings": {
     "layout": "Вид diff",
+    "wrapLines": "Переносить строки",
     "unified": "Единый",
     "split": "Раздельный",
     "syntaxTheme": {

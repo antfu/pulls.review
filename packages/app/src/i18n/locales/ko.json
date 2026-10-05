@@ -312,6 +312,7 @@
   },
   "settings": {
     "layout": "Diff 레이아웃",
+    "wrapLines": "줄 바꿈",
     "unified": "통합",
     "split": "분할",
     "syntaxTheme": {

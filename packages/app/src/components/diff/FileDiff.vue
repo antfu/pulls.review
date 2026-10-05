@@ -9,6 +9,7 @@ import { FileDiff as PierreFileDiff, processFile, VirtualizedFileDiff } from '@p
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { isDark as globalIsDark, isDarkKey } from '../../state/dark'
 import { syntaxTheme } from '../../state/syntax-theme'
+import { wrapLines } from '../../state/wrap-lines'
 import CommentComposer from './CommentComposer.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffStats from './DiffStats.vue'
@@ -254,6 +255,7 @@ const effectiveLayout = computed<'split' | 'unified'>(() => {
 
 const pierreOptions = computed((): FileDiffOptions<undefined, undefined> => ({
   diffStyle: effectiveLayout.value,
+  overflow: wrapLines.value ? 'wrap' : 'scroll',
   // Plain clone, not the computed's object - pierre compares/caches it (see `lineAnnotations`).
   theme: { ...syntaxTheme.value },
   themeType: isDark.value ? 'dark' : 'light',

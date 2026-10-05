@@ -312,6 +312,7 @@
   },
   "settings": {
     "layout": "Diff 布局",
+    "wrapLines": "自动换行",
     "unified": "统一",
     "split": "分栏",
     "syntaxTheme": {

@@ -312,6 +312,7 @@
   },
   "settings": {
     "layout": "Tata letak diff",
+    "wrapLines": "Bungkus baris",
     "unified": "Gabungan",
     "split": "Terpisah",
     "syntaxTheme": {
