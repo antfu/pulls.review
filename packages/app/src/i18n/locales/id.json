@@ -74,10 +74,10 @@
     },
     "cli": {
       "title": "Tinjau perubahan git lokal dengan CLI",
-      "intro": "Tinjau perubahan Anda sendiri sebelum orang lain. CLI membuka pekerjaan yang belum di-commit, sebuah commit, atau seluruh branch di pulls.review, sehingga Anda bisa melihat perubahan dalam bentuk kelompok dan ringkasan sebelum push atau membuka PR.",
-      "workingTree": "Di repositori git, jalankan ini untuk meninjau semua yang belum di-commit, termasuk file baru:",
-      "target": "Berikan commit atau rentang untuk meninjaunya:",
-      "browser": "CLI membuka {url} di browser untuk menampilkan perubahan lokal Anda. Di sana Anda juga bisa memilih branch atau commit untuk dibandingkan."
+      "intro": "Tinjau perubahan Anda sendiri sebelum orang lain. CLI membuka branch Anda, sebuah commit, atau pekerjaan yang belum di-commit di pulls.review, sehingga Anda bisa melihat perubahan dalam bentuk kelompok dan ringkasan sebelum push atau membuka PR.",
+      "branch": "Di repositori git, jalankan ini untuk meninjau branch saat ini terhadap branch default:",
+      "target": "Atau pilih apa yang ingin ditinjau:",
+      "browser": "CLI membuka {url} di browser untuk menampilkan perubahan lokal Anda. Konfirmasi tab dengan kode sekali pakai yang tercetak di terminal. Di sana Anda juga bisa memilih branch atau commit lain untuk dibandingkan."
     }
   },
   "load": {

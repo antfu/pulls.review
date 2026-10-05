@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import AppModal from '../AppModal.vue'
+import ExternalLink from './ExternalLink.vue'
 import GuideCode from './GuideCode.vue'
 
 export type LandingGuide = 'userscript' | 'actions' | 'cli'
@@ -26,8 +27,9 @@ jobs:
         with:
           api-key: \${{ secrets.VERCEL_AI_GATEWAY_API_KEY }}`
 
-const CLI_TARGETS = `npx pulls.review HEAD~1      # the previous commit
-npx pulls.review main...HEAD # everything your branch adds`
+const CLI_TARGETS = `npx pulls.review main...feat # what feat adds since it forked from main
+npx pulls.review HEAD        # the last commit
+npx pulls.review --worktree  # uncommitted changes, new files included`
 </script>
 
 <template>
@@ -45,10 +47,14 @@ npx pulls.review main...HEAD # everything your branch adds`
       <ol v-if="guide === 'userscript'" class="guide-steps">
         <i18n-t keypath="guide.userscript.manager" tag="li" scope="global">
           <template #tampermonkey>
-            <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener" class="color-base hover:underline">Tampermonkey</a>
+            <ExternalLink href="https://www.tampermonkey.net/">
+              Tampermonkey
+            </ExternalLink>
           </template>
           <template #violentmonkey>
-            <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener" class="color-base hover:underline">Violentmonkey</a>
+            <ExternalLink href="https://violentmonkey.github.io/">
+              Violentmonkey
+            </ExternalLink>
           </template>
         </i18n-t>
         <li>
@@ -89,14 +95,16 @@ npx pulls.review main...HEAD # everything your branch adds`
             <code>locale</code>
           </template>
           <template #readme>
-            <a href="https://github.com/antfu/pulls.review#analyze-pull-requests-from-ci-experimental" target="_blank" rel="noopener" class="color-base hover:underline">README</a>
+            <ExternalLink href="https://github.com/antfu/pulls.review#analyze-pull-requests-from-ci-experimental">
+              README
+            </ExternalLink>
           </template>
         </i18n-t>
       </ol>
 
       <ol v-else-if="guide === 'cli'" class="guide-steps">
         <li>
-          {{ $t('guide.cli.workingTree') }}
+          {{ $t('guide.cli.branch') }}
           <GuideCode code="npx pulls.review" lang="shellscript" />
         </li>
         <li>

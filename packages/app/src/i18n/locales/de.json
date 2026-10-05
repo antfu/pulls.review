@@ -74,10 +74,10 @@
     },
     "cli": {
       "title": "Lokale Git-Änderungen mit der CLI prüfen",
-      "intro": "Prüfe deine eigene Änderung, bevor es andere tun. Die CLI öffnet deine nicht committete Arbeit, einen Commit oder einen ganzen Branch in pulls.review. So siehst du gruppiert und zusammengefasst, wie sich die Änderung liest, bevor du pushst oder einen PR öffnest.",
-      "workingTree": "Führe das in einem Git-Repository aus, um alles zu prüfen, was noch nicht committet ist, inklusive neuer Dateien:",
-      "target": "Übergib einen Commit oder einen Bereich, um stattdessen diesen zu prüfen:",
-      "browser": "Sie öffnet {url} im Browser und zeigt deine lokalen Änderungen an. Dort kannst du auch Branches oder Commits zum Vergleichen auswählen."
+      "intro": "Prüfe deine eigene Änderung, bevor es andere tun. Die CLI öffnet deinen Branch, einen Commit oder deine nicht committete Arbeit in pulls.review. So siehst du gruppiert und zusammengefasst, wie sich die Änderung liest, bevor du pushst oder einen PR öffnest.",
+      "branch": "Führe das in einem Git-Repository aus, um deinen aktuellen Branch gegen den Standard-Branch zu prüfen:",
+      "target": "Oder wähle, was du prüfen willst:",
+      "browser": "Sie öffnet {url} im Browser und zeigt deine lokalen Änderungen an. Bestätige den Tab mit dem Einmalcode aus deinem Terminal. Dort kannst du auch andere Branches oder Commits zum Vergleichen auswählen."
     }
   },
   "load": {

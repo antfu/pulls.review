@@ -74,10 +74,10 @@
     },
     "cli": {
       "title": "Revise mudanças locais do git com a CLI",
-      "intro": "Revise sua própria mudança antes de qualquer outra pessoa. A CLI abre no pulls.review o trabalho ainda sem commit, um commit ou uma branch inteira, para você ver como a mudança se lê, agrupada e resumida, antes do push ou de abrir um PR.",
-      "workingTree": "Em um repositório git, rode isto para revisar tudo o que ainda não foi commitado, incluindo arquivos novos:",
-      "target": "Passe um commit ou um intervalo para revisar isso:",
-      "browser": "Ela abre {url} no navegador para visualizar suas mudanças locais. Lá você também pode escolher branches ou commits para comparar."
+      "intro": "Revise sua própria mudança antes de qualquer outra pessoa. A CLI abre no pulls.review sua branch, um commit ou o trabalho ainda sem commit, para você ver como a mudança se lê, agrupada e resumida, antes do push ou de abrir um PR.",
+      "branch": "Em um repositório git, rode isto para revisar sua branch atual em relação à branch padrão:",
+      "target": "Ou escolha o que revisar:",
+      "browser": "Ela abre {url} no navegador para visualizar suas mudanças locais. Confirme a aba com o código de uso único exibido no terminal. Lá você também pode escolher outras branches ou commits para comparar."
     }
   },
   "load": {

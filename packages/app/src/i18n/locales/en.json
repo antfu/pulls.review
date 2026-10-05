@@ -74,10 +74,10 @@
     },
     "cli": {
       "title": "Review local git changes with the CLI",
-      "intro": "Review your own change before anyone else does. The CLI opens your uncommitted work, a commit or a whole branch in pulls.review, so you can see how the change reads, grouped and summarized, before you push or open a PR.",
-      "workingTree": "In a git repository, run this to review everything you haven't committed yet, new files included:",
-      "target": "Pass a commit or a range to review that instead:",
-      "browser": "It opens {url} in your browser to visualize your local changes. From there, you can also pick branches or commits to compare."
+      "intro": "Review your own change before anyone else does. The CLI opens your branch, a commit or your uncommitted work in pulls.review, so you can see how the change reads, grouped and summarized, before you push or open a PR.",
+      "branch": "In a git repository, run this to review your current branch against the default branch:",
+      "target": "Or choose what to review:",
+      "browser": "It opens {url} in your browser to visualize your local changes. Confirm the tab with the one-time code printed in your terminal. From there, you can also pick other branches or commits to compare."
     }
   },
   "load": {

@@ -9,6 +9,7 @@ import { useRouter } from 'vue-router'
 import AppFooter from '../components/AppFooter.vue'
 import AppHeader from '../components/AppHeader.vue'
 import DiffPill from '../components/DiffPill.vue'
+import ExternalLink from '../components/landing/ExternalLink.vue'
 import LandingDemo from '../components/landing/LandingDemo.vue'
 import LandingGuideModal from '../components/landing/LandingGuideModal.vue'
 import LandingHero from '../components/landing/LandingHero.vue'
@@ -220,10 +221,14 @@ useDocumentTitle(() => t('landing.documentTitle'), ' - ')
               </h2>
               <i18n-t keypath="landing.embedDescription" tag="p" class="text-sm op-fade" scope="global">
                 <template #tampermonkey>
-                  <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener" class="color-base hover:underline">Tampermonkey</a>
+                  <ExternalLink href="https://www.tampermonkey.net/">
+                    Tampermonkey
+                  </ExternalLink>
                 </template>
                 <template #violentmonkey>
-                  <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener" class="color-base hover:underline">Violentmonkey</a>
+                  <ExternalLink href="https://violentmonkey.github.io/">
+                    Violentmonkey
+                  </ExternalLink>
                 </template>
               </i18n-t>
             </div>

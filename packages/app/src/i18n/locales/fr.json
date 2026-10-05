@@ -74,10 +74,10 @@
     },
     "cli": {
       "title": "Relire des modifications git locales avec la CLI",
-      "intro": "Relisez votre propre modification avant les autres. La CLI ouvre votre travail non commité, un commit ou une branche entière dans pulls.review, pour voir comment la modification se lit, groupée et résumée, avant de pousser ou d'ouvrir une PR.",
-      "workingTree": "Dans un dépôt git, lancez ceci pour relire tout ce qui n'est pas encore commité, nouveaux fichiers compris :",
-      "target": "Passez un commit ou une plage pour relire cela à la place :",
-      "browser": "Elle ouvre {url} dans votre navigateur pour visualiser vos modifications locales. Vous pouvez aussi y choisir des branches ou des commits à comparer."
+      "intro": "Relisez votre propre modification avant les autres. La CLI ouvre votre branche, un commit ou votre travail non commité dans pulls.review, pour voir comment la modification se lit, groupée et résumée, avant de pousser ou d'ouvrir une PR.",
+      "branch": "Dans un dépôt git, lancez ceci pour relire votre branche actuelle par rapport à la branche par défaut :",
+      "target": "Ou choisissez quoi relire :",
+      "browser": "Elle ouvre {url} dans votre navigateur pour visualiser vos modifications locales. Confirmez l'onglet avec le code à usage unique affiché dans votre terminal. Vous pouvez aussi y choisir d'autres branches ou commits à comparer."
     }
   },
   "load": {
