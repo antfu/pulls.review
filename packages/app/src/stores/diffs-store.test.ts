@@ -262,6 +262,13 @@ describe('createDiffsStore over any source', () => {
     expect(createDiffsStore(createPasteSource(PATCH_TEXT), { cache, credentials: staticCredentials() }).fileContent).toBeUndefined()
   })
 
+  it('can refresh only a source with a fingerprint, and names the credential the source asks for', () => {
+    const live = createDiffsStore({ ...fakeSource({ sha: 'a' }), auth: 'github-token' }, { cache, credentials: staticCredentials() })
+    const paste = createDiffsStore(createPasteSource(PATCH_TEXT), { cache, credentials: staticCredentials() })
+    expect([live.canRefresh, live.auth]).toEqual([true, 'github-token'])
+    expect([paste.canRefresh, paste.auth]).toEqual([false, undefined])
+  })
+
   it('offers no review threads or shared analyses for a source that is not a GitHub PR', () => {
     const store = createDiffsStore(fakeSource({ sha: 'a' }), { cache, credentials: staticCredentials() })
     expect(store.reviews).toBeUndefined()

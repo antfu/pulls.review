@@ -35,7 +35,8 @@ describe('normalizePullRequest', () => {
     expect(diff).toMatchObject({
       ref: { kind: 'github-pr', owner: 'owner', repo: 'repo', number: '1' },
       title: 'Add feature',
-      pullRequest: { author: 'antfu' },
+      label: '#1',
+      author: { name: 'antfu' },
       base: { ref: 'main' },
       head: { ref: 'feature' },
     })

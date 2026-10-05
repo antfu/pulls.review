@@ -16,6 +16,7 @@ import { useDocumentTitle } from '../composables/useDocumentTitle'
 import { useRecentPullRequests } from '../composables/useRecentPullRequests'
 import { useRecentRepositories } from '../composables/useRecentRepositories'
 import { formatTimeAgo } from '../i18n/time-ago'
+import { routeFromGithubUrl } from '../source-routes'
 
 const DEMO_PRS = [
   { owner: 'slidevjs', repo: 'slidev', number: 2746, state: 'open', title: 'feat: arrange slides on a grid' },
@@ -29,14 +30,7 @@ const { locale, t } = useI18n()
 const url = ref('')
 const loadDiffOpen = ref(false)
 
-// A PR URL opens the diff view; a bare repo URL (or its `/pulls` page) opens the PR list.
-const parsed = computed(() => {
-  const match = url.value.trim().match(/github\.com\/([^/\s]+)\/([^/\s#?]+)(?:\/pull\/(\d+)|\/pulls\/?)?(?:[/?#]|$)/)
-  if (!match)
-    return undefined
-  const [, owner, repo, number] = match
-  return number ? `/gh/${owner}/${repo}/${number}` : `/gh/${owner}/${repo}`
-})
+const parsed = computed(() => routeFromGithubUrl(url.value))
 
 function go() {
   if (parsed.value)

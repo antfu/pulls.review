@@ -85,13 +85,13 @@ export const ZeroFiles: Story = {
 
 /**
  * A GitHub load failure (e.g. a missing/expired token) surfaces the token field inline
- * in the error fallback - `reviews` marks the source as GitHub, which gates it on.
+ * in the error fallback - the store's `auth` names the token as the fix.
  */
 export const GithubLoadError: Story = {
   args: {
     store: createMockDiffsStore({
       error: new Error('GitHub API request failed: 401 Bad credentials'),
-      reviews: {},
+      auth: 'github-token',
     }),
   },
 }
@@ -101,6 +101,7 @@ export const PasteLoadError: Story = {
   args: {
     store: createMockDiffsStore({
       error: new Error('Could not parse this diff'),
+      canRefresh: false,
     }),
   },
 }

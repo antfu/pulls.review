@@ -7,6 +7,7 @@ import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
+import { parentForRef } from '../../source-routes'
 import GithubAvatar from '../GithubAvatar.vue'
 import NavControls from '../NavControls.vue'
 import DiffAnalyzeButton from './DiffAnalyzeButton.vue'
@@ -48,7 +49,7 @@ const analyzeOptions = computed(() => [
 // Share is for results the viewer generated - a loaded shared result is credited, not re-shared.
 const canShareResult = computed(() => props.store.shared && props.store.llm && aiResult.value && !aiResult.value.sharedBy)
 
-const githubRef = computed(() => meta.value.ref.kind === 'github-pr' ? meta.value.ref : undefined)
+const parent = computed(() => parentForRef(meta.value.ref))
 
 const reviews = computed(() => props.store.reviews)
 const reviewModalOpen = ref(false)
@@ -72,9 +73,9 @@ function scrollToGroup(key: string) {
         </component>
         <h1 class="flex flex-auto items-center gap-2 break-words text-lg font-semibold">
           {{ meta.title }}
-          <a v-if="githubRef" :href="meta.url" target="_blank" rel="noopener" class="text-base font-normal op-fade hover:underline">#{{ githubRef.number }}</a>
+          <a v-if="meta.label" :href="meta.url" target="_blank" rel="noopener" class="text-base font-normal op-fade hover:underline">{{ meta.label }}</a>
           <ActionIconButton
-            v-if="githubRef"
+            v-if="store.canRefresh"
             icon="i-ph:arrows-clockwise-duotone"
             :label="$t('common.refresh')" :tooltip="$t('common.refresh')"
             class="shrink-0 text-sm" @click="store.refresh()"
@@ -104,13 +105,13 @@ function scrollToGroup(key: string) {
       </div>
 
       <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-sm">
-        <RouterLink v-if="githubRef && !isEmbedded" :to="`/gh/${githubRef.owner}/${githubRef.repo}`" class="flex items-center gap-1.5 op-fade hover:underline">
-          <span>{{ githubRef.owner }}/{{ githubRef.repo }}</span>
+        <RouterLink v-if="parent && !isEmbedded" :to="parent.route" class="flex items-center gap-1.5 op-fade hover:underline">
+          <span>{{ parent.label }}</span>
         </RouterLink>
-        <span v-if="meta.pullRequest?.author" class="flex items-center gap-1.5">
+        <span v-if="meta.author" class="flex items-center gap-1.5">
           <span class="op-fade">{{ $t('pr.by') }}</span>
-          <GithubAvatar :login="meta.pullRequest.author" :size="16" />
-          <span class="op-fade">{{ meta.pullRequest.author }}</span>
+          <GithubAvatar :login="meta.author.name" :avatar-url="meta.author.avatarUrl" :size="16" />
+          <span class="op-fade">{{ meta.author.name }}</span>
         </span>
         <span v-if="meta.base && meta.head && !isEmbedded" class="flex items-center gap-1 font-mono">
           <span class="border border-base rounded bg-code px-2 py-0.5 text-xs font-mono">{{ meta.base.ref }}</span>

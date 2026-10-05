@@ -7,6 +7,7 @@
       "number": "1"
     },
     "title": "Example pull request with commits newer than its analysis",
+    "label": "#1",
     "description": "An LLM analysis was produced at an earlier head; since then one file was removed, one renamed and one added.",
     "url": "https://github.com/antfu/diffs/pull/1",
     "base": {
@@ -19,9 +20,10 @@
     },
     "createdAt": "2026-09-16T00:00:00.000Z",
     "updatedAt": "2026-09-17T00:00:00.000Z",
-    "pullRequest": {
-      "author": "antfu"
+    "author": {
+      "name": "antfu"
     },
+    "pullRequest": {},
     "files": [
       {
         "path": "src/feature/index.ts",

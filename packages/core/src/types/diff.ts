@@ -38,7 +38,6 @@ export type PullRequestState = v.InferOutput<typeof PullRequestStateSchema>
  * flattened, so a payload with no `pullRequest` is unambiguously "not a PR".
  */
 export const PullRequestMetaSchema = v.object({
-  author: v.optional(v.string()),
   state: v.optional(PullRequestStateSchema),
 })
 export type PullRequestMeta = v.InferOutput<typeof PullRequestMetaSchema>
@@ -62,6 +61,9 @@ const RefSchema = v.object({
 export const DiffsPayloadSchema = v.object({
   ref: SourceRefSchema,
   title: v.string(), // "Pasted diff" default for paste, no PR title available
+  /** Short identifier shown after the title and linked to `url`, e.g. `#123`. */
+  label: v.optional(v.string()),
+  author: v.optional(v.object({ name: v.string(), avatarUrl: v.optional(v.string()) })),
   description: v.optional(v.string()), // raw markdown body; absent for paste
   url: v.optional(v.string()), // permalink to source, absent for local/paste
   // base/head are only meaningful when the source actually has them (github

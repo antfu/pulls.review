@@ -122,6 +122,8 @@ export async function normalizePullRequest(
   return {
     ref: { kind: 'github-pr', owner, repo, number },
     title: pr.title,
+    label: `#${number}`,
+    author: pr.user ? { name: pr.user.login, avatarUrl: pr.user.avatar_url } : undefined,
     description: pr.body ?? '',
     url: pr.html_url,
     base: { sha: pr.base.sha, ref: pr.base.ref },
@@ -129,7 +131,6 @@ export async function normalizePullRequest(
     createdAt: pr.created_at,
     updatedAt: pr.updated_at,
     pullRequest: {
-      author: pr.user?.login,
       state: resolveState(pr),
     },
     commits: commits.map(({ sha, commit }) => ({ sha, message: commit.message })),

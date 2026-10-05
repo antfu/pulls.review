@@ -62,7 +62,11 @@ analysis strategy later never touches the view layer:
   load path and derives what it offers from those members, never from which
   kind of source it holds. Every payload carries a structured `ref`
   (`SourceRef`, a valibot variant by `kind`); `serializeRef(ref)` is the only
-  key formula, and nothing parses ids back. `Credentials.githubToken()` is read
+  key formula, and nothing parses ids back. Views render a diff's header from
+  neutral payload fields (`label`, `url`, `author`) and store flags
+  (`canRefresh` from `fingerprint`, `auth` from the source), and link through
+  `app/source-routes.ts` - the only module that maps refs to routes and back -
+  so no component checks a ref's `kind` or spells out a `/gh/...` path. `Credentials.githubToken()` is read
   per request, so a token saved later applies without rebuilding a store.
   Implementations (`core/providers/`):
   - `github-pr` (`createGithubPullRequestSource`) — GitHub REST API (PR

@@ -4,7 +4,7 @@ import { GithubApiError } from './client'
 export interface GithubPullRequestJson {
   title: string
   body: string | null
-  user: { login: string } | null
+  user: { login: string, avatar_url?: string } | null
   base: { ref: string, sha: string }
   head: { ref: string, sha: string }
   created_at: string
