@@ -12,6 +12,8 @@ const props = defineProps<{
   title?: string
   description?: string
   document?: Document | ShadowRoot
+  /** Wider dialog with roomier padding, for reading content rather than a form. */
+  spacious?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -51,9 +53,13 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
         role="dialog"
         aria-modal="true"
         :aria-label="title"
-        class="relative z-modal-content max-h-full max-w-xl w-full flex flex-col overflow-hidden border border-base rounded-lg bg-base shadow-xl outline-none"
+        class="relative z-modal-content max-h-full w-full flex flex-col overflow-hidden border border-base rounded-lg bg-base shadow-xl outline-none"
+        :class="spacious ? 'max-w-2xl' : 'max-w-xl'"
       >
-        <header v-if="title || description || $slots.header" class="flex shrink-0 items-start justify-between gap-2 border-b border-base px-3 py-2">
+        <header
+          v-if="title || description || $slots.header" class="flex shrink-0 items-start justify-between gap-2 border-b border-base"
+          :class="spacious ? 'px-6 py-3' : 'px-3 py-2'"
+        >
           <div class="min-w-0">
             <h2 v-if="title" class="color-base font-medium">
               {{ title }}
@@ -67,7 +73,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
             <span class="i-ph:x" aria-hidden="true" />
           </button>
         </header>
-        <div class="flex-1 overflow-auto p-3">
+        <div class="flex-1 overflow-auto" :class="spacious ? 'p-6' : 'p-3'">
           <slot />
         </div>
         <footer v-if="$slots.footer" class="flex shrink-0 justify-end gap-2 border-t border-base px-2 py-2">

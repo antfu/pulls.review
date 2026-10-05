@@ -34,6 +34,7 @@ npx pulls.review main...HEAD # everything your branch adds`
   <AppModal
     :open="!!guide"
     :title="guide && $t(`guide.${guide}.title`)"
+    spacious
     @update:open="guide = undefined"
   >
     <div v-if="guide" class="flex flex-col gap-4 text-sm">
