@@ -357,7 +357,8 @@
       "worktree": "未提交的更改",
       "recentCommits": "最近的提交",
       "branches": "分支",
-      "against": "对比 {base}"
+      "against": "对比 {base}",
+      "current": "当前分支"
     }
   }
 }

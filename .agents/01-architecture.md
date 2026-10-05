@@ -332,9 +332,13 @@ land later without a rewrite:
 - Settings (GitHub PAT, later model keys) and loading a pasted/uploaded diff
   are both modals/panels (`SettingsModal.vue`/`LoadDiffModal.vue` wrapping
   pure `*Panel.vue` content), triggered from `AppHeader.vue` — never routed
-  pages. `AppHeader` itself only renders on `pages/index.vue` (the `/gh/...`
-  and `/upload` reading views stay header-free; their own sticky
-  `DiffsHeader` is the only scroll nav there).
+  pages. `AppHeader` itself only renders on the landing pages
+  (`pages-web/index.vue`, and `pages-local/index.vue` in the `PR_LOCAL`
+  build). The reading views stay header-free: their own sticky `DiffsHeader`
+  is the only scroll nav there.
+- Routed pages live in `app/pages-web/` (the site: landing, `/upload`,
+  `/gh/...`) and `app/pages-local/` (only registered by the `PR_LOCAL` build:
+  the ref picker and the local review page).
 - A generated userscript (`scripts/build-userscript.ts`) mounts
   `<pulls-review-embed-panel>` (`app/embed/`, a Vue custom element built as
   one IIFE with `PR_EMBED` on and `PR_LLM` off) into `github.com` pull request

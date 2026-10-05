@@ -357,7 +357,8 @@
       "worktree": "Perubahan yang belum di-commit",
       "recentCommits": "Commit terbaru",
       "branches": "Branch",
-      "against": "terhadap {base}"
+      "against": "terhadap {base}",
+      "current": "Branch saat ini"
     }
   }
 }

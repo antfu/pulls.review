@@ -41,9 +41,9 @@ export async function installLocal(app: App, router: Router): Promise<void> {
   })
   app.provide(localRpcKey, rpc)
 
-  for (const route of localRoutes(() => import('../pages/local.vue')))
+  for (const route of localRoutes(() => import('../pages-local/diff.vue')))
     router.addRoute(route)
   // The ref picker replaces the site's landing page.
   router.removeRoute('home')
-  router.addRoute({ path: '/', component: () => import('../pages/local-picker.vue') })
+  router.addRoute({ path: '/', component: () => import('../pages-local/index.vue') })
 }

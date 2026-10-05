@@ -357,7 +357,8 @@
       "worktree": "Nicht committete Änderungen",
       "recentCommits": "Letzte Commits",
       "branches": "Branches",
-      "against": "gegen {base}"
+      "against": "gegen {base}",
+      "current": "Ausgecheckt"
     }
   }
 }

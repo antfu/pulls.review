@@ -357,7 +357,8 @@
       "worktree": "Cambios sin confirmar",
       "recentCommits": "Commits recientes",
       "branches": "Ramas",
-      "against": "frente a {base}"
+      "against": "frente a {base}",
+      "current": "Rama actual"
     }
   }
 }

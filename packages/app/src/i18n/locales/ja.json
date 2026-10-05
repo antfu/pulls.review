@@ -357,7 +357,8 @@
       "worktree": "コミットされていない変更",
       "recentCommits": "最近のコミット",
       "branches": "ブランチ",
-      "against": "{base} に対して"
+      "against": "{base} に対して",
+      "current": "チェックアウト中"
     }
   }
 }
