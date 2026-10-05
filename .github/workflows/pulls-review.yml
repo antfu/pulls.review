@@ -1,0 +1,39 @@
+name: pulls.review
+
+on:
+  # Checks out and runs the base branch, never PR code, so `pull_request_target`
+  # is safe with the secret and lets fork PRs get a comment too.
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: pulls-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install
+
+      # Dogfood the CLI as built from the default branch rather than the published package.
+      - name: Build
+        run: pnpm -F "pulls-review..." run build
+
+      - name: Analyze
+        run: node packages/cli/dist/index.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          AI_GATEWAY_API_KEY: ${{ secrets.VERCEL_AI_GATEWAY_API_KEY }}
