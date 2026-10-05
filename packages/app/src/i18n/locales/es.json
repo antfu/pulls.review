@@ -46,9 +46,38 @@
     "uploadTitle": "Revisa un diff sin PR",
     "uploadDescription": "Sube o pega un unified diff, o suelta un archivo {diff} / {patch} en cualquier parte de esta página.",
     "uploadButton": "Subir un diff",
-    "embedTitle": "Úsalo directamente en github.com",
+    "embedTitle": "Úsalo integrado en github.com",
     "embedDescription": "Con {tampermonkey} o {violentmonkey} instalado, aparece un panel de pulls.review en cada página de pull request.",
-    "installUserscript": "Instalar userscript"
+    "installUserscript": "Instalar userscript",
+    "actionsTitle": "Configura el análisis automático con GitHub Actions",
+    "actionsDescription": "Analiza cada pull request una vez en CI y publica el resultado como comentario, para que cada revisor no necesite su propia clave de modelo.",
+    "cliTitle": "Ejecútalo sobre cambios locales de git con la CLI",
+    "cliDescription": "Revisa tu árbol de trabajo, un commit o una rama desde la terminal, antes de hacer push.",
+    "comingSoon": "Próximamente",
+    "viewGuide": "Ver guía"
+  },
+  "guide": {
+    "userscript": {
+      "title": "Usa pulls.review integrado en github.com",
+      "manager": "Instala un gestor de userscripts: {tampermonkey} o {violentmonkey}.",
+      "install": "Instala el userscript de pulls.review. Tu gestor te pedirá confirmación.",
+      "open": "Abre cualquier pull request en github.com y haz clic en la pestaña {tab} junto a \"Files changed\".",
+      "ai": "github.com bloquea las solicitudes que necesita el análisis con IA, así que el panel muestra los análisis compartidos como comentarios del PR. Abre el PR en pulls.review para ejecutar uno nuevo."
+    },
+    "actions": {
+      "title": "Análisis automático con GitHub Actions",
+      "secret": "Añade tu clave de modelo como secreto del repositorio, por ejemplo {name}.",
+      "workflow": "Añade este workflow al repositorio:",
+      "result": "Cada pull request recibe el análisis como comentario. pulls.review lo carga para todos los que abren el PR, sin clave.",
+      "options": "El {provider} se deduce de la clave. Define {provider}, {model} o {locale} para cambiarlo. Consulta el {readme} para ver todas las opciones."
+    },
+    "cli": {
+      "title": "Revisa cambios locales de git con la CLI",
+      "soon": "La CLI aún no está publicada. Así es como funcionará.",
+      "workingTree": "En un repositorio git, revisa el árbol de trabajo (archivos preparados, sin preparar y sin seguimiento):",
+      "target": "O pasa un objetivo con la sintaxis de revisiones de git:",
+      "pr": "Mientras tanto, {pkg} analiza un pull request de GitHub desde la terminal y publica el resultado como comentario:"
+    }
   },
   "load": {
     "title": "Cargar un diff",

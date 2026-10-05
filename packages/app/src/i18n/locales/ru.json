@@ -46,9 +46,38 @@
     "uploadTitle": "Ревью diff без PR",
     "uploadDescription": "Загрузите или вставьте unified diff либо перетащите файл {diff} / {patch} в любое место этой страницы.",
     "uploadButton": "Загрузить diff",
-    "embedTitle": "Используйте прямо на github.com",
+    "embedTitle": "Встроенный режим на github.com",
     "embedDescription": "С установленным {tampermonkey} или {violentmonkey} панель pulls.review появляется на каждой странице pull request.",
-    "installUserscript": "Установить userscript"
+    "installUserscript": "Установить userscript",
+    "actionsTitle": "Настройте автоанализ через GitHub Actions",
+    "actionsDescription": "Анализируйте каждый pull request один раз в CI и публикуйте результат комментарием, чтобы каждому ревьюеру не нужен был свой ключ модели.",
+    "cliTitle": "Запуск на локальных изменениях git через CLI",
+    "cliDescription": "Проверяйте рабочее дерево, коммит или ветку из терминала, ещё до push.",
+    "comingSoon": "Скоро",
+    "viewGuide": "Открыть руководство"
+  },
+  "guide": {
+    "userscript": {
+      "title": "pulls.review, встроенный в github.com",
+      "manager": "Установите менеджер пользовательских скриптов: {tampermonkey} или {violentmonkey}.",
+      "install": "Установите пользовательский скрипт pulls.review. Менеджер попросит подтверждение.",
+      "open": "Откройте любой pull request на github.com и нажмите вкладку {tab} рядом с \"Files changed\".",
+      "ai": "github.com блокирует запросы, нужные для ИИ-анализа, поэтому панель показывает анализы, опубликованные комментариями в PR. Чтобы запустить новый, откройте PR на pulls.review."
+    },
+    "actions": {
+      "title": "Автоанализ через GitHub Actions",
+      "secret": "Добавьте ключ модели как секрет репозитория, например {name}.",
+      "workflow": "Добавьте этот workflow в репозиторий:",
+      "result": "Каждый pull request получает анализ комментарием. pulls.review загружает его для всех, кто открывает PR, без ключа.",
+      "options": "{provider} определяется по ключу. Задайте {provider}, {model} или {locale}, чтобы переопределить. Все параметры описаны в {readme}."
+    },
+    "cli": {
+      "title": "Проверка локальных изменений git через CLI",
+      "soon": "CLI ещё не выпущен. Вот как он будет работать.",
+      "workingTree": "В git-репозитории проверьте рабочее дерево (проиндексированные, непроиндексированные и неотслеживаемые файлы):",
+      "target": "Или укажите цель в синтаксисе ревизий git:",
+      "pr": "А пока {pkg} анализирует pull request на GitHub из терминала и публикует результат комментарием:"
+    }
   },
   "load": {
     "title": "Загрузить diff",

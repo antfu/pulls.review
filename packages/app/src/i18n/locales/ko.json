@@ -46,9 +46,38 @@
     "uploadTitle": "PR 없이 diff 리뷰하기",
     "uploadDescription": "unified diff를 업로드하거나 붙여 넣거나, {diff} / {patch} 파일을 이 페이지 어디든 놓으세요.",
     "uploadButton": "diff 업로드",
-    "embedTitle": "github.com에서 바로 사용",
+    "embedTitle": "github.com에 임베드해서 사용",
     "embedDescription": "{tampermonkey} 또는 {violentmonkey}를 설치하면 모든 pull request 페이지에 pulls.review 서랍이 나타납니다.",
-    "installUserscript": "유저스크립트 설치"
+    "installUserscript": "유저스크립트 설치",
+    "actionsTitle": "GitHub Actions로 자동 분석 설정",
+    "actionsDescription": "CI에서 모든 풀 리퀘스트를 한 번 분석하고 결과를 PR 댓글로 게시하므로, 리뷰어마다 모델 키가 필요하지 않습니다.",
+    "cliTitle": "CLI로 로컬 git 변경 사항에 실행",
+    "cliDescription": "push하기 전에 터미널에서 작업 트리, 커밋, 브랜치를 리뷰하세요.",
+    "comingSoon": "출시 예정",
+    "viewGuide": "가이드 보기"
+  },
+  "guide": {
+    "userscript": {
+      "title": "github.com에 임베드해서 pulls.review 사용",
+      "manager": "유저스크립트 관리자를 설치하세요: {tampermonkey} 또는 {violentmonkey}.",
+      "install": "pulls.review 유저스크립트를 설치하세요. 관리자가 확인을 요청합니다.",
+      "open": "github.com에서 아무 풀 리퀘스트나 열고 \"Files changed\" 옆의 {tab} 탭을 클릭하세요.",
+      "ai": "github.com은 AI 분석에 필요한 요청을 차단하므로, 패널에는 PR 댓글로 공유된 분석이 표시됩니다. 새로 분석하려면 pulls.review에서 PR을 여세요."
+    },
+    "actions": {
+      "title": "GitHub Actions로 자동 분석",
+      "secret": "모델 키를 저장소 시크릿으로 추가하세요. 예: {name}.",
+      "workflow": "이 워크플로를 저장소에 추가하세요:",
+      "result": "모든 풀 리퀘스트에 분석이 댓글로 게시됩니다. PR을 여는 모든 사람이 키 없이 pulls.review에서 불러올 수 있습니다.",
+      "options": "{provider}는 키에서 추론됩니다. 바꾸려면 {provider}, {model}, {locale}을 설정하세요. 모든 옵션은 {readme}를 참고하세요."
+    },
+    "cli": {
+      "title": "CLI로 로컬 git 변경 사항 리뷰",
+      "soon": "CLI는 아직 출시되지 않았습니다. 다음과 같이 동작할 예정입니다.",
+      "workingTree": "git 저장소에서 작업 트리(스테이징된, 스테이징되지 않은, 추적되지 않은 파일)를 리뷰합니다:",
+      "target": "또는 git 리비전 문법으로 대상을 지정합니다:",
+      "pr": "그전까지는 {pkg}로 터미널에서 GitHub 풀 리퀘스트를 분석하고 결과를 댓글로 게시할 수 있습니다:"
+    }
   },
   "load": {
     "title": "diff 불러오기",

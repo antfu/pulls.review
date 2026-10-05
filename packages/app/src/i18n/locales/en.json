@@ -46,9 +46,38 @@
     "uploadTitle": "Review a diff without a PR",
     "uploadDescription": "Upload or paste a unified diff, or drop a {diff} / {patch} file anywhere on this page.",
     "uploadButton": "Upload a diff",
-    "embedTitle": "Use it directly on github.com",
+    "embedTitle": "Use it embedded on github.com",
     "embedDescription": "With {tampermonkey} or {violentmonkey} installed, a pulls.review drawer appears on every pull request page.",
-    "installUserscript": "Install userscript"
+    "installUserscript": "Install userscript",
+    "actionsTitle": "Set up auto analyze with GitHub Actions",
+    "actionsDescription": "Analyze every pull request once in CI and post the result as a PR comment, so reviewers don't each need a model key.",
+    "cliTitle": "Run on local git changes with the CLI",
+    "cliDescription": "Review your working tree, a commit or a branch from the terminal, before you push.",
+    "comingSoon": "Coming soon",
+    "viewGuide": "View guide"
+  },
+  "guide": {
+    "userscript": {
+      "title": "Use pulls.review embedded on github.com",
+      "manager": "Install a userscript manager: {tampermonkey} or {violentmonkey}.",
+      "install": "Install the pulls.review userscript. Your manager asks you to confirm.",
+      "open": "Open any pull request on github.com and click the {tab} tab next to \"Files changed\".",
+      "ai": "github.com blocks the requests AI analysis needs, so the drawer shows analyses shared as PR comments. Open the PR on pulls.review to run a new one."
+    },
+    "actions": {
+      "title": "Auto analyze with GitHub Actions",
+      "secret": "Add your model key as a repository secret, for example {name}.",
+      "workflow": "Add this workflow to the repository:",
+      "result": "Every pull request gets the analysis as a comment. pulls.review loads it for everyone who opens the PR, without a key.",
+      "options": "The {provider} is inferred from the key. Set {provider}, {model} or {locale} to override it. See the {readme} for every option."
+    },
+    "cli": {
+      "title": "Review local git changes with the CLI",
+      "soon": "The CLI isn't released yet. This is how it will work.",
+      "workingTree": "In a git repository, review the working tree (staged, unstaged and untracked files):",
+      "target": "Or pass a target in git's revision syntax:",
+      "pr": "Until then, {pkg} analyzes a GitHub pull request from the terminal and posts the result as a comment:"
+    }
   },
   "load": {
     "title": "Load a diff",

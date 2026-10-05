@@ -46,9 +46,38 @@
     "uploadTitle": "Relire un diff sans PR",
     "uploadDescription": "Importez ou collez un unified diff, ou déposez un fichier {diff} / {patch} n'importe où sur cette page.",
     "uploadButton": "Importer un diff",
-    "embedTitle": "Utilisez-le directement sur github.com",
+    "embedTitle": "Utilisez-le intégré à github.com",
     "embedDescription": "Avec {tampermonkey} ou {violentmonkey} installé, un panneau pulls.review apparaît sur chaque page de pull request.",
-    "installUserscript": "Installer le userscript"
+    "installUserscript": "Installer le userscript",
+    "actionsTitle": "Configurer l'analyse automatique avec GitHub Actions",
+    "actionsDescription": "Analysez chaque pull request une fois en CI et publiez le résultat en commentaire, pour que chaque relecteur n'ait pas besoin de sa propre clé de modèle.",
+    "cliTitle": "Lancez-le sur vos modifications git locales avec la CLI",
+    "cliDescription": "Relisez votre arbre de travail, un commit ou une branche depuis le terminal, avant de pousser.",
+    "comingSoon": "Bientôt",
+    "viewGuide": "Voir le guide"
+  },
+  "guide": {
+    "userscript": {
+      "title": "Utiliser pulls.review intégré à github.com",
+      "manager": "Installez un gestionnaire de userscripts : {tampermonkey} ou {violentmonkey}.",
+      "install": "Installez le userscript pulls.review. Votre gestionnaire vous demande de confirmer.",
+      "open": "Ouvrez n'importe quelle pull request sur github.com et cliquez sur l'onglet {tab} à côté de \"Files changed\".",
+      "ai": "github.com bloque les requêtes nécessaires à l'analyse IA : le panneau affiche donc les analyses partagées en commentaire. Ouvrez la PR sur pulls.review pour en lancer une nouvelle."
+    },
+    "actions": {
+      "title": "Analyse automatique avec GitHub Actions",
+      "secret": "Ajoutez votre clé de modèle comme secret du dépôt, par exemple {name}.",
+      "workflow": "Ajoutez ce workflow au dépôt :",
+      "result": "Chaque pull request reçoit l'analyse en commentaire. pulls.review la charge pour toute personne qui ouvre la PR, sans clé.",
+      "options": "Le {provider} est déduit de la clé. Définissez {provider}, {model} ou {locale} pour le remplacer. Toutes les options sont dans le {readme}."
+    },
+    "cli": {
+      "title": "Relire des modifications git locales avec la CLI",
+      "soon": "La CLI n'est pas encore publiée. Voici comment elle fonctionnera.",
+      "workingTree": "Dans un dépôt git, relisez l'arbre de travail (fichiers indexés, non indexés et non suivis) :",
+      "target": "Ou passez une cible dans la syntaxe de révisions de git :",
+      "pr": "En attendant, {pkg} analyse une pull request GitHub depuis le terminal et publie le résultat en commentaire :"
+    }
   },
   "load": {
     "title": "Charger un diff",

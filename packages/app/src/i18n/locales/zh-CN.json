@@ -46,9 +46,38 @@
     "uploadTitle": "无需 PR 审阅 diff",
     "uploadDescription": "上传或粘贴 unified diff，或将 {diff} / {patch} 文件拖放到本页任意位置。",
     "uploadButton": "上传 diff",
-    "embedTitle": "直接在 github.com 上使用",
+    "embedTitle": "嵌入到 github.com 中使用",
     "embedDescription": "安装 {tampermonkey} 或 {violentmonkey} 后，每个 pull request 页面都会出现 pulls.review 侧边栏。",
-    "installUserscript": "安装用户脚本"
+    "installUserscript": "安装用户脚本",
+    "actionsTitle": "通过 GitHub Actions 设置自动分析",
+    "actionsDescription": "在 CI 中对每个拉取请求分析一次，并将结果作为 PR 评论发布，审阅者无需各自准备模型密钥。",
+    "cliTitle": "通过 CLI 用于本地 git 改动",
+    "cliDescription": "在推送之前，从终端审阅工作区、某个提交或某个分支。",
+    "comingSoon": "即将推出",
+    "viewGuide": "查看指南"
+  },
+  "guide": {
+    "userscript": {
+      "title": "将 pulls.review 嵌入到 github.com 中使用",
+      "manager": "安装用户脚本管理器：{tampermonkey} 或 {violentmonkey}。",
+      "install": "安装 pulls.review 用户脚本，管理器会请你确认。",
+      "open": "在 github.com 上打开任意拉取请求，点击 \"Files changed\" 旁的 {tab} 标签。",
+      "ai": "github.com 会拦截 AI 分析所需的请求，因此面板只显示以 PR 评论形式分享的分析。如需重新分析，请在 pulls.review 上打开该 PR。"
+    },
+    "actions": {
+      "title": "通过 GitHub Actions 自动分析",
+      "secret": "将模型密钥添加为仓库 secret，例如 {name}。",
+      "workflow": "将此 workflow 添加到仓库：",
+      "result": "每个拉取请求都会收到一条分析评论。任何人打开该 PR 时，pulls.review 都会自动加载，无需密钥。",
+      "options": "{provider} 会根据密钥推断。可设置 {provider}、{model} 或 {locale} 进行覆盖。全部选项见 {readme}。"
+    },
+    "cli": {
+      "title": "通过 CLI 审阅本地 git 改动",
+      "soon": "CLI 尚未发布，以下是它将来的用法。",
+      "workingTree": "在 git 仓库中审阅工作区（已暂存、未暂存和未跟踪的文件）：",
+      "target": "或使用 git 的修订语法指定目标：",
+      "pr": "在此之前，可以用 {pkg} 从终端分析 GitHub 拉取请求，并将结果作为评论发布："
+    }
   },
   "load": {
     "title": "加载 diff",

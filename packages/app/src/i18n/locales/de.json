@@ -46,9 +46,38 @@
     "uploadTitle": "Ein Diff ohne PR reviewen",
     "uploadDescription": "Lade ein Unified Diff hoch oder füge es ein, oder ziehe eine {diff}- / {patch}-Datei irgendwo auf diese Seite.",
     "uploadButton": "Diff hochladen",
-    "embedTitle": "Direkt auf github.com nutzen",
+    "embedTitle": "Eingebettet auf github.com nutzen",
     "embedDescription": "Mit installiertem {tampermonkey} oder {violentmonkey} erscheint auf jeder Pull-Request-Seite ein pulls.review-Panel.",
-    "installUserscript": "Userscript installieren"
+    "installUserscript": "Userscript installieren",
+    "actionsTitle": "Automatische Analyse mit GitHub Actions einrichten",
+    "actionsDescription": "Jeden Pull Request einmal in der CI analysieren und das Ergebnis als PR-Kommentar posten, damit nicht jeder Reviewer einen eigenen Modell-Key braucht.",
+    "cliTitle": "Lokale Git-Änderungen mit der CLI prüfen",
+    "cliDescription": "Prüfe Working Tree, einen Commit oder einen Branch im Terminal, bevor du pushst.",
+    "comingSoon": "Demnächst",
+    "viewGuide": "Anleitung ansehen"
+  },
+  "guide": {
+    "userscript": {
+      "title": "pulls.review eingebettet auf github.com nutzen",
+      "manager": "Installiere einen Userscript-Manager: {tampermonkey} oder {violentmonkey}.",
+      "install": "Installiere das pulls.review-Userscript. Dein Manager fragt nach einer Bestätigung.",
+      "open": "Öffne einen beliebigen Pull Request auf github.com und klicke auf den Tab {tab} neben \"Files changed\".",
+      "ai": "github.com blockiert die Anfragen, die die KI-Analyse braucht. Die Seitenleiste zeigt daher als PR-Kommentar geteilte Analysen. Öffne den PR auf pulls.review, um eine neue zu starten."
+    },
+    "actions": {
+      "title": "Automatische Analyse mit GitHub Actions",
+      "secret": "Lege deinen Modell-Key als Repository-Secret an, zum Beispiel {name}.",
+      "workflow": "Füge diesen Workflow zum Repository hinzu:",
+      "result": "Jeder Pull Request erhält die Analyse als Kommentar. pulls.review lädt sie für alle, die den PR öffnen, ohne Key.",
+      "options": "Der {provider} wird aus dem Key abgeleitet. Setze {provider}, {model} oder {locale}, um das zu überschreiben. Alle Optionen stehen in der {readme}."
+    },
+    "cli": {
+      "title": "Lokale Git-Änderungen mit der CLI prüfen",
+      "soon": "Die CLI ist noch nicht veröffentlicht. So wird sie funktionieren.",
+      "workingTree": "Prüfe in einem Git-Repository den Working Tree (gestagte, ungestagte und nicht verfolgte Dateien):",
+      "target": "Oder übergib ein Ziel in Gits Revisionssyntax:",
+      "pr": "Bis dahin analysiert {pkg} einen GitHub-Pull-Request im Terminal und postet das Ergebnis als Kommentar:"
+    }
   },
   "load": {
     "title": "Diff laden",

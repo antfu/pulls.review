@@ -46,9 +46,38 @@
     "uploadTitle": "PR なしで diff をレビュー",
     "uploadDescription": "unified diff をアップロードまたは貼り付けるか、{diff} / {patch} ファイルをこのページのどこかにドロップしてください。",
     "uploadButton": "diff をアップロード",
-    "embedTitle": "github.com 上で直接使う",
+    "embedTitle": "github.com に埋め込んで使う",
     "embedDescription": "{tampermonkey} または {violentmonkey} をインストールすると、すべての pull request ページに pulls.review のドロワーが表示されます。",
-    "installUserscript": "ユーザースクリプトをインストール"
+    "installUserscript": "ユーザースクリプトをインストール",
+    "actionsTitle": "GitHub Actions で自動解析を設定する",
+    "actionsDescription": "CI で各プルリクエストを一度だけ解析し、結果を PR コメントとして投稿します。レビュアーごとにモデルのキーを用意する必要はありません。",
+    "cliTitle": "CLI でローカルの git の変更に使う",
+    "cliDescription": "push する前に、ワーキングツリー・コミット・ブランチをターミナルからレビューできます。",
+    "comingSoon": "近日公開",
+    "viewGuide": "ガイドを見る"
+  },
+  "guide": {
+    "userscript": {
+      "title": "pulls.review を github.com に埋め込んで使う",
+      "manager": "ユーザースクリプトマネージャーをインストールします: {tampermonkey} または {violentmonkey}。",
+      "install": "pulls.review のユーザースクリプトをインストールします。マネージャーが確認を求めます。",
+      "open": "github.com で任意のプルリクエストを開き、\"Files changed\" の隣にある {tab} タブをクリックします。",
+      "ai": "github.com は AI 解析に必要なリクエストをブロックするため、パネルには PR コメントとして共有された解析が表示されます。新しく解析するには pulls.review で PR を開いてください。"
+    },
+    "actions": {
+      "title": "GitHub Actions で自動解析",
+      "secret": "モデルのキーをリポジトリのシークレットとして追加します (例: {name})。",
+      "workflow": "このワークフローをリポジトリに追加します:",
+      "result": "各プルリクエストに解析結果がコメントとして投稿されます。PR を開いた人は誰でも、キーなしで pulls.review 上で読み込めます。",
+      "options": "{provider} はキーから推定されます。上書きするには {provider}、{model}、{locale} を指定します。すべてのオプションは {readme} を参照してください。"
+    },
+    "cli": {
+      "title": "CLI でローカルの git の変更をレビュー",
+      "soon": "CLI はまだリリースされていません。以下は予定している使い方です。",
+      "workingTree": "git リポジトリ内でワーキングツリー (ステージ済み・未ステージ・未追跡のファイル) をレビューします:",
+      "target": "または git のリビジョン構文でターゲットを指定します:",
+      "pr": "それまでは、{pkg} でターミナルから GitHub のプルリクエストを解析し、結果をコメントとして投稿できます:"
+    }
   },
   "load": {
     "title": "diff を読み込む",

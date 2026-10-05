@@ -46,9 +46,38 @@
     "uploadTitle": "Tinjau diff tanpa PR",
     "uploadDescription": "Unggah atau tempel unified diff, atau seret berkas {diff} / {patch} ke mana saja di halaman ini.",
     "uploadButton": "Unggah diff",
-    "embedTitle": "Gunakan langsung di github.com",
+    "embedTitle": "Gunakan tertanam di github.com",
     "embedDescription": "Dengan {tampermonkey} atau {violentmonkey} terpasang, panel pulls.review muncul di setiap halaman pull request.",
-    "installUserscript": "Pasang userscript"
+    "installUserscript": "Pasang userscript",
+    "actionsTitle": "Siapkan analisis otomatis dengan GitHub Actions",
+    "actionsDescription": "Analisis setiap pull request sekali di CI dan kirim hasilnya sebagai komentar PR, jadi setiap reviewer tidak perlu kunci model sendiri.",
+    "cliTitle": "Jalankan pada perubahan git lokal dengan CLI",
+    "cliDescription": "Tinjau working tree, sebuah commit, atau branch dari terminal sebelum push.",
+    "comingSoon": "Segera hadir",
+    "viewGuide": "Lihat panduan"
+  },
+  "guide": {
+    "userscript": {
+      "title": "Gunakan pulls.review tertanam di github.com",
+      "manager": "Pasang pengelola userscript: {tampermonkey} atau {violentmonkey}.",
+      "install": "Pasang userscript pulls.review. Pengelola Anda akan meminta konfirmasi.",
+      "open": "Buka pull request apa pun di github.com lalu klik tab {tab} di samping \"Files changed\".",
+      "ai": "github.com memblokir permintaan yang dibutuhkan analisis AI, jadi panel menampilkan analisis yang dibagikan sebagai komentar PR. Buka PR di pulls.review untuk menjalankan analisis baru."
+    },
+    "actions": {
+      "title": "Analisis otomatis dengan GitHub Actions",
+      "secret": "Tambahkan kunci model Anda sebagai secret repositori, misalnya {name}.",
+      "workflow": "Tambahkan workflow ini ke repositori:",
+      "result": "Setiap pull request mendapat analisis sebagai komentar. pulls.review memuatnya untuk semua yang membuka PR, tanpa kunci.",
+      "options": "{provider} disimpulkan dari kunci. Atur {provider}, {model}, atau {locale} untuk menggantinya. Lihat {readme} untuk semua opsi."
+    },
+    "cli": {
+      "title": "Tinjau perubahan git lokal dengan CLI",
+      "soon": "CLI belum dirilis. Beginilah cara kerjanya nanti.",
+      "workingTree": "Di repositori git, tinjau working tree (file staged, unstaged, dan untracked):",
+      "target": "Atau berikan target dengan sintaks revisi git:",
+      "pr": "Sementara itu, {pkg} menganalisis pull request GitHub dari terminal dan mengirim hasilnya sebagai komentar:"
+    }
   },
   "load": {
     "title": "Muat diff",
