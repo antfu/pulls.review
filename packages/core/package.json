@@ -23,6 +23,7 @@
     "./analyze": "./dist/analyze.js",
     "./llm": "./dist/llm.js",
     "./diagnostics": "./dist/diagnostics.js",
+    "./env": "./dist/env.js",
     "./locales": "./dist/locales.js"
   },
   "files": [

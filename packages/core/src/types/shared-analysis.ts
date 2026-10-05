@@ -7,3 +7,12 @@ export const SharedAnalysisSchema = v.object({
   result: GroupedResultSchema,
 })
 export type SharedAnalysis = v.InferOutput<typeof SharedAnalysisSchema>
+
+/** One user's shared analysis, as found on the diff's comments. */
+export interface SharedAnalysisComment {
+  id: number
+  login: string
+  url: string
+  updatedAt: string
+  analysis: SharedAnalysis
+}

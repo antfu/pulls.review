@@ -8,6 +8,7 @@ import { createStorage } from 'unstorage'
 import memoryDriver from 'unstorage/drivers/memory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import fixture from '../../test/fixtures/synthetic/empty-group.json'
+import { resolveStoredTokenMeta } from '../composables/useGithubTokenMeta'
 import { createDiffsStore } from './diffs-store'
 
 let cache: CacheRepositories
@@ -38,8 +39,7 @@ async function seedCache(analyzedBy: PrCacheEntry['analyzedBy'], extra: Partial<
 }
 
 function storeFor({ token, from }: { token?: string, from?: string } = {}) {
-  const credentials = staticCredentials(token)
-  return createDiffsStore(createGithubPullRequestSource(pr, credentials), { cache, credentials, from })
+  return createDiffsStore(createGithubPullRequestSource(pr, staticCredentials(token), { tokenMeta: resolveStoredTokenMeta }), { cache, from })
 }
 
 interface Route {

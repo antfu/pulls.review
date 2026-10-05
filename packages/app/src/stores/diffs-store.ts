@@ -1,5 +1,5 @@
 import type { CacheRepositories, LlmSession, PrCacheEntry } from '@pulls.review/core/cache'
-import type { Credentials, DiffSource, DiffsPayload, FileChange, GroupedResult, GroupSource, ReviewData } from '@pulls.review/core/types'
+import type { DiffSource, DiffsPayload, FileChange, GroupedResult, GroupSource, ReviewData } from '@pulls.review/core/types'
 import type { DiffsStore, DiffsStoreLlm } from './types'
 import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef, watch } from 'vue'
 import { resolveAdapter, ruleBasedAdapter } from '../analyze'
@@ -7,9 +7,9 @@ import { resolveGroups } from '../components/diff/group-utils'
 import { i18n, t } from '../i18n'
 import { autoRefresh } from '../state/auto-refresh'
 import { layout } from '../state/layout'
-import { createGithubWriteAccess } from './github-write-access'
 import { createReviewsStore } from './reviews-store'
 import { createSharedAnalysisStore } from './shared-analysis-store'
+import { createWriteAccess } from './write-access'
 
 /**
  * Creates a `DiffsStore` backed by a real source, cache and adapters - the isomorphic
@@ -18,7 +18,6 @@ import { createSharedAnalysisStore } from './shared-analysis-store'
  */
 export interface DiffsStoreOptions {
   cache: CacheRepositories
-  credentials: Credentials
   /** Login from the page's `?from=` query: load that user's shared analysis (see plans/07). */
   from?: string
 }
@@ -46,14 +45,12 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
   let cachedReviewData: ReviewData | undefined
   let cachedSharedComment: PrCacheEntry['sharedComment']
 
-  const pr = source.githubPullRequest
-  const github = pr && { pr, access: createGithubWriteAccess(opts.credentials) }
+  const access = createWriteAccess(source.viewer ?? (async () => undefined))
 
-  const reviews = github
-    ? createReviewsStore(github.pr, {
+  const reviews = source.reviews
+    ? createReviewsStore(source.reviews, {
         cache,
-        credentials: opts.credentials,
-        access: github.access,
+        access,
         getHeadSha: () => diff.value?.head?.sha,
         getCacheKey: () => cacheKey.value,
         cachedData: () => cachedReviewData,
@@ -151,11 +148,10 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
     }
   }
 
-  const shared = github
-    ? createSharedAnalysisStore(github.pr, {
+  const shared = source.sharing
+    ? createSharedAnalysisStore(source.sharing, {
         cache,
-        credentials: opts.credentials,
-        access: github.access,
+        access,
         getDiff: () => diff.value,
         getCacheKey: () => cacheKey.value,
         getAiResult: () => aiResult.value,

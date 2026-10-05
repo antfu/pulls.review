@@ -1,16 +1,14 @@
 import type { CacheRepositories } from '@pulls.review/core/cache'
-import type { Credentials, DiffsPayload, GroupedResult } from '@pulls.review/core/types'
-import type { GithubWriteAccess } from './github-write-access'
+import type { DiffsPayload, GroupedResult, SharingApi } from '@pulls.review/core/types'
 import type { DiffsStoreShared, SharedAnalysisCandidate } from './types'
-import { createGithubClient, createIssueComment, fetchSharedAnalysisComments, GithubApiError, renderSharedAnalysisComment, updateIssueComment } from '@pulls.review/core/github'
+import type { WriteAccess } from './write-access'
 import { reactive, ref } from 'vue'
 import { t } from '../i18n'
 import { localizeError } from '../i18n/core-messages'
 
 export interface SharedAnalysisStoreOptions {
   cache: CacheRepositories
-  credentials: Credentials
-  access: GithubWriteAccess
+  access: WriteAccess
   getDiff: () => DiffsPayload | undefined
   getCacheKey: () => string | undefined
   getAiResult: () => GroupedResult | undefined
@@ -21,12 +19,12 @@ export interface SharedAnalysisStoreOptions {
 }
 
 /**
- * The github-only sub-store behind `DiffsStore.shared`. `discover` is called by
- * `createDiffsStore` after each diff load; `share`/`load`/`dismiss` by the view.
+ * The sub-store behind `DiffsStore.shared`, for a source that can carry shared analyses
+ * (`DiffSource.sharing`). `discover` is called by `createDiffsStore` after each diff
+ * load; `share`/`load`/`dismiss` by the view.
  */
-export function createSharedAnalysisStore(pr: { owner: string, repo: string, number: string }, opts: SharedAnalysisStoreOptions) {
+export function createSharedAnalysisStore(api: SharingApi, opts: SharedAnalysisStoreOptions) {
   const { access } = opts
-  const client = createGithubClient(opts.credentials)
 
   const candidates = ref<SharedAnalysisCandidate[]>([])
   const notice = ref<string>()
@@ -54,7 +52,7 @@ export function createSharedAnalysisStore(pr: { owner: string, repo: string, num
 
     let found
     try {
-      found = await fetchSharedAnalysisComments(client, pr)
+      found = await api.list()
     }
     catch {
       return
@@ -109,35 +107,16 @@ export function createSharedAnalysisStore(pr: { owner: string, repo: string, num
     isSharing.value = true
     error.value = undefined
     try {
-      await access.write(async (writer) => {
+      const comment = await access.write(() => {
         const login = access.viewerLogin.value
         if (!login)
           throw new Error(t('errors.noViewer'))
-        const body = renderSharedAnalysisComment(pr, login, { headSha: diff.head?.sha ?? '', result })
-
-        let comment = ownComment.value
-        if (comment) {
-          try {
-            comment = await updateIssueComment(writer, pr, comment.id, body)
-          }
-          catch (err) {
-            // The remembered comment was deleted on GitHub - fall through to the scan.
-            if (!(err instanceof GithubApiError && err.status === 404))
-              throw err
-            comment = undefined
-          }
-        }
-        if (!comment) {
-          const existing = (await fetchSharedAnalysisComments(writer, pr)).find(entry => entry.login === login)
-          comment = existing
-            ? await updateIssueComment(writer, pr, existing.id, body)
-            : await createIssueComment(writer, pr, body)
-        }
-        ownComment.value = comment
-        const key = opts.getCacheKey()
-        if (key)
-          await opts.cache.diffs.setSharedComment(key, comment)
+        return api.upsert(login, { headSha: diff.head?.sha ?? '', result }, ownComment.value)
       })
+      ownComment.value = comment
+      const key = opts.getCacheKey()
+      if (key)
+        await opts.cache.diffs.setSharedComment(key, comment)
     }
     catch (err) {
       error.value = localizeError(err)

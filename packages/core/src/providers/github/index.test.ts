@@ -23,6 +23,6 @@ describe('github pull request source', () => {
 
     expect(diff.ref).toEqual({ kind: 'github-pr', owner: 'o', repo: 'r', number: '1' })
     expect(await source.fingerprint!()).toBe('head')
-    expect(source.githubPullRequest).toEqual({ owner: 'o', repo: 'r', number: '1' })
+    expect([source.reviews, source.sharing, source.viewer]).not.toContain(undefined)
   })
 })

@@ -1,4 +1,4 @@
-import type { SharedAnalysis } from '../../types/shared-analysis'
+import type { SharedAnalysis, SharedAnalysisComment } from '../../types/shared-analysis'
 import type { GithubClient } from './client'
 import { compressToBase64, decompressFromBase64 } from 'lz-string-es'
 import * as v from 'valibot'
@@ -19,14 +19,6 @@ export interface GithubIssueCommentJson {
   body: string
   html_url: string
   updated_at: string
-}
-
-export interface SharedAnalysisComment {
-  id: number
-  login: string
-  url: string
-  updatedAt: string
-  analysis: SharedAnalysis
 }
 
 function formatUtcMinutes(iso: string): string {

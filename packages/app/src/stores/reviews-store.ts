@@ -1,16 +1,14 @@
 import type { CacheRepositories } from '@pulls.review/core/cache'
-import type { Credentials, ReviewData, ReviewDraftTarget, ReviewVerdict } from '@pulls.review/core/types'
-import type { GithubWriteAccess } from './github-write-access'
+import type { ReviewData, ReviewDraftTarget, ReviewsApi, ReviewVerdict } from '@pulls.review/core/types'
 import type { DiffsStoreReviews } from './types'
-import { addThreadToPendingReview, createGithubClient, createPendingReview, createReview, createReviewComment, deletePendingReview, deleteReviewComment, fetchReviewComments, fetchReviewCommentsForReview, fetchReviews, fetchThreadResolutions, normalizeReviewData, replyToReviewComment, resolveThread as resolveThreadMutation, submitPendingReview, updateReviewComment } from '@pulls.review/core/github'
+import type { WriteAccess } from './write-access'
 import { computed, reactive, ref } from 'vue'
 import { t } from '../i18n'
 import { showReviewComments } from '../state/review-comments'
 
 export interface ReviewsStoreOptions {
   cache: CacheRepositories
-  credentials: Credentials
-  access: GithubWriteAccess
+  access: WriteAccess
   /** Head sha of the loaded diff - `commit_id` for new comments; unset until the diff loads. */
   getHeadSha: () => string | undefined
   /** PR cache key of the loaded diff, for persisting the SWR snapshot; unset until the diff loads. */
@@ -19,18 +17,12 @@ export interface ReviewsStoreOptions {
   cachedData?: () => ReviewData | undefined
 }
 
-function toGithubSide(side: 'additions' | 'deletions'): 'LEFT' | 'RIGHT' {
-  return side === 'additions' ? 'RIGHT' : 'LEFT'
-}
-
 /**
- * The github-only review sub-store behind `DiffsStore.reviews` - same
- * `reactive()` construction as `createDiffsStore`, created by it when the
- * source names a GitHub PR (`DiffSource.githubPullRequest`).
+ * The review sub-store behind `DiffsStore.reviews` - same `reactive()` construction as
+ * `createDiffsStore`, created by it for a source that has a review lifecycle
+ * (`DiffSource.reviews`).
  */
-export function createReviewsStore(params: { owner: string, repo: string, number: string }, opts: ReviewsStoreOptions): DiffsStoreReviews {
-  const { owner, repo, number } = params
-  const client = createGithubClient(opts.credentials)
+export function createReviewsStore(api: ReviewsApi, opts: ReviewsStoreOptions): DiffsStoreReviews {
   const { write } = opts.access
 
   const data = ref<ReviewData>({ threads: [], summaries: [], pendingReview: undefined })
@@ -38,24 +30,8 @@ export function createReviewsStore(params: { owner: string, repo: string, number
   const pendingCommentCount = computed(() =>
     data.value.threads.reduce((count, thread) => count + thread.comments.filter(comment => comment.pending).length, 0))
 
-  async function fetchFresh(): Promise<ReviewData> {
-    const [comments, reviews] = await Promise.all([
-      fetchReviewComments(client, owner, repo, number),
-      fetchReviews(client, owner, repo, number),
-    ])
-    const pending = reviews.find(review => review.state === 'PENDING')
-    const token = await client.token()
-    const [pendingComments, resolutions] = await Promise.all([
-      pending ? fetchReviewCommentsForReview(client, owner, repo, number, pending.id) : Promise.resolve([]),
-      // Resolution lives in GraphQL only, which needs a token - degrade to
-      // "resolution unknown" silently for anonymous viewers or on failure.
-      token ? fetchThreadResolutions(client, owner, repo, number).catch(() => undefined) : Promise.resolve(undefined),
-    ])
-    return normalizeReviewData({ comments, reviews, pendingComments, resolutions })
-  }
-
   async function refetch() {
-    const fresh = await fetchFresh()
+    const fresh = await api.fetch()
     data.value = fresh
     const key = opts.getCacheKey()
     if (key)
@@ -80,69 +56,23 @@ export function createReviewsStore(params: { owner: string, repo: string, number
     }
   }
 
+  /** Every mutation refetches, so the view always reflects the source. */
+  async function mutate(action: () => Promise<void>) {
+    await write(action)
+    await refetch()
+  }
+
   async function addComment(target: ReviewDraftTarget, body: string, mode: 'single' | 'review') {
-    await write(async (writer) => {
-      if (mode === 'review' && data.value.pendingReview) {
-        await addThreadToPendingReview(writer, data.value.pendingReview.nodeId, target, body)
-        return
-      }
-      const headSha = opts.getHeadSha()
-      if (!headSha)
-        throw new Error(t('errors.diffNotLoaded'))
-      const input = {
-        body,
-        commitId: headSha,
-        path: target.path,
-        side: toGithubSide(target.side),
-        line: target.line,
-        startLine: target.startLine,
-        startSide: target.startSide ? toGithubSide(target.startSide) : undefined,
-      }
-      if (mode === 'review')
-        await createPendingReview(writer, owner, repo, number, input)
-      else
-        await createReviewComment(writer, owner, repo, number, input)
-    })
-    await refetch()
-  }
-
-  async function reply(rootCommentId: number, body: string) {
-    await write(writer => replyToReviewComment(writer, owner, repo, number, rootCommentId, body))
-    await refetch()
-  }
-
-  async function editComment(commentId: number, body: string) {
-    await write(writer => updateReviewComment(writer, owner, repo, commentId, body))
-    await refetch()
-  }
-
-  async function deleteComment(commentId: number) {
-    await write(writer => deleteReviewComment(writer, owner, repo, commentId))
-    await refetch()
-  }
-
-  async function resolveThread(threadId: string) {
-    await write(writer => resolveThreadMutation(writer, threadId))
-    await refetch()
-  }
-
-  async function submitReview(verdict: ReviewVerdict, body: string) {
-    await write(async (writer) => {
-      const pending = data.value.pendingReview
-      if (pending)
-        await submitPendingReview(writer, owner, repo, number, pending.id, verdict, body)
-      else
-        await createReview(writer, owner, repo, number, verdict, body)
-    })
-    await refetch()
+    const headSha = opts.getHeadSha()
+    if (!headSha)
+      throw new Error(t('errors.diffNotLoaded'))
+    await mutate(() => api.addComment({ target, body, mode, headSha, pendingReview: data.value.pendingReview }))
   }
 
   async function discardPendingReview() {
     const pending = data.value.pendingReview
-    if (!pending)
-      return
-    await write(writer => deletePendingReview(writer, owner, repo, number, pending.id))
-    await refetch()
+    if (pending)
+      await mutate(() => api.discardPendingReview(pending))
   }
 
   return reactive({
@@ -158,11 +88,11 @@ export function createReviewsStore(params: { owner: string, repo: string, number
     setShowThreads: (value: boolean) => { showReviewComments.value = value },
     load,
     addComment,
-    reply,
-    editComment,
-    deleteComment,
-    resolveThread,
-    submitReview,
+    reply: (rootCommentId: number, body: string) => mutate(() => api.reply(rootCommentId, body)),
+    editComment: (commentId: number, body: string) => mutate(() => api.editComment(commentId, body)),
+    deleteComment: (commentId: number) => mutate(() => api.deleteComment(commentId)),
+    resolveThread: (threadId: string) => mutate(() => api.resolveThread(threadId)),
+    submitReview: (verdict: ReviewVerdict, body: string) => mutate(() => api.submitReview(verdict, body, data.value.pendingReview)),
     discardPendingReview,
   }) as DiffsStoreReviews
 }

@@ -6,6 +6,7 @@ import { createGithubPullRequestSource } from '@pulls.review/core/github'
 import { onMounted } from 'vue'
 import { useAppContext } from '../app-context'
 import DiffsPage from '../components/diff/DiffsPage.vue'
+import { resolveStoredTokenMeta } from '../composables/useGithubTokenMeta'
 import { createDiffsStore } from '../stores/diffs-store'
 
 // Mirrors `pages/gh/[owner]/[repo]/[number].vue`'s wiring, from plain props instead of
@@ -22,7 +23,7 @@ const props = defineProps<{
 }>()
 
 const { cache, credentials } = useAppContext()
-const store = createDiffsStore(createGithubPullRequestSource(props, credentials), { cache, credentials })
+const store = createDiffsStore(createGithubPullRequestSource(props, credentials, { tokenMeta: resolveStoredTokenMeta }), { cache })
 
 onMounted(() => store.load())
 </script>

@@ -1,4 +1,6 @@
+import type { ReviewData, ReviewDraftTarget, ReviewVerdict } from './comment-threads'
 import type { DiffsPayload } from './diff'
+import type { SharedAnalysis, SharedAnalysisComment } from './shared-analysis'
 import * as v from 'valibot'
 
 /** Identifies one diff, whatever produced it. Persisted on `DiffsPayload.ref`. */
@@ -39,11 +41,41 @@ export interface DiffSource {
   fingerprint?: () => Promise<string>
   /** A file's full content at one of the diff's `base`/`head` shas; `undefined` when the file doesn't exist there. */
   loadFile?: (path: string, sha: string) => Promise<string | undefined>
-  /**
-   * The GitHub PR behind this diff, for its review threads and shared analyses.
-   * Replaced by review/sharing capability APIs (plans/10, step 7).
-   */
-  githubPullRequest?: { owner: string, repo: string, number: string }
+  /** Who the credentials act as, and whether they may write back; `undefined` when anonymous. */
+  viewer?: () => Promise<Viewer | undefined>
+  reviews?: ReviewsApi
+  sharing?: SharingApi
   /** The credential a failed load can be retried with, so the view can offer to enter it. */
   auth?: 'github-token'
+}
+
+export interface Viewer {
+  login: string
+  /** What the credentials claim; a write can still be refused (`writeForbidden`). */
+  canWrite: boolean
+}
+
+/**
+ * Review threads and review submission for a diff that has a review lifecycle.
+ * Writes throw the `writeForbidden` diagnostic when the credentials may not write here.
+ */
+export interface ReviewsApi {
+  fetch: () => Promise<ReviewData>
+  /** `single` posts at once; `review` starts the viewer's pending review, or adds to `pendingReview` when given. */
+  addComment: (input: { target: ReviewDraftTarget, body: string, mode: 'single' | 'review', headSha: string, pendingReview?: { nodeId: string } }) => Promise<void>
+  reply: (rootCommentId: number, body: string) => Promise<void>
+  editComment: (commentId: number, body: string) => Promise<void>
+  deleteComment: (commentId: number) => Promise<void>
+  resolveThread: (threadId: string) => Promise<void>
+  /** Submits `pendingReview` when given, else a review with no draft comments. */
+  submitReview: (verdict: ReviewVerdict, body: string, pendingReview?: { id: number }) => Promise<void>
+  discardPendingReview: (pendingReview: { id: number }) => Promise<void>
+}
+
+/** Shared AI analyses posted alongside a diff, one per user (see plans/07). */
+export interface SharingApi {
+  /** Newest first; best-effort, one request. */
+  list: () => Promise<SharedAnalysisComment[]>
+  /** Posts or updates `login`'s comment; `remembered` is the comment a previous share returned. */
+  upsert: (login: string, analysis: SharedAnalysis, remembered?: { id: number }) => Promise<{ id: number, url: string }>
 }

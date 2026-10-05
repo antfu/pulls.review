@@ -2,9 +2,10 @@
 import { readFileSync } from 'node:fs'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
+import { llmSettingsFromEnv } from '@pulls.review/core/env'
 import { runLlmAnalysis } from '@pulls.review/core/llm'
 import { Diagnostic, formatDiagnostic } from 'nostics'
-import { resolveGithubToken, resolveLlmSettings, resolveLocale, resolveTarget } from './config'
+import { resolveGithubToken, resolveLocale, resolveTarget } from './config'
 import { run } from './run'
 
 const HELP = `Usage: pulls-review [owner/repo#123 | https://github.com/owner/repo/pull/123] [options]
@@ -49,7 +50,7 @@ async function main() {
   const outcome = await run({
     pr: resolveTarget(positionals[0], env, readEvent(env.GITHUB_EVENT_PATH)),
     githubToken: resolveGithubToken(env),
-    llm: resolveLlmSettings(env, flags),
+    llm: llmSettingsFromEnv(env, flags),
     locale: resolveLocale(env, flags),
     log: line => console.log(line),
   }, runLlmAnalysis)

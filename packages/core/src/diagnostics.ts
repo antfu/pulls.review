@@ -14,6 +14,11 @@ export const diagnostics = defineDiagnostics({
       why: 'GitHub rejected the token.',
       fix: 'Check that the token is valid and has not expired.',
     },
+    writeForbidden: {
+      /** The source's own reason, e.g. GitHub's "Resource not accessible by personal access token". */
+      why: (p: { reason: string }) => p.reason,
+      fix: 'Use a token with the "repo" scope (classic token) or "Pull requests: Read and write" permission (fine-grained token).',
+    },
     commentTooLarge: {
       why: (p: { n: number }) => `The analysis is too large to post as a comment (${p.n} characters).`,
       data: (p: { n: number }) => ({ n: p.n }),

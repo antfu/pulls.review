@@ -1,10 +1,8 @@
-import type { LlmSettings } from '@pulls.review/core/analyze'
+import type { Env } from '@pulls.review/core/env'
 import type { PullRequestRef } from '@pulls.review/core/github'
 import type { Locale } from '@pulls.review/core/locales'
-import { defaultLlmSettings, deriveProvider, isLlmProvider } from '@pulls.review/core/analyze'
+import { githubTokenFromEnv } from '@pulls.review/core/env'
 import { DEFAULT_LOCALE, isLocale } from '@pulls.review/core/locales'
-
-export type Env = Record<string, string | undefined>
 
 export interface Flags {
   provider?: string
@@ -18,46 +16,10 @@ function first(...values: (string | undefined)[]): string | undefined {
 }
 
 export function resolveGithubToken(env: Env): string {
-  const token = first(env.PULLS_REVIEW_GITHUB_TOKEN, env.GITHUB_TOKEN)
+  const token = githubTokenFromEnv(env)
   if (!token)
     throw new Error('A GitHub token is required: set GITHUB_TOKEN (or PULLS_REVIEW_GITHUB_TOKEN).')
   return token
-}
-
-/**
- * Flags win over `PULLS_REVIEW_*`, which win over each provider's conventional variable.
- * Without an explicit provider, the first conventional key found picks it, in the same
- * order Settings uses; `PULLS_REVIEW_API_KEY` alone means the default provider.
- */
-export function resolveLlmSettings(env: Env, flags: Flags = {}): LlmSettings {
-  const conventional = {
-    gatewayToken: first(env.AI_GATEWAY_API_KEY),
-    anthropicApiKey: first(env.ANTHROPIC_API_KEY),
-    openaiApiKey: first(env.OPENAI_API_KEY),
-  }
-  const requested = first(flags.provider, env.PULLS_REVIEW_PROVIDER)
-  if (requested !== undefined && !isLlmProvider(requested))
-    throw new Error(`Unknown provider "${requested}": expected gateway, anthropic or openai-compatible.`)
-  const provider = requested ?? deriveProvider(conventional)
-  const apiKey = first(env.PULLS_REVIEW_API_KEY)
-  const model = first(flags.model, env.PULLS_REVIEW_MODEL)
-
-  const llm: LlmSettings = {
-    ...defaultLlmSettings,
-    provider,
-    gatewayToken: conventional.gatewayToken ?? '',
-    anthropicApiKey: conventional.anthropicApiKey ?? '',
-    openaiApiKey: conventional.openaiApiKey ?? '',
-    openaiBaseUrl: first(env.PULLS_REVIEW_BASE_URL, env.OPENAI_BASE_URL) ?? defaultLlmSettings.openaiBaseUrl,
-  }
-  switch (provider) {
-    case 'gateway':
-      return { ...llm, gatewayToken: apiKey ?? llm.gatewayToken, gatewayModel: model ?? llm.gatewayModel }
-    case 'anthropic':
-      return { ...llm, anthropicApiKey: apiKey ?? llm.anthropicApiKey, anthropicModel: model ?? llm.anthropicModel }
-    case 'openai-compatible':
-      return { ...llm, openaiApiKey: apiKey ?? llm.openaiApiKey, openaiModel: model ?? llm.openaiModel }
-  }
 }
 
 export function resolveLocale(env: Env, flags: Flags = {}): Locale {

@@ -1,11 +1,13 @@
 import type { MockedFunction } from 'vitest'
 import { createCacheRepositories } from '@pulls.review/core/cache'
+import { createGithubPullRequestSource } from '@pulls.review/core/github'
 import { staticCredentials } from '@pulls.review/core/types'
 import { createStorage } from 'unstorage'
 import memoryDriver from 'unstorage/drivers/memory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createGithubWriteAccess } from './github-write-access'
+import { resolveStoredTokenMeta } from '../composables/useGithubTokenMeta'
 import { createReviewsStore } from './reviews-store'
+import { createWriteAccess } from './write-access'
 
 interface Route {
   match: (url: string, init?: RequestInit) => boolean
@@ -45,10 +47,10 @@ function stubFetch(routes: Route[]): MockedFunction<typeof fetch> {
 }
 
 function makeStore(token?: string) {
-  return createReviewsStore({ owner: 'owner', repo: 'repo', number: '1' }, {
+  const source = createGithubPullRequestSource({ owner: 'owner', repo: 'repo', number: '1' }, staticCredentials(token), { tokenMeta: resolveStoredTokenMeta })
+  return createReviewsStore(source.reviews!, {
     cache: createCacheRepositories(createStorage({ driver: memoryDriver() })),
-    credentials: staticCredentials(token),
-    access: createGithubWriteAccess(staticCredentials(token)),
+    access: createWriteAccess(source.viewer!),
     getHeadSha: () => 'head-sha',
     getCacheKey: () => undefined,
   })

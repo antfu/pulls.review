@@ -8,6 +8,7 @@ import { useRoute } from 'vue-router'
 import { useAppContext } from '../../../../app-context'
 import DiffsPage from '../../../../components/diff/DiffsPage.vue'
 import { useDocumentTitle } from '../../../../composables/useDocumentTitle'
+import { resolveStoredTokenMeta } from '../../../../composables/useGithubTokenMeta'
 import { createDiffsStore } from '../../../../stores/diffs-store'
 
 const route = useRoute()
@@ -23,7 +24,7 @@ const pr = {
 // `?from=<login>` deep-links a shared analysis (see plans/07); read once, never rewritten.
 const from = typeof route.query.from === 'string' ? route.query.from : undefined
 
-const store = createDiffsStore(createGithubPullRequestSource(pr, credentials), { cache, credentials, from })
+const store = createDiffsStore(createGithubPullRequestSource(pr, credentials, { tokenMeta: resolveStoredTokenMeta }), { cache, from })
 
 // The PR title matches the header's `{{ meta.title }} #number`; before it loads, fall
 // back to the route so the tab still identifies which PR is opening.
