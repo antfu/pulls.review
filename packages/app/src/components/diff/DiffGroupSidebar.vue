@@ -3,7 +3,6 @@ import type { ResolvedGroupWithChildren } from './group-utils'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { computed, ref } from 'vue'
-import { CATEGORY_COLOR_CLASS } from './category-icons'
 import DiffStats from './DiffStats.vue'
 import { countGroupFiles, countGroupStats, groupProgress } from './group-utils'
 import GroupCategoryIcon from './GroupCategoryIcon.vue'
@@ -45,7 +44,6 @@ const rows = computed(() => props.groups.flatMap(group => [
       :key="group.key"
       class="group flex items-center rounded pr-1 transition-colors"
       :class="[
-        CATEGORY_COLOR_CLASS[group.category],
         groupsVisable.includes(group.key) ? 'bg-active' : 'hover:bg-hover',
         depth ? 'ml-3.5 border-l border-base rounded-l-none' : '',
       ]"

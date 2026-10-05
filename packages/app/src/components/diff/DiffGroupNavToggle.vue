@@ -1,21 +1,17 @@
 <script setup lang="ts">
-import ActionToggleGroup from '@antfu/design/components/Action/ActionToggleGroup.vue'
+import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { groupNav } from '../../state/group-nav'
 
-const { t } = useI18n()
-const options = computed(() => [
-  { value: 'tabs', label: t('group.navTabs'), icon: 'i-ph:tabs-duotone' },
-  { value: 'sidebar', label: t('group.navSidebar'), icon: 'i-ph:sidebar-simple-duotone' },
-])
+// Like DarkToggle: the icon and label name the mode a click switches to.
+const sidebar = computed(() => groupNav.value === 'sidebar')
 </script>
 
 <template>
-  <ActionToggleGroup
-    icon-only
-    :model-value="groupNav"
-    :options="options"
-    @update:model-value="groupNav = $event === 'sidebar' ? 'sidebar' : 'tabs'"
+  <ActionIconButton
+    :icon="sidebar ? 'i-ph:tabs-duotone' : 'i-ph:sidebar-simple-duotone'"
+    :label="$t(sidebar ? 'group.navTabs' : 'group.navSidebar')"
+    :tooltip="$t(sidebar ? 'group.navTabs' : 'group.navSidebar')"
+    @click="groupNav = sidebar ? 'tabs' : 'sidebar'"
   />
 </template>

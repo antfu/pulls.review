@@ -187,7 +187,7 @@ function refreshFromBanner() {
           <!-- Sticks just below the measured header, like each DiffGroup's file-tree aside. -->
           <aside
             v-if="showGroupSidebar"
-            class="sticky top-[calc(var(--diffs-header-height)+10px)] max-h-[calc(100vh-var(--diffs-header-height)-20px)] w-64 shrink-0 self-start overflow-auto py-3 pl-3"
+            class="sticky top-[calc(var(--diffs-header-height)+10px)] max-h-[calc(100vh-var(--diffs-header-height)-20px)] w-64 shrink-0 self-start overflow-auto border-r border-base py-3 pl-3 pr-2"
           >
             <DiffGroupSidebar
               :groups="groups"

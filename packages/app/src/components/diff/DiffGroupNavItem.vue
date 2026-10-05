@@ -57,7 +57,7 @@ const progress = computed(() => groupProgress(props.group, props.reviewed))
           <span v-if="subgroupCount" class="op-mute">・{{ $t('common.subgroups', { n: subgroupCount }, subgroupCount) }}</span>
         </div>
       </div>
-      <DisplayDonut v-if="progress !== 0" :value="progress" :size="18" :thickness="2" />
+      <DisplayDonut v-if="progress !== 0" :value="progress" :size="18" :thickness="2" class="color-base" />
       <ActionIconButton
         v-if="subgroupCount"
         type="button"

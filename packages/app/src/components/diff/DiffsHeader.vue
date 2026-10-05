@@ -101,7 +101,12 @@ function scrollToGroup(key: string) {
           @update:show-threads="reviews.setShowThreads($event)"
         />
         <div class="shrink-0">
-          <NavControls :document="document" />
+          <NavControls :document="document">
+            <!-- The sidebar only exists at `lg` and up, so the choice is only offered there. -->
+            <div class="hidden lg:block">
+              <DiffGroupNavToggle />
+            </div>
+          </NavControls>
         </div>
       </div>
 
@@ -153,10 +158,6 @@ function scrollToGroup(key: string) {
         />
 
         <div class="ml-auto flex items-center self-end gap-2 pt-2 text-sm">
-          <!-- The sidebar only exists at `lg` and up, so the choice is only offered there. -->
-          <div class="hidden lg:block">
-            <DiffGroupNavToggle />
-          </div>
           <DiffStats :additions="additions" :deletions="deletions" />
           <button
             type="button"
