@@ -52,13 +52,13 @@
     "actionsTitle": "Siapkan analisis otomatis dengan GitHub Actions",
     "actionsDescription": "Analisis setiap pull request sekali di CI dan kirim hasilnya sebagai komentar PR, jadi setiap reviewer tidak perlu kunci model sendiri.",
     "cliTitle": "Jalankan pada perubahan git lokal dengan CLI",
-    "cliDescription": "Tinjau working tree, sebuah commit, atau branch dari terminal sebelum push.",
-    "comingSoon": "Segera hadir",
+    "cliDescription": "Tinjau working tree, sebuah commit, atau branch sebelum push, dikelompokkan dan diringkas seperti PR.",
     "viewGuide": "Lihat panduan"
   },
   "guide": {
     "userscript": {
       "title": "Gunakan pulls.review tertanam di github.com",
+      "intro": "Tinjau pull request di tempatnya. Userscript menambahkan panel pulls.review ke setiap pull request di github.com, lengkap dengan file yang dikelompokkan dan ringkasan, tanpa berpindah tab.",
       "manager": "Pasang pengelola userscript: {tampermonkey} atau {violentmonkey}.",
       "install": "Pasang userscript pulls.review. Pengelola Anda akan meminta konfirmasi.",
       "open": "Buka pull request apa pun di github.com lalu klik tab {tab} di samping \"Files changed\".",
@@ -66,17 +66,18 @@
     },
     "actions": {
       "title": "Analisis otomatis dengan GitHub Actions",
+      "intro": "Biarkan CI menganalisis setiap pull request sekali, begitu dibuka atau diperbarui. Semua yang membuka PR, di sini atau di panel github.com, langsung melihat ringkasan yang sama. Tidak ada yang perlu kunci model sendiri, dan pull request dari fork juga mendapatkannya.",
       "secret": "Tambahkan kunci model Anda sebagai secret repositori, misalnya {name}.",
       "workflow": "Tambahkan workflow ini ke repositori:",
-      "result": "Setiap pull request mendapat analisis sebagai komentar. pulls.review memuatnya untuk semua yang membuka PR, tanpa kunci.",
+      "result": "Buka atau perbarui pull request untuk mencobanya. Analisis muncul sebagai komentar, dan menjalankan ulang pada PR yang tidak berubah melewati panggilan model.",
       "options": "{provider} disimpulkan dari kunci. Atur {provider}, {model}, atau {locale} untuk menggantinya. Lihat {readme} untuk semua opsi."
     },
     "cli": {
       "title": "Tinjau perubahan git lokal dengan CLI",
-      "soon": "CLI belum dirilis. Beginilah cara kerjanya nanti.",
-      "workingTree": "Di repositori git, tinjau working tree (file staged, unstaged, dan untracked):",
-      "target": "Atau berikan target dengan sintaks revisi git:",
-      "pr": "Sementara itu, {pkg} menganalisis pull request GitHub dari terminal dan mengirim hasilnya sebagai komentar:"
+      "intro": "Tinjau perubahan Anda sendiri sebelum orang lain. CLI membuka pekerjaan yang belum di-commit, sebuah commit, atau seluruh branch di pulls.review, sehingga Anda bisa melihat perubahan dalam bentuk kelompok dan ringkasan sebelum push atau membuka PR.",
+      "workingTree": "Di repositori git, jalankan ini untuk meninjau semua yang belum di-commit, termasuk file baru:",
+      "target": "Berikan commit atau rentang untuk meninjaunya:",
+      "live": "Biarkan tab tetap terbuka saat bekerja. Saat file berubah, tab menawarkan untuk memuat diff baru, dan file yang sudah ditandai ditinjau tetap ditandai selama tidak berubah. Jika branch Anda sudah punya PR terbuka, sebuah banner menautkannya."
     }
   },
   "load": {

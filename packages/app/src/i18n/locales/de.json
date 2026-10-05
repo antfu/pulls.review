@@ -52,13 +52,13 @@
     "actionsTitle": "Automatische Analyse mit GitHub Actions einrichten",
     "actionsDescription": "Jeden Pull Request einmal in der CI analysieren und das Ergebnis als PR-Kommentar posten, damit nicht jeder Reviewer einen eigenen Modell-Key braucht.",
     "cliTitle": "Lokale Git-Änderungen mit der CLI prüfen",
-    "cliDescription": "Prüfe Working Tree, einen Commit oder einen Branch im Terminal, bevor du pushst.",
-    "comingSoon": "Demnächst",
+    "cliDescription": "Prüfe Working Tree, einen Commit oder einen Branch vor dem Push, gruppiert und zusammengefasst wie ein PR.",
     "viewGuide": "Anleitung ansehen"
   },
   "guide": {
     "userscript": {
       "title": "pulls.review eingebettet auf github.com nutzen",
+      "intro": "Prüfe Pull Requests dort, wo sie ohnehin sind. Das Userscript fügt jedem Pull Request auf github.com eine pulls.review-Seitenleiste mit gruppierten Dateien und Zusammenfassungen hinzu, ganz ohne Tabwechsel.",
       "manager": "Installiere einen Userscript-Manager: {tampermonkey} oder {violentmonkey}.",
       "install": "Installiere das pulls.review-Userscript. Dein Manager fragt nach einer Bestätigung.",
       "open": "Öffne einen beliebigen Pull Request auf github.com und klicke auf den Tab {tab} neben \"Files changed\".",
@@ -66,17 +66,18 @@
     },
     "actions": {
       "title": "Automatische Analyse mit GitHub Actions",
+      "intro": "Lass die CI jeden Pull Request einmal analysieren, sobald er geöffnet oder aktualisiert wird. Alle, die den PR öffnen, hier oder in der Seitenleiste auf github.com, sehen sofort dieselbe gruppierte Zusammenfassung. Niemand braucht einen eigenen Modell-Key, und auch Pull Requests aus Forks bekommen sie.",
       "secret": "Lege deinen Modell-Key als Repository-Secret an, zum Beispiel {name}.",
       "workflow": "Füge diesen Workflow zum Repository hinzu:",
-      "result": "Jeder Pull Request erhält die Analyse als Kommentar. pulls.review lädt sie für alle, die den PR öffnen, ohne Key.",
+      "result": "Öffne oder aktualisiere einen Pull Request, um es auszuprobieren. Die Analyse kommt als Kommentar, und erneute Läufe auf einem unveränderten PR überspringen den Modellaufruf.",
       "options": "Der {provider} wird aus dem Key abgeleitet. Setze {provider}, {model} oder {locale}, um das zu überschreiben. Alle Optionen stehen in der {readme}."
     },
     "cli": {
       "title": "Lokale Git-Änderungen mit der CLI prüfen",
-      "soon": "Die CLI ist noch nicht veröffentlicht. So wird sie funktionieren.",
-      "workingTree": "Prüfe in einem Git-Repository den Working Tree (gestagte, ungestagte und nicht verfolgte Dateien):",
-      "target": "Oder übergib ein Ziel in Gits Revisionssyntax:",
-      "pr": "Bis dahin analysiert {pkg} einen GitHub-Pull-Request im Terminal und postet das Ergebnis als Kommentar:"
+      "intro": "Prüfe deine eigene Änderung, bevor es andere tun. Die CLI öffnet deine nicht committete Arbeit, einen Commit oder einen ganzen Branch in pulls.review. So siehst du gruppiert und zusammengefasst, wie sich die Änderung liest, bevor du pushst oder einen PR öffnest.",
+      "workingTree": "Führe das in einem Git-Repository aus, um alles zu prüfen, was noch nicht committet ist, inklusive neuer Dateien:",
+      "target": "Übergib einen Commit oder einen Bereich, um stattdessen diesen zu prüfen:",
+      "live": "Lass den Tab beim Arbeiten offen. Ändern sich Dateien, bietet er an, den neuen Diff zu laden. Als geprüft markierte Dateien bleiben markiert, solange sie sich nicht ändern. Hat dein Branch schon einen offenen PR, verlinkt ein Banner darauf."
     }
   },
   "load": {

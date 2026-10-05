@@ -52,13 +52,13 @@
     "actionsTitle": "Configura l'analisi automatica con GitHub Actions",
     "actionsDescription": "Analizza ogni pull request una volta in CI e pubblica il risultato come commento, così ogni revisore non ha bisogno della propria chiave del modello.",
     "cliTitle": "Eseguilo sulle modifiche git locali con la CLI",
-    "cliDescription": "Rivedi il working tree, un commit o un branch dal terminale, prima del push.",
-    "comingSoon": "In arrivo",
+    "cliDescription": "Rivedi il working tree, un commit o un branch prima del push, raggruppati e riassunti come una PR.",
     "viewGuide": "Vedi la guida"
   },
   "guide": {
     "userscript": {
       "title": "Usa pulls.review integrato su github.com",
+      "intro": "Rivedi le pull request dove si trovano già. Lo userscript aggiunge un pannello pulls.review a ogni pull request su github.com, con file raggruppati e riassunti, senza cambiare scheda.",
       "manager": "Installa un gestore di userscript: {tampermonkey} o {violentmonkey}.",
       "install": "Installa lo userscript di pulls.review. Il gestore ti chiederà di confermare.",
       "open": "Apri una qualsiasi pull request su github.com e fai clic sulla scheda {tab} accanto a \"Files changed\".",
@@ -66,17 +66,18 @@
     },
     "actions": {
       "title": "Analisi automatica con GitHub Actions",
+      "intro": "Lascia che la CI analizzi ogni pull request una volta, appena viene aperta o aggiornata. Chiunque apra la PR, qui o nel pannello su github.com, vede subito lo stesso riassunto raggruppato. Nessuno ha bisogno della propria chiave del modello, e anche le pull request dai fork lo ricevono.",
       "secret": "Aggiungi la chiave del modello come secret del repository, ad esempio {name}.",
       "workflow": "Aggiungi questo workflow al repository:",
-      "result": "Ogni pull request riceve l'analisi come commento. pulls.review la carica per chiunque apra la PR, senza chiave.",
+      "result": "Apri o aggiorna una pull request per provarlo. L'analisi arriva come commento, e le riesecuzioni su una PR invariata saltano la chiamata al modello.",
       "options": "Il {provider} viene dedotto dalla chiave. Imposta {provider}, {model} o {locale} per cambiarlo. Tutte le opzioni sono nel {readme}."
     },
     "cli": {
       "title": "Rivedi le modifiche git locali con la CLI",
-      "soon": "La CLI non è ancora pubblicata. Ecco come funzionerà.",
-      "workingTree": "In un repository git, rivedi il working tree (file in stage, non in stage e non tracciati):",
-      "target": "Oppure passa un obiettivo con la sintassi delle revisioni di git:",
-      "pr": "Nel frattempo, {pkg} analizza una pull request GitHub dal terminale e pubblica il risultato come commento:"
+      "intro": "Rivedi la tua modifica prima di chiunque altro. La CLI apre in pulls.review il lavoro non ancora committato, un commit o un intero branch, così vedi come si legge la modifica, raggruppata e riassunta, prima del push o di aprire una PR.",
+      "workingTree": "In un repository git, esegui questo per rivedere tutto ciò che non hai ancora committato, file nuovi compresi:",
+      "target": "Passa un commit o un intervallo per rivedere quello:",
+      "live": "Tieni la scheda aperta mentre lavori. Quando i file cambiano, propone di caricare il nuovo diff, e i file già segnati come rivisti restano segnati finché non cambiano. Se il tuo branch ha già una PR aperta, un banner la collega."
     }
   },
   "load": {

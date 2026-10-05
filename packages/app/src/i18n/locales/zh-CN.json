@@ -52,13 +52,13 @@
     "actionsTitle": "通过 GitHub Actions 设置自动分析",
     "actionsDescription": "在 CI 中对每个拉取请求分析一次，并将结果作为 PR 评论发布，审阅者无需各自准备模型密钥。",
     "cliTitle": "通过 CLI 用于本地 git 改动",
-    "cliDescription": "在推送之前，从终端审阅工作区、某个提交或某个分支。",
-    "comingSoon": "即将推出",
+    "cliDescription": "在推送之前，像审阅 PR 一样分组并总结你的工作区、某个提交或某个分支。",
     "viewGuide": "查看指南"
   },
   "guide": {
     "userscript": {
       "title": "将 pulls.review 嵌入到 github.com 中使用",
+      "intro": "在拉取请求所在的地方直接审阅。用户脚本会为 github.com 上的每个拉取请求添加 pulls.review 面板，展示分组后的文件和摘要，无需切换标签页。",
       "manager": "安装用户脚本管理器：{tampermonkey} 或 {violentmonkey}。",
       "install": "安装 pulls.review 用户脚本，管理器会请你确认。",
       "open": "在 github.com 上打开任意拉取请求，点击 \"Files changed\" 旁的 {tab} 标签。",
@@ -66,17 +66,18 @@
     },
     "actions": {
       "title": "通过 GitHub Actions 自动分析",
+      "intro": "让 CI 在拉取请求创建或更新时分析一次。任何人打开该 PR，无论在这里还是在 github.com 的面板中，都能立即看到同一份分组摘要。无需每人准备模型密钥，来自 fork 的拉取请求也同样适用。",
       "secret": "将模型密钥添加为仓库 secret，例如 {name}。",
       "workflow": "将此 workflow 添加到仓库：",
-      "result": "每个拉取请求都会收到一条分析评论。任何人打开该 PR 时，pulls.review 都会自动加载，无需密钥。",
+      "result": "创建或更新一个拉取请求即可体验。分析会以评论形式发布，PR 未变化时重新运行会跳过模型调用。",
       "options": "{provider} 会根据密钥推断。可设置 {provider}、{model} 或 {locale} 进行覆盖。全部选项见 {readme}。"
     },
     "cli": {
       "title": "通过 CLI 审阅本地 git 改动",
-      "soon": "CLI 尚未发布，以下是它将来的用法。",
-      "workingTree": "在 git 仓库中审阅工作区（已暂存、未暂存和未跟踪的文件）：",
-      "target": "或使用 git 的修订语法指定目标：",
-      "pr": "在此之前，可以用 {pkg} 从终端分析 GitHub 拉取请求，并将结果作为评论发布："
+      "intro": "在别人之前先审阅自己的改动。CLI 会在 pulls.review 中打开尚未提交的改动、某个提交或整个分支，让你在推送或创建 PR 之前，就看到改动分组和总结后的样子。",
+      "workingTree": "在 git 仓库中运行以下命令，审阅所有尚未提交的改动（包括新文件）：",
+      "target": "传入一个提交或范围来审阅它：",
+      "live": "工作时保持标签页打开。文件变动时，它会提示加载新的 diff；已标记为已审阅的文件只要没有变化就会保持标记。如果当前分支已有打开的 PR，会有横幅链接过去。"
     }
   },
   "load": {

@@ -52,13 +52,13 @@
     "actionsTitle": "透過 GitHub Actions 設定自動分析",
     "actionsDescription": "在 CI 中對每個拉取請求分析一次，並將結果以 PR 留言發布，審閱者不需各自準備模型金鑰。",
     "cliTitle": "透過 CLI 用於本機 git 變更",
-    "cliDescription": "在推送之前，從終端機審閱工作目錄、某個提交或某個分支。",
-    "comingSoon": "即將推出",
+    "cliDescription": "在推送之前，像審閱 PR 一樣分組並摘要你的工作目錄、某個提交或某個分支。",
     "viewGuide": "查看指南"
   },
   "guide": {
     "userscript": {
       "title": "將 pulls.review 嵌入到 github.com 中使用",
+      "intro": "在拉取請求所在的地方直接審閱。使用者腳本會為 github.com 上的每個拉取請求加入 pulls.review 面板，顯示分組後的檔案與摘要，不必切換分頁。",
       "manager": "安裝使用者腳本管理器：{tampermonkey} 或 {violentmonkey}。",
       "install": "安裝 pulls.review 使用者腳本，管理器會請你確認。",
       "open": "在 github.com 上開啟任一拉取請求，點擊 \"Files changed\" 旁的 {tab} 分頁。",
@@ -66,17 +66,18 @@
     },
     "actions": {
       "title": "透過 GitHub Actions 自動分析",
+      "intro": "讓 CI 在拉取請求建立或更新時分析一次。任何人開啟該 PR，無論在這裡或在 github.com 的面板中，都能立即看到同一份分組摘要。不需每人準備模型金鑰，來自 fork 的拉取請求也同樣適用。",
       "secret": "將模型金鑰新增為儲存庫 secret，例如 {name}。",
       "workflow": "將此 workflow 加入儲存庫：",
-      "result": "每個拉取請求都會收到一則分析留言。任何人開啟該 PR 時，pulls.review 都會自動載入，不需金鑰。",
+      "result": "建立或更新一個拉取請求即可體驗。分析會以留言形式發布，PR 未變動時重新執行會略過模型呼叫。",
       "options": "{provider} 會依金鑰推斷。可設定 {provider}、{model} 或 {locale} 進行覆寫。所有選項請見 {readme}。"
     },
     "cli": {
       "title": "透過 CLI 審閱本機 git 變更",
-      "soon": "CLI 尚未發布，以下是它未來的用法。",
-      "workingTree": "在 git 儲存庫中審閱工作目錄（已暫存、未暫存及未追蹤的檔案）：",
-      "target": "或使用 git 的修訂語法指定目標：",
-      "pr": "在此之前，可以用 {pkg} 從終端機分析 GitHub 拉取請求，並將結果以留言發布："
+      "intro": "在別人之前先審閱自己的變更。CLI 會在 pulls.review 中開啟尚未提交的變更、某個提交或整個分支，讓你在推送或建立 PR 之前，就看到變更分組與摘要後的樣子。",
+      "workingTree": "在 git 儲存庫中執行以下指令，審閱所有尚未提交的變更（包含新檔案）：",
+      "target": "傳入一個提交或範圍來審閱它：",
+      "live": "工作時保持分頁開啟。檔案變動時，它會提示載入新的 diff；已標記為已審閱的檔案只要沒有變動就會保持標記。如果目前分支已有開啟的 PR，會有橫幅連結過去。"
     }
   },
   "load": {

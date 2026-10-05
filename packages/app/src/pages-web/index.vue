@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { LandingGuide } from '../components/landing/LandingGuideModal.vue'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
-import DisplayBadge from '@antfu/design/components/Display/DisplayBadge.vue'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import FormTextInput from '@antfu/design/components/Form/FormTextInput.vue'
 import { computed, onMounted, ref } from 'vue'
@@ -262,9 +261,8 @@ useDocumentTitle(() => t('landing.documentTitle'), ' - ')
           <div class="flex items-start gap-3">
             <span class="i-ph:terminal-window-duotone mt-0.5 shrink-0 text-xl color-accent-teal" aria-hidden="true" />
             <div class="flex-1">
-              <h2 class="flex flex-wrap items-center gap-2 font-semibold">
+              <h2 class="font-semibold">
                 {{ $t('landing.cliTitle') }}
-                <DisplayBadge :text="$t('landing.comingSoon')" :color="false" class="text-xs font-normal" />
               </h2>
               <p class="text-sm op-fade">
                 {{ $t('landing.cliDescription') }}

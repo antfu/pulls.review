@@ -52,13 +52,13 @@
     "actionsTitle": "Set up auto analyze with GitHub Actions",
     "actionsDescription": "Analyze every pull request once in CI and post the result as a PR comment, so reviewers don't each need a model key.",
     "cliTitle": "Run on local git changes with the CLI",
-    "cliDescription": "Review your working tree, a commit or a branch from the terminal, before you push.",
-    "comingSoon": "Coming soon",
+    "cliDescription": "Review your working tree, a commit or a branch before you push, grouped and summarized like a PR.",
     "viewGuide": "View guide"
   },
   "guide": {
     "userscript": {
       "title": "Use pulls.review embedded on github.com",
+      "intro": "Review pull requests where they already live. The userscript adds a pulls.review drawer to every pull request on github.com, with grouped files and summaries, so you never have to switch tabs.",
       "manager": "Install a userscript manager: {tampermonkey} or {violentmonkey}.",
       "install": "Install the pulls.review userscript. Your manager asks you to confirm.",
       "open": "Open any pull request on github.com and click the {tab} tab next to \"Files changed\".",
@@ -66,17 +66,18 @@
     },
     "actions": {
       "title": "Auto analyze with GitHub Actions",
+      "intro": "Let CI analyze each pull request once, as soon as it's opened or updated. Everyone who opens the PR, here or in the github.com drawer, sees the same grouped summary right away. Nobody needs their own model key, and pull requests from forks get it too.",
       "secret": "Add your model key as a repository secret, for example {name}.",
       "workflow": "Add this workflow to the repository:",
-      "result": "Every pull request gets the analysis as a comment. pulls.review loads it for everyone who opens the PR, without a key.",
+      "result": "Open or update a pull request to try it. The analysis arrives as a comment, and re-runs on an unchanged PR skip the model call.",
       "options": "The {provider} is inferred from the key. Set {provider}, {model} or {locale} to override it. See the {readme} for every option."
     },
     "cli": {
       "title": "Review local git changes with the CLI",
-      "soon": "The CLI isn't released yet. This is how it will work.",
-      "workingTree": "In a git repository, review the working tree (staged, unstaged and untracked files):",
-      "target": "Or pass a target in git's revision syntax:",
-      "pr": "Until then, {pkg} analyzes a GitHub pull request from the terminal and posts the result as a comment:"
+      "intro": "Review your own change before anyone else does. The CLI opens your uncommitted work, a commit or a whole branch in pulls.review, so you can see how the change reads, grouped and summarized, before you push or open a PR.",
+      "workingTree": "In a git repository, run this to review everything you haven't committed yet, new files included:",
+      "target": "Pass a commit or a range to review that instead:",
+      "live": "Keep the tab open while you work. When files change, it offers to load the new diff, and files you already marked as reviewed stay marked unless they change. If your branch already has an open PR, a banner links to it."
     }
   },
   "load": {
