@@ -353,44 +353,46 @@ defineExpose({
 </script>
 
 <template>
-  <header
-    :id="`file-${file.sha}`"
-    class="relative sticky top-[calc(var(--diffs-header-height)-1px)] z-file-diff-header mt-2 flex items-center justify-between gap-2 overflow-hidden border border-base bg-base px-2 py-1.5"
-    role="button"
-    :class="collapsed ? 'rounded-lg' : 'rounded-t-lg'"
-    @click.self="collapsed = !collapsed"
-  >
-    <div class="min-w-0 flex items-center gap-2 text-sm">
-      <ReviewCheckbox
-        :status="status"
-        :aria-label="$t('file.markReviewed')"
-        @update="store.setReviewed([file.sha], $event)"
-      />
-      <DisplayFilePath :path="file.path" class="min-w-0" />
-    </div>
-    <div class="flex shrink-0 items-center gap-2">
-      <span v-if="resolvedCount" class="text-xs op-fade">{{ $t('file.resolved', { n: resolvedCount }) }}</span>
-      <DiffStats v-if="!file.isBinary" :additions="file.additions" :deletions="file.deletions" />
-      <span v-else class="text-xs op-fade">{{ $t('file.binary') }}</span>
-      <FileStatus :status="file.status" />
-      <span v-if="fullFileError" class="text-xs text-red-500" :title="fullFileError.message">{{ $t('file.loadFailed') }}</span>
-      <ActionIconButton
-        v-if="canLoadFullFile || isLoadingFullFile"
-        compact
-        :icon="isLoadingFullFile ? 'i-ph:spinner-duotone animate-spin' : 'i-ph:file-text-duotone'"
-        :disabled="isLoadingFullFile"
-        :label="$t('file.loadFull')"
-        :tooltip="$t('file.loadFull')"
-        @click="loadFullFile"
-      />
-      <ActionIconButton
-        compact
-        :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
-        :label="$t(collapsed ? 'file.expand' : 'file.collapse')"
-        @click="collapsed = !collapsed"
-      />
-    </div>
-  </header>
+  <div class="sticky top-[calc(var(--diffs-header-height)-1px)] z-file-diff-header mt-2 bg-base">
+    <header
+      :id="`file-${file.sha}`"
+      class="relative flex items-center justify-between gap-2 overflow-hidden border border-base bg-base px-2 py-1.5"
+      role="button"
+      :class="collapsed ? 'rounded-lg' : 'rounded-t-lg'"
+      @click.self="collapsed = !collapsed"
+    >
+      <div class="min-w-0 flex items-center gap-2 text-sm">
+        <ReviewCheckbox
+          :status="status"
+          :aria-label="$t('file.markReviewed')"
+          @update="store.setReviewed([file.sha], $event)"
+        />
+        <DisplayFilePath :path="file.path" class="min-w-0" />
+      </div>
+      <div class="flex shrink-0 items-center gap-2">
+        <span v-if="resolvedCount" class="text-xs op-fade">{{ $t('file.resolved', { n: resolvedCount }) }}</span>
+        <DiffStats v-if="!file.isBinary" :additions="file.additions" :deletions="file.deletions" />
+        <span v-else class="text-xs op-fade">{{ $t('file.binary') }}</span>
+        <FileStatus :status="file.status" />
+        <span v-if="fullFileError" class="text-xs text-red-500" :title="fullFileError.message">{{ $t('file.loadFailed') }}</span>
+        <ActionIconButton
+          v-if="canLoadFullFile || isLoadingFullFile"
+          compact
+          :icon="isLoadingFullFile ? 'i-ph:spinner-duotone animate-spin' : 'i-ph:file-text-duotone'"
+          :disabled="isLoadingFullFile"
+          :label="$t('file.loadFull')"
+          :tooltip="$t('file.loadFull')"
+          @click="loadFullFile"
+        />
+        <ActionIconButton
+          compact
+          :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
+          :label="$t(collapsed ? 'file.expand' : 'file.collapse')"
+          @click="collapsed = !collapsed"
+        />
+      </div>
+    </header>
+  </div>
   <div v-if="!collapsed" class="overflow-hidden border-x border-b border-base rounded-b-xl">
     <div v-if="status === 'changed'" class="flex flex-wrap items-center justify-between gap-2 border-b border-orange:20 bg-orange:10 px-3 py-1.5 text-sm text-orange-700 dark:text-orange-400">
       <span class="flex items-center gap-1.5">
