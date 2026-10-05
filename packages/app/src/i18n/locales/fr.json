@@ -49,6 +49,9 @@
     "embedTitle": "Utilisez-le intégré à github.com",
     "embedDescription": "Avec {tampermonkey} ou {violentmonkey} installé, un panneau pulls.review apparaît sur chaque page de pull request.",
     "installUserscript": "Installer le userscript",
+    "bookmarkletTitle": "Passer de github.com à pulls.review",
+    "bookmarkletDescription": "Impossible d'installer des extensions ? Glissez ce bookmarklet dans votre barre de favoris pour ouvrir la pull request actuelle sur pulls.review, et revenir.",
+    "bookmarkletDrag": "Glissez-moi dans votre barre de favoris",
     "actionsTitle": "Configurer l'analyse automatique avec GitHub Actions",
     "actionsDescription": "Analysez chaque pull request une fois en CI et publiez le résultat en commentaire, pour que chaque relecteur n'ait pas besoin de sa propre clé de modèle.",
     "cliTitle": "Lancez-le sur vos modifications git locales avec la CLI",
@@ -63,6 +66,13 @@
       "install": "Installez le userscript pulls.review. Votre gestionnaire vous demande de confirmer.",
       "open": "Ouvrez n'importe quelle pull request sur github.com et cliquez sur l'onglet {tab} à côté de \"Files changed\".",
       "ai": "github.com bloque les requêtes nécessaires à l'analyse IA : le panneau affiche donc les analyses partagées en commentaire. Ouvrez la PR sur pulls.review pour en lancer une nouvelle."
+    },
+    "bookmarklet": {
+      "title": "Passer de github.com à pulls.review",
+      "intro": "Un bookmarklet est un favori qui exécute un petit script. Il fonctionne dans tous les navigateurs, sans extension à installer, et ouvre la page actuelle sur l'autre site.",
+      "bar": "Affichez votre barre de favoris, par exemple avec {shortcut}.",
+      "drag": "Glissez ce bouton dans la barre de favoris :",
+      "use": "Sur une page de pull request, de commit ou de comparaison sur github.com, cliquez sur le favori pour l'ouvrir sur pulls.review. Cliquez à nouveau pour revenir."
     },
     "actions": {
       "title": "Analyse automatique avec GitHub Actions",

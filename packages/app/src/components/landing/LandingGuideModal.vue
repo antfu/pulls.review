@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import AppModal from '../AppModal.vue'
+import BookmarkletButton from './BookmarkletButton.vue'
 import ExternalLink from './ExternalLink.vue'
 import GuideCode from './GuideCode.vue'
 
-export type LandingGuide = 'userscript' | 'actions' | 'cli'
+export type LandingGuide = 'userscript' | 'bookmarklet' | 'actions' | 'cli'
 
 const guide = defineModel<LandingGuide | undefined>('guide', { required: true })
 
@@ -72,6 +73,21 @@ npx pulls.review --worktree  # uncommitted changes, new files included`
             </template>
           </i18n-t>
           <li>{{ $t('guide.userscript.ai') }}</li>
+        </template>
+
+        <template v-else-if="guide === 'bookmarklet'">
+          <i18n-t keypath="guide.bookmarklet.bar" tag="li" scope="global">
+            <template #shortcut>
+              <kbd class="rounded bg-code px-1 text-[0.85em] font-mono">Ctrl/⌘ + Shift + B</kbd>
+            </template>
+          </i18n-t>
+          <li>
+            {{ $t('guide.bookmarklet.drag') }}
+            <div class="mt-2 flex">
+              <BookmarkletButton />
+            </div>
+          </li>
+          <li>{{ $t('guide.bookmarklet.use') }}</li>
         </template>
 
         <template v-else-if="guide === 'actions'">

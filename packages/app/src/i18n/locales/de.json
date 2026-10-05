@@ -49,6 +49,9 @@
     "embedTitle": "Eingebettet auf github.com nutzen",
     "embedDescription": "Mit installiertem {tampermonkey} oder {violentmonkey} erscheint auf jeder Pull-Request-Seite ein pulls.review-Panel.",
     "installUserscript": "Userscript installieren",
+    "bookmarkletTitle": "Zwischen github.com und pulls.review wechseln",
+    "bookmarkletDescription": "Keine Erweiterungen erlaubt? Zieh dieses Bookmarklet in deine Lesezeichenleiste, um den aktuellen Pull Request auf pulls.review zu öffnen, und zurück.",
+    "bookmarkletDrag": "In die Lesezeichenleiste ziehen",
     "actionsTitle": "Automatische Analyse mit GitHub Actions einrichten",
     "actionsDescription": "Jeden Pull Request einmal in der CI analysieren und das Ergebnis als PR-Kommentar posten, damit nicht jeder Reviewer einen eigenen Modell-Key braucht.",
     "cliTitle": "Lokale Git-Änderungen mit der CLI prüfen",
@@ -63,6 +66,13 @@
       "install": "Installiere das pulls.review-Userscript. Dein Manager fragt nach einer Bestätigung.",
       "open": "Öffne einen beliebigen Pull Request auf github.com und klicke auf den Tab {tab} neben \"Files changed\".",
       "ai": "github.com blockiert die Anfragen, die die KI-Analyse braucht. Die Seitenleiste zeigt daher als PR-Kommentar geteilte Analysen. Öffne den PR auf pulls.review, um eine neue zu starten."
+    },
+    "bookmarklet": {
+      "title": "Zwischen github.com und pulls.review wechseln",
+      "intro": "Ein Bookmarklet ist ein Lesezeichen, das ein kleines Skript ausführt. Es funktioniert in jedem Browser ohne Erweiterung und öffnet die aktuelle Seite auf der jeweils anderen Website.",
+      "bar": "Blende deine Lesezeichenleiste ein, zum Beispiel mit {shortcut}.",
+      "drag": "Zieh diesen Button in die Lesezeichenleiste:",
+      "use": "Klicke auf einer Pull-Request-, Commit- oder Compare-Seite auf github.com auf das Lesezeichen, um sie auf pulls.review zu öffnen. Klicke erneut, um zurückzukehren."
     },
     "actions": {
       "title": "Automatische Analyse mit GitHub Actions",

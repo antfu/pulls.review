@@ -49,6 +49,9 @@
     "embedTitle": "github.com に埋め込んで使う",
     "embedDescription": "{tampermonkey} または {violentmonkey} をインストールすると、すべての pull request ページに pulls.review のドロワーが表示されます。",
     "installUserscript": "ユーザースクリプトをインストール",
+    "bookmarkletTitle": "github.com と pulls.review を行き来する",
+    "bookmarkletDescription": "拡張機能をインストールできない場合は、このブックマークレットをブックマークバーにドラッグしてください。現在のプルリクエストを pulls.review で開き、また戻れます。",
+    "bookmarkletDrag": "ブックマークバーにドラッグ",
     "actionsTitle": "GitHub Actions で自動解析を設定する",
     "actionsDescription": "CI で各プルリクエストを一度だけ解析し、結果を PR コメントとして投稿します。レビュアーごとにモデルのキーを用意する必要はありません。",
     "cliTitle": "CLI でローカルの git の変更に使う",
@@ -63,6 +66,13 @@
       "install": "pulls.review のユーザースクリプトをインストールします。マネージャーが確認を求めます。",
       "open": "github.com で任意のプルリクエストを開き、\"Files changed\" の隣にある {tab} タブをクリックします。",
       "ai": "github.com は AI 解析に必要なリクエストをブロックするため、パネルには PR コメントとして共有された解析が表示されます。新しく解析するには pulls.review で PR を開いてください。"
+    },
+    "bookmarklet": {
+      "title": "github.com と pulls.review を行き来する",
+      "intro": "ブックマークレットは小さなスクリプトを実行するブックマークです。拡張機能なしでどのブラウザでも動作し、表示中のページをもう一方のサイトで開きます。",
+      "bar": "ブックマークバーを表示します（例: {shortcut}）。",
+      "drag": "このボタンをブックマークバーにドラッグします:",
+      "use": "github.com のプルリクエスト、コミット、比較ページでブックマークをクリックすると pulls.review で開きます。もう一度クリックすると戻ります。"
     },
     "actions": {
       "title": "GitHub Actions で自動解析",

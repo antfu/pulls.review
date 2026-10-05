@@ -49,6 +49,9 @@
     "embedTitle": "嵌入到 github.com 中使用",
     "embedDescription": "安装 {tampermonkey} 或 {violentmonkey} 后，每个 pull request 页面都会出现 pulls.review 侧边栏。",
     "installUserscript": "安装用户脚本",
+    "bookmarkletTitle": "在 github.com 与 pulls.review 之间切换",
+    "bookmarkletDescription": "无法安装扩展？将此书签小工具拖到书签栏，即可在 pulls.review 中打开当前的拉取请求，并随时切换回来。",
+    "bookmarkletDrag": "拖到书签栏",
     "actionsTitle": "通过 GitHub Actions 设置自动分析",
     "actionsDescription": "在 CI 中对每个拉取请求分析一次，并将结果作为 PR 评论发布，审阅者无需各自准备模型密钥。",
     "cliTitle": "通过 CLI 用于本地 git 改动",
@@ -63,6 +66,13 @@
       "install": "安装 pulls.review 用户脚本，管理器会请你确认。",
       "open": "在 github.com 上打开任意拉取请求，点击 \"Files changed\" 旁的 {tab} 标签。",
       "ai": "github.com 会拦截 AI 分析所需的请求，因此面板只显示以 PR 评论形式分享的分析。如需重新分析，请在 pulls.review 上打开该 PR。"
+    },
+    "bookmarklet": {
+      "title": "在 github.com 与 pulls.review 之间切换",
+      "intro": "书签小工具是一个运行小段脚本的书签。它适用于任何浏览器，无需安装扩展，可在另一个站点中打开当前页面。",
+      "bar": "显示书签栏，例如按 {shortcut}。",
+      "drag": "将此按钮拖到书签栏：",
+      "use": "在 github.com 的拉取请求、提交或比较页面上点击该书签，即可在 pulls.review 中打开。再次点击即可返回。"
     },
     "actions": {
       "title": "通过 GitHub Actions 自动分析",

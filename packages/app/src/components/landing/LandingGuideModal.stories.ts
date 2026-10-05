@@ -13,6 +13,10 @@ export const Userscript: Story = {
   args: { guide: 'userscript' },
 }
 
+export const Bookmarklet: Story = {
+  args: { guide: 'bookmarklet' },
+}
+
 export const Actions: Story = {
   args: { guide: 'actions' },
 }

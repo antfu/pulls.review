@@ -49,6 +49,9 @@
     "embedTitle": "Use it embedded on github.com",
     "embedDescription": "With {tampermonkey} or {violentmonkey} installed, a pulls.review drawer appears on every pull request page.",
     "installUserscript": "Install userscript",
+    "bookmarkletTitle": "Jump between github.com and pulls.review",
+    "bookmarkletDescription": "Can't install extensions? Drag this bookmarklet to your bookmarks bar to open the current pull request on pulls.review, and back.",
+    "bookmarkletDrag": "Drag me to your bookmarks bar",
     "actionsTitle": "Set up auto analyze with GitHub Actions",
     "actionsDescription": "Analyze every pull request once in CI and post the result as a PR comment, so reviewers don't each need a model key.",
     "cliTitle": "Run on local git changes with the CLI",
@@ -63,6 +66,13 @@
       "install": "Install the pulls.review userscript. Your manager asks you to confirm.",
       "open": "Open any pull request on github.com and click the {tab} tab next to \"Files changed\".",
       "ai": "github.com blocks the requests AI analysis needs, so the drawer shows analyses shared as PR comments. Open the PR on pulls.review to run a new one."
+    },
+    "bookmarklet": {
+      "title": "Jump between github.com and pulls.review",
+      "intro": "A bookmarklet is a bookmark that runs a small script. It works in any browser, with no extension to install, and opens the page you are on in the other site.",
+      "bar": "Show your bookmarks bar, for example with {shortcut}.",
+      "drag": "Drag this button onto the bookmarks bar:",
+      "use": "On a pull request, commit or compare page on github.com, click the bookmark to open it on pulls.review. Click it again to go back."
     },
     "actions": {
       "title": "Auto analyze with GitHub Actions",

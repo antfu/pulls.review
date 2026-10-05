@@ -49,6 +49,9 @@
     "embedTitle": "Gunakan tertanam di github.com",
     "embedDescription": "Dengan {tampermonkey} atau {violentmonkey} terpasang, panel pulls.review muncul di setiap halaman pull request.",
     "installUserscript": "Pasang userscript",
+    "bookmarkletTitle": "Berpindah antara github.com dan pulls.review",
+    "bookmarkletDescription": "Tidak bisa memasang ekstensi? Seret bookmarklet ini ke bilah bookmark untuk membuka pull request saat ini di pulls.review, dan kembali.",
+    "bookmarkletDrag": "Seret saya ke bilah bookmark",
     "actionsTitle": "Siapkan analisis otomatis dengan GitHub Actions",
     "actionsDescription": "Analisis setiap pull request sekali di CI dan kirim hasilnya sebagai komentar PR, jadi setiap reviewer tidak perlu kunci model sendiri.",
     "cliTitle": "Jalankan pada perubahan git lokal dengan CLI",
@@ -63,6 +66,13 @@
       "install": "Pasang userscript pulls.review. Pengelola Anda akan meminta konfirmasi.",
       "open": "Buka pull request apa pun di github.com lalu klik tab {tab} di samping \"Files changed\".",
       "ai": "github.com memblokir permintaan yang dibutuhkan analisis AI, jadi panel menampilkan analisis yang dibagikan sebagai komentar PR. Buka PR di pulls.review untuk menjalankan analisis baru."
+    },
+    "bookmarklet": {
+      "title": "Berpindah antara github.com dan pulls.review",
+      "intro": "Bookmarklet adalah bookmark yang menjalankan skrip kecil. Bookmarklet bekerja di browser apa pun tanpa perlu memasang ekstensi, dan membuka halaman saat ini di situs lainnya.",
+      "bar": "Tampilkan bilah bookmark, misalnya dengan {shortcut}.",
+      "drag": "Seret tombol ini ke bilah bookmark:",
+      "use": "Di halaman pull request, commit, atau compare di github.com, klik bookmark untuk membukanya di pulls.review. Klik lagi untuk kembali."
     },
     "actions": {
       "title": "Analisis otomatis dengan GitHub Actions",

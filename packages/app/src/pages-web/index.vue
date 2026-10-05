@@ -9,6 +9,7 @@ import { useRouter } from 'vue-router'
 import AppFooter from '../components/AppFooter.vue'
 import AppHeader from '../components/AppHeader.vue'
 import DiffPill from '../components/DiffPill.vue'
+import BookmarkletButton from '../components/landing/BookmarkletButton.vue'
 import ExternalLink from '../components/landing/ExternalLink.vue'
 import LandingDemo from '../components/landing/LandingDemo.vue'
 import LandingGuideModal from '../components/landing/LandingGuideModal.vue'
@@ -239,6 +240,26 @@ useDocumentTitle(() => t('landing.documentTitle'), ' - ')
               {{ $t('landing.installUserscript') }}
             </ActionButton>
             <ActionButton icon="i-ph:book-open-duotone" @click="guide = 'userscript'">
+              {{ $t('landing.viewGuide') }}
+            </ActionButton>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4 border border-base rounded-lg p-5">
+          <div class="flex items-start gap-3">
+            <span class="i-ph:bookmark-simple-duotone mt-0.5 shrink-0 text-xl color-accent-magenta" aria-hidden="true" />
+            <div class="flex-1">
+              <h2 class="font-semibold">
+                {{ $t('landing.bookmarkletTitle') }}
+              </h2>
+              <p class="text-sm op-fade">
+                {{ $t('landing.bookmarkletDescription') }}
+              </p>
+            </div>
+          </div>
+          <div class="mt-auto flex gap-2">
+            <BookmarkletButton />
+            <ActionButton icon="i-ph:book-open-duotone" @click="guide = 'bookmarklet'">
               {{ $t('landing.viewGuide') }}
             </ActionButton>
           </div>

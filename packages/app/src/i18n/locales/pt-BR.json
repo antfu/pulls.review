@@ -49,6 +49,9 @@
     "embedTitle": "Use integrado ao github.com",
     "embedDescription": "Com {tampermonkey} ou {violentmonkey} instalado, um painel do pulls.review aparece em cada página de pull request.",
     "installUserscript": "Instalar userscript",
+    "bookmarkletTitle": "Alterne entre github.com e pulls.review",
+    "bookmarkletDescription": "Não pode instalar extensões? Arraste este bookmarklet para a barra de favoritos para abrir o pull request atual no pulls.review, e voltar.",
+    "bookmarkletDrag": "Arraste-me para a barra de favoritos",
     "actionsTitle": "Configure a análise automática com GitHub Actions",
     "actionsDescription": "Analise cada pull request uma vez na CI e publique o resultado como comentário, para que cada revisor não precise da própria chave de modelo.",
     "cliTitle": "Rode em mudanças locais do git com a CLI",
@@ -63,6 +66,13 @@
       "install": "Instale o userscript do pulls.review. Seu gerenciador pede confirmação.",
       "open": "Abra qualquer pull request no github.com e clique na aba {tab} ao lado de \"Files changed\".",
       "ai": "O github.com bloqueia as requisições de que a análise por IA precisa, então o painel mostra análises compartilhadas como comentários do PR. Abra o PR no pulls.review para rodar uma nova."
+    },
+    "bookmarklet": {
+      "title": "Alterne entre github.com e pulls.review",
+      "intro": "Um bookmarklet é um favorito que executa um pequeno script. Funciona em qualquer navegador, sem instalar extensões, e abre a página atual no outro site.",
+      "bar": "Mostre a barra de favoritos, por exemplo com {shortcut}.",
+      "drag": "Arraste este botão para a barra de favoritos:",
+      "use": "Em uma página de pull request, commit ou comparação no github.com, clique no favorito para abri-la no pulls.review. Clique de novo para voltar."
     },
     "actions": {
       "title": "Análise automática com GitHub Actions",

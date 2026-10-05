@@ -49,6 +49,9 @@
     "embedTitle": "github.com에 임베드해서 사용",
     "embedDescription": "{tampermonkey} 또는 {violentmonkey}를 설치하면 모든 pull request 페이지에 pulls.review 서랍이 나타납니다.",
     "installUserscript": "유저스크립트 설치",
+    "bookmarkletTitle": "github.com과 pulls.review 간 이동",
+    "bookmarkletDescription": "확장 프로그램을 설치할 수 없나요? 이 북마크릿을 북마크바로 드래그하면 현재 풀 리퀘스트를 pulls.review에서 열고 다시 돌아갈 수 있습니다.",
+    "bookmarkletDrag": "북마크바로 드래그하세요",
     "actionsTitle": "GitHub Actions로 자동 분석 설정",
     "actionsDescription": "CI에서 모든 풀 리퀘스트를 한 번 분석하고 결과를 PR 댓글로 게시하므로, 리뷰어마다 모델 키가 필요하지 않습니다.",
     "cliTitle": "CLI로 로컬 git 변경 사항에 실행",
@@ -63,6 +66,13 @@
       "install": "pulls.review 유저스크립트를 설치하세요. 관리자가 확인을 요청합니다.",
       "open": "github.com에서 아무 풀 리퀘스트나 열고 \"Files changed\" 옆의 {tab} 탭을 클릭하세요.",
       "ai": "github.com은 AI 분석에 필요한 요청을 차단하므로, 패널에는 PR 댓글로 공유된 분석이 표시됩니다. 새로 분석하려면 pulls.review에서 PR을 여세요."
+    },
+    "bookmarklet": {
+      "title": "github.com과 pulls.review 간 이동",
+      "intro": "북마크릿은 작은 스크립트를 실행하는 북마크입니다. 확장 프로그램 없이 모든 브라우저에서 동작하며, 현재 페이지를 다른 사이트에서 엽니다.",
+      "bar": "북마크바를 표시하세요. 예: {shortcut}",
+      "drag": "이 버튼을 북마크바로 드래그하세요:",
+      "use": "github.com의 풀 리퀘스트, 커밋 또는 비교 페이지에서 북마크를 클릭하면 pulls.review에서 열립니다. 다시 클릭하면 돌아갑니다."
     },
     "actions": {
       "title": "GitHub Actions로 자동 분석",
