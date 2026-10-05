@@ -2,7 +2,7 @@
   "name": "pulls.review",
   "type": "module",
   "version": "0.1.0",
-  "description": "Review local git changes with pulls.review. Not implemented yet - this name is reserved.",
+  "description": "Review local git changes - the working tree, a commit or any range - grouped and summarized in the browser.",
   "author": "Anthony Fu <hi@antfu.me>",
   "license": "MIT",
   "funding": "https://github.com/sponsors/antfu",
@@ -15,16 +15,39 @@
   "bugs": "https://github.com/antfu/pulls.review/issues",
   "keywords": [
     "pull-request",
-    "code-review"
+    "code-review",
+    "git",
+    "devframe"
   ],
+  "exports": {
+    "./devframe": "./dist/devframe.mjs"
+  },
   "bin": {
     "pulls.review": "./bin.mjs",
     "pulls-review": "./bin.mjs"
   },
   "files": [
-    "bin.mjs"
+    "bin.mjs",
+    "dist"
   ],
   "engines": {
     "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsdown && pnpm -F @pulls.review/app run build:local",
+    "dev": "node bin.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@pulls.review/core": "workspace:^",
+    "devframe": "catalog:frontend",
+    "unstorage": "catalog:frontend"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:dev",
+    "tsdown": "catalog:build",
+    "typescript": "catalog:dev",
+    "vitest": "catalog:testing"
   }
 }

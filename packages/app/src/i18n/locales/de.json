@@ -337,5 +337,15 @@
     "noViewer": "Der GitHub-Benutzer dieses Tokens konnte nicht ermittelt werden.",
     "tokenRejected": "GitHub hat dieses Token abgelehnt (401). Prüfe, ob es vollständig eingefügt wurde und nicht widerrufen ist.",
     "tooLarge": "Die Analyse ist zu groß, um als Kommentar geteilt zu werden ({n} Zeichen)."
+  },
+  "local": {
+    "loading": "Lokale Änderungen werden geladen…",
+    "loadFailed": "Diese Änderungen konnten nicht geladen werden",
+    "auth": {
+      "title": "Code aus dem Terminal eingeben",
+      "hint": "pulls.review hat im Terminal, in dem es läuft, einen 6-stelligen Code ausgegeben.",
+      "invalid": "Dieser Code hat nicht funktioniert. Prüfe das Terminal und versuche es erneut.",
+      "submit": "Weiter"
+    }
   }
 }

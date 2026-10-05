@@ -81,6 +81,7 @@ catalogs:
     '@vueuse/core': ^14.4.0
     animejs: ^4.5.0
     colorjs.io: ^0.7.1
+    devframe: ^1.2.0
     diff: ^9.0.0
     fzf: ^0.5.2
     idb-keyval: ^6.3.0

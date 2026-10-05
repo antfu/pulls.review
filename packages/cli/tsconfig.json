@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "jsx": "preserve",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
@@ -9,20 +8,11 @@
       "@pulls.review/core/*": ["../core/src/*.ts"]
     },
     "resolveJsonModule": true,
-    "types": ["vite/client"],
+    "types": ["node"],
     "strict": true,
     "noEmit": true,
     "isolatedModules": true,
     "skipLibCheck": true
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.vue",
-    "scripts/**/*.ts",
-    "vite.config.ts",
-    "vite.config.embed.ts",
-    "vite.config.local.ts",
-    "vitest.config.ts",
-    "uno.config.ts"
-  ]
+  "include": ["src/**/*.ts", "tsdown.config.ts", "vitest.config.ts"]
 }

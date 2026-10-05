@@ -3,7 +3,7 @@ import type { DiffSource } from '../types/source'
 import type { LocalTarget } from './target'
 import { copyFile, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { devNull, tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { isAbsolute, join, relative, resolve } from 'node:path'
 import { computeContentHash, parsePatch } from '../patch-parser'
 import { serializeRef } from '../types/source'
 import { git, tryGit } from './git'
@@ -108,8 +108,11 @@ export interface LocalSourceOptions {
   target: string
 }
 
+/** A local diff can always be refreshed and expanded to full files. */
+export type LocalSource = DiffSource & Required<Pick<DiffSource, 'fingerprint' | 'loadFile'>>
+
 /** A local repository through `git` (Node only). No reviews or sharing: a local diff has no review lifecycle. */
-export function createLocalSource({ cwd, target }: LocalSourceOptions): DiffSource {
+export function createLocalSource({ cwd, target }: LocalSourceOptions): LocalSource {
   const parsed = parseTarget(target)
   const root = git(cwd, ['rev-parse', '--show-toplevel']).then(out => out.trim())
 
@@ -138,7 +141,7 @@ export function createLocalSource({ cwd, target }: LocalSourceOptions): DiffSour
       return {
         ref: { kind: 'local', repo, target },
         title: resolved.title,
-        label: target || 'working tree',
+        label: parsed.kind === 'commit' ? target : undefined,
         base: { sha: resolved.base, ref: parsed.kind === 'range' ? parsed.base : resolved.base.slice(0, 7) },
         head: { sha: head, ref: parsed.kind === 'range' ? parsed.head : parsed.kind === 'commit' ? parsed.rev : 'working tree' },
         commits: resolved.commits,
@@ -151,8 +154,13 @@ export function createLocalSource({ cwd, target }: LocalSourceOptions): DiffSour
     },
     async loadFile(path, sha) {
       const repo = await root
-      if (sha.startsWith(WORKTREE_PREFIX))
+      if (sha.startsWith(WORKTREE_PREFIX)) {
+        // `path` may come from a browser over RPC: never read outside the repository.
+        const inside = relative(repo, resolve(repo, path))
+        if (!inside || inside.startsWith('..') || isAbsolute(inside))
+          return undefined
         return readFile(join(repo, path), 'utf8').catch(() => undefined)
+      }
       if (await tryGit(repo, ['cat-file', '-e', `${sha}:${path}`]) === undefined)
         return undefined
       return git(repo, ['cat-file', 'blob', `${sha}:${path}`])

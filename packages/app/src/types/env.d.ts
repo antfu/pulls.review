@@ -14,6 +14,12 @@ interface ImportMetaEnv {
    * truthiness-only testing rule as `PR_LLM`.
    */
   readonly PR_EMBED: boolean
+  /**
+   * Whether this is the `pulls.review` CLI's build (`vite.config.local.ts`), served by its
+   * devframe server: the cache and GitHub token come over RPC, and `/local` reviews a
+   * local git diff. Same truthiness-only testing rule as `PR_LLM`.
+   */
+  readonly PR_LOCAL: boolean
   /** Short git sha the embed bundle was built from; only defined by `vite.config.embed.ts`. */
   readonly PR_EMBED_SHA: string | undefined
 }

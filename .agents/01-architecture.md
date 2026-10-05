@@ -27,10 +27,13 @@ A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
 - `packages/actions` (`@pulls.review/actions`) — the GitHub Actions CLI: fetch,
   analyze, upsert the shared-analysis comment; what the root `action.yml`
   composite action runs.
-- `packages/cli` (`pulls.review`, the unscoped name) is reserved for the
-  standalone CLI: local git review served through devframe
-  (`plans/09-devframe-local-review.md`, on Plan 04's `local` source). It is not
-  built yet and MUST NOT take over the Actions entry point.
+- `packages/cli` (`pulls.review`, the unscoped name) — the standalone CLI:
+  `pulls.review [target]` serves a local git review through devframe
+  (`plans/09-devframe-local-review.md`, on Plan 04's `local` source). Its SPA
+  is the app's `PR_LOCAL` build (`vite.config.local.ts`), which swaps only the
+  app context: the cache is an RPC driver over `<git-common-dir>/pulls-review`
+  and the GitHub token comes from the server. It MUST NOT take over the
+  Actions entry point, and the public site MUST NOT bundle the devframe client.
 
 ## Invariants
 

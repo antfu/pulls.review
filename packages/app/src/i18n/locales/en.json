@@ -337,5 +337,15 @@
     "noViewer": "Could not determine the GitHub user of this token.",
     "tokenRejected": "GitHub rejected this token (401). Check that it was pasted completely and has not been revoked.",
     "tooLarge": "The analysis is too large to share as a comment ({n} characters)."
+  },
+  "local": {
+    "loading": "Loading local changes…",
+    "loadFailed": "Couldn't load these changes",
+    "auth": {
+      "title": "Enter the code from your terminal",
+      "hint": "pulls.review printed a 6-digit code in the terminal it runs in.",
+      "invalid": "That code didn't work. Check the terminal and try again.",
+      "submit": "Continue"
+    }
   }
 }

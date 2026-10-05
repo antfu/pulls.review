@@ -1,6 +1,26 @@
 # Plan 09: local review through devframe (`pulls.review` CLI)
 
-Status: **planned**. Depends on Plan 04 (the `local` source) and Plan 10.
+Status: **in progress**. Depends on Plan 04 (the `local` source) and Plan 10.
+
+Built so far: the `pulls.review [target]` server, the `source.*`, storage and
+GitHub-token RPC functions, and the `PR_LOCAL` SPA with its code prompt and
+`/local/<target>` route. Not built yet: the env LLM keys over RPC, the change
+push, the current-branch PR, the `build` snapshot, and the hub playground.
+
+How the built part differs from the plan below:
+
+- **Cache.** The RPC functions expose an unstorage driver over the fs
+  directory, not the repositories. The browser runs the same core `/cache`
+  repositories on top of it, so eviction runs in the browser, reading only
+  `pr-meta:*` documents. Keys are escaped to one file per entry
+  (`flatKeys`), because the fs driver would otherwise turn every `:` into a
+  directory.
+- **Target in the path.** The target sits in the path (`/local/main...feat`,
+  `/local/` for the working tree) rather than in `?target=`. `App.vue` keys
+  pages by path, so another target remounts the page.
+- **Fixed mount path.** The SPA uses the fixed mount path `/__pulls.review/` for
+  both its assets and its router, standalone and in a hub, instead of a
+  runtime base.
 
 ## Why
 

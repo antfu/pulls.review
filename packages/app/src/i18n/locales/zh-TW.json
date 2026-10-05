@@ -337,5 +337,15 @@
     "noViewer": "無法判斷此 token 對應的 GitHub 使用者。",
     "tokenRejected": "GitHub 拒絕了此 token（401）。請確認已完整貼上且未被撤銷。",
     "tooLarge": "分析內容過大，無法以留言分享（{n} 個字元）。"
+  },
+  "local": {
+    "loading": "正在載入本機變更…",
+    "loadFailed": "無法載入這些變更",
+    "auth": {
+      "title": "輸入終端機中顯示的代碼",
+      "hint": "pulls.review 已在其執行的終端機中印出一組 6 位數代碼。",
+      "invalid": "此代碼無效。請檢查終端機後再試一次。",
+      "submit": "繼續"
+    }
   }
 }

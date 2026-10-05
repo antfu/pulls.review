@@ -56,6 +56,7 @@ describe('local source', () => {
     expect(await source.fingerprint!()).toBe(diff.head!.sha)
     expect(await source.loadFile!('a.ts', diff.head!.sha)).toBe('two\n')
     expect(await source.loadFile!('a.ts', diff.base!.sha)).toBe('one\n')
+    expect(await source.loadFile!('../outside.txt', diff.head!.sha)).toBeUndefined()
   })
 
   it('moves the working-tree fingerprint when a file changes again', async () => {

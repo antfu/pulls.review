@@ -337,5 +337,15 @@
     "noViewer": "Não foi possível determinar o usuário do GitHub deste token.",
     "tokenRejected": "O GitHub rejeitou este token (401). Verifique se ele foi colado por completo e não foi revogado.",
     "tooLarge": "A análise é grande demais para ser compartilhada como comentário ({n} caracteres)."
+  },
+  "local": {
+    "loading": "Carregando alterações locais…",
+    "loadFailed": "Não foi possível carregar estas alterações",
+    "auth": {
+      "title": "Digite o código do seu terminal",
+      "hint": "O pulls.review exibiu um código de 6 dígitos no terminal em que está rodando.",
+      "invalid": "Esse código não funcionou. Confira o terminal e tente novamente.",
+      "submit": "Continuar"
+    }
   }
 }

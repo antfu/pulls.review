@@ -16,7 +16,8 @@
     "typecheck": "vue-tsc --noEmit",
     "test": "vitest run",
     "storybook": "storybook dev -p 6006",
-    "storybook:build": "storybook build"
+    "storybook:build": "storybook build",
+    "build:local": "vite build --config vite.config.local.ts"
   },
   "dependencies": {
     "@pulls.review/core": "workspace:^"
@@ -44,6 +45,7 @@
     "@vueuse/core": "catalog:frontend",
     "animejs": "catalog:frontend",
     "colorjs.io": "catalog:frontend",
+    "devframe": "catalog:frontend",
     "fake-indexeddb": "catalog:testing",
     "fzf": "catalog:frontend",
     "happy-dom": "catalog:testing",

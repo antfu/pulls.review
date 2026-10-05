@@ -337,5 +337,15 @@
     "noViewer": "Pengguna GitHub untuk token ini tidak dapat ditentukan.",
     "tokenRejected": "GitHub menolak token ini (401). Pastikan token ditempel lengkap dan belum dicabut.",
     "tooLarge": "Analisis terlalu besar untuk dibagikan sebagai komentar ({n} karakter)."
+  },
+  "local": {
+    "loading": "Memuat perubahan lokal…",
+    "loadFailed": "Tidak dapat memuat perubahan ini",
+    "auth": {
+      "title": "Masukkan kode dari terminal Anda",
+      "hint": "pulls.review menampilkan kode 6 digit di terminal tempat ia berjalan.",
+      "invalid": "Kode itu tidak berhasil. Periksa terminal dan coba lagi.",
+      "submit": "Lanjutkan"
+    }
   }
 }

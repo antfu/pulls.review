@@ -27,7 +27,8 @@ export function serializeRef(ref: SourceRef): string {
     case 'paste':
       return `paste:${ref.hash}`
     case 'local':
-      return `local:${ref.repo}:${ref.target}`
+      // Both parts are free text (paths, `a...b`): escaped so no two refs normalize to one storage key.
+      return `local:${encodeURIComponent(ref.repo)}@${encodeURIComponent(ref.target)}`
   }
 }
 

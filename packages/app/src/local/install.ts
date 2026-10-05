@@ -1,0 +1,55 @@
+import type { App } from 'vue'
+import type { Router } from 'vue-router'
+import { createCacheRepositories } from '@pulls.review/core/cache'
+import { LOCAL_RPC } from '@pulls.review/core/local-rpc'
+import { createStorage } from 'unstorage'
+import * as v from 'valibot'
+import { createApp } from 'vue'
+import { installAppContext, settingsCredentials } from '../app-context'
+import { i18n } from '../i18n'
+import { connectLocal } from './connection'
+import { localRpcKey } from './local-rpc-key'
+import LocalAuthGate from './LocalAuthGate.vue'
+import { createRpcCredentials, createRpcDriver } from './rpc-backends'
+
+/** Until the server trusts this tab, every RPC call fails: ask for the terminal's code first. */
+async function ensureTrusted(client: Awaited<ReturnType<typeof connectLocal>>['client']): Promise<void> {
+  // `--open` lands the tab with the code in the URL, which `connectDevframe` exchanges
+  // itself; a stored token from an earlier visit also settles this quickly. It rejects on timeout.
+  if (await client.ensureTrusted(2000).catch(() => false))
+    return
+  const host = document.createElement('div')
+  document.body.append(host)
+  await new Promise<void>((resolve) => {
+    const gate = createApp(LocalAuthGate, { client, onTrusted: resolve }).use(i18n)
+    gate.mount(host)
+  })
+  host.remove()
+}
+
+/**
+ * Wires a `PR_LOCAL` build to the `pulls.review` server: the cache lives in the repo
+ * (over RPC), the GitHub token comes from the server's environment, and `/local`
+ * serves the diff the CLI was started for.
+ */
+export async function installLocal(app: App, router: Router): Promise<void> {
+  const { client, rpc } = await connectLocal()
+  await ensureTrusted(client)
+
+  installAppContext(app, {
+    cache: createCacheRepositories(createStorage({ driver: createRpcDriver(rpc) })),
+    credentials: createRpcCredentials(rpc, settingsCredentials),
+  })
+  app.provide(localRpcKey, rpc)
+
+  // The target is part of the path (`/local/main...feat`, `/local/` for the working tree)
+  // so another target remounts the page, as `App.vue` keys pages by path.
+  router.addRoute({ path: '/local/:target(.*)', component: () => import('../pages/local.vue') })
+  // The bare mount path opens the target the CLI was started with, not the landing page.
+  router.removeRoute('home')
+  router.addRoute({
+    path: '/',
+    component: () => import('../pages/local.vue'),
+    beforeEnter: async () => `/local/${v.parse(v.string(), await rpc.call(LOCAL_RPC.defaultTarget))}`,
+  })
+}

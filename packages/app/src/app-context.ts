@@ -18,7 +18,7 @@ export interface AppContext {
 export const appContextKey: InjectionKey<AppContext> = Symbol('app-context')
 
 /** Read on every request, so a token saved in Settings applies without rebuilding a store. */
-const settingsCredentials: Credentials = {
+export const settingsCredentials: Credentials = {
   githubToken: async () => settings.value.githubToken || undefined,
 }
 

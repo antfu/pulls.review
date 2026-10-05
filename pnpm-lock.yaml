@@ -266,6 +266,9 @@ catalogs:
     colorjs.io:
       specifier: ^0.7.1
       version: 0.7.1
+    devframe:
+      specifier: ^1.2.0
+      version: 1.2.0
     diff:
       specifier: ^9.0.0
       version: 9.0.0
@@ -492,6 +495,9 @@ importers:
       colorjs.io:
         specifier: catalog:frontend
         version: 0.7.1
+      devframe:
+        specifier: catalog:frontend
+        version: 1.2.0(cac@7.0.0)(srvx@1.0.5)
       fake-indexeddb:
         specifier: catalog:testing
         version: 6.2.5
@@ -558,6 +564,31 @@ importers:
       zod:
         specifier: catalog:frontend
         version: 4.6.5
+
+  packages/cli:
+    dependencies:
+      '@pulls.review/core':
+        specifier: workspace:^
+        version: link:../core
+      devframe:
+        specifier: catalog:frontend
+        version: 1.2.0(cac@7.0.0)(srvx@1.0.5)
+      unstorage:
+        specifier: catalog:frontend
+        version: 1.17.5(idb-keyval@6.3.0)
+    devDependencies:
+      '@types/node':
+        specifier: catalog:dev
+        version: 26.6.4
+      tsdown:
+        specifier: catalog:build
+        version: 0.23.0(@volar/typescript@2.4.28(typescript@6.0.3))(@vue/language-core@3.3.11)(oxc-resolver@11.21.2)(typescript@6.0.3)(vue-tsc@3.3.12(typescript@6.0.3))
+      typescript:
+        specifier: catalog:dev
+        version: 6.0.3
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.3(@types/node@26.6.4)(happy-dom@20.14.5)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   packages/core:
     devDependencies:
@@ -2965,11 +2996,11 @@ packages:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
 
-  devframe@1.1.0:
-    resolution: {integrity: sha512-pvp42kOkiEr32Msqngb3mW9AQFHwOxNMn8MYNO/TBkJhyeykbDUWHwiZVubRYnasmZeqT4MLYGF9AHjHIkmDnA==}
+  devframe@1.2.0:
+    resolution: {integrity: sha512-MeLtg4QHnm/khez+pGzRVIaFCi6AT/4Tz8mS+UshySNzr+MTDSNWq4VHEbgio/Bzvd1Qu3sJAwfpqm+V6xNcag==}
     hasBin: true
     peerDependencies:
-      '@devframes/agentic': 1.1.0
+      '@devframes/agentic': 1.2.0
       cac: ^7.0.0
     peerDependenciesMeta:
       '@devframes/agentic':
@@ -6622,7 +6653,7 @@ snapshots:
       '@unocss/config': 66.10.5
       '@unocss/core': 66.10.5
       '@unocss/rule-utils': 66.10.5
-      devframe: 1.1.0(cac@7.0.0)(srvx@1.0.5)
+      devframe: 1.2.0(cac@7.0.0)(srvx@1.0.5)
       tinyglobby: 0.2.17
       unplugin-utils: 0.3.2
     transitivePeerDependencies:
@@ -7293,7 +7324,7 @@ snapshots:
 
   detect-libc@2.1.2: {}
 
-  devframe@1.1.0(cac@7.0.0)(srvx@1.0.5):
+  devframe@1.2.0(cac@7.0.0)(srvx@1.0.5):
     dependencies:
       crossws: 0.4.12(srvx@1.0.5)
       h3: 2.0.1-rc.32(crossws@0.4.12(srvx@1.0.5))

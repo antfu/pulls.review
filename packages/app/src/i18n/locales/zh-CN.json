@@ -337,5 +337,15 @@
     "noViewer": "无法确定此 token 对应的 GitHub 用户。",
     "tokenRejected": "GitHub 拒绝了此 token（401）。请检查是否完整粘贴且未被撤销。",
     "tooLarge": "分析内容过大，无法作为评论分享（{n} 个字符）。"
+  },
+  "local": {
+    "loading": "正在加载本地更改…",
+    "loadFailed": "无法加载这些更改",
+    "auth": {
+      "title": "输入终端中显示的代码",
+      "hint": "pulls.review 已在其运行的终端中打印了一个 6 位代码。",
+      "invalid": "该代码无效。请检查终端后重试。",
+      "submit": "继续"
+    }
   }
 }
