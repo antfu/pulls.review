@@ -37,7 +37,7 @@ A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
   does the same work in the user's own CI with the user's own secrets.
 - The app MUST build as a static SPA and deploy as static files, on Vercel.
   `vercel.json` carries a catch-all rewrite to `/index.html` so the dynamic
-  route `/gh/[owner]/[repo]/[number]` works on direct navigation/refresh, not
+  routes under `/gh/...` work on direct navigation/refresh, not
   just client-side routing after landing on `/`.
 - Every composable, component and utility is imported explicitly — no
   auto-import plugin.
@@ -74,6 +74,14 @@ analysis strategy later never touches the view layer:
   Implementations (`core/providers/`):
   - `github-pr` (`createGithubPullRequestSource`) — GitHub REST API (PR
     metadata + paginated file list/patches) through one `GithubClient`.
+  - `github-compare` / `github-commit` (`createGithubCompareSource`,
+    `createGithubCommitSource`) — `base...head` against its merge base, and one
+    commit against its first parent. GitHub caps both listings at 300 files.
+    A compare fingerprints by its head ref; a commit never changes, so it has
+    no fingerprint. Neither has reviews or sharing. `createGithubSource(ref)`
+    picks the right one for any GitHub ref, served at
+    `/gh/{owner}/{repo}/compare/{base}...{head}` and
+    `/gh/{owner}/{repo}/commit/{sha}` by the same page as a PR.
   - `paste` (`createPasteSource`) — accepts raw unified-diff/patch text (pasted, or an uploaded
     `.diff`/`.patch` file, e.g. GitHub's `.diff` endpoint or `git diff >
     diff.patch` output) via the shared `app/patch-parser/`. Fed to the

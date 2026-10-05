@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import type { RoutableRef } from '../../../../source-routes'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyState.vue'
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
-import { createGithubPullRequestSource } from '@pulls.review/core/github'
+import { createGithubSource } from '@pulls.review/core/github'
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppContext } from '../../../../app-context'
@@ -11,26 +12,27 @@ import { useDocumentTitle } from '../../../../composables/useDocumentTitle'
 import { resolveStoredTokenMeta } from '../../../../composables/useGithubTokenMeta'
 import { createDiffsStore } from '../../../../stores/diffs-store'
 
+const props = defineProps<{ sourceRef: RoutableRef }>()
+
 const route = useRoute()
 const { cache, credentials } = useAppContext()
 
-// Read once: `App.vue` keys the routed page by path, so another PR mounts a fresh page and store.
-const pr = {
-  owner: route.params.owner as string,
-  repo: route.params.repo as string,
-  number: route.params.number as string,
-}
+// Read once: `App.vue` keys the routed page by path, so another diff mounts a fresh page and store.
+const ref = props.sourceRef
 
 // `?from=<login>` deep-links a shared analysis (see plans/07); read once, never rewritten.
 const from = typeof route.query.from === 'string' ? route.query.from : undefined
 
-const store = createDiffsStore(createGithubPullRequestSource(pr, credentials, { tokenMeta: resolveStoredTokenMeta }), { cache, from })
+const store = createDiffsStore(createGithubSource(ref, credentials, { tokenMeta: resolveStoredTokenMeta }), { cache, from })
 
-// The PR title matches the header's `{{ meta.title }} #number`; before it loads, fall
-// back to the route so the tab still identifies which PR is opening.
-useDocumentTitle(() => store.diff
-  ? `${store.diff.title} (#${pr.number})`
-  : `${pr.owner}/${pr.repo} #${pr.number}`)
+// Matches the header's title and label; before the diff loads, the repo still
+// identifies what is opening.
+useDocumentTitle(() => {
+  const diff = store.diff
+  if (!diff)
+    return `${ref.owner}/${ref.repo}`
+  return diff.label ? `${diff.title} (${diff.label})` : diff.title
+})
 
 onMounted(() => store.load())
 </script>

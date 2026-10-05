@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { routes } from './source-routes'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -6,6 +7,6 @@ export const router = createRouter({
     { path: '/', component: () => import('./pages/index.vue') },
     { path: '/upload', component: () => import('./pages/upload.vue') },
     { path: '/gh/:owner/:repo', component: () => import('./pages/gh/[owner]/[repo]/index.vue') },
-    { path: '/gh/:owner/:repo/:number', component: () => import('./pages/gh/[owner]/[repo]/[number].vue') },
+    ...routes(() => import('./pages/gh/[owner]/[repo]/diff.vue')),
   ],
 })

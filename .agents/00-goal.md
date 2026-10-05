@@ -2,7 +2,8 @@
 
 pulls.review is a better way to review a GitHub pull request's
 diff: grouped, summarized, and fast, instead of GitHub's flat file-by-file
-list. It renders any PR at `/gh/{owner}/{repo}/{number}`, lists a repo's open
+list. It renders any PR at `/gh/{owner}/{repo}/{number}` (and any compare or
+commit at `/gh/{owner}/{repo}/compare/{base}...{head}` and `.../commit/{sha}`), lists a repo's open
 PRs at `/gh/{owner}/{repo}`, and renders any raw `.diff`/`.patch` text pasted
 or uploaded at `/upload`.
 

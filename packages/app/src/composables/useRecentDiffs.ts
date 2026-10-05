@@ -2,52 +2,42 @@ import type { PullRequestState } from '@pulls.review/core/types'
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 import { useAppContext } from '../app-context'
+import { parentForRef, routeForRef } from '../source-routes'
 
-export interface RecentPullRequest {
-  owner: string
-  repo: string
-  number: string
+export interface RecentDiff {
+  route: string
+  /** Where the diff sits, e.g. `owner/repo`. */
+  parent?: string
+  label?: string
   title: string
-  url?: string
   state?: PullRequestState
-  additions: number
-  deletions: number
   reviewedCount: number
   totalFiles: number
   lastViewedAt: number
 }
 
-export interface UseRecentPullRequestsReturn {
-  recent: Ref<RecentPullRequest[]>
-  load: () => Promise<void>
-}
-
 /**
  * The home page's "recent" list - the diff cache already tracks every previously
- * viewed PR's `lastViewedAt` for LRU eviction, so this just reads it back. Paste/local
- * entries have no stable route to revisit (paste's key is a content hash, not a URL),
- * so only `github-pr` entries are surfaced here.
+ * viewed diff's `lastViewedAt` for LRU eviction, so this just reads it back. Only
+ * diffs with a route to revisit are listed (a paste has none by design).
  */
-export function useRecentPullRequests(limit = 8): UseRecentPullRequestsReturn {
+export function useRecentDiffs(limit = 8): { recent: Ref<RecentDiff[]>, load: () => Promise<void> } {
   const { cache } = useAppContext()
-  const recent = ref<RecentPullRequest[]>([])
+  const recent = ref<RecentDiff[]>([])
 
   async function load() {
-    const items: RecentPullRequest[] = []
+    const items: RecentDiff[] = []
     for (const meta of await cache.diffs.listRecent(limit)) {
-      const { ref } = meta
-      if (ref.kind !== 'github-pr')
+      const route = routeForRef(meta.ref)
+      if (!route)
         continue
       const reviewed = await cache.reviewMarks.get(meta.fileShas)
       items.push({
-        owner: ref.owner,
-        repo: ref.repo,
-        number: ref.number,
+        route,
+        parent: parentForRef(meta.ref)?.label,
+        label: meta.label,
         title: meta.title,
-        url: meta.url,
         state: meta.pullRequestState,
-        additions: meta.additions,
-        deletions: meta.deletions,
         reviewedCount: meta.fileShas.filter(sha => reviewed.has(sha)).length,
         totalFiles: meta.fileShas.length,
         lastViewedAt: meta.lastViewedAt,

@@ -52,6 +52,7 @@ function split(entry: PrCacheEntry): { meta: PrCacheMeta, body: PrCacheBody } {
     ...rest,
     ref: diff.ref,
     title: diff.title,
+    label: diff.label,
     url: diff.url,
     pullRequestState: diff.pullRequest?.state,
     additions: diff.files.reduce((sum, file) => sum + file.additions, 0),

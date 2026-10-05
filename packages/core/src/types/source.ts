@@ -6,6 +6,9 @@ import * as v from 'valibot'
 /** Identifies one diff, whatever produced it. Persisted on `DiffsPayload.ref`. */
 export const SourceRefSchema = v.variant('kind', [
   v.object({ kind: v.literal('github-pr'), owner: v.string(), repo: v.string(), number: v.string() }),
+  /** What `head` adds since it forked from `base` (`base...head`); either may be a branch, tag or sha. */
+  v.object({ kind: v.literal('github-compare'), owner: v.string(), repo: v.string(), base: v.string(), head: v.string() }),
+  v.object({ kind: v.literal('github-commit'), owner: v.string(), repo: v.string(), sha: v.string() }),
   v.object({ kind: v.literal('paste'), hash: v.string() }),
 ])
 export type SourceRef = v.InferOutput<typeof SourceRefSchema>
@@ -15,6 +18,10 @@ export function serializeRef(ref: SourceRef): string {
   switch (ref.kind) {
     case 'github-pr':
       return `github:${ref.owner}/${ref.repo}#${ref.number}`
+    case 'github-compare':
+      return `github:${ref.owner}/${ref.repo}@${ref.base}...${ref.head}`
+    case 'github-commit':
+      return `github:${ref.owner}/${ref.repo}@${ref.sha}`
     case 'paste':
       return `paste:${ref.hash}`
   }

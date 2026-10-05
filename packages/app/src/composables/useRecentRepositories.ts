@@ -12,7 +12,7 @@ export interface RecentRepository {
 
 /**
  * The home page's "recent repositories" list, read back from the `pulls:*` cache
- * the same way `useRecentPullRequests` reads `pr:*`.
+ * the same way `useRecentDiffs` reads the diff cache.
  */
 export function useRecentRepositories(limit = 8): { recent: Ref<RecentRepository[]>, load: () => Promise<void> } {
   const { cache } = useAppContext()

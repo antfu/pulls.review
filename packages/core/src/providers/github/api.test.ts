@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { staticCredentials } from '../../types/source'
-import { fetchFileContentAtRef, fetchPullRequestDiffText } from './api'
+import { fetchDiffText, fetchFileContentAtRef } from './api'
 import { createGithubClient } from './client'
 
 describe('fetchFileContentAtRef', () => {
@@ -44,7 +44,7 @@ describe('fetchFileContentAtRef', () => {
   })
 })
 
-describe('fetchPullRequestDiffText', () => {
+describe('fetchDiffText', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
   })
@@ -52,12 +52,12 @@ describe('fetchPullRequestDiffText', () => {
   it('returns undefined when GitHub refuses to render the diff (406)', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('too_large', { status: 406 })))
 
-    await expect(fetchPullRequestDiffText(createGithubClient(), 'owner', 'repo', '1')).resolves.toBeUndefined()
+    await expect(fetchDiffText(createGithubClient(), '/repos/owner/repo/pulls/1')).resolves.toBeUndefined()
   })
 
   it('still throws on other failures', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('nope', { status: 500 })))
 
-    await expect(fetchPullRequestDiffText(createGithubClient(), 'owner', 'repo', '1')).rejects.toThrow(/\(500\)/)
+    await expect(fetchDiffText(createGithubClient(), '/repos/owner/repo/pulls/1')).rejects.toThrow(/\(500\)/)
   })
 })

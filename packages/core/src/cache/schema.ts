@@ -34,6 +34,7 @@ export const PrCacheMetaSchema = v.object({
   ref: SourceRefSchema,
   headSha: v.string(),
   title: v.string(),
+  label: v.optional(v.string()),
   url: v.optional(v.string()),
   pullRequestState: v.optional(PullRequestStateSchema),
   additions: v.number(),

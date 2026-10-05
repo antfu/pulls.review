@@ -15,23 +15,29 @@ const STATUS_MAP: Record<string, FileChangeStatus> = {
 
 /** How to recover a patch GitHub left out of the files listing. */
 export interface PatchFallbacks {
-  /** Whole-PR `.diff` text; `undefined` when GitHub refuses to render it (too many files / too large). */
+  /** The whole diff as `.diff` text; `undefined` when GitHub refuses to render it (too many files / too large). */
   loadDiffText: () => Promise<string | undefined>
   /** A file's content at a commit; `undefined` when the file doesn't exist there. */
   loadFileContent: (path: string, ref: string) => Promise<string | undefined>
 }
 
+/** The two commits a files listing compares; `base` is absent for a root commit. */
+export interface ComparedShas {
+  base?: string
+  head: string
+}
+
 /** Last resort for diffs too large for GitHub to render: diff the two file versions ourselves. */
-async function diffFileContents(file: GithubPullRequestFileJson, pr: GithubPullRequestJson, loadFileContent: PatchFallbacks['loadFileContent']): Promise<DiffHunk[]> {
+async function diffFileContents(file: GithubPullRequestFileJson, shas: ComparedShas, loadFileContent: PatchFallbacks['loadFileContent']): Promise<DiffHunk[]> {
   const oldPath = file.previous_filename ?? file.filename
   const [oldContent, newContent] = await Promise.all([
-    file.status === 'added' ? undefined : loadFileContent(oldPath, pr.base.sha),
-    file.status === 'removed' ? undefined : loadFileContent(file.filename, pr.head.sha),
+    file.status === 'added' || !shas.base ? undefined : loadFileContent(oldPath, shas.base),
+    file.status === 'removed' ? undefined : loadFileContent(file.filename, shas.head),
   ])
   return parseHunks(createTwoFilesPatch(oldPath, file.filename, oldContent ?? '', newContent ?? '').split('\n'))
 }
 
-async function normalizeFile(file: GithubPullRequestFileJson, pr: GithubPullRequestJson, fallbackDiffText: () => Promise<string | undefined>, loadFileContent: PatchFallbacks['loadFileContent']): Promise<FileChange> {
+async function normalizeFile(file: GithubPullRequestFileJson, shas: ComparedShas, fallbackDiffText: () => Promise<string | undefined>, loadFileContent: PatchFallbacks['loadFileContent']): Promise<FileChange> {
   const status = STATUS_MAP[file.status] ?? 'modified'
 
   if (file.patch !== undefined) {
@@ -77,7 +83,7 @@ async function normalizeFile(file: GithubPullRequestFileJson, pr: GithubPullRequ
       deletions: file.deletions,
       isBinary: false,
       sha: file.sha,
-      hunks: await diffFileContents(file, pr, loadFileContent),
+      hunks: await diffFileContents(file, shas, loadFileContent),
     }
   }
 
@@ -91,6 +97,13 @@ async function normalizeFile(file: GithubPullRequestFileJson, pr: GithubPullRequ
     sha: file.sha,
     hunks: [],
   }
+}
+
+/** A GitHub files listing (PR, compare or commit) as canonical `FileChange`s. */
+export async function normalizeFiles(files: GithubPullRequestFileJson[], shas: ComparedShas, { loadDiffText, loadFileContent }: PatchFallbacks): Promise<FileChange[]> {
+  let diffTextPromise: Promise<string | undefined> | undefined
+  const fallbackDiffText = () => diffTextPromise ??= loadDiffText()
+  return Promise.all(files.map(file => normalizeFile(file, shas, fallbackDiffText, loadFileContent)))
 }
 
 function resolveState(pr: GithubPullRequestJson): PullRequestState {
@@ -110,15 +123,8 @@ export async function normalizePullRequest(
   pr: GithubPullRequestJson,
   files: GithubPullRequestFileJson[],
   commits: GithubPullRequestCommitJson[],
-  { loadDiffText, loadFileContent }: PatchFallbacks,
+  fallbacks: PatchFallbacks,
 ): Promise<DiffsPayload> {
-  let diffTextPromise: Promise<string | undefined> | undefined
-  const fallbackDiffText = () => diffTextPromise ??= loadDiffText()
-
-  const normalizedFiles = await Promise.all(
-    files.map(file => normalizeFile(file, pr, fallbackDiffText, loadFileContent)),
-  )
-
   return {
     ref: { kind: 'github-pr', owner, repo, number },
     title: pr.title,
@@ -134,6 +140,6 @@ export async function normalizePullRequest(
       state: resolveState(pr),
     },
     commits: commits.map(({ sha, commit }) => ({ sha, message: commit.message })),
-    files: normalizedFiles,
+    files: await normalizeFiles(files, { base: pr.base.sha, head: pr.head.sha }, fallbacks),
   }
 }

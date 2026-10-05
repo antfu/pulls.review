@@ -47,14 +47,53 @@ export function fetchPullRequestCommits(client: GithubClient, owner: string, rep
   return client.paginate(`/repos/${owner}/${repo}/pulls/${number}/commits`)
 }
 
-/**
- * Raw unified-diff text for the whole PR, used as a fallback when GitHub omits a file's `patch`
- * (very large diffs). `undefined` when GitHub refuses to render the diff at all (406: over 300
- * files or too large).
- */
-export async function fetchPullRequestDiffText(client: GithubClient, owner: string, repo: string, number: string): Promise<string | undefined> {
+interface GithubCommitJson extends GithubPullRequestCommitJson {
+  html_url: string
+  commit: { message: string, author: { name?: string, date?: string } | null }
+  author: { login: string, avatar_url: string } | null
+  parents: { sha: string }[]
+}
+
+/** A files listing entry outside a PR; `sha` is `null` for entries such as submodules. */
+export interface GithubDiffEntryJson extends Omit<GithubPullRequestFileJson, 'sha'> {
+  sha: string | null
+}
+
+export interface GithubCompareJson {
+  html_url: string
+  merge_base_commit: { sha: string }
+  commits: GithubCommitJson[]
+  /** Capped by GitHub at 300 entries. */
+  files?: GithubDiffEntryJson[]
+}
+
+export interface GithubSingleCommitJson extends GithubCommitJson {
+  files?: GithubDiffEntryJson[]
+}
+
+/** Keeps the slashes of a branch like `feat/x` while escaping everything else. */
+function encodeRef(ref: string): string {
+  return ref.split('/').map(encodeURIComponent).join('/')
+}
+
+/** `base...head` as GitHub resolves it; capped at 250 commits and 300 files. */
+export async function fetchCompare(client: GithubClient, owner: string, repo: string, base: string, head: string): Promise<GithubCompareJson> {
+  return (await client.request(`/repos/${owner}/${repo}/compare/${encodeRef(base)}...${encodeRef(head)}`)).json()
+}
+
+export async function fetchCommit(client: GithubClient, owner: string, repo: string, sha: string): Promise<GithubSingleCommitJson> {
+  return (await client.request(`/repos/${owner}/${repo}/commits/${encodeRef(sha)}`)).json()
+}
+
+/** The commit sha a branch, tag or sha currently points at - a cheap staleness probe. */
+export async function fetchRefSha(client: GithubClient, owner: string, repo: string, ref: string): Promise<string> {
+  return (await (await client.request(`/repos/${owner}/${repo}/commits/${encodeRef(ref)}`, { accept: 'application/vnd.github.sha' })).text()).trim()
+}
+
+/** `.diff` text for any path that renders one (a PR, a compare, a commit); `undefined` when GitHub refuses (406). */
+export async function fetchDiffText(client: GithubClient, path: string): Promise<string | undefined> {
   try {
-    return await (await client.request(`/repos/${owner}/${repo}/pulls/${number}`, { accept: 'application/vnd.github.diff' })).text()
+    return await (await client.request(path, { accept: 'application/vnd.github.diff' })).text()
   }
   catch (err) {
     if (err instanceof GithubApiError && err.status === 406)

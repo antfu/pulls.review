@@ -6,17 +6,17 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import AppHeader from '../components/AppHeader.vue'
+import DiffPill from '../components/DiffPill.vue'
 import LandingDemo from '../components/landing/LandingDemo.vue'
 import LandingHero from '../components/landing/LandingHero.vue'
 import LoadDiffModal from '../components/load/LoadDiffModal.vue'
-import PullRequestPill from '../components/PullRequestPill.vue'
 import RepositoryPill from '../components/RepositoryPill.vue'
 import { UPLOAD_SESSION_STORAGE_KEY } from '../composables/uploadSession'
 import { useDocumentTitle } from '../composables/useDocumentTitle'
-import { useRecentPullRequests } from '../composables/useRecentPullRequests'
+import { useRecentDiffs } from '../composables/useRecentDiffs'
 import { useRecentRepositories } from '../composables/useRecentRepositories'
 import { formatTimeAgo } from '../i18n/time-ago'
-import { routeFromGithubUrl } from '../source-routes'
+import { routeForRef, routeFromGithubUrl } from '../source-routes'
 
 const DEMO_PRS = [
   { owner: 'slidevjs', repo: 'slidev', number: 2746, state: 'open', title: 'feat: arrange slides on a grid' },
@@ -68,7 +68,7 @@ function onDragLeave() {
     isDragging.value = false
 }
 
-const { recent, load } = useRecentPullRequests()
+const { recent, load } = useRecentDiffs()
 const { recent: recentRepos, load: loadRepos } = useRecentRepositories()
 onMounted(() => {
   load()
@@ -129,20 +129,20 @@ useDocumentTitle(() => t('landing.documentTitle'), ' - ')
           {{ $t('landing.recentlyViewed') }}
         </h2>
         <div class="flex flex-wrap gap-2">
-          <PullRequestPill
-            v-for="pr in recent"
-            :key="`${pr.owner}/${pr.repo}#${pr.number}`"
-            :owner="pr.owner"
-            :repo="pr.repo"
-            :number="pr.number"
-            :state="pr.state"
-            :title="pr.title"
+          <DiffPill
+            v-for="item in recent"
+            :key="item.route"
+            :to="item.route"
+            :parent="item.parent"
+            :label="item.label"
+            :state="item.state"
+            :title="item.title"
           >
             <span class="flex color-accent-teal">
-              <DisplayDonut :value="pr.totalFiles ? pr.reviewedCount / pr.totalFiles : 0" :size="14" :thickness="2.5" color="currentColor" />
+              <DisplayDonut :value="item.totalFiles ? item.reviewedCount / item.totalFiles : 0" :size="14" :thickness="2.5" color="currentColor" />
             </span>
-            <span class="text-xs op-fade">{{ formatTimeAgo(new Date(pr.lastViewedAt), locale) }}</span>
-          </PullRequestPill>
+            <span class="text-xs op-fade">{{ formatTimeAgo(new Date(item.lastViewedAt), locale) }}</span>
+          </DiffPill>
         </div>
       </section>
 
@@ -168,17 +168,17 @@ useDocumentTitle(() => t('landing.documentTitle'), ' - ')
           {{ $t('landing.tryDemos') }}
         </h2>
         <div class="flex flex-wrap gap-2">
-          <PullRequestPill
+          <DiffPill
             v-for="pr in DEMO_PRS"
             :key="`${pr.owner}/${pr.repo}#${pr.number}`"
-            :owner="pr.owner"
-            :repo="pr.repo"
-            :number="pr.number"
+            :to="routeForRef({ kind: 'github-pr', owner: pr.owner, repo: pr.repo, number: String(pr.number) })"
+            :parent="`${pr.owner}/${pr.repo}`"
+            :label="`#${pr.number}`"
             :state="pr.state"
             :title="pr.title"
           >
             <span class="max-w-56 truncate text-xs op-fade">{{ pr.title }}</span>
-          </PullRequestPill>
+          </DiffPill>
         </div>
       </section>
 

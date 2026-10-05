@@ -1,9 +1,10 @@
-import type { Credentials, DiffSource } from '../../types/source'
+import type { Credentials, DiffSource, SourceRef } from '../../types/source'
 import type { GithubTokenMeta } from './token-meta'
 import { serializeRef } from '../../types/source'
-import { fetchFileContentAtRef, fetchPullRequest, fetchPullRequestCommits, fetchPullRequestDiffText, fetchPullRequestFiles } from './api'
+import { fetchDiffText, fetchFileContentAtRef, fetchPullRequest, fetchPullRequestCommits, fetchPullRequestFiles } from './api'
 import { createGithubClient } from './client'
 import { normalizePullRequest } from './normalize'
+import { createGithubCommitSource, createGithubCompareSource } from './refs'
 import { createGithubReviewsApi } from './reviews'
 import { createGithubSharingApi } from './sharing'
 import { fetchGithubTokenMeta } from './token-meta'
@@ -33,7 +34,7 @@ export function createGithubPullRequestSource({ owner, repo, number }: { owner: 
         fetchPullRequestCommits(client, owner, repo, number),
       ])
       return normalizePullRequest(owner, repo, number, pr, files, commits, {
-        loadDiffText: () => fetchPullRequestDiffText(client, owner, repo, number),
+        loadDiffText: () => fetchDiffText(client, `/repos/${owner}/${repo}/pulls/${number}`),
         loadFileContent: (path, ref) => fetchFileContentAtRef(client, owner, repo, path, ref),
       })
     },
@@ -47,5 +48,19 @@ export function createGithubPullRequestSource({ owner, repo, number }: { owner: 
     reviews: createGithubReviewsApi(client, { owner, repo, number }),
     sharing: createGithubSharingApi(client, { owner, repo, number }),
     auth: 'github-token',
+  }
+}
+
+/** Every ref kind GitHub serves. */
+export type GithubRef = Exclude<SourceRef, { kind: 'paste' }>
+
+export function createGithubSource(ref: GithubRef, credentials?: Credentials, options?: GithubSourceOptions): DiffSource {
+  switch (ref.kind) {
+    case 'github-pr':
+      return createGithubPullRequestSource(ref, credentials, options)
+    case 'github-compare':
+      return createGithubCompareSource(ref, credentials)
+    case 'github-commit':
+      return createGithubCommitSource(ref, credentials)
   }
 }
