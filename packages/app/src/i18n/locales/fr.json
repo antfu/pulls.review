@@ -348,14 +348,16 @@
       "submit": "Continuer"
     },
     "picker": {
+      "tagline": "Relisez vos branches locales, plages et modifications non commitées comme une pull request : regroupées, résumées, un périmètre à la fois.",
       "title": "Relire les modifications locales",
       "base": "Base",
       "head": "Head",
       "compare": "Comparer",
       "shortcuts": "Raccourcis",
-      "currentBranch": "{branch} par rapport à {base}",
       "worktree": "Modifications non commitées",
-      "recentCommits": "Commits récents"
+      "recentCommits": "Commits récents",
+      "branches": "Branches",
+      "against": "par rapport à {base}"
     }
   }
 }

@@ -348,14 +348,16 @@
       "submit": "계속"
     },
     "picker": {
+      "tagline": "로컬 브랜치, 범위, 커밋되지 않은 변경 사항을 풀 리퀘스트처럼 리뷰하세요. 그룹으로 묶고 요약해 범위별로 살펴봅니다.",
       "title": "로컬 변경 사항 리뷰",
       "base": "베이스",
       "head": "헤드",
       "compare": "비교",
       "shortcuts": "바로가기",
-      "currentBranch": "{base} 대비 {branch}",
       "worktree": "커밋되지 않은 변경 사항",
-      "recentCommits": "최근 커밋"
+      "recentCommits": "최근 커밋",
+      "branches": "브랜치",
+      "against": "{base} 대비"
     }
   }
 }

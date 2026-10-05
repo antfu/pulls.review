@@ -348,14 +348,16 @@
       "submit": "Continua"
     },
     "picker": {
+      "tagline": "Revisiona branch locali, intervalli e modifiche non committate come una pull request: raggruppati, riassunti, un ambito alla volta.",
       "title": "Revisiona le modifiche locali",
       "base": "Base",
       "head": "Head",
       "compare": "Confronta",
       "shortcuts": "Scorciatoie",
-      "currentBranch": "{branch} rispetto a {base}",
       "worktree": "Modifiche non committate",
-      "recentCommits": "Commit recenti"
+      "recentCommits": "Commit recenti",
+      "branches": "Branch",
+      "against": "rispetto a {base}"
     }
   }
 }

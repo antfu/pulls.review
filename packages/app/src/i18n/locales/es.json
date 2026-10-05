@@ -348,14 +348,16 @@
       "submit": "Continuar"
     },
     "picker": {
+      "tagline": "Revisa tus ramas locales, rangos y cambios sin confirmar como un pull request: agrupados, resumidos, un ámbito a la vez.",
       "title": "Revisar cambios locales",
       "base": "Base",
       "head": "Head",
       "compare": "Comparar",
       "shortcuts": "Accesos rápidos",
-      "currentBranch": "{branch} frente a {base}",
       "worktree": "Cambios sin confirmar",
-      "recentCommits": "Commits recientes"
+      "recentCommits": "Commits recientes",
+      "branches": "Ramas",
+      "against": "frente a {base}"
     }
   }
 }

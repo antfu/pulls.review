@@ -348,14 +348,16 @@
       "submit": "继续"
     },
     "picker": {
+      "tagline": "像审查 Pull Request 一样审查本地分支、范围和未提交的更改：分组、摘要、逐个范围查看。",
       "title": "审查本地更改",
       "base": "基准",
       "head": "头部",
       "compare": "比较",
       "shortcuts": "快捷方式",
-      "currentBranch": "{branch} 对比 {base}",
       "worktree": "未提交的更改",
-      "recentCommits": "最近的提交"
+      "recentCommits": "最近的提交",
+      "branches": "分支",
+      "against": "对比 {base}"
     }
   }
 }

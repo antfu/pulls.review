@@ -348,14 +348,16 @@
       "submit": "Lanjutkan"
     },
     "picker": {
+      "tagline": "Tinjau branch lokal, rentang, dan perubahan yang belum di-commit seperti pull request: dikelompokkan, diringkas, satu cakupan setiap kali.",
       "title": "Tinjau perubahan lokal",
       "base": "Basis",
       "head": "Head",
       "compare": "Bandingkan",
       "shortcuts": "Pintasan",
-      "currentBranch": "{branch} terhadap {base}",
       "worktree": "Perubahan yang belum di-commit",
-      "recentCommits": "Commit terbaru"
+      "recentCommits": "Commit terbaru",
+      "branches": "Branch",
+      "against": "terhadap {base}"
     }
   }
 }

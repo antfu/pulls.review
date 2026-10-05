@@ -348,14 +348,16 @@
       "submit": "Continue"
     },
     "picker": {
+      "tagline": "Review your local branches, ranges and uncommitted changes like a pull request: grouped, summarized, one scope at a time.",
       "title": "Review local changes",
       "base": "Base",
       "head": "Head",
       "compare": "Compare",
       "shortcuts": "Shortcuts",
-      "currentBranch": "{branch} against {base}",
       "worktree": "Uncommitted changes",
-      "recentCommits": "Recent commits"
+      "recentCommits": "Recent commits",
+      "branches": "Branches",
+      "against": "against {base}"
     }
   }
 }

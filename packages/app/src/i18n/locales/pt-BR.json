@@ -348,14 +348,16 @@
       "submit": "Continuar"
     },
     "picker": {
+      "tagline": "Revise suas branches locais, intervalos e alterações não commitadas como um pull request: agrupados, resumidos, um escopo por vez.",
       "title": "Revisar alterações locais",
       "base": "Base",
       "head": "Head",
       "compare": "Comparar",
       "shortcuts": "Atalhos",
-      "currentBranch": "{branch} em relação a {base}",
       "worktree": "Alterações não commitadas",
-      "recentCommits": "Commits recentes"
+      "recentCommits": "Commits recentes",
+      "branches": "Branches",
+      "against": "em relação a {base}"
     }
   }
 }

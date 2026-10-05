@@ -348,14 +348,16 @@
       "submit": "続ける"
     },
     "picker": {
+      "tagline": "ローカルのブランチ、範囲、未コミットの変更をプルリクエストのようにレビュー。グループ化して要約し、1 つずつ確認できます。",
       "title": "ローカルの変更をレビュー",
       "base": "ベース",
       "head": "ヘッド",
       "compare": "比較",
       "shortcuts": "ショートカット",
-      "currentBranch": "{base} に対する {branch}",
       "worktree": "コミットされていない変更",
-      "recentCommits": "最近のコミット"
+      "recentCommits": "最近のコミット",
+      "branches": "ブランチ",
+      "against": "{base} に対して"
     }
   }
 }

@@ -348,14 +348,16 @@
       "submit": "Weiter"
     },
     "picker": {
+      "tagline": "Reviewe lokale Branches, Bereiche und nicht committete Änderungen wie einen Pull Request: gruppiert, zusammengefasst, ein Bereich nach dem anderen.",
       "title": "Lokale Änderungen reviewen",
       "base": "Basis",
       "head": "Head",
       "compare": "Vergleichen",
       "shortcuts": "Schnellzugriff",
-      "currentBranch": "{branch} gegen {base}",
       "worktree": "Nicht committete Änderungen",
-      "recentCommits": "Letzte Commits"
+      "recentCommits": "Letzte Commits",
+      "branches": "Branches",
+      "against": "gegen {base}"
     }
   }
 }

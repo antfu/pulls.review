@@ -348,14 +348,16 @@
       "submit": "繼續"
     },
     "picker": {
+      "tagline": "像審查 Pull Request 一樣審查本機分支、範圍和未提交的變更：分組、摘要、逐一範圍檢視。",
       "title": "審查本機變更",
       "base": "基準",
       "head": "頭部",
       "compare": "比較",
       "shortcuts": "捷徑",
-      "currentBranch": "{branch} 對比 {base}",
       "worktree": "未提交的變更",
-      "recentCommits": "最近的提交"
+      "recentCommits": "最近的提交",
+      "branches": "分支",
+      "against": "對比 {base}"
     }
   }
 }
