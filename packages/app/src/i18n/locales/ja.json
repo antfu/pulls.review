@@ -78,7 +78,8 @@
     "openInSite": "pulls.review で開く"
   },
   "embed": {
-    "reviewChanges": "変更をレビュー"
+    "reviewChanges": "変更をレビュー",
+    "updateUserscript": "ユーザースクリプトを更新"
   },
   "pulls": {
     "loading": "pull request を読み込み中…",

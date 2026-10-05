@@ -78,7 +78,8 @@
     "openInSite": "Buka di pulls.review"
   },
   "embed": {
-    "reviewChanges": "Tinjau Perubahan"
+    "reviewChanges": "Tinjau Perubahan",
+    "updateUserscript": "Perbarui userscript"
   },
   "pulls": {
     "loading": "Memuat pull request…",

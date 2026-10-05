@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import type { EmbedPr, ReviewLink } from './githubIntegration'
+import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
+import { useAppContext } from '../app-context'
 import SettingsModal from '../components/settings/SettingsModal.vue'
 import { i18n } from '../i18n'
 import { settingsModalOpen } from '../state/settingsModal'
 import { useEmbedDark } from './dark'
 import EmbedPrView from './EmbedPrView.vue'
 import { hijackReviewLinks, injectGithubPageStyles, setPanelOpenWidth, SITE_ORIGIN, syncToggleTab } from './githubIntegration'
+import { USERSCRIPT_URL, useUserscriptUpdate } from './userscript-update'
 
 const WIDTH_STORAGE_KEY = 'diffs-embed:drawer-width'
 const DEFAULT_WIDTH = 800
@@ -35,6 +38,7 @@ const rootRef = useTemplateRef<HTMLDivElement>('root')
 useEmbedDark(rootRef)
 // Not `useI18n()`: inside a custom element it needs its own `provide`; the global composer is the one installed anyway.
 const { t } = i18n.global
+const { updateAvailable } = useUserscriptUpdate(useAppContext().credentials)
 
 const pr = ref(parsePr(location.pathname))
 const prKey = computed(() => pr.value && `${pr.value.owner}/${pr.value.repo}#${pr.value.number}`)
@@ -163,6 +167,9 @@ onBeforeUnmount(() => {
         <div class="flex-auto">
           pulls.review
         </div>
+        <ActionButton v-if="updateAvailable" :href="USERSCRIPT_URL" target="_blank" rel="noopener noreferrer" size="sm" icon="i-ph-arrow-circle-up-duotone">
+          {{ $t('embed.updateUserscript') }}
+        </ActionButton>
         <a v-if="pr" target="_blank" :href="`${SITE_ORIGIN}/gh/${pr.owner}/${pr.repo}/${pr.number}`" rel="noopener noreferrer" :aria-label="$t('pr.openInSite')" class="op-fade hover:op-100">
           <div class="i-ph-arrow-square-out-duotone" />
         </a>

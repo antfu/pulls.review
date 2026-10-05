@@ -78,7 +78,8 @@
     "openInSite": "Открыть в pulls.review"
   },
   "embed": {
-    "reviewChanges": "Ревью изменений"
+    "reviewChanges": "Ревью изменений",
+    "updateUserscript": "Обновить userscript"
   },
   "pulls": {
     "loading": "Загрузка pull request'ов…",

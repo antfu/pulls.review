@@ -78,7 +78,8 @@
     "openInSite": "pulls.review에서 열기"
   },
   "embed": {
-    "reviewChanges": "변경 사항 리뷰"
+    "reviewChanges": "변경 사항 리뷰",
+    "updateUserscript": "유저스크립트 업데이트"
   },
   "pulls": {
     "loading": "pull request 불러오는 중…",

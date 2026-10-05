@@ -78,7 +78,8 @@
     "openInSite": "在 pulls.review 中打开"
   },
   "embed": {
-    "reviewChanges": "审查变更"
+    "reviewChanges": "审查变更",
+    "updateUserscript": "更新用户脚本"
   },
   "pulls": {
     "loading": "正在加载 pull request…",

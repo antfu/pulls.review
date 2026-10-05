@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 import Vue from '@vitejs/plugin-vue'
 import { createJiti } from 'jiti'
 import { defineConfig } from 'vite'
+import { getSha } from './scripts/build-userscript'
 import { features, alias as sharedAlias } from './vite.config.shared'
 
 const jiti = createJiti(import.meta.url)
@@ -53,7 +54,11 @@ export default defineConfig({
   resolve: {
     alias: sharedAlias,
   },
-  define: features({ llm: false, embed: true }),
+  define: {
+    ...features({ llm: false, embed: true }),
+    // The same sha the userscript's `@require` URL carries - see `src/embed/userscript-update.ts`.
+    'import.meta.env.PR_EMBED_SHA': JSON.stringify(getSha()),
+  },
   publicDir: false,
   build: {
     outDir: 'public/embed',

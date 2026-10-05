@@ -14,4 +14,6 @@ interface ImportMetaEnv {
    * truthiness-only testing rule as `PR_LLM`.
    */
   readonly PR_EMBED: boolean
+  /** Short git sha the embed bundle was built from; only defined by `vite.config.embed.ts`. */
+  readonly PR_EMBED_SHA: string | undefined
 }
