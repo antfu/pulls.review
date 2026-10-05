@@ -181,6 +181,7 @@
     "resolved": "{n} 件解決済み",
     "binary": "バイナリファイル",
     "binaryNotShown": "バイナリファイルは表示されません。",
+    "tooLarge": "差分が大きすぎるため表示できません。",
     "loadFailed": "読み込み失敗",
     "loadFull": "ファイル全体を読み込む",
     "expand": "ファイルを展開",

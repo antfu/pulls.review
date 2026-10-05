@@ -6,8 +6,8 @@ import type { RouteComponent, RouteLocation, RouteRecordRaw } from 'vue-router'
  * these helpers instead of spelling out `/gh/...` paths.
  */
 
-/** Every ref kind with a page of its own. */
-export type RoutableRef = Exclude<SourceRef, { kind: 'paste' }>
+/** Every ref kind with a page of its own in this build. */
+export type RoutableRef = Extract<SourceRef, { kind: 'github-pr' | 'github-compare' | 'github-commit' }>
 
 /** One route per routable ref kind, named after the kind so a route reads back into its ref. */
 export function routes(component: () => Promise<RouteComponent>): RouteRecordRaw[] {
@@ -33,6 +33,9 @@ export function routeForRef(ref: SourceRef): string | undefined {
       return `/gh/${ref.owner}/${ref.repo}/commit/${ref.sha}`
     case 'paste':
       // Deliberately unroutable: a paste has no live source to reopen from a link.
+      return undefined
+    case 'local':
+      // Only the local server can open it (plans/09).
       return undefined
   }
 }
@@ -65,7 +68,7 @@ export function repoRoute(owner: string, repo: string): string {
 
 /** Where a diff sits, e.g. its repo's PR list - `undefined` for a ref with no parent view. */
 export function parentForRef(ref: SourceRef): { route: string, label: string } | undefined {
-  return ref.kind === 'paste'
+  return ref.kind === 'paste' || ref.kind === 'local'
     ? undefined
     : { route: repoRoute(ref.owner, ref.repo), label: `${ref.owner}/${ref.repo}` }
 }

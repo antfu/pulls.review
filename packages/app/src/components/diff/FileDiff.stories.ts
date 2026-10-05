@@ -45,6 +45,14 @@ export const LoadFullFile: Story = {
   },
 }
 
+/** A patch too large to keep: counts only, with "load full file" to see it. */
+export const Truncated: Story = {
+  args: {
+    file: { ...partiallyReviewed.diff.files[0], hunks: [], truncated: true } as any,
+    store: createMockDiffsStore({ fileContent: { old: 'context\nold\n', new: 'context\nnew\nextra\n' } }),
+  },
+}
+
 export const Renamed: Story = {
   args: { file: renamedFile.diff.files[0] as any },
 }

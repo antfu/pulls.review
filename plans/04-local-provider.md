@@ -1,6 +1,6 @@
 # Plan 04: local git source
 
-Status: **planned**. Builds on Plan 10 (`DiffSource`, `SourceRef`, core `/cache`).
+Status: **built** (the source; Plan 09 serves it). Builds on Plan 10 (`DiffSource`, `SourceRef`, core `/cache`).
 Plan 09 serves it to the browser.
 
 ## Why
@@ -76,11 +76,16 @@ parser changes: the pinned flags keep every other output shape away from it.
 
 ## Capabilities
 
-- `fingerprint()`: a hash of the resolved shas and, for the working tree,
-  `git status --porcelain=v2 -z`. Plan 09 pushes changes rather than polling;
-  this is what it compares.
-- `loadFile(path, sha)`: `git show {sha}:{path}`. The working tree's head side
-  reads the file from disk instead. Binary content is detected by a NUL byte.
+- `head.sha` and `fingerprint()` hold the same value, because staleness compares
+  them. For a commit or range it is the resolved head sha. The working tree has
+  no sha, so it is `worktree:` plus a SHA-256 of the diff text. That value
+  changes whenever any change does (including a second edit to an already
+  modified file), and it gives the working tree's file content a cache key that
+  can't go stale. Plan 09 pushes changes rather than polling, and this is what
+  it compares.
+- `loadFile(path, sha)`: `git cat-file blob {sha}:{path}`, or `undefined` when
+  the file isn't at that sha. A `worktree:` sha reads the file from disk
+  instead.
 - No `viewer`, `reviews`, `sharing` or `auth`: a local diff has no review
   lifecycle and needs no credentials.
 

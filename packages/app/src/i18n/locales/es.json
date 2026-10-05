@@ -181,6 +181,7 @@
     "resolved": "{n} resueltos",
     "binary": "Archivo binario",
     "binaryNotShown": "El archivo binario no se muestra.",
+    "tooLarge": "El diff es demasiado grande para mostrarse.",
     "loadFailed": "Error al cargar",
     "loadFull": "Cargar el contenido completo del archivo",
     "expand": "Desplegar archivo",

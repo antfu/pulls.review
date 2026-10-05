@@ -25,7 +25,9 @@ export const FileChangeSchema = v.object({
   // of the patch text. Lets the cache tell which files actually changed between
   // two fetches without diffing patch text. See app/patch-parser for the rules.
   sha: v.string(),
-  hunks: v.array(DiffHunkSchema), // empty if binary
+  hunks: v.array(DiffHunkSchema), // empty if binary or truncated
+  /** The patch was too large to keep: counts stand, hunks are dropped (load the full file instead). */
+  truncated: v.optional(v.literal(true)),
 })
 export type FileChange = v.InferOutput<typeof FileChangeSchema>
 

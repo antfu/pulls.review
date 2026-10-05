@@ -181,6 +181,7 @@
     "resolved": "{n} terselesaikan",
     "binary": "Berkas biner",
     "binaryNotShown": "Berkas biner tidak ditampilkan.",
+    "tooLarge": "Diff terlalu besar untuk ditampilkan.",
     "loadFailed": "Gagal memuat",
     "loadFull": "Muat isi berkas lengkap",
     "expand": "Buka berkas",

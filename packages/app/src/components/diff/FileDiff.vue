@@ -401,6 +401,9 @@ defineExpose({
     <div v-if="file.isBinary" class="p-4 text-sm op-fade">
       {{ $t('file.binaryNotShown') }}
     </div>
+    <div v-else-if="file.truncated && !fullFileLoaded" class="p-4 text-sm op-fade">
+      {{ $t('file.tooLarge') }}
+    </div>
     <div v-else ref="container" :class="status === 'changed' ? 'mb--2' : 'my--2'">
       <!--
         Light-DOM children projected into pierre's shadow-DOM annotation rows via

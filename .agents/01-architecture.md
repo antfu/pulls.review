@@ -93,9 +93,12 @@ analysis strategy later never touches the view layer:
     `/upload` route (no param) via a fixed `sessionStorage` key, not a URL —
     deliberately not shareable as a link, since it has no live source to
     refetch even if it were content-hash-addressed.
-  - `local` (diffing a working tree, commit or range with `git`) is planned
-    (`plans/04-local-provider.md`) — a Node-only `core/local` subpath reusing
-    the same `patch-parser` `paste` already uses.
+  - `local` (`createLocalSource`, `plans/04-local-provider.md`) — a working
+    tree, commit or range of a git repo, by running `git` with pinned diff
+    flags and reusing the same `patch-parser` `paste` already uses. It lives in
+    the Node-only `core/local` subpath, which the browser bundle MUST NOT import.
+    A patch over 512 KB keeps its counts as `FileChange.truncated`. Plan 09
+    serves it to the browser.
 - **`app/patch-parser/`** parses unified-diff / git-extended-diff text (the
   format shared by GitHub's `.diff` endpoint, `git diff` output, and plain
   `diff -u`) into canonical `FileChange[]`. It is provider-agnostic
@@ -298,7 +301,6 @@ land later without a rewrite:
 - Merging PRs. (Review comment threads and formal review submission are
   built — see `plans/05-comment-threads.md` — offered
   only for a source with `reviews`.)
-- The `local` source (`plans/04-local-provider.md`).
 - Any cross-repo/history dashboard (the per-repo open-PR list at
   `/gh/owner/repo` is a navigation aid into the deep-links, not that) or
   social/OG link previews (no backend to render them).

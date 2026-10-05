@@ -181,6 +181,7 @@
     "resolved": "{n} resolved",
     "binary": "Binary file",
     "binaryNotShown": "Binary file not shown.",
+    "tooLarge": "Diff too large to show.",
     "loadFailed": "Failed to load",
     "loadFull": "Load full file content",
     "expand": "Expand file",

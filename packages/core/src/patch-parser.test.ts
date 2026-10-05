@@ -99,4 +99,22 @@ describe('parsePatch', () => {
     const again = await parsePatch(POSIX_DIFF_FIXTURE)
     expect(again[0]!.sha).toBe(file.sha)
   })
+
+  it('reads paths git had to quote, in the header and in renames', async () => {
+    const files = await parsePatch([
+      'diff --git "a/say \\"hi\\".txt" "b/say \\"hi\\".txt"',
+      'index 1111111..2222222 100644',
+      '--- "a/say \\"hi\\".txt"',
+      '+++ "b/say \\"hi\\".txt"',
+      '@@ -1 +1 @@',
+      '-a',
+      '+b',
+      'diff --git "a/tab\\there" "b/caf\\303\\251"',
+      'similarity index 100%',
+      'rename from "tab\\there"',
+      'rename to "caf\\303\\251"',
+      '',
+    ].join('\n'))
+    expect(files.map(f => [f.path, f.previousPath])).toEqual([['say "hi".txt', undefined], ['café', 'tab\there']])
+  })
 })

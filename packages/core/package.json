@@ -22,6 +22,7 @@
     "./paste": "./dist/paste.js",
     "./analyze": "./dist/analyze.js",
     "./llm": "./dist/llm.js",
+    "./local": "./dist/local.js",
     "./diagnostics": "./dist/diagnostics.js",
     "./env": "./dist/env.js",
     "./locales": "./dist/locales.js"

@@ -13,6 +13,8 @@ export function renderFilesAsText(files: FileChange[]): string {
     const header = `### ${file.path}${rename} [${file.status}, +${file.additions}/-${file.deletions}]`
     if (file.isBinary)
       return `${header}\n(binary file, no diff shown)`
+    if (file.truncated)
+      return `${header}\n(diff too large, omitted)`
     // Lockfiles/build output are rarely worth reviewing line-by-line and can be huge -
     // omitting their diff body saves tokens without losing anything a reviewer needs.
     if (isGeneratedPath(file.path))

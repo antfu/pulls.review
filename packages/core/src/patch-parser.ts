@@ -1,6 +1,34 @@
 import type { DiffHunk, FileChange, FileChangeStatus } from './types/diff'
 
 const GIT_DIFF_HEADER_RE = /^diff --git a\/.* b\/(.*)$/
+/** Git quotes a path holding a tab, newline, `"` or `\` (and, without `core.quotePath=false`, any non-ASCII byte). */
+const QUOTED_GIT_DIFF_HEADER_RE = /^diff --git "a\/(?:[^"\\]|\\.)*" "b\/((?:[^"\\]|\\.)*)"$/
+const C_ESCAPES: Record<string, number> = { 'a': 7, 'b': 8, 't': 9, 'n': 10, 'v': 11, 'f': 12, 'r': 13, '"': 34, '\\': 92 }
+
+/** Reverses git's C-style quoting of a path (`"x\"y"` -> `x"y`); octal escapes are UTF-8 bytes. */
+function unquoteGitPath(text: string): string {
+  if (!text.startsWith('"') || !text.endsWith('"'))
+    return text
+  const bytes: number[] = []
+  const body = text.slice(1, -1)
+  for (let i = 0; i < body.length; i++) {
+    const char = body[i]!
+    if (char !== '\\') {
+      bytes.push(...new TextEncoder().encode(char))
+      continue
+    }
+    const octal = /^[0-7]{3}/.exec(body.slice(i + 1))
+    if (octal) {
+      bytes.push(Number.parseInt(octal[0], 8))
+      i += 3
+    }
+    else {
+      bytes.push(C_ESCAPES[body[i + 1]!] ?? body.charCodeAt(i + 1))
+      i++
+    }
+  }
+  return new TextDecoder().decode(new Uint8Array(bytes))
+}
 const INDEX_LINE_RE = /^index ([0-9a-f]+)\.\.([0-9a-f]+)(?:\s+\d+)?$/
 const HUNK_HEADER_RE = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@.*$/
 const RENAME_FROM_RE = /^rename from (.+)$/
@@ -111,10 +139,11 @@ function parseGitPreambleLine(line: string, preamble: GitPreamble): void {
     preamble.isBinary = true
     return
   }
-  preamble.renameFrom ??= RENAME_FROM_RE.exec(line)?.[1]
-  preamble.renameTo ??= RENAME_TO_RE.exec(line)?.[1]
-  preamble.copyFrom ??= COPY_FROM_RE.exec(line)?.[1]
-  preamble.copyTo ??= COPY_TO_RE.exec(line)?.[1]
+  const unquoted = (match: RegExpExecArray | null) => match?.[1] === undefined ? undefined : unquoteGitPath(match[1])
+  preamble.renameFrom ??= unquoted(RENAME_FROM_RE.exec(line))
+  preamble.renameTo ??= unquoted(RENAME_TO_RE.exec(line))
+  preamble.copyFrom ??= unquoted(COPY_FROM_RE.exec(line))
+  preamble.copyTo ??= unquoted(COPY_TO_RE.exec(line))
   const indexMatch = INDEX_LINE_RE.exec(line)
   if (indexMatch) {
     preamble.oldIndexSha = indexMatch[1]
@@ -149,7 +178,9 @@ function resolveGitStatusAndPath(preamble: GitPreamble, headerPath: string): { s
 
 function parseGitChunk(chunk: string): ParsedChunk {
   const lines = chunk.split('\n')
-  const headerPath = GIT_DIFF_HEADER_RE.exec(lines[0] ?? '')?.[1] ?? ''
+  const header = lines[0] ?? ''
+  const quoted = QUOTED_GIT_DIFF_HEADER_RE.exec(header)?.[1]
+  const headerPath = quoted === undefined ? GIT_DIFF_HEADER_RE.exec(header)?.[1] ?? '' : unquoteGitPath(`"${quoted}"`)
   const preamble = parseGitPreamble(lines)
   const { status, path, previousPath } = resolveGitStatusAndPath(preamble, headerPath)
   const hunks = preamble.isBinary || preamble.hunkStartIndex === -1 ? [] : parseHunks(lines.slice(preamble.hunkStartIndex))

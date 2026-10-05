@@ -52,7 +52,7 @@ export function createGithubPullRequestSource({ owner, repo, number }: { owner: 
 }
 
 /** Every ref kind GitHub serves. */
-export type GithubRef = Exclude<SourceRef, { kind: 'paste' }>
+export type GithubRef = Extract<SourceRef, { kind: 'github-pr' | 'github-compare' | 'github-commit' }>
 
 export function createGithubSource(ref: GithubRef, credentials?: Credentials, options?: GithubSourceOptions): DiffSource {
   switch (ref.kind) {

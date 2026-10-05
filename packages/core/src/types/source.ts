@@ -10,6 +10,8 @@ export const SourceRefSchema = v.variant('kind', [
   v.object({ kind: v.literal('github-compare'), owner: v.string(), repo: v.string(), base: v.string(), head: v.string() }),
   v.object({ kind: v.literal('github-commit'), owner: v.string(), repo: v.string(), sha: v.string() }),
   v.object({ kind: v.literal('paste'), hash: v.string() }),
+  /** A local repository (its root path) at a target in git revision syntax; `''` is the working tree. */
+  v.object({ kind: v.literal('local'), repo: v.string(), target: v.string() }),
 ])
 export type SourceRef = v.InferOutput<typeof SourceRefSchema>
 
@@ -24,6 +26,8 @@ export function serializeRef(ref: SourceRef): string {
       return `github:${ref.owner}/${ref.repo}@${ref.sha}`
     case 'paste':
       return `paste:${ref.hash}`
+    case 'local':
+      return `local:${ref.repo}:${ref.target}`
   }
 }
 

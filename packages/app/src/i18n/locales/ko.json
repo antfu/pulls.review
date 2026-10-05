@@ -181,6 +181,7 @@
     "resolved": "{n}개 해결됨",
     "binary": "바이너리 파일",
     "binaryNotShown": "바이너리 파일은 표시되지 않습니다.",
+    "tooLarge": "diff가 너무 커서 표시할 수 없습니다.",
     "loadFailed": "불러오기 실패",
     "loadFull": "전체 파일 내용 불러오기",
     "expand": "파일 펼치기",

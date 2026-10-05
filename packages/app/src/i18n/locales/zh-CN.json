@@ -181,6 +181,7 @@
     "resolved": "{n} 已解决",
     "binary": "二进制文件",
     "binaryNotShown": "不显示二进制文件。",
+    "tooLarge": "差异过大，无法显示。",
     "loadFailed": "加载失败",
     "loadFull": "加载完整文件内容",
     "expand": "展开文件",
