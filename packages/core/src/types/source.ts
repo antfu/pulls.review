@@ -44,4 +44,6 @@ export interface DiffSource {
    * Replaced by review/sharing capability APIs (plans/10, step 7).
    */
   githubPullRequest?: { owner: string, repo: string, number: string }
+  /** The credential a failed load can be retried with, so the view can offer to enter it. */
+  auth?: 'github-token'
 }

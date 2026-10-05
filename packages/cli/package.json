@@ -1,5 +1,5 @@
 {
-  "name": "pulls-review",
+  "name": "pulls.review",
   "type": "module",
   "version": "0.0.0",
   "description": "Analyze a GitHub pull request with pulls.review and post the grouped summary as a PR comment.",
@@ -20,6 +20,7 @@
     "llm"
   ],
   "bin": {
+    "pulls.review": "./dist/index.mjs",
     "pulls-review": "./dist/index.mjs"
   },
   "files": [

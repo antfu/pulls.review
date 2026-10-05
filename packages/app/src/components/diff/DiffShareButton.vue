@@ -25,13 +25,6 @@ const confirmOpen = ref(false)
   >
     {{ $t(shared.isSharing ? 'share.sharing' : shared.ownComment ? 'share.updateButton' : 'share.button') }}
   </ActionButton>
-  <!-- <a
-    v-if="shared.ownComment && !shared.isSharing"
-    :href="shared.ownComment.url"
-    target="_blank"
-    rel="noopener"
-    class="text-xs op-fade self-center hover:underline"
-  >View comment</a> -->
   <span v-if="shared.error && !confirmOpen" class="max-w-80 self-center truncate text-xs text-red-500" :title="$t('share.failed', { message: shared.error.message })">{{ $t('share.failed', { message: shared.error.message }) }}</span>
 
   <ShareResultModal v-model:open="confirmOpen" :store="store" :document="document" />

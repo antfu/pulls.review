@@ -174,6 +174,9 @@ export function createMockDiffsStore(input: {
   shared?: MockSharedInput
   /** Enables "load full file": every file loads these contents (absent = a source that can't, like a paste). */
   fileContent?: { old?: string, new?: string }
+  /** Defaults to a live source, as most stories render a GitHub PR. */
+  canRefresh?: boolean
+  auth?: 'github-token'
 }): DiffsStore {
   const llmEnabled = input.llm ?? true
   const { fileContent } = input
@@ -283,6 +286,8 @@ export function createMockDiffsStore(input: {
         })
       : undefined,
     fileContent: fileContent && { load: async () => fileContent },
+    canRefresh: input.canRefresh ?? true,
+    auth: input.auth,
     load,
     refresh,
     setReviewed,

@@ -7,6 +7,7 @@
       "number": "1"
     },
     "title": "Example pull request",
+    "label": "#1",
     "description": "An example description for Storybook fixtures.",
     "url": "https://github.com/antfu/diffs/pull/1",
     "base": {
@@ -19,9 +20,10 @@
     },
     "createdAt": "2026-09-16T00:00:00.000Z",
     "updatedAt": "2026-09-16T00:00:00.000Z",
-    "pullRequest": {
-      "author": "antfu"
+    "author": {
+      "name": "antfu"
     },
+    "pullRequest": {},
     "files": [
       {
         "path": "docs/featureA/intro.md",

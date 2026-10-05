@@ -167,6 +167,10 @@ export interface DiffsStore {
   readonly reviews?: DiffsStoreReviews
   /** `undefined` = this source has no PR comments to share into / load from. */
   readonly shared?: DiffsStoreShared
+  /** The source is live (its head can move), so refetching it can bring new changes. */
+  readonly canRefresh: boolean
+  /** The credential a failed load can be retried with; `undefined` when none would help (a paste). */
+  readonly auth?: 'github-token'
   /** `undefined` = this source can't fetch a file's full content (a paste has no live origin). */
   readonly fileContent?: DiffsStoreFileContent
   load: () => Promise<void>

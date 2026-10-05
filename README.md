@@ -1,4 +1,8 @@
-[![Og Image](./packages/app/public/og.png)](https://pulls.review)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./packages/app/public/og-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="./packages/app/public/og.png">
+  <img alt="pulls.review Open Graph image" src="./packages/app/public/og.png">
+</picture>
 
 # [pulls.review](https://pulls.review)
 

@@ -32,10 +32,6 @@ const diff = computed(() => props.store?.diff)
 const grouped = computed(() => props.store?.grouped)
 const isLoading = computed(() => props.store?.isLoading ?? false)
 const error = computed(() => props.store?.error)
-// Only GitHub sources have a review lifecycle, so `reviews` doubles as "this is a
-// GitHub PR" - the one case where a missing/expired token can cause a load error and
-// offering the token field as a recovery affordance makes sense (a paste can't).
-const isGithub = computed(() => !!props.store?.reviews)
 const isStale = computed(() => props.store?.isStale ?? false)
 const groups = computed(() => props.store?.groups ?? [])
 
@@ -168,7 +164,7 @@ function refreshFromBanner() {
             </FeedbackEmptyState>
           </slot>
           <GithubTokenRecovery
-            v-if="isGithub"
+            v-if="store?.auth === 'github-token'"
             class="mxa max-w-200 border border-base border-rounded p4"
             @saved="store?.load()"
           />

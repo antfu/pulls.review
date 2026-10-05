@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { PullRequestState } from '@pulls.review/core/types'
+import { routeForRef } from '../source-routes'
 import PrStatusIcon from './diff/PrStatusIcon.vue'
 
 defineProps<{
@@ -13,7 +14,7 @@ defineProps<{
 
 <template>
   <RouterLink
-    :to="`/gh/${owner}/${repo}/${number}`"
+    :to="routeForRef({ kind: 'github-pr', owner, repo, number: String(number) })"
     :title="title"
     class="max-w-full flex items-center gap-2 border border-base rounded-full px-3 py-1.5 text-sm transition hover:border-accent-teal-400/50 hover:bg-hover"
   >

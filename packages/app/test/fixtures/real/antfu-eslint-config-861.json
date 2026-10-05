@@ -7,6 +7,7 @@
       "number": "861"
     },
     "title": "feat: add antislop option",
+    "label": "#861",
     "description": "## Description\n\nAdds an opt-in, experimental `antislop` factory option to guard against low-value code patterns commonly introduced by AI agents, inspired by [this writeup on keeping AI-authored code clean](https://zenn.dev/singularity/articles/clean-code-ci-for-ai-era).\n\n- Enables all rules from [`eslint-plugin-slop`](https://github.com/antfu/eslint-plugin-slop) v0.1.1 (including the new `no-jargon` and `prefer-jsdoc`; the plugin ships no preset, so the set is maintained here).\n- Enables an in-house maintained subset of [`eslint-plugin-sonarjs`](https://github.com/SonarSource/SonarJS) focused on redundant and duplicated code (e.g. `no-identical-functions`, `no-duplicated-branches`, `no-commented-code`, `cognitive-complexity`), deliberately excluding security/AWS/test/regex rules that overlap with existing configs, and type-aware rules so it works without `tsconfigPath`.\n- Turns `ts/no-explicit-any` on (`error`) when TypeScript is enabled; the antislop config is composed after the TypeScript config so the override takes effect.\n- The option accepts an object to toggle each plugin: `sonarjs?: boolean` and `slop?: boolean | OptionsSlop` — passing an object enables `eslint-plugin-slop` and is forwarded to it via `settings.slop` (e.g. inspection mode).\n- Marked `@experimental`: the enabled rule set is maintained in-house and may change in any release without following semver.\n- Both plugins are optional peer dependencies, installed on demand via the usual `ensurePackages` prompt.\n- Supports `antislop: { overrides: {...} }` like other integrations.\n- README documents the option and recommends pairing it with [`jscpd`](https://github.com/kucherenko/jscpd) and [`knip`](https://knip.dev), since linters only see one file at a time.\n\nNote: 7 factory snapshots were already stale on `main` (from the earlier pnpm blank-lines feature) and got regenerated together with the new `antfu/antislop/rules` entries.\n\n---\nThis PR was created with the help of an agent.",
     "url": "https://github.com/antfu/eslint-config/pull/861",
     "base": {
@@ -19,8 +20,10 @@
     },
     "createdAt": "2026-09-02T04:53:02Z",
     "updatedAt": "2026-09-02T05:48:34Z",
+    "author": {
+      "name": "antfubot"
+    },
     "pullRequest": {
-      "author": "antfubot",
       "state": "merged"
     },
     "files": [

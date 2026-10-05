@@ -23,5 +23,6 @@ export function createGithubPullRequestSource({ owner, repo, number }: { owner: 
     fingerprint: async () => (await fetchPullRequest(client, owner, repo, number)).head.sha,
     loadFile: (path, sha) => fetchFileContentAtRef(client, owner, repo, path, sha),
     githubPullRequest: { owner, repo, number },
+    auth: 'github-token',
   }
 }

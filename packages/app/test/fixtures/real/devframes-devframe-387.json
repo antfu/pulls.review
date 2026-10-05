@@ -7,6 +7,7 @@
       "number": "387"
     },
     "title": "fix(hub-ui): initialize dock page scripts before activation",
+    "label": "#387",
     "description": "## Background (Why)\n\nAn iframe dock's page script can register commands used by notifications before the user opens its panel. The reference hub UI waits for activation, leaving those commands unavailable until then.\n\n## Changes (What)\n\nAdd optional `eager: true` to the existing `ClientScriptEntry` descriptor, defaulting to lazy initialization as discussed in review. Both the reference hub UI and the headless runtime wait for RPC trust before eager initialization. Activation shares pending setup, and failed setup remains retryable. Cache setup per RPC connection and import descriptor; action clicks still execute each time.\n\nKeep the existing script fields: `clientScript` on iframe docks, `action` on action docks, and `renderer` on custom-render docks. The common dock base and JSON-render API are unchanged.\n\n## Verification (Testing)\n\n53 focused tests pass across the headless runtime, renderer fixtures, and reference UI context/script suites. Coverage includes opt-in eager initialization, default lazy behavior, trust gating, separate RPC connections, concurrent activation and setup failure/retry. Scoped hub/hub-ui type checks and changed-file lint pass.\n\nThe rebuilt assets at `51d41004` were checked in the in-app Chromium browser before the subsequent trust-race correction. Embedded iframe setup remained lazy unless opted in; eager setup ran before panel activation, stayed deduplicated on activation, and registered a working page-local command. A standalone page initialized its own script instance and its command remained functional after closing the embedded page.\n\nCommit `91291de9` adds six regression cases for trust revocation during dynamic import and while iframe setup completes. Both runtimes recheck trust before invocation/activation, and interrupted setup remains retryable after re-authentication. All 53 focused tests, changed-file lint and both package type checks pass. CI is running on this revision. The previous revision failed two Node 22 `plugin-code-server` declaration snapshots; that failure is retained pending the new run. The PR remains draft.\n\n",
     "url": "https://github.com/devframes/devframe/pull/387",
     "base": {
@@ -19,8 +20,10 @@
     },
     "createdAt": "2026-09-13T23:58:17Z",
     "updatedAt": "2026-09-16T00:26:47Z",
+    "author": {
+      "name": "dvcolomban"
+    },
     "pullRequest": {
-      "author": "dvcolomban",
       "state": "merged"
     },
     "files": [

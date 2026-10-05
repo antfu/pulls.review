@@ -5,6 +5,7 @@ import { labelStyle } from '@antfu/design/utils/color'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { formatTimeAgo } from '../../i18n/time-ago'
+import { routeForRef } from '../../source-routes'
 import { isDark } from '../../state/dark'
 import DiffStats from '../diff/DiffStats.vue'
 import PrStatusIcon from '../diff/PrStatusIcon.vue'
@@ -47,7 +48,7 @@ const REVIEW_ICON: Record<ReviewDecision, string> = {
 
 <template>
   <RouterLink
-    :to="`/gh/${owner}/${repo}/${pr.number}`"
+    :to="routeForRef({ kind: 'github-pr', owner, repo, number: String(pr.number) })"
     class="flex items-start gap-3 border-b border-base px-4 py-3 transition hover:bg-hover"
   >
     <PrStatusIcon :state="pr.state" class="mt-0.5" />

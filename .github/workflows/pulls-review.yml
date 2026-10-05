@@ -30,7 +30,7 @@ jobs:
 
       # Dogfood the CLI as built from the default branch rather than the published package.
       - name: Build
-        run: pnpm -F "pulls-review..." run build
+        run: pnpm -F "pulls.review..." run build
 
       - name: Analyze
         run: node packages/cli/dist/index.mjs
