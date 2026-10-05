@@ -24,6 +24,9 @@ const props = defineProps<{
 const { cache, credentials } = useAppContext()
 const store = createDiffsStore(createGithubPullRequestSource(props, credentials), { cache, credentials })
 
+// The drawer reads shared-analysis state off it (dot on the toggles, `?from=` links).
+defineExpose({ store })
+
 onMounted(() => store.load())
 </script>
 
@@ -33,12 +36,12 @@ onMounted(() => store.load())
     :store="store"
   >
     <template #loading>
-      <FeedbackLoading text="Loading pull request…" />
+      <FeedbackLoading :text="$t('pr.loading')" />
     </template>
     <template #error="{ error: err, retry }">
       <FeedbackEmptyState
         icon="i-ph:warning-duotone"
-        title="Couldn't load this pull request"
+        :title="$t('pr.loadFailed')"
       >
         <template #hint>
           {{ err.message }}

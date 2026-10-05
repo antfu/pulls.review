@@ -146,6 +146,19 @@ describe('discovery', () => {
     expect(entry!.analyzedBy.llm?.sharedBy).toBe('antfu')
   })
 
+  it('loads a user who is not among the candidates by scanning the comments again', async () => {
+    await seedCache({ llm: aiResult({ sharedBy: 'other' }) })
+    stubFetch([commentsRoute([issueComment(2, 'antfu', aiResult({ overallSummary: 'Shared summary' }))])])
+    const store = storeFor()
+    await store.load()
+    await settle()
+    expect(store.shared!.candidates).toEqual([])
+
+    await store.shared!.load('antfu')
+
+    expect(store.grouped).toMatchObject({ overallSummary: 'Shared summary', sharedBy: 'antfu' })
+  })
+
   it('works anonymously in the embed (no token, LLM compiled out)', async () => {
     vi.stubEnv('PR_LLM', undefined)
     await seedCache({})

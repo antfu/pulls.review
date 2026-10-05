@@ -47,6 +47,34 @@
         font-size: 12px;
         opacity: 0.7;
       }
+      /* Stand-ins for the GitHub elements the embed hooks into - same ids, none of the styling. */
+      #tabs {
+        display: flex;
+        gap: 16px;
+        padding: 8px 12px;
+        border-bottom: 1px solid #d0d7de;
+      }
+      #tabs a,
+      #tabs button {
+        all: unset;
+        cursor: pointer;
+        font-size: 14px;
+        padding: 4px 0;
+      }
+      #page {
+        display: flex;
+        gap: 24px;
+        padding: 16px 12px;
+      }
+      #timeline {
+        flex: 1;
+        line-height: 1.6;
+      }
+      #pane {
+        width: 256px;
+        border-left: 1px solid #d0d7de;
+        padding-left: 16px;
+      }
     </style>
   </head>
   <body>
@@ -57,6 +85,21 @@
       <button id="load" type="button">Navigate</button>
       <button id="toggle-dark" type="button">Toggle host dark mode</button>
       <span id="current-path"></span>
+    </div>
+
+    <nav id="tabs">
+      <a href="#">Conversation</a>
+      <a href="#">Commits</a>
+      <a id="prs-files-anchor-tab" href="#">Files changed</a>
+    </nav>
+    <div id="page">
+      <div id="timeline">
+        <p>A comment linking back to this pull request on pulls.review, like the shared-analysis comment does:</p>
+        <p><a id="review-link" href="">pulls.review</a></p>
+      </div>
+      <div id="pane">
+        <div id="pr-conversation-sidebar">Reviewers, assignees, labels…</div>
+      </div>
     </div>
 
     <!--
@@ -92,6 +135,9 @@
         const path = `/${owner}/${repo}/pull/${number}`
         history.pushState(null, '', path)
         currentPathEl.textContent = path
+        const reviewLink = document.getElementById('review-link')
+        reviewLink.href = `https://pulls.review/gh/${owner}/${repo}/${number}?from=github-actions[bot]`
+        reviewLink.textContent = reviewLink.href
         // Turbo's own navigation event, which the component listens for to re-sync -
         // `pushState` alone doesn't fire anything observable.
         document.dispatchEvent(new Event('turbo:load'))

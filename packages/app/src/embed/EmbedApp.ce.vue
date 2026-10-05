@@ -1,22 +1,18 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import type { EmbedPr, ReviewLink } from './githubIntegration'
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
 import SettingsModal from '../components/settings/SettingsModal.vue'
+import { i18n } from '../i18n'
 import { settingsModalOpen } from '../state/settingsModal'
 import { useEmbedDark } from './dark'
 import EmbedPrView from './EmbedPrView.vue'
-import { injectGithubPageStyles, PANEL_OPEN_CLASS, setupFilesTabToggle } from './githubIntegration'
+import { hijackReviewLinks, injectGithubPageStyles, setPanelOpenWidth, SITE_ORIGIN, syncToggleTab } from './githubIntegration'
 
 const WIDTH_STORAGE_KEY = 'diffs-embed:drawer-width'
 const DEFAULT_WIDTH = 800
 const MIN_WIDTH = 320
 
-interface Pr {
-  owner: string
-  repo: string
-  number: string
-}
-
-function parsePr(pathname: string): Pr | undefined {
+function parsePr(pathname: string): EmbedPr | undefined {
   const match = pathname.match(/^\/([^/]+)\/([^/]+)\/pull\/(\d+)/)
   if (!match)
     return undefined
@@ -37,11 +33,20 @@ function loadWidth(): number {
 
 const rootRef = useTemplateRef<HTMLDivElement>('root')
 useEmbedDark(rootRef)
+// Not `useI18n()`: inside a custom element it needs its own `provide`; the global composer is the one installed anyway.
+const { t } = i18n.global
 
 const pr = ref(parsePr(location.pathname))
 const prKey = computed(() => pr.value && `${pr.value.owner}/${pr.value.repo}#${pr.value.number}`)
 const open = ref(false)
 const width = ref(loadWidth())
+
+// `EmbedPrView` loads eagerly (mounted while closed too), so the dot can light up before the drawer is ever opened.
+const prView = useTemplateRef<InstanceType<typeof EmbedPrView>>('prView')
+const hasSharedResult = computed(() => {
+  const store = prView.value?.store
+  return !!store?.shared?.candidates.length || !!store?.aiResult?.sharedBy
+})
 
 // GitHub is a Turbo (Hotwire) SPA - navigating between PRs (or to/from one) doesn't
 // reload the page (and so doesn't remount this custom element), so re-derive the
@@ -56,18 +61,30 @@ function syncPr() {
   // Turbo swaps in a fresh tab bar per PR navigation, taking our inserted button
   // with it - re-run both on every navigation, not just the initial mount.
   injectGithubPageStyles()
-  setupFilesTabToggle(toggleOpen)
+  syncTab()
 }
 
 function toggleOpen() {
   open.value = !open.value
 }
 
-// The drawer only ever renders inside this component's own shadow root, but
-// `[id="diff-comparison-viewer-container"]` is GitHub's own element on the real
-// page - toggling this class there is how it finds out the drawer is open.
-watch(open, (isOpen) => {
-  window.document.body.classList.toggle(PANEL_OPEN_CLASS, isOpen)
+function syncTab() {
+  if (pr.value)
+    syncToggleTab({ label: t('embed.reviewChanges'), hasSharedResult: hasSharedResult.value, sharedResultTitle: t('pulls.aiAvailable') }, toggleOpen)
+}
+// Re-renders the light-DOM tab on locale and dot changes; `syncPr` covers Turbo replacing it.
+watchEffect(syncTab)
+
+function openFromLink(link: ReviewLink) {
+  open.value = true
+  if (link.from)
+    void prView.value?.store.shared?.load(link.from)
+}
+
+// The drawer only ever renders inside this component's own shadow root; the body
+// class and `<html>` width are how GitHub's own page finds out it's open, and how wide.
+watch([open, width], ([isOpen, w]) => {
+  setPanelOpenWidth(isOpen ? w : undefined)
 })
 
 let dragStartX = 0
@@ -100,20 +117,23 @@ function onResizeDown(event: PointerEvent) {
 // scroll target, AppModal's Teleport target) should read this, not the bare global.
 const document = computed(() => (rootRef.value?.getRootNode() ?? window.document) as Document | ShadowRoot)
 
+let stopHijackingLinks: (() => void) | undefined
 onMounted(() => {
   // Turbo's own navigation event always fires on the real top-level document,
   // regardless of where this custom element is mounted - not the shadow root.
   window.document.addEventListener('turbo:load', syncPr)
   window.addEventListener('popstate', syncPr)
+  stopHijackingLinks = hijackReviewLinks({ pr: () => pr.value, onOpen: openFromLink, launchLabel: () => t('pr.openInSite') })
   if (pr.value) {
     injectGithubPageStyles()
-    setupFilesTabToggle(toggleOpen)
+    syncTab()
   }
 })
 onBeforeUnmount(() => {
   window.document.removeEventListener('turbo:load', syncPr)
   window.removeEventListener('popstate', syncPr)
-  window.document.body.classList.remove(PANEL_OPEN_CLASS)
+  stopHijackingLinks?.()
+  setPanelOpenWidth(undefined)
 })
 </script>
 
@@ -126,7 +146,8 @@ onBeforeUnmount(() => {
       :style="{ right: open ? `${width}px` : '0' }"
       @click="toggleOpen"
     >
-      pulls.review
+      {{ $t('embed.reviewChanges') }}
+      <span v-if="hasSharedResult" class="absolute left-0 top-0 h-2.5 w-2.5 border-2 border-base rounded-full bg-blue-500 -translate-x-1/3 -translate-y-1/3" :title="$t('pulls.aiAvailable')" />
     </button>
 
     <div
@@ -142,7 +163,7 @@ onBeforeUnmount(() => {
         <div class="flex-auto">
           pulls.review
         </div>
-        <a v-if="pr" target="_blank" :href="`https://pulls.review/gh/${pr.owner}/${pr.repo}/${pr.number}`" rel="noopener noreferrer" :aria-label="$t('pr.openInSite')" class="op-fade hover:op-100">
+        <a v-if="pr" target="_blank" :href="`${SITE_ORIGIN}/gh/${pr.owner}/${pr.repo}/${pr.number}`" rel="noopener noreferrer" :aria-label="$t('pr.openInSite')" class="op-fade hover:op-100">
           <div class="i-ph-arrow-square-out-duotone" />
         </a>
         <button type="button" :aria-label="$t('common.close')" class="op-fade hover:op-100" @click="toggleOpen">
@@ -151,6 +172,7 @@ onBeforeUnmount(() => {
       </header>
       <EmbedPrView
         v-if="pr"
+        ref="prView"
         :key="prKey" :owner="pr.owner" :repo="pr.repo" :number="pr.number" :document="document" class="min-h-0 flex-1 overflow-auto"
       />
     </div>

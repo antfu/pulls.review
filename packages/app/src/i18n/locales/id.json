@@ -77,6 +77,9 @@
     "reviewedOf": "/ {total} ditinjau",
     "openInSite": "Buka di pulls.review"
   },
+  "embed": {
+    "reviewChanges": "Tinjau Perubahan"
+  },
   "pulls": {
     "loading": "Memuat pull request…",
     "loadFailed": "Tidak dapat memuat pull request",

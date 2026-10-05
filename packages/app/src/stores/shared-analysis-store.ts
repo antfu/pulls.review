@@ -94,6 +94,8 @@ export function createSharedAnalysisStore(pr: { owner: string, repo: string, num
     const candidate = candidates.value.find(entry => entry.login === login)
     if (candidate)
       await apply(candidate)
+    else
+      await discover(login)
   }
 
   function dismiss() {

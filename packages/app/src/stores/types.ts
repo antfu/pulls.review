@@ -106,6 +106,7 @@ export interface DiffsStoreShared {
   /** The viewer's own comment on this PR once known - the next share updates it. */
   readonly ownComment: { id: number, url: string } | undefined
   dismiss: () => void
+  /** Loads that user's analysis - an offered candidate, or else by scanning the comments again (like `?from=`). */
   load: (login: string) => Promise<void>
   /** Posts (or updates) the viewer's comment with the current locally generated AI result. */
   share: () => Promise<void>

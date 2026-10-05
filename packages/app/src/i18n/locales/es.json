@@ -77,6 +77,9 @@
     "reviewedOf": "/ {total} revisados",
     "openInSite": "Abrir en pulls.review"
   },
+  "embed": {
+    "reviewChanges": "Revisar cambios"
+  },
   "pulls": {
     "loading": "Cargando pull requests…",
     "loadFailed": "No se pudieron cargar los pull requests",

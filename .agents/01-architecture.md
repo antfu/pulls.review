@@ -279,10 +279,6 @@ land later without a rewrite:
 - Any cross-repo/history dashboard (the per-repo open-PR list at
   `/gh/owner/repo` is a navigation aid into the deep-links, not that) or
   social/OG link previews (no backend to render them).
-- A compact "embed" layout mode (`?embed`), for the userscript below to
-  render sanely inside a narrow drawer instead of the full page chrome. Not
-  built yet - the app MUST NOT gain anything that forecloses it, no
-  restrictive `X-Frame-Options`/`frame-ancestors`.
 - A VS Code extension ("devframe", à la the official GitHub Pull Requests and
   Issues extension) surfacing pulls.review inside the editor for the local
   working-tree diff or the PR matching the checked-out branch. Depends on
@@ -309,10 +305,17 @@ land later without a rewrite:
   pages. `AppHeader` itself only renders on `pages/index.vue` (the `/gh/...`
   and `/upload` reading views stay header-free; their own sticky
   `DiffsHeader` is the only scroll nav there).
-- A userscript (`userscript/diffs-github.user.js`) embeds a pulls.review drawer
-  directly into `github.com` pull request pages via an iframe pointing at
-  the matching `/gh/owner/repo/number?embed` - styled with inline styles
-  only, since it can't ship a stylesheet into someone else's page.
+- A generated userscript (`scripts/build-userscript.ts`) mounts
+  `<pulls-review-embed-panel>` (`app/embed/`, a Vue custom element built as
+  one IIFE with `PR_EMBED` on and `PR_LLM` off) into `github.com` pull request
+  pages. The PR view renders inside its shadow root with a pre-compiled
+  stylesheet; `githubIntegration.ts` is the only code touching GitHub's own
+  DOM - a "Review Changes" tab beside "Files changed" and the edge button,
+  both dotted when a shared analysis exists for the PR; while open, the
+  conversation sidebar is hidden and `<html>` shrinks to the remaining width
+  so the page reflows beside the drawer; `https://pulls.review/gh/...` links
+  to the current PR open in the drawer (honouring `?from=`), with an appended
+  icon that still opens the site in a new tab.
 - Diff layout (split/unified) is user-toggleable; both are supported by
   `@pierre/diffs`.
 - Large PRs are a first-class case, not an edge case: file lists and diff

@@ -77,6 +77,9 @@
     "reviewedOf": "/ {total} 已審閱",
     "openInSite": "在 pulls.review 中開啟"
   },
+  "embed": {
+    "reviewChanges": "審查變更"
+  },
   "pulls": {
     "loading": "正在載入 pull request…",
     "loadFailed": "無法載入 pull request",
