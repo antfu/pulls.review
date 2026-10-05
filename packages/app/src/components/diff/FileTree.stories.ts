@@ -7,6 +7,7 @@ import FileTree from './FileTree.vue'
 const meta: Meta<typeof FileTree> = {
   title: 'Diff/FileTree',
   component: FileTree,
+  args: { filesVisible: [] },
 }
 export default meta
 

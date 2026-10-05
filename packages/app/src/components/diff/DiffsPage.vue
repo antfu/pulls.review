@@ -88,6 +88,7 @@ const scrollY = ref(0)
 useEventListener(() => props.document ?? document, 'scroll', (event) => {
   scrollY.value = event.target instanceof Element ? event.target.scrollTop : window.scrollY
   updateVisibleGroups()
+  updateVisibleFiles()
 }, { capture: true })
 
 // The sticky DiffsHeader's height drives every sticky offset below it: its real,
@@ -111,7 +112,29 @@ function updateVisibleGroups() {
 }
 // Groups render async (v-for over `groups`), so the first measurement has to wait for
 // that DOM to actually exist - re-run whenever the group list or header height changes.
-watch([groups, headerHeight], () => nextTick(updateVisibleGroups), { immediate: true })
+
+// A file's header is sticky, so its rect can't tell where the file sits. DiffGroup puts a
+// non-sticky marker before each FileDiff instead: a file spans from its marker to the
+// next marker in the same column, or to the column's end.
+const filesVisible = ref<string[]>([])
+function updateVisibleFiles() {
+  const root = props.document ?? document
+  const viewportHeight = window.innerHeight
+  const markers = [...root.querySelectorAll<HTMLElement>('[data-file-start]')]
+  filesVisible.value = markers.filter((marker, i) => {
+    const next = markers[i + 1]
+    const top = marker.getBoundingClientRect().top
+    const bottom = next && next.parentElement === marker.parentElement
+      ? next.getBoundingClientRect().top
+      : marker.parentElement!.getBoundingClientRect().bottom
+    return bottom > headerHeight.value && top < viewportHeight
+  }).map(marker => marker.dataset.fileStart!)
+}
+
+watch([groups, headerHeight], () => nextTick(() => {
+  updateVisibleGroups()
+  updateVisibleFiles()
+}), { immediate: true })
 
 const styles = computed(() => {
   return {
@@ -200,6 +223,7 @@ function refreshFromBanner() {
             :store="store!"
             :group="group"
             :collapsed="collapsedGroups.has(group.key)"
+            :files-visible="filesVisible"
             @toggle="toggleGroup(group.key)"
           />
 

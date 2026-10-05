@@ -21,6 +21,8 @@ const props = defineProps<{
   collapsed: boolean
   parentLabel?: string
   parentKey?: string
+  /** Shas of the files currently scrolled into view, highlighted in the tree. */
+  filesVisible: string[]
 }>()
 
 const emit = defineEmits<{
@@ -200,6 +202,7 @@ function navigateToFile(sha: string) {
             :store="store"
             :files="group.files"
             :missing="group.missing"
+            :files-visible="filesVisible"
             @navigate="navigateToFile"
           />
         </template>
@@ -207,13 +210,15 @@ function navigateToFile(sha: string) {
 
       <div class="min-w-0 flex flex-col">
         <template v-if="!collapsed">
-          <FileDiff
-            v-for="file of group.files"
-            :key="file.sha"
-            :ref="el => setFileDiffRef(file.sha, el as InstanceType<typeof FileDiff> | null)"
-            :store="store"
-            :file="file"
-          />
+          <template v-for="file of group.files" :key="file.sha">
+            <!-- Non-sticky scroll-spy anchor read by DiffsPage, since the file header is sticky. -->
+            <div :data-file-start="file.sha" />
+            <FileDiff
+              :ref="el => setFileDiffRef(file.sha, el as InstanceType<typeof FileDiff> | null)"
+              :store="store"
+              :file="file"
+            />
+          </template>
         </template>
       </div>
     </div>
@@ -228,6 +233,7 @@ function navigateToFile(sha: string) {
         :collapsed="collapsedChildren.has(child.key)"
         :parent-label="group.label"
         :parent-key="group.key"
+        :files-visible="filesVisible"
         @toggle="toggleChild(child.key)"
       />
     </div>

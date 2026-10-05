@@ -15,6 +15,8 @@ const props = defineProps<{
   files: FileChange[]
   /** Paths the analysis named that have since left the diff, shown as removed. */
   missing?: string[]
+  /** Shas of the files currently scrolled into view. */
+  filesVisible: string[]
 }>()
 
 const emit = defineEmits<{
@@ -118,7 +120,8 @@ const virtualizer = useVirtualizer(computed(() => ({
       <div
         v-for="row in virtualizer.getVirtualItems().map(item => ({ item, row: rows[item.index]! }))"
         :key="row.row.key"
-        class="flex items-center gap-1.5 text-sm"
+        class="flex items-center gap-1.5 rounded text-sm"
+        :class="row.row.file && filesVisible.includes(row.row.file.sha) ? 'bg-active' : ''"
         :style="{
           position: 'absolute',
           top: 0,

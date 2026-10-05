@@ -9,7 +9,7 @@ import { resolveGroups } from './group-utils'
 const meta: Meta<typeof DiffGroup> = {
   title: 'Diff/DiffGroup',
   component: DiffGroup,
-  args: { collapsed: false },
+  args: { collapsed: false, filesVisible: [] },
 }
 export default meta
 
