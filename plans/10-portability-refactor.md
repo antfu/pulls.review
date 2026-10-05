@@ -1,6 +1,6 @@
 # Plan 10: source- and storage-agnostic refactor
 
-Status: **planned**.
+Status: **built** (#34-#38, #43-#45).
 
 ## Why
 
@@ -251,11 +251,9 @@ auto-refetch").
 
 ## Follow-ups (not this plan)
 
-- **Plan 04 (rewrite):** a `local` `SourceRef` and source in core, a Node-only
-  git runner implementing `DiffSource`.
-- **Plan 09:** `@pulls.review/devframe`: an RPC proxy of `DiffSource`,
-  `Credentials` and the core `/cache` repositories over the fs driver, the
-  `PR_LOCAL` build, router base and the hub mount.
+- **[Plan 04](./04-local-provider.md):** the `local` source in core.
+- **[Plan 09](./09-devframe-local-review.md):** the `pulls.review` devframe CLI
+  serving it.
 - **Paste reviewed marks:** pasted diffs carry abbreviated `index` shas, so their
   reviewed marks don't match the same files reviewed through GitHub. Left as is.
 

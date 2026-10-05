@@ -27,8 +27,9 @@ A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
 - `packages/actions` (`@pulls.review/actions`) — the GitHub Actions CLI: fetch,
   analyze, upsert the shared-analysis comment; what the root `action.yml`
   composite action runs.
-- `pulls.review` (the unscoped name) is reserved for the standalone CLI: local
-  git inspection served through devframe (Plan 04's `local` provider). It is not
+- `packages/cli` (`pulls.review`, the unscoped name) is reserved for the
+  standalone CLI: local git review served through devframe
+  (`plans/09-devframe-local-review.md`, on Plan 04's `local` source). It is not
   built yet and MUST NOT take over the Actions entry point.
 
 ## Invariants
@@ -92,8 +93,9 @@ analysis strategy later never touches the view layer:
     `/upload` route (no param) via a fixed `sessionStorage` key, not a URL —
     deliberately not shareable as a link, since it has no live source to
     refetch even if it were content-hash-addressed.
-  - `local` (CLI-driven, diffing a working tree/commit range) is planned but
-    deferred — it will reuse the same `patch-parser` `paste` already uses.
+  - `local` (diffing a working tree, commit or range with `git`) is planned
+    (`plans/04-local-provider.md`) — a Node-only `core/local` subpath reusing
+    the same `patch-parser` `paste` already uses.
 - **`app/patch-parser/`** parses unified-diff / git-extended-diff text (the
   format shared by GitHub's `.diff` endpoint, `git diff` output, and plain
   `diff -u`) into canonical `FileChange[]`. It is provider-agnostic
@@ -296,14 +298,13 @@ land later without a rewrite:
 - Merging PRs. (Review comment threads and formal review submission are
   built — see `plans/05-comment-threads.md` — offered
   only for a source with `reviews`.)
-- `local` provider (diffing a working tree) - would live in core.
+- The `local` source (`plans/04-local-provider.md`).
 - Any cross-repo/history dashboard (the per-repo open-PR list at
   `/gh/owner/repo` is a navigation aid into the deep-links, not that) or
   social/OG link previews (no backend to render them).
-- A VS Code extension ("devframe", à la the official GitHub Pull Requests and
-  Issues extension) surfacing pulls.review inside the editor for the local
-  working-tree diff or the PR matching the checked-out branch. Depends on
-  the `local` provider; not built yet.
+- The `pulls.review` devframe CLI (`plans/09-devframe-local-review.md`):
+  local review served by the user's own process, a static snapshot, or a
+  devframe hub dock. Depends on the `local` source; not built yet.
 
 ## UI conventions
 

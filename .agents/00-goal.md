@@ -48,16 +48,19 @@ management product.
   (approve/request changes/comment), degrading to read-only when the token
   can't write.
 - Sources beyond GitHub: pasted/uploaded raw patches (built early, since
-  it's essentially free once a patch parser exists), and eventually a local
-  CLI-driven provider for diffing a working tree.
+  it's essentially free once a patch parser exists), GitHub compare ranges and
+  single commits (built), and a `local` source for a git working tree, commit
+  or range (`plans/04-local-provider.md`).
 - A userscript that embeds pulls.review as a sidepanel directly inside GitHub's own
   PR page, next to the real comment thread — reviewing with pulls.review's grouping
   without leaving github.com.
-- A VS Code extension ("devframe") that surfaces pulls.review inside the editor —
-  visualizing the local working-tree diff or the PR matching the currently
-  checked-out branch, similar in spirit to the official GitHub Pull Requests
-  and Issues extension, but with pulls.review's grouping/summarization. Builds on
-  the `local` provider once that exists.
+- A `pulls.review` CLI that reviews local git changes (the working tree, any
+  ref range, one commit) in the browser through
+  [devframe](https://github.com/devframes/devframe), a framework for building
+  DevTools: a standalone local server, a static snapshot, or a dock inside a
+  devframe hub such as Vite DevTools. It also links the PR matching the
+  checked-out branch. Builds on the `local` source
+  (`plans/09-devframe-local-review.md`).
 
 ## Explicit non-goals
 
