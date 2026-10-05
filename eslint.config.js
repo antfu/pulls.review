@@ -12,5 +12,10 @@ export default antfu(
       'packages/app/test/fixtures/real/**',
       '**/__snapshots__/**',
     ],
+    vue: {
+      overrides: {
+        'vue/no-restricted-block': ['error', { element: 'style', message: 'Style with UnoCSS utilities or a uno.config.ts shortcut instead (see AGENTS.md).' }],
+      },
+    },
   },
 )

@@ -58,7 +58,7 @@ function toolCallLabel(call: ToolCall) {
   <div v-else-if="message.role === 'assistant'" class="max-w-full flex flex-col items-start gap-1.5">
     <template v-for="(part, index) in message.content" :key="index">
       <Suspense v-if="part.type === 'text' && part.text.trim()">
-        <Markdown :value="part.text" :streaming="message.stopReason === 'pending'" class="chat-md min-w-0 self-stretch" />
+        <Markdown :value="part.text" :streaming="message.stopReason === 'pending'" class="chat-markdown min-w-0 self-stretch" />
       </Suspense>
       <div v-else-if="part.type === 'toolCall'" class="flex items-center gap-1.5 text-xs op-mute">
         <span class="i-ph:wrench-duotone" aria-hidden="true" />
@@ -84,64 +84,3 @@ function toolCallLabel(call: ToolCall) {
     <span class="whitespace-pre-wrap break-words">{{ toolError }}</span>
   </div>
 </template>
-
-<style scoped>
-.chat-md {
-  @apply text-sm leading-relaxed break-words;
-}
-.chat-md
-  :deep(
-    :is(p, ul, ol, pre, blockquote, table, hr, h1, h2, h3, h4)
-      + :is(p, ul, ol, pre, blockquote, table, hr, h1, h2, h3, h4)
-  ) {
-  @apply mt-2.5;
-}
-.chat-md :deep(:is(h1, h2, h3, h4)) {
-  @apply font-semibold leading-snug;
-}
-.chat-md :deep(:is(h1, h2)) {
-  @apply text-base;
-}
-.chat-md :deep(:is(h3, h4)) {
-  @apply text-sm;
-}
-.chat-md :deep(* + :is(h1, h2, h3, h4)) {
-  @apply mt-4;
-}
-.chat-md :deep(:is(ul, ol)) {
-  @apply pl-5;
-}
-.chat-md :deep(ul) {
-  @apply list-disc;
-}
-.chat-md :deep(ol) {
-  @apply list-decimal;
-}
-.chat-md :deep(li + li) {
-  @apply mt-1;
-}
-.chat-md :deep(:not(pre) > code) {
-  @apply text-[0.85em] px-1 py-0.5 rounded bg-code;
-}
-.chat-md :deep(pre) {
-  @apply text-xs leading-relaxed p-3 border border-base rounded-md bg-code max-w-full overflow-x-auto;
-}
-.chat-md :deep(pre code) {
-  @apply whitespace-pre;
-}
-.chat-md :deep(blockquote) {
-  @apply pl-3 border-l-2 border-base op-fade;
-}
-.chat-md :deep(table) {
-  @apply text-xs block max-w-full overflow-x-auto border-collapse;
-}
-.chat-md :deep(:is(th, td)) {
-  @apply px-2 py-1 border border-base text-left;
-}
-.chat-md :deep(a) {
-  @apply underline underline-offset-2 hover:op-80;
-}
-.chat-md :deep(hr) {
-  @apply border-base;
-}
-</style>

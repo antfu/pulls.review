@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ThemedToken } from '@pierre/diffs'
 import { getSharedHighlighter } from '@pierre/diffs'
 import { ref, watchEffect } from 'vue'
 
@@ -7,32 +8,20 @@ const props = defineProps<{
   lang: 'yaml' | 'shellscript'
 }>()
 
-const html = ref<string>()
+const lines = ref<ThemedToken[][]>()
 
 // Reuses the diff view's highlighter and themes, so no second Shiki instance loads.
+// `light-dark()` colors follow the `color-scheme` that `.dark` sets.
 watchEffect(async () => {
   const highlighter = await getSharedHighlighter({ themes: ['pierre-light', 'pierre-dark'], langs: [props.lang] })
-  html.value = highlighter.codeToHtml(props.code, {
+  lines.value = highlighter.codeToTokens(props.code, {
     lang: props.lang,
     themes: { light: 'pierre-light', dark: 'pierre-dark' },
-    defaultColor: false,
-  })
+    defaultColor: 'light-dark()',
+  }).tokens
 })
 </script>
 
 <template>
-  <div v-if="html" class="guide-code" v-html="html" />
-  <pre v-else class="guide-code"><code>{{ code }}</code></pre>
+  <pre class="mt-2 max-w-full overflow-x-auto border border-base rounded-md bg-code p-3 text-xs leading-relaxed"><code v-if="lines"><template v-for="(line, i) in lines" :key="i">{{ i ? '\n' : '' }}<span v-for="(token, j) in line" :key="j" :style="token.htmlStyle">{{ token.content }}</span></template></code><code v-else>{{ code }}</code></pre>
 </template>
-
-<style>
-.guide-code {
-  @apply mt-2 text-xs leading-relaxed p-3 border border-base rounded-md bg-code max-w-full overflow-x-auto;
-}
-.guide-code .shiki span {
-  color: var(--shiki-light);
-}
-.dark .guide-code .shiki span {
-  color: var(--shiki-dark);
-}
-</style>

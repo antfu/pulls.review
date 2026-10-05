@@ -7,6 +7,10 @@ where the two disagree, the packages' `src/` and test suites win, and the docs g
 
 - **MUST**, **MUST NOT**, **SHOULD** and **MAY** use RFC 2119 meanings. They mark
   real invariants - layer boundaries, wire contracts, output shapes - not house style.
+- Vue SFCs **MUST NOT** have a `<style>` block, scoped or not. Style elements with
+  UnoCSS utilities in the template. For markup the template can't put classes on
+  (rendered Markdown, `v-html`), add a shortcut in `packages/app/uno.config.ts`
+  built from arbitrary descendant variants (`[&_pre]:p-3`).
 
 ## Find the contract
 

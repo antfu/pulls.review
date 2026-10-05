@@ -9,6 +9,36 @@ import {
   transformerVariantGroup,
 } from 'unocss'
 
+/** Applies `utilities` to every `selector` descendant (`_` stands for a space). */
+function descendant(selector: string, utilities: string) {
+  return utilities.split(' ').map(utility => `[&_${selector}]:${utility}`).join(' ')
+}
+
+const MARKDOWN_BLOCK = ':is(p,ul,ol,pre,blockquote,table,hr,h1,h2,h3,h4)'
+
+/** Rendered chat Markdown, whose elements the template can't put classes on. */
+const chatMarkdown = [
+  'text-sm leading-relaxed break-words',
+  descendant(`${MARKDOWN_BLOCK}+${MARKDOWN_BLOCK}`, 'mt-2.5'),
+  descendant(':is(h1,h2,h3,h4)', 'font-semibold'),
+  descendant(':is(h1,h2)', 'text-base'),
+  descendant(':is(h3,h4)', 'text-sm'),
+  descendant('*+:is(h1,h2,h3,h4)', 'mt-4'),
+  descendant(':is(ul,ol)', 'pl-5'),
+  descendant('ul', 'list-disc'),
+  descendant('ol', 'list-decimal'),
+  descendant('li+li', 'mt-1'),
+  descendant(':not(pre)>code', 'text-[0.85em] px-1 py-0.5 rounded bg-code'),
+  descendant('pre', 'text-xs leading-relaxed p-3 border border-base rounded-md bg-code max-w-full overflow-x-auto'),
+  descendant('pre_code', 'whitespace-pre'),
+  descendant('blockquote', 'pl-3 border-l-2 border-base op-fade'),
+  descendant('table', 'text-xs block max-w-full overflow-x-auto border-collapse'),
+  descendant(':is(th,td)', 'px-2 py-1 border border-base text-left'),
+  descendant('a', 'underline underline-offset-2'),
+  descendant('a:hover', 'op-80'),
+  descendant('hr', 'border-base'),
+].join(' ')
+
 export function createUnoConfig() {
   return defineConfig({
     theme: {
@@ -30,6 +60,7 @@ export function createUnoConfig() {
         'color-accent-teal': 'color-accent-teal-600 dark:color-accent-teal-400',
         'color-accent-magenta': 'color-accent-magenta-600 dark:color-accent-magenta-400',
       },
+      { 'chat-markdown': chatMarkdown },
       // Overrides
       {
         'bg-active': 'bg-[#8881]',
