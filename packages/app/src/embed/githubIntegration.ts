@@ -84,6 +84,22 @@ export function syncToggleTab(state: ToggleTabState, onToggle: () => void): void
   dot.title = state.sharedResultTitle
 }
 
+/**
+ * The tab bar is a React partial: hydration re-renders it shortly after the page
+ * loads, discarding the button inserted into the server-rendered markup, and there
+ * is no event for that. Re-insert whenever it disappears, until the returned stop
+ * function runs. Only a *missing* button triggers `sync` - updating an existing one
+ * mutates the page, which would otherwise re-trigger this observer indefinitely.
+ */
+export function keepToggleTab(sync: () => void): () => void {
+  const observer = new MutationObserver(() => {
+    if (!window.document.getElementById(TOGGLE_TAB_ID))
+      sync()
+  })
+  observer.observe(window.document.documentElement, { childList: true, subtree: true })
+  return () => observer.disconnect()
+}
+
 function createToggleTab(onToggle: () => void): HTMLButtonElement | undefined {
   const filesTab = window.document.getElementById(FILES_TAB_ID)
   if (!filesTab)

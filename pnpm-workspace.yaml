@@ -92,7 +92,7 @@ catalogs:
     unstorage: ^1.17.5
     valibot: ^1.5.0
     vue: ^3.5.43
-    vue-afloat: ^0.1.1
+    vue-afloat: ^0.2.0
     vue-i18n: ^11.4.13
     vue-router: ^4.6.4
     zod: ^4.6.5

@@ -21,7 +21,7 @@ inputs:
   locale:
     description: BCP 47 tag the summaries are written in (default `en`).
   version:
-    description: @pulls.review/actions package version to run.
+    description: '`@pulls.review/actions` package version to run.'
     default: latest
 
 runs:

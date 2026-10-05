@@ -69,6 +69,14 @@ Every variable also has a `PULLS_REVIEW_*` form that takes precedence (`PULLS_RE
 
 Inspired heavily by [Linear's PR review guides](https://linear.app/docs/diffs#guides), thanks for the inspiration.
 
+## Sponsors
+
+<p align="center">
+  <a href="https://cdn.jsdelivr.net/gh/antfu/static/sponsors.svg">
+    <img src="https://cdn.jsdelivr.net/gh/antfu/static/sponsors.svg" alt="Sponsors"/>
+  </a>
+</p>
+
 ## License
 
 MIT License

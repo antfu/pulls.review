@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console -- a CLI: stdout is its output */
 import { readFileSync } from 'node:fs'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
