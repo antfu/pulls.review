@@ -304,6 +304,11 @@
     "layout": "diff レイアウト",
     "unified": "統合",
     "split": "分割",
+    "syntaxTheme": {
+      "label": "シンタックステーマ",
+      "light": "ライトモード",
+      "dark": "ダークモード"
+    },
     "cached": "キャッシュされた pull request",
     "autoRefresh": "新しいコミットが見つかったら自動更新",
     "language": "言語",

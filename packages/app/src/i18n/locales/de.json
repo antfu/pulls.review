@@ -304,6 +304,11 @@
     "layout": "Diff-Layout",
     "unified": "Einheitlich",
     "split": "Geteilt",
+    "syntaxTheme": {
+      "label": "Syntax-Theme",
+      "light": "Heller Modus",
+      "dark": "Dunkler Modus"
+    },
     "cached": "Zwischengespeicherte Pull Requests",
     "autoRefresh": "Automatisch aktualisieren, wenn neue Commits gefunden werden",
     "language": "Sprache",

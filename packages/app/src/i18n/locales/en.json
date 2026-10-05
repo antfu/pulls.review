@@ -304,6 +304,11 @@
     "layout": "Diff layout",
     "unified": "Unified",
     "split": "Split",
+    "syntaxTheme": {
+      "label": "Syntax theme",
+      "light": "Light mode",
+      "dark": "Dark mode"
+    },
     "cached": "Cached pull requests",
     "autoRefresh": "Auto refresh when new commits are found",
     "language": "Language",

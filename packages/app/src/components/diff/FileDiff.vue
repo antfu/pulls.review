@@ -8,6 +8,7 @@ import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vu
 import { FileDiff as PierreFileDiff, processFile, VirtualizedFileDiff } from '@pierre/diffs'
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { isDark as globalIsDark, isDarkKey } from '../../state/dark'
+import { syntaxTheme } from '../../state/syntax-theme'
 import CommentComposer from './CommentComposer.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffStats from './DiffStats.vue'
@@ -253,6 +254,8 @@ const effectiveLayout = computed<'split' | 'unified'>(() => {
 
 const pierreOptions = computed((): FileDiffOptions<undefined, undefined> => ({
   diffStyle: effectiveLayout.value,
+  // Plain clone, not the computed's object - pierre compares/caches it (see `lineAnnotations`).
+  theme: { ...syntaxTheme.value },
   themeType: isDark.value ? 'dark' : 'light',
   disableErrorHandling: false,
   disableFileHeader: true,

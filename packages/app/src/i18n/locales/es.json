@@ -304,6 +304,11 @@
     "layout": "Disposición del diff",
     "unified": "Unificada",
     "split": "Dividida",
+    "syntaxTheme": {
+      "label": "Tema de sintaxis",
+      "light": "Modo claro",
+      "dark": "Modo oscuro"
+    },
     "cached": "Pull requests en caché",
     "autoRefresh": "Actualizar automáticamente al encontrar commits nuevos",
     "language": "Idioma",

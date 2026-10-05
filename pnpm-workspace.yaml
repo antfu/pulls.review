@@ -75,6 +75,7 @@ catalogs:
     '@earendil-works/pi-agent-core': ^0.87.1
     '@earendil-works/pi-ai': ^0.87.1
     '@pierre/diffs': ^1.5.1
+    '@pierre/theming': ^1.0.1
     '@shikijs/engine-javascript': ^4.5.0
     '@tanstack/vue-virtual': ^3.13.39
     '@valibot/to-json-schema': ^1.8.0

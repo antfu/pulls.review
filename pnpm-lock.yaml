@@ -248,6 +248,9 @@ catalogs:
     '@pierre/diffs':
       specifier: ^1.5.1
       version: 1.5.1
+    '@pierre/theming':
+      specifier: ^1.0.1
+      version: 1.0.1
     '@shikijs/engine-javascript':
       specifier: ^4.5.0
       version: 4.5.0
@@ -468,6 +471,9 @@ importers:
       '@pierre/diffs':
         specifier: catalog:frontend
         version: 1.5.1(@shikijs/themes@4.4.3)
+      '@pierre/theming':
+        specifier: catalog:frontend
+        version: 1.0.1(@pierre/theme@2.0.0)(@shikijs/themes@4.4.3)(shiki@4.4.3)
       '@shikijs/engine-javascript':
         specifier: catalog:frontend
         version: 4.5.0

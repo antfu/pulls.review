@@ -304,6 +304,11 @@
     "layout": "Diff 레이아웃",
     "unified": "통합",
     "split": "분할",
+    "syntaxTheme": {
+      "label": "구문 테마",
+      "light": "라이트 모드",
+      "dark": "다크 모드"
+    },
     "cached": "캐시된 pull request",
     "autoRefresh": "새 커밋이 발견되면 자동 새로 고침",
     "language": "언어",

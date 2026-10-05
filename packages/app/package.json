@@ -35,6 +35,7 @@
     "@iconify-json/simple-icons": "catalog:icons",
     "@iconify-json/twemoji": "catalog:icons",
     "@pierre/diffs": "catalog:frontend",
+    "@pierre/theming": "catalog:frontend",
     "@shikijs/engine-javascript": "catalog:frontend",
     "@storybook/vue3-vite": "catalog:storybook",
     "@tanstack/vue-virtual": "catalog:frontend",

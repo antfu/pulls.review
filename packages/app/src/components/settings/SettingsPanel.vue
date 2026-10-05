@@ -6,6 +6,7 @@ import AutoRefreshSettingsSection from './AutoRefreshSettingsSection.vue'
 import GithubTokenSettings from './GithubTokenSettings.vue'
 import LayoutSettingsSection from './LayoutSettingsSection.vue'
 import LlmSettingsSection from './LlmSettingsSection.vue'
+import SyntaxThemeSettingsSection from './SyntaxThemeSettingsSection.vue'
 
 defineProps<{
   githubTokenSet: boolean
@@ -28,6 +29,10 @@ defineEmits<{
 <template>
   <div class="flex flex-col gap-4 p2">
     <LayoutSettingsSection />
+
+    <div class="border-t border-base" />
+
+    <SyntaxThemeSettingsSection />
 
     <div class="border-t border-base" />
 

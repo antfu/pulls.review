@@ -304,6 +304,11 @@
     "layout": "Tata letak diff",
     "unified": "Gabungan",
     "split": "Terpisah",
+    "syntaxTheme": {
+      "label": "Tema sintaks",
+      "light": "Mode terang",
+      "dark": "Mode gelap"
+    },
     "cached": "Pull request di cache",
     "autoRefresh": "Muat ulang otomatis saat ada commit baru",
     "language": "Bahasa",

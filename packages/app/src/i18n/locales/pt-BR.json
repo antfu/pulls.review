@@ -304,6 +304,11 @@
     "layout": "Layout do diff",
     "unified": "Unificado",
     "split": "Dividido",
+    "syntaxTheme": {
+      "label": "Tema de sintaxe",
+      "light": "Modo claro",
+      "dark": "Modo escuro"
+    },
     "cached": "Pull requests em cache",
     "autoRefresh": "Atualizar automaticamente quando novos commits forem encontrados",
     "language": "Idioma",

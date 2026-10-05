@@ -304,6 +304,11 @@
     "layout": "Diff 布局",
     "unified": "统一",
     "split": "分栏",
+    "syntaxTheme": {
+      "label": "语法主题",
+      "light": "浅色模式",
+      "dark": "深色模式"
+    },
     "cached": "已缓存的 pull request",
     "autoRefresh": "发现新提交时自动刷新",
     "language": "语言",
