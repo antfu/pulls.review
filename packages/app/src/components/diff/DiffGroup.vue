@@ -7,6 +7,7 @@ import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { Markdown } from '@comark/vue'
 import { computed, nextTick, ref } from 'vue'
 import { useFitText } from '../../composables/useFitText'
+import { showGroupSidebar } from '../../state/group-nav'
 import DiffGroup from './DiffGroup.vue'
 import DiffGroupNav from './DiffGroupNav.vue'
 import DiffStats from './DiffStats.vue'
@@ -131,7 +132,9 @@ function navigateToFile(sha: string) {
         <Suspense v-if="group.summary">
           <Markdown :value="group.summary" class="max-w-200 px-2 text-sm op-fade" />
         </Suspense>
+        <!-- The sidebar already lists this subtree, so the inline sub-nav would only repeat it. -->
         <DiffGroupNav
+          v-if="!showGroupSidebar"
           class="px-2"
           :groups="group.children.map(child => ({ ...child, children: [] }))"
           :groups-visable="[]"

@@ -164,6 +164,8 @@
     "subgroupsOf": "подгруппы:",
     "hideSubgroups": "Скрыть подгруппы",
     "showSubgroups": "Показать подгруппы",
+    "navTabs": "Показать группы вкладками",
+    "navSidebar": "Показать группы в боковой панели",
     "uncategorized": "Без категории",
     "uncategorizedSummary": "Файлы, не охваченные текущим анализом."
   },

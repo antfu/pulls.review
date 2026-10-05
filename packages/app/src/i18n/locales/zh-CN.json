@@ -164,6 +164,8 @@
     "subgroupsOf": "子组，属于",
     "hideSubgroups": "隐藏子组",
     "showSubgroups": "显示子组",
+    "navTabs": "以标签页显示分组",
+    "navSidebar": "以侧边栏显示分组",
     "uncategorized": "未分类",
     "uncategorizedSummary": "当前分析未覆盖的文件。"
   },

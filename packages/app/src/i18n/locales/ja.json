@@ -164,6 +164,8 @@
     "subgroupsOf": "サブグループ：",
     "hideSubgroups": "サブグループを隠す",
     "showSubgroups": "サブグループを表示",
+    "navTabs": "グループをタブで表示",
+    "navSidebar": "グループをサイドバーで表示",
     "uncategorized": "未分類",
     "uncategorizedSummary": "現在の分析に含まれていないファイル。"
   },

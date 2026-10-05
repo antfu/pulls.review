@@ -164,6 +164,8 @@
     "subgroupsOf": "子群組，屬於",
     "hideSubgroups": "隱藏子群組",
     "showSubgroups": "顯示子群組",
+    "navTabs": "以分頁顯示群組",
+    "navSidebar": "以側邊欄顯示群組",
     "uncategorized": "未分類",
     "uncategorizedSummary": "目前分析未涵蓋的檔案。"
   },

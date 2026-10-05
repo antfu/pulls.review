@@ -164,6 +164,8 @@
     "subgroupsOf": "subgrupos de",
     "hideSubgroups": "Ocultar subgrupos",
     "showSubgroups": "Mostrar subgrupos",
+    "navTabs": "Mostrar grupos como abas",
+    "navSidebar": "Mostrar grupos como barra lateral",
     "uncategorized": "Sem categoria",
     "uncategorizedSummary": "Arquivos não cobertos pela análise atual."
   },

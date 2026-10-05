@@ -7,10 +7,12 @@ import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
+import { showGroupSidebar } from '../../state/group-nav'
 import GithubAvatar from '../GithubAvatar.vue'
 import NavControls from '../NavControls.vue'
 import DiffAnalyzeButton from './DiffAnalyzeButton.vue'
 import DiffGroupNav from './DiffGroupNav.vue'
+import DiffGroupNavToggle from './DiffGroupNavToggle.vue'
 import DiffReviewButton from './DiffReviewButton.vue'
 import DiffReviewThreadsToggle from './DiffReviewThreadsToggle.vue'
 import DiffShareButton from './DiffShareButton.vue'
@@ -142,6 +144,7 @@ function scrollToGroup(key: string) {
 
       <div class="flex items-center gap-2 pt-2 text-sm">
         <DiffGroupNav
+          v-if="!showGroupSidebar"
           class="flex-auto"
           :groups="groups"
           :groups-visable="groupsVisable"
@@ -149,7 +152,11 @@ function scrollToGroup(key: string) {
           @select="scrollToGroup"
         />
 
-        <div class="flex items-center self-end gap-2 pt-2 text-sm">
+        <div class="ml-auto flex items-center self-end gap-2 pt-2 text-sm">
+          <!-- The sidebar only exists at `lg` and up, so the choice is only offered there. -->
+          <div class="hidden lg:block">
+            <DiffGroupNavToggle />
+          </div>
           <DiffStats :additions="additions" :deletions="deletions" />
           <button
             type="button"

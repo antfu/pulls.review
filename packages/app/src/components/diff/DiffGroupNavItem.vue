@@ -5,7 +5,7 @@ import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { computed } from 'vue'
 import { CATEGORY_COLOR_CLASS } from './category-icons'
 import DiffStats from './DiffStats.vue'
-import { countGroupFiles, countGroupStats } from './group-utils'
+import { countGroupFiles, countGroupStats, groupProgress } from './group-utils'
 import GroupCategoryIcon from './GroupCategoryIcon.vue'
 
 const props = defineProps<{
@@ -23,12 +23,7 @@ defineEmits<{
 const stats = computed(() => countGroupStats(props.group))
 const fileCount = computed(() => countGroupFiles(props.group))
 const subgroupCount = computed(() => props.group.children.length)
-const progress = computed(() => {
-  const files = [...props.group.files, ...props.group.children.flatMap(child => child.files)]
-  if (files.length === 0)
-    return 1
-  return files.filter(file => props.reviewed.has(file.sha)).length / files.length
-})
+const progress = computed(() => groupProgress(props.group, props.reviewed))
 </script>
 
 <template>

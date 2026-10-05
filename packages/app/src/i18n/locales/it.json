@@ -164,6 +164,8 @@
     "subgroupsOf": "sottogruppi di",
     "hideSubgroups": "Nascondi sottogruppi",
     "showSubgroups": "Mostra sottogruppi",
+    "navTabs": "Mostra i gruppi come schede",
+    "navSidebar": "Mostra i gruppi come barra laterale",
     "uncategorized": "Non categorizzati",
     "uncategorizedSummary": "File non coperti dall'analisi attuale."
   },

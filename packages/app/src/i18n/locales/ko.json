@@ -164,6 +164,8 @@
     "subgroupsOf": "하위 그룹:",
     "hideSubgroups": "하위 그룹 숨기기",
     "showSubgroups": "하위 그룹 표시",
+    "navTabs": "그룹을 탭으로 표시",
+    "navSidebar": "그룹을 사이드바로 표시",
     "uncategorized": "미분류",
     "uncategorizedSummary": "현재 분석에 포함되지 않은 파일."
   },

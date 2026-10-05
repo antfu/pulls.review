@@ -77,6 +77,14 @@ export function countGroupFiles(group: ResolvedGroupWithChildren): number {
   return group.files.length + group.children.reduce((n, child) => n + child.files.length, 0)
 }
 
+/** Share of a group's files (its own and its children's) marked reviewed; an empty group counts as done. */
+export function groupProgress(group: ResolvedGroupWithChildren, reviewed: Set<string>): number {
+  const files = [...group.files, ...group.children.flatMap(child => child.files)]
+  if (files.length === 0)
+    return 1
+  return files.filter(file => reviewed.has(file.sha)).length / files.length
+}
+
 /** Totals a group's own +/- counts with its children's, for display alongside `countGroupFiles`. */
 export function countGroupStats(group: ResolvedGroupWithChildren): { added: number, deleted: number } {
   return {

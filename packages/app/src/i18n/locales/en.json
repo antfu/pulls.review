@@ -164,6 +164,8 @@
     "subgroupsOf": "subgroups of",
     "hideSubgroups": "Hide subgroups",
     "showSubgroups": "Show subgroups",
+    "navTabs": "Show groups as tabs",
+    "navSidebar": "Show groups as sidebar",
     "uncategorized": "Uncategorized",
     "uncategorizedSummary": "Files not covered by the current analysis."
   },
