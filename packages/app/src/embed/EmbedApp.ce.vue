@@ -8,7 +8,7 @@ import { i18n } from '../i18n'
 import { settingsModalOpen } from '../state/settingsModal'
 import { useEmbedDark } from './dark'
 import EmbedPrView from './EmbedPrView.vue'
-import { hijackReviewLinks, injectGithubPageStyles, setPanelOpenWidth, SITE_ORIGIN, syncToggleTab } from './githubIntegration'
+import { hijackReviewLinks, injectGithubPageStyles, keepToggleTab, setPanelOpenWidth, SITE_ORIGIN, syncToggleTab } from './githubIntegration'
 import { USERSCRIPT_URL, useUserscriptUpdate } from './userscript-update'
 
 const WIDTH_STORAGE_KEY = 'diffs-embed:drawer-width'
@@ -58,14 +58,10 @@ const hasSharedResult = computed(() => {
 // fresh instance (and fresh data fetch) per PR, same as a routed page's fresh mount.
 function syncPr() {
   pr.value = parsePr(location.pathname)
-  if (!pr.value) {
+  if (pr.value)
+    injectGithubPageStyles()
+  else
     open.value = false
-    return
-  }
-  // Turbo swaps in a fresh tab bar per PR navigation, taking our inserted button
-  // with it - re-run both on every navigation, not just the initial mount.
-  injectGithubPageStyles()
-  syncTab()
 }
 
 function toggleOpen() {
@@ -74,9 +70,10 @@ function toggleOpen() {
 
 function syncTab() {
   if (pr.value)
-    syncToggleTab({ label: t('embed.reviewChanges'), hasSharedResult: hasSharedResult.value, sharedResultTitle: t('pulls.aiAvailable') }, toggleOpen)
+    syncToggleTab({ label: t('embed.reviewChanges'), hasSharedResult: hasSharedResult.value && !open.value, sharedResultTitle: t('pulls.aiAvailable') }, toggleOpen)
 }
-// Re-renders the light-DOM tab on locale and dot changes; `syncPr` covers Turbo replacing it.
+// Re-renders the light-DOM tab on PR, locale and dot changes; `keepToggleTab` covers
+// GitHub removing it (Turbo swapping the tab bar, React hydration re-rendering it).
 watchEffect(syncTab)
 
 function openFromLink(link: ReviewLink) {
@@ -122,21 +119,22 @@ function onResizeDown(event: PointerEvent) {
 const document = computed(() => (rootRef.value?.getRootNode() ?? window.document) as Document | ShadowRoot)
 
 let stopHijackingLinks: (() => void) | undefined
+let stopKeepingTab: (() => void) | undefined
 onMounted(() => {
   // Turbo's own navigation event always fires on the real top-level document,
   // regardless of where this custom element is mounted - not the shadow root.
   window.document.addEventListener('turbo:load', syncPr)
   window.addEventListener('popstate', syncPr)
   stopHijackingLinks = hijackReviewLinks({ pr: () => pr.value, onOpen: openFromLink, launchLabel: () => t('pr.openInSite') })
-  if (pr.value) {
+  stopKeepingTab = keepToggleTab(syncTab)
+  if (pr.value)
     injectGithubPageStyles()
-    syncTab()
-  }
 })
 onBeforeUnmount(() => {
   window.document.removeEventListener('turbo:load', syncPr)
   window.removeEventListener('popstate', syncPr)
   stopHijackingLinks?.()
+  stopKeepingTab?.()
   setPanelOpenWidth(undefined)
 })
 </script>
@@ -144,10 +142,9 @@ onBeforeUnmount(() => {
 <template>
   <div ref="root">
     <button
-      v-if="pr"
+      v-if="pr && !open"
       type="button"
       class="z-[2147483000] [writing-mode:vertical-rl] fixed right-0 top-1/2 border border-r-0 border-base rounded-l-lg bg-base px-2 py-2.5 text-xs color-base font-semibold shadow-lg -translate-y-1/2"
-      :style="{ right: open ? `${width}px` : '0' }"
       @click="toggleOpen"
     >
       {{ $t('embed.reviewChanges') }}

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { hijackReviewLinks, PANEL_OPEN_CLASS, parseReviewLink, setPanelOpenWidth, syncToggleTab } from './githubIntegration'
+import { hijackReviewLinks, keepToggleTab, PANEL_OPEN_CLASS, parseReviewLink, setPanelOpenWidth, syncToggleTab } from './githubIntegration'
 
 const pr = { owner: 'antfu', repo: 'pulls.review', number: '38' }
 
@@ -41,6 +41,39 @@ describe('toggle tab', () => {
   it('does nothing without a "Files changed" tab', () => {
     syncToggleTab({ label: 'Review Changes', hasSharedResult: false, sharedResultTitle: '' }, vi.fn())
     expect(document.getElementById('diffs-toggle-tab')).toBeNull()
+  })
+})
+
+describe('keepToggleTab', () => {
+  const settle = () => new Promise(resolve => setTimeout(resolve, 0))
+  const sync = () => syncToggleTab({ label: 'Review Changes', hasSharedResult: false, sharedResultTitle: '' }, vi.fn())
+
+  it('re-inserts the button when the page re-renders the tab bar, until stopped', async () => {
+    renderTabBar()
+    sync()
+    const stop = keepToggleTab(sync)
+
+    renderTabBar()
+    await settle()
+    expect(document.querySelectorAll('#diffs-toggle-tab')).toHaveLength(1)
+    expect(document.getElementById('diffs-toggle-tab')!.nextElementSibling?.id).toBe('prs-files-anchor-tab')
+
+    stop()
+    renderTabBar()
+    await settle()
+    expect(document.getElementById('diffs-toggle-tab')).toBeNull()
+  })
+
+  it('leaves an existing button alone', async () => {
+    renderTabBar()
+    sync()
+    const button = document.getElementById('diffs-toggle-tab')!
+    const stop = keepToggleTab(sync)
+
+    document.body.append(document.createElement('div'))
+    await settle()
+    expect(document.getElementById('diffs-toggle-tab')).toBe(button)
+    stop()
   })
 })
 

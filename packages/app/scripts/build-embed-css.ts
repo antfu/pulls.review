@@ -56,9 +56,10 @@ export async function buildEmbedCSS() {
   // The embed reuses `@antfu/design`'s Vue components (buttons, form controls, …)
   // directly. UnoCSS ignores `node_modules` by default, so their own semantic
   // shortcut classes would be absent from the shadow-root stylesheet otherwise.
-  const designComponentsDir = join(require.resolve('@antfu/design/package.json'), '..', 'components')
-  const designFiles = await glob(['**/*.vue'], {
-    cwd: designComponentsDir,
+  // `utils/` holds the `@unocss-include` files (the file-icon class table, among others).
+  const designDir = join(require.resolve('@antfu/design/package.json'), '..')
+  const designFiles = await glob(['components/**/*.vue', 'utils/*.ts'], {
+    cwd: designDir,
     absolute: true,
     ignore: IGNORE,
   })
@@ -70,6 +71,8 @@ export async function buildEmbedCSS() {
   }
 
   const reset = await fs.readFile(require.resolve('@unocss/reset/tailwind.css'), 'utf-8')
+  // vue-afloat mounts poppers into the shadow root and declares its tokens on `:host` too.
+  const afloatCss = await fs.readFile(require.resolve('vue-afloat/style.css'), 'utf-8')
   const mainCss = await fs.readFile(join(root, 'src/main.css'), 'utf-8')
 
   const { css: unoCss } = await generator.generate(tokens)
@@ -77,9 +80,7 @@ export async function buildEmbedCSS() {
   // even for tokens the extractor above missed in a dynamically-assembled string.
   const { css: surfacesCss } = await generator.generate(SURFACE_SAFELIST.join(' '))
 
-  // No vue-afloat CSS here - its JS is aliased to a no-op in vite.embed.config.ts
-  // (it teleports outside the shadow root), so its classes/vars never apply to anything.
-  let css = [reset, mainCss, unoCss, surfacesCss].join('\n')
+  let css = [reset, afloatCss, mainCss, unoCss, surfacesCss].join('\n')
   css = namespaceShadowCssVars(css)
   css = transform({
     filename: 'diffs-embed.css',
