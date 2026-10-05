@@ -35,9 +35,9 @@ afterEach(() => {
 
 describe('local RPC', () => {
   it('serves the diff and a browser-side cache that runs over the storage functions', async () => {
-    const functions = localRpcFunctions({ cwd: repo, defaultTarget: 'HEAD', driver: memoryDriver(), env: { GITHUB_TOKEN: 'from-env' } })
+    const functions = localRpcFunctions({ cwd: repo, driver: memoryDriver(), env: { GITHUB_TOKEN: 'from-env' } })
 
-    expect(await call(functions, LOCAL_RPC.defaultTarget)).toBe('HEAD')
+    expect(await call(functions, LOCAL_RPC.repoInfo)).toMatchObject({ currentBranch: 'main', defaultBranch: { name: 'main', ref: 'main' }, branches: ['main'], commits: [{ subject: 'init' }] })
     expect(await call(functions, LOCAL_RPC.githubToken)).toBe('from-env')
     const diff = await call(functions, LOCAL_RPC.sourceFetch, { target: '' }) as { files: { path: string }[], head: { sha: string } }
     expect(diff.files.map(file => file.path)).toEqual(['a.ts'])

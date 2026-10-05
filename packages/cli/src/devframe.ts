@@ -1,6 +1,6 @@
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import { LOCAL_BASE_PATH, LOCAL_DEVFRAME_ID } from '@pulls.review/core/local-rpc'
+import { LOCAL_DEVFRAME_ID } from '@pulls.review/core/local-rpc'
 import { defineDevframe } from 'devframe'
 import pkg from '../package.json' with { type: 'json' }
 import { localRpcFunctions } from './rpc'
@@ -19,15 +19,16 @@ export default defineDevframe({
   description: 'Review local git changes, grouped and summarized.',
   homepage: 'https://pulls.review',
   icon: 'ph:git-diff-duotone',
-  basePath: LOCAL_BASE_PATH,
   clientAssets: fileURLToPath(new URL('./client', import.meta.url)),
   importMetaUrl: import.meta.url,
   cli: { command: 'pulls.review', port: 7390 },
-  async setup(ctx, { flags } = {}) {
+  // No base path: devframe serves it at `/` standalone and at `/__pulls.review/` in a hub.
+  // The server holds no target - every page names its own, so the CLI's argument only picks
+  // which page opens.
+  async setup(ctx) {
     const scope = ctx.scope(LOCAL_DEVFRAME_ID)
     const functions = localRpcFunctions({
       cwd: ctx.cwd,
-      defaultTarget: typeof flags?.target === 'string' ? flags.target : '',
       driver: await createRepoCacheDriver(ctx.cwd),
       env: process.env,
     })

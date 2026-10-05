@@ -346,6 +346,16 @@
       "hint": "pulls.review printed a 6-digit code in the terminal it runs in.",
       "invalid": "That code didn't work. Check the terminal and try again.",
       "submit": "Continue"
+    },
+    "picker": {
+      "title": "Review local changes",
+      "base": "Base",
+      "head": "Head",
+      "compare": "Compare",
+      "shortcuts": "Shortcuts",
+      "currentBranch": "{branch} against {base}",
+      "worktree": "Uncommitted changes",
+      "recentCommits": "Recent commits"
     }
   }
 }

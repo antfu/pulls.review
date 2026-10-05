@@ -346,6 +346,16 @@
       "hint": "pulls.review は実行中のターミナルに 6 桁のコードを表示しました。",
       "invalid": "このコードは使用できませんでした。ターミナルを確認して、もう一度お試しください。",
       "submit": "続ける"
+    },
+    "picker": {
+      "title": "ローカルの変更をレビュー",
+      "base": "ベース",
+      "head": "ヘッド",
+      "compare": "比較",
+      "shortcuts": "ショートカット",
+      "currentBranch": "{base} に対する {branch}",
+      "worktree": "コミットされていない変更",
+      "recentCommits": "最近のコミット"
     }
   }
 }

@@ -346,6 +346,16 @@
       "hint": "pulls.review 已在其執行的終端機中印出一組 6 位數代碼。",
       "invalid": "此代碼無效。請檢查終端機後再試一次。",
       "submit": "繼續"
+    },
+    "picker": {
+      "title": "審查本機變更",
+      "base": "基準",
+      "head": "頭部",
+      "compare": "比較",
+      "shortcuts": "捷徑",
+      "currentBranch": "{branch} 對比 {base}",
+      "worktree": "未提交的變更",
+      "recentCommits": "最近的提交"
     }
   }
 }

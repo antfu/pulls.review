@@ -275,6 +275,9 @@ catalogs:
     fzf:
       specifier: ^0.5.2
       version: 0.5.2
+    h3:
+      specifier: ^2.0.1-rc.32
+      version: 2.0.1-rc.32
     idb-keyval:
       specifier: ^6.3.0
       version: 6.3.0
@@ -573,6 +576,9 @@ importers:
       devframe:
         specifier: catalog:frontend
         version: 1.2.0(cac@7.0.0)(srvx@1.0.5)
+      h3:
+        specifier: catalog:frontend
+        version: 2.0.1-rc.32(crossws@0.4.12(srvx@1.0.5))
       unstorage:
         specifier: catalog:frontend
         version: 1.17.5(idb-keyval@6.3.0)

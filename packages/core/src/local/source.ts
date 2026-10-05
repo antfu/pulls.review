@@ -123,7 +123,8 @@ export function createLocalSource({ cwd, target }: LocalSourceOptions): LocalSou
   }
 
   async function headSha(resolved: Resolved, text: string): Promise<string> {
-    return resolved.head ?? `${WORKTREE_PREFIX}${await computeContentHash(text)}`
+    // The base is part of it: a new commit can leave the remaining diff text unchanged.
+    return resolved.head ?? `${WORKTREE_PREFIX}${await computeContentHash(`${resolved.base}\n${text}`)}`
   }
 
   return {

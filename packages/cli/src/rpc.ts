@@ -1,6 +1,6 @@
 import type { Env } from '@pulls.review/core/env'
 import type { Driver } from 'unstorage'
-import { createLocalSource } from '@pulls.review/core/local'
+import { createLocalSource, readRepoInfo } from '@pulls.review/core/local'
 import { LOCAL_RPC } from '@pulls.review/core/local-rpc'
 import { DiffsPayloadSchema } from '@pulls.review/core/types'
 import { defineRpcFunction } from 'devframe'
@@ -10,8 +10,6 @@ import { resolveGithubToken } from './credentials'
 export interface LocalRpcOptions {
   /** Any directory inside the repository under review. */
   cwd: string
-  /** The target the CLI was started with (git revision syntax, `''` for the working tree). */
-  defaultTarget: string
   /** Where the browser's cache lives (see `createRepoCacheDriver`). */
   driver: Driver
   env: Env
@@ -23,10 +21,10 @@ const target = v.object({ target: v.string() })
  * Every function the `PR_LOCAL` SPA calls. Only a client devframe has trusted
  * reaches them; inputs are still validated, since they decide what `git` runs.
  */
-export function localRpcFunctions({ cwd, defaultTarget, driver, env }: LocalRpcOptions) {
+export function localRpcFunctions({ cwd, driver, env }: LocalRpcOptions) {
   const source = (text: string) => createLocalSource({ cwd, target: text })
   return [
-    defineRpcFunction({ name: LOCAL_RPC.defaultTarget, type: 'query', handler: () => defaultTarget }),
+    defineRpcFunction({ name: LOCAL_RPC.repoInfo, type: 'query', handler: () => readRepoInfo(cwd) }),
     defineRpcFunction({ name: LOCAL_RPC.sourceKey, type: 'query', args: [target], returns: v.string(), handler: ({ target }) => source(target).key() }),
     defineRpcFunction({ name: LOCAL_RPC.sourceFetch, type: 'query', args: [target], returns: DiffsPayloadSchema, handler: ({ target }) => source(target).fetch() }),
     defineRpcFunction({ name: LOCAL_RPC.sourceFingerprint, type: 'query', args: [target], returns: v.string(), handler: ({ target }) => source(target).fingerprint() }),

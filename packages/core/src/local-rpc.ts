@@ -5,13 +5,13 @@
  */
 export const LOCAL_DEVFRAME_ID = 'pulls.review'
 
-/** The same mount path standalone and inside a hub, so one SPA build serves both. */
-export const LOCAL_BASE_PATH = '/__pulls.review/'
+/** Where a devframe hub mounts it (`/__<id>/`); standalone, it serves at `/`. */
+export const LOCAL_HUB_BASE_PATH = '/__pulls.review/'
 
 /** Bare names; devframe namespaces them as `pulls.review:<name>`. */
 export const LOCAL_RPC = {
-  /** The target the CLI was started with. */
-  defaultTarget: 'default-target',
+  /** Branches, tags, recent commits and the default branch, for the ref picker. */
+  repoInfo: 'repo-info',
   sourceKey: 'source-key',
   sourceFetch: 'source-fetch',
   sourceFingerprint: 'source-fingerprint',

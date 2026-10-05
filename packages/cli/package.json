@@ -42,6 +42,7 @@
   "dependencies": {
     "@pulls.review/core": "workspace:^",
     "devframe": "catalog:frontend",
+    "h3": "catalog:frontend",
     "unstorage": "catalog:frontend"
   },
   "devDependencies": {

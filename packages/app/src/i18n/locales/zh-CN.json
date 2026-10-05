@@ -346,6 +346,16 @@
       "hint": "pulls.review 已在其运行的终端中打印了一个 6 位代码。",
       "invalid": "该代码无效。请检查终端后重试。",
       "submit": "继续"
+    },
+    "picker": {
+      "title": "审查本地更改",
+      "base": "基准",
+      "head": "头部",
+      "compare": "比较",
+      "shortcuts": "快捷方式",
+      "currentBranch": "{branch} 对比 {base}",
+      "worktree": "未提交的更改",
+      "recentCommits": "最近的提交"
     }
   }
 }

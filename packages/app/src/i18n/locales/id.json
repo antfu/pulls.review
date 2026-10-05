@@ -346,6 +346,16 @@
       "hint": "pulls.review menampilkan kode 6 digit di terminal tempat ia berjalan.",
       "invalid": "Kode itu tidak berhasil. Periksa terminal dan coba lagi.",
       "submit": "Lanjutkan"
+    },
+    "picker": {
+      "title": "Tinjau perubahan lokal",
+      "base": "Basis",
+      "head": "Head",
+      "compare": "Bandingkan",
+      "shortcuts": "Pintasan",
+      "currentBranch": "{branch} terhadap {base}",
+      "worktree": "Perubahan yang belum di-commit",
+      "recentCommits": "Commit terbaru"
     }
   }
 }

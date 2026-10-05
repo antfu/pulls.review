@@ -32,12 +32,12 @@ export function createRpcCredentials(rpc: LocalRpc, fallback: Credentials): Cred
   }
 }
 
-/** A local diff, run by the server's `git`. */
-export function createRpcSource(rpc: LocalRpc, target: string): DiffSource {
+/** A local diff, run by the server's `git`. Its target may still be resolving (a branch's base). */
+export function createRpcSource(rpc: LocalRpc, pending: Promise<string>): DiffSource {
   return {
-    key: async () => v.parse(v.string(), await rpc.call(LOCAL_RPC.sourceKey, { target })),
-    fetch: async () => v.parse(DiffsPayloadSchema, await rpc.call(LOCAL_RPC.sourceFetch, { target })),
-    fingerprint: async () => v.parse(v.string(), await rpc.call(LOCAL_RPC.sourceFingerprint, { target })),
-    loadFile: async (path, sha) => v.parse(v.optional(v.string()), await rpc.call(LOCAL_RPC.sourceLoadFile, { target, path, sha }) ?? undefined),
+    key: async () => v.parse(v.string(), await rpc.call(LOCAL_RPC.sourceKey, { target: await pending })),
+    fetch: async () => v.parse(DiffsPayloadSchema, await rpc.call(LOCAL_RPC.sourceFetch, { target: await pending })),
+    fingerprint: async () => v.parse(v.string(), await rpc.call(LOCAL_RPC.sourceFingerprint, { target: await pending })),
+    loadFile: async (path, sha) => v.parse(v.optional(v.string()), await rpc.call(LOCAL_RPC.sourceLoadFile, { target: await pending, path, sha }) ?? undefined),
   }
 }

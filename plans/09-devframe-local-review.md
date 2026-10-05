@@ -2,12 +2,34 @@
 
 Status: **in progress**. Depends on Plan 04 (the `local` source) and Plan 10.
 
-Built so far: the `pulls.review [target]` server, the `source.*`, storage and
-GitHub-token RPC functions, and the `PR_LOCAL` SPA with its code prompt and
-`/local/<target>` route. Not built yet: the env LLM keys over RPC, the change
-push, the current-branch PR, the `build` snapshot, and the hub playground.
+Built so far: the `pulls.review [target]` server, the `source.*`, `repo-info`,
+storage and GitHub-token RPC functions, and the `PR_LOCAL` SPA with its code
+prompt, ref picker and review pages. Not built yet: the env LLM keys over RPC,
+the change push, the current-branch PR, the `build` snapshot, and the hub
+playground.
 
-How the built part differs from the plan below:
+## Pages
+
+The server holds no target. Every page names its own, and the CLI's argument
+only picks which page opens:
+
+| Page               | Reviews                                                                                                                                                                           |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                | A ref picker: base and head fields with the repo's branches and tags (or any typed ref), plus shortcuts to the current branch, the working tree and the last 10 commits.          |
+| `/branch/<name>`   | What the branch adds since it forked from the default branch: `origin/HEAD`'s branch, else `main`, else `master`, through `origin/<name>` when it exists. Committed changes only. |
+| `/compare/<A...B>` | Any range, `A...B` or `A..B`.                                                                                                                                                     |
+| `/worktree`        | Uncommitted changes against `HEAD`, untracked files included.                                                                                                                     |
+| `/commit/<sha>`    | One commit against its parent.                                                                                                                                                    |
+
+| Command                       | Opens                                                                                   |
+| ----------------------------- | --------------------------------------------------------------------------------------- |
+| `pulls.review`                | `/branch/<current>`, or `/` when the default branch is checked out or HEAD is detached. |
+| `pulls.review A...B` / `A..B` | `/compare/A...B`                                                                        |
+| `pulls.review <local branch>` | `/branch/<name>`                                                                        |
+| `pulls.review <other rev>`    | `/commit/<rev>`                                                                         |
+| `pulls.review --worktree`     | `/worktree`                                                                             |
+
+## How the built part differs from the plan below
 
 - **Cache.** The RPC functions expose an unstorage driver over the fs
   directory, not the repositories. The browser runs the same core `/cache`
@@ -15,12 +37,16 @@ How the built part differs from the plan below:
   `pr-meta:*` documents. Keys are escaped to one file per entry
   (`flatKeys`), because the fs driver would otherwise turn every `:` into a
   directory.
-- **Target in the path.** The target sits in the path (`/local/main...feat`,
-  `/local/` for the working tree) rather than in `?target=`. `App.vue` keys
-  pages by path, so another target remounts the page.
-- **Fixed mount path.** The SPA uses the fixed mount path `/__pulls.review/` for
-  both its assets and its router, standalone and in a hub, instead of a
-  runtime base.
+- **Base path.**
+  - The SPA serves at `/` standalone and at `/__pulls.review/` in a hub, with
+    no `basePath` on the definition. One bundle decides which in the page: an
+    inline script writes a `<base>` before any asset loads, and relative assets,
+    the router and devframe's connection lookup all resolve from it.
+  - devframe's SPA fallback skips paths that look like files, and refs do
+    (`main...feat`, `v1.2`). So the CLI serves `index.html` itself for
+    `/compare/`, `/branch/` and `/commit/`. Inside a hub, a reload of a ref page
+    whose ref ends in `.<word>` still misses; navigating there from the picker
+    works.
 
 ## Why
 
@@ -38,10 +64,10 @@ is the user's own process on the user's own machine.
 this in #49). The GitHub Actions entry point stays `@pulls.review/actions`
 and MUST NOT depend on devframe. Releases require explicit approval.
 
-| Command                                                   | Does                                                                  |
-| --------------------------------------------------------- | --------------------------------------------------------------------- |
-| `pulls.review [target] [--open] [--port]`                 | Serves the review of `target` (Plan 04 syntax) for the repo at `cwd`. |
-| `pulls.review build [target] --out-dir <dir> [--analyze]` | Writes a static, read-only snapshot of one target.                    |
+| Command                                                   | Does                                                                                  |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `pulls.review [target] [--worktree] [--port] [--no-open]` | Serves reviews of the repo at `cwd`, opening the page for `target` (see Pages above). |
+| `pulls.review build [target] --out-dir <dir> [--analyze]` | Writes a static, read-only snapshot of one target.                                    |
 
 - **Hub mount.** The package also exports the definition for a hub through
   `createPluginFromDevframe`. The devframe id is `pulls.review`, so hubs mount

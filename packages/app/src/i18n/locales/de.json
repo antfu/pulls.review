@@ -346,6 +346,16 @@
       "hint": "pulls.review hat im Terminal, in dem es läuft, einen 6-stelligen Code ausgegeben.",
       "invalid": "Dieser Code hat nicht funktioniert. Prüfe das Terminal und versuche es erneut.",
       "submit": "Weiter"
+    },
+    "picker": {
+      "title": "Lokale Änderungen reviewen",
+      "base": "Basis",
+      "head": "Head",
+      "compare": "Vergleichen",
+      "shortcuts": "Schnellzugriff",
+      "currentBranch": "{branch} gegen {base}",
+      "worktree": "Nicht committete Änderungen",
+      "recentCommits": "Letzte Commits"
     }
   }
 }

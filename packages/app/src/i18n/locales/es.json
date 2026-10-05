@@ -346,6 +346,16 @@
       "hint": "pulls.review mostró un código de 6 dígitos en la terminal donde se ejecuta.",
       "invalid": "Ese código no funcionó. Revisa la terminal e inténtalo de nuevo.",
       "submit": "Continuar"
+    },
+    "picker": {
+      "title": "Revisar cambios locales",
+      "base": "Base",
+      "head": "Head",
+      "compare": "Comparar",
+      "shortcuts": "Accesos rápidos",
+      "currentBranch": "{branch} frente a {base}",
+      "worktree": "Cambios sin confirmar",
+      "recentCommits": "Commits recientes"
     }
   }
 }

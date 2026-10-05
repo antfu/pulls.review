@@ -346,6 +346,16 @@
       "hint": "pulls.review가 실행 중인 터미널에 6자리 코드를 출력했습니다.",
       "invalid": "코드가 맞지 않습니다. 터미널을 확인하고 다시 시도하세요.",
       "submit": "계속"
+    },
+    "picker": {
+      "title": "로컬 변경 사항 리뷰",
+      "base": "베이스",
+      "head": "헤드",
+      "compare": "비교",
+      "shortcuts": "바로가기",
+      "currentBranch": "{base} 대비 {branch}",
+      "worktree": "커밋되지 않은 변경 사항",
+      "recentCommits": "최근 커밋"
     }
   }
 }
