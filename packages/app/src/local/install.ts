@@ -39,14 +39,13 @@ export async function installLocal(app: App, router: Router): Promise<void> {
   const { client, rpc } = await connectLocal()
   await ensureTrusted(client)
 
-  const localAgents = createLocalAgents(rpc)
   installAppContext(app, {
     cache: createCacheRepositories(createStorage({ driver: createRpcDriver(rpc) })),
     credentials: createRpcCredentials(rpc, settingsCredentials),
-    llm: createAgentLlmRunner(rpc, localAgents, browserLlmRunner),
+    llm: createAgentLlmRunner(rpc, browserLlmRunner),
   })
   app.provide(localRpcKey, rpc)
-  app.provide(localAgentsKey, localAgents)
+  app.provide(localAgentsKey, createLocalAgents(rpc))
 
   for (const route of localRoutes(() => import('../pages-local/diff.vue')))
     router.addRoute(route)

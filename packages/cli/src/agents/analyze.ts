@@ -3,7 +3,7 @@ import type { Analysis } from '@pulls.review/core/llm'
 import type { DiffsPayload } from '@pulls.review/core/types'
 import type { AgentRunOptions } from './run'
 import { randomUUID } from 'node:crypto'
-import { analysisJsonSchema, AnalysisSchema, buildAnalysisPrompt, describeCoverageIssues, findCoverageIssues, toGroupedResult } from '@pulls.review/core/llm'
+import { AnalysisSchema, buildAnalysisPrompt, describeCoverageIssues, findCoverageIssues, toGroupedResult } from '@pulls.review/core/llm'
 import * as v from 'valibot'
 import { AgentRunError, parseJsonAnswer, runTurn, systemPromptFor, writePatch } from './run'
 
@@ -23,26 +23,25 @@ export function checkAnswer(diff: DiffsPayload, answer: unknown): { analysis: An
  * prompt, the patch on disk instead of `read_diffs`, a JSON answer instead of
  * `submit_grouping`, and one retry when the grouping misses or invents paths.
  */
-export async function runAgentAnalysis({ cli, model, diff, locale, cwd, repository, patchDir, emit, signal }: AgentRunOptions): Promise<void> {
+export async function runAgentAnalysis({ cli, model, diff, locale, cwd, patchDir, emit, signal }: AgentRunOptions): Promise<void> {
   const { patchPath, cleanup } = await writePatch(patchDir, randomUUID(), diff)
   try {
-    const system = systemPromptFor(cli, patchPath, repository)
+    const system = systemPromptFor(diff, patchPath)
     const prompt = buildAnalysisPrompt(diff, locale)
     const transcript: AgentMessage[] = [
       { role: 'system', content: system, timestamp: Date.now() },
       { role: 'user', content: prompt, timestamp: Date.now() },
     ]
     emit({ kind: 'messages', messages: [...transcript] })
-    const schema = cli.structuredOutput ? analysisJsonSchema() : undefined
     const turn = { emit, signal, cwd, model }
 
-    let outcome = await runTurn(cli, { cwd, system, prompt, model, schema }, transcript, { ...turn, step: 1 })
+    let outcome = await runTurn(cli, { cwd, system, prompt, model }, transcript, { ...turn, step: 1 })
     let answer = checkAnswer(diff, outcome.final?.structured ?? parseJsonAnswer(outcome.final?.text))
     if ('fix' in answer) {
       if (!outcome.session)
         throw new AgentRunError(answer.fix)
       transcript.push({ role: 'user', content: answer.fix, timestamp: Date.now() })
-      const retry = await runTurn(cli, { cwd, system, prompt: answer.fix, model, schema, resume: outcome.session.id }, transcript, { ...turn, step: 2 })
+      const retry = await runTurn(cli, { cwd, system, prompt: answer.fix, model, resume: outcome.session.id }, transcript, { ...turn, step: 2 })
       outcome = { session: retry.session ?? outcome.session, final: retry.final }
       answer = checkAnswer(diff, outcome.final?.structured ?? parseJsonAnswer(outcome.final?.text))
       if ('fix' in answer)
@@ -51,7 +50,7 @@ export async function runAgentAnalysis({ cli, model, diff, locale, cwd, reposito
     emit({ kind: 'progress', progress: { step: 2, kind: 'organizing' } })
     const stamp = `${cli.name}/${outcome.session?.model ?? model ?? 'default'}`
     emit({ kind: 'result', result: toGroupedResult(diff, answer.analysis, stamp, locale) })
-    emit({ kind: 'end', stopReason: 'done' })
+    emit({ kind: 'end', stopReason: 'done', agent: outcome.session })
   }
   finally {
     await cleanup()

@@ -55,13 +55,12 @@ afterEach(() => {
 })
 
 describe('agent RPC', () => {
-  it('lists agents and their models', async () => {
+  it('lists agents with their models', async () => {
     const functions = agentRpcFunctions({ cwd: dir, patchDir: join(dir, 'patches'), channel: memoryChannel().channel })
     expect(await call(functions, LOCAL_RPC.agentList)).toEqual([
-      expect.objectContaining({ name: 'claude' }),
+      expect.objectContaining({ name: 'claude', models: expect.arrayContaining([{ id: 'sonnet', name: 'Sonnet (latest)' }]) }),
       expect.objectContaining({ name: 'opencode' }),
     ])
-    expect(await call(functions, LOCAL_RPC.agentModels, { agent: 'claude' })).toContainEqual({ id: 'sonnet', name: 'Sonnet (latest)' })
   })
 
   it('streams an analysis, ending with the result, and a GitHub diff runs outside the repository', async () => {
@@ -73,7 +72,7 @@ describe('agent RPC', () => {
     await stream(streamId).done
 
     const events = stream(streamId).events
-    expect(events.at(-1)).toEqual({ kind: 'end', stopReason: 'done' })
+    expect(events.at(-1)).toMatchObject({ kind: 'end', stopReason: 'done' })
     expect(events.find(event => event.kind === 'result')?.result.groups).toHaveLength(1)
     expect(fake.calls()[0]!.cwd).not.toBe(dir)
   })

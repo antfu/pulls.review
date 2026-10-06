@@ -68,8 +68,9 @@ CLI's `app/local/agent-runner.ts`.
   pi `Agent` in the browser. The embed has no runner (`PR_LLM` off).
 - The `PR_LOCAL` runner dispatches on `settings.llm.provider`: `local-agent` goes
   to the server over RPC (below); any other provider runs in the browser as
-  before. `isSetup` reflects the same split: for `local-agent` it is "the chosen
-  agent is in `agent.list`".
+  before. `isSetup` reflects the same split: for `local-agent` it is "an agent is
+  chosen" (Settings only offers detected ones; an agent uninstalled since fails
+  its run with "not installed").
 - Components do not change. `DiffsStoreLlm` keeps its shape; `transcript` and
   `chat.messages` stay pi `AgentMessage[]`, so `ChatMessage.vue`,
   `AnalyzeStatusModal.vue` and the `llmSession` cache schema are untouched.
@@ -92,7 +93,7 @@ nothing to another.
 `resolveModel` returns `undefined` for `local-agent`, so every path that needs a
 key stays "not configured" outside the `PR_LOCAL` build (Settings are per origin,
 so a `localhost` choice never reaches the site). `llmToken` returns `''` for it
-and `useLlmModels` skips it: its catalog comes from `agent.models`, not from a key.
+and `useLlmModels` reads its catalog from the `agent.list` answer, not from a key.
 `llmSettingsFromEnv` is unchanged: the agent is chosen in Settings only, per the
 decision for this plan.
 
@@ -107,13 +108,12 @@ the branch renders disabled with its note.
 
 New functions in `packages/cli/src/rpc.ts`, names in `core/local-rpc.ts`:
 
-| Function        | Type   | Does                                                                                                                                                                    |
-| --------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `agent.list`    | query  | The agent CLIs found on `PATH`, with versions: `{ name, label, version }[]`. Detection runs `<bin> --version` once per server start.                                    |
-| `agent.models`  | query  | `{ agent }` → `ModelOption[]`, the agent's catalog (below). Cached per agent for the server's lifetime.                                                                 |
-| `agent.analyze` | action | `{ agent, model, diff, locale }` → `{ streamId }`. Writes the patch, spawns the agent, streams events on the `pulls.review:agent` channel. Returns before the run ends. |
-| `agent.chat`    | action | `{ agent, model, diff, session, text?, locale }` → `{ streamId }`. Resumes the agent session; `text` absent means "continue" (the chat's retry).                        |
-| `agent.abort`   | action | `{ streamId }`. Kills the subprocess; the stream ends with `aborted`.                                                                                                   |
+| Function        | Type   | Does                                                                                                                                                                          |
+| --------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `agent.list`    | query  | The agent CLIs found on `PATH`, with versions and model catalogs: `{ name, label, version, models }[]`. Detected once per server start (`<bin> --version`, then the catalog). |
+| `agent.analyze` | query  | `{ agent, model, diff, locale }` → `{ streamId }`. Writes the patch, spawns the agent, streams events on the `pulls.review:agent` channel. Returns before the run ends.       |
+| `agent.chat`    | query  | `{ agent, model, diff, session, text?, locale }` → `{ streamId }`. Resumes the agent session; `text` absent re-sends the last user message (the chat's retry).                |
+| `agent.abort`   | action | `{ streamId }`. Kills the subprocess; the stream ends with `aborted`.                                                                                                         |
 
 Streams use devframe's `scope.rpc.streaming.create('agent', { replayWindow })` - the
 browser subscribes only after the call that started the run returns, so the buffer
@@ -122,11 +122,10 @@ with valibot. Chunks:
 
 ```ts
 type AgentStreamEvent
-  = | { kind: 'session', session: AgentSessionRef } // { agent, id, model? } - as soon as the CLI reports it
-    | { kind: 'messages', messages: AgentMessage[] } // the live transcript so far, replaced each time
+  = | { kind: 'messages', messages: AgentMessage[] } // the live transcript so far, replaced each time
     | { kind: 'progress', progress: AnalyzeProgress } // thinking / reading [paths] / organizing
     | { kind: 'result', result: GroupedResult } // analyze: the accepted grouping; chat: an applied update_grouping
-    | { kind: 'end', stopReason: 'done' | 'error' | 'aborted', error?: string }
+    | { kind: 'end', stopReason: 'done' | 'error' | 'aborted', agent?: AgentSessionRef, error?: string, code?: string } // `agent`: the CLI session to chat in
 ```
 
 The diff travels browser → server in `agent.analyze` because the server holds no
@@ -149,7 +148,6 @@ interface AgentRunInput {
   cwd: string // the repo for a local target; an empty temp dir for a GitHub one
   prompt: string
   model?: string // omitted = the agent's default
-  schema?: JsonSchema // the final answer's shape, for CLIs that take one
   resume?: string // a session id to continue
   signal: AbortSignal
 }
@@ -172,8 +170,9 @@ starting points for their adapters:
 | opencode | `opencode run <prompt>` | `--format json`                         | parsed from the last fenced JSON | `--session <id>`         | `--agent plan`                                                       | `-m <provider/model>`; `opencode models` lists the signed-in catalog                  |
 | gemini   | `gemini -p <prompt>`    | `--output-format stream-json`           | parsed from the last fenced JSON | to verify                | to verify                                                            | `-m <id>`; static catalog                                                             |
 
-A CLI with no structured-output flag gets the JSON schema in the prompt and must end
-with one fenced ` ```json ` block; the server parses the last one.
+Every CLI gets the JSON schema in the system prompt and ends with one fenced
+` ```json ` block, which the server parses; `claude` additionally validates it
+itself through `--json-schema`, so its `final.structured` is already parsed.
 
 `models()` returns `ModelOption[]` (`id`, `name`, no pricing), so the picker
 behaves as it does for Anthropic. A static catalog is a short list in the
@@ -202,11 +201,11 @@ fetch does today, so any id the CLI accepts can still be typed.
    run with that message as the error, as `submitAttempts < 2` does today.
 5. `toGroupedResult` takes the model as a string, so core's `ResolvedModel` is not
    needed for an agent result. The string is `<agent>/<model>`, where the model is
-   the one the CLI reported in its `session` event, else `agentModel` from
+   the one the CLI reported when it started, else `agentModel` from
    Settings, else `default`.
 
-Timeouts: no agent turn cap is enforced here (the CLIs cap themselves); a run with
-no event for 5 minutes is aborted as `error`.
+No turn cap or timeout is enforced here: the CLIs cap themselves, and the view's
+Stop button aborts a run that hangs.
 
 ### Chat
 
@@ -264,9 +263,9 @@ Done unless marked.
    site - the existing store and chat tests pass unchanged.
 4. CLI: adapter interface, `claude` adapter (with its static catalog) and the fake
    agent, the analysis driver with the coverage retry, `agent.list` /
-   `agent.models` / `agent.analyze` / `agent.abort`.
+   `agent.analyze` / `agent.abort`.
 5. App: the **Local agent** provider in `LlmSettingsSection.vue` - agent toggle
-   group and model picker over the two RPC composables, disabled with a note
+   group and model picker over the injected agent list, disabled with a note
    outside `PR_LOCAL`; the `PR_LOCAL` RPC runner.
 6. Chat: `agent.chat`, the grouping rule in the chat prompt, session-lost.
 7. Adapters for `opencode` (done: `opencode models` parsed), `codex` and `gemini`

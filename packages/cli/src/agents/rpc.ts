@@ -47,7 +47,6 @@ const ChatArgs = v.object({
 export function agentRpcFunctions({ cwd, patchDir, channel }: AgentRpcOptions) {
   const running = new Map<string, AbortController>()
   let detected: Promise<v.InferOutput<typeof LocalAgentInfoSchema>[]> | undefined
-  const models = new Map<string, Promise<{ id: string, name: string }[]>>()
 
   /** Starts `run` on a fresh stream and returns its id at once; the stream carries the outcome. */
   function start(args: v.InferOutput<typeof AnalyzeArgs>, run: (options: AgentRunOptions) => Promise<void>): { streamId: string } {
@@ -68,7 +67,6 @@ export function agentRpcFunctions({ cwd, patchDir, channel }: AgentRpcOptions) {
           diff: args.diff,
           locale: args.locale,
           cwd: scratch ?? cwd,
-          repository: local,
           patchDir,
           emit: event => sink.write(event),
           signal: controller.signal,
@@ -99,20 +97,6 @@ export function agentRpcFunctions({ cwd, patchDir, channel }: AgentRpcOptions) {
       args: [],
       returns: v.array(LocalAgentInfoSchema),
       handler: () => detected ??= detectAgents(),
-    }),
-    defineRpcFunction({
-      name: LOCAL_RPC.agentModels,
-      type: 'query',
-      args: [v.object({ agent: agentName })],
-      returns: v.array(v.object({ id: v.string(), name: v.string() })),
-      handler: ({ agent }) => {
-        let list = models.get(agent)
-        if (!list) {
-          list = agents[agent].models()
-          models.set(agent, list)
-        }
-        return list
-      },
     }),
     defineRpcFunction({
       name: LOCAL_RPC.agentAnalyze,

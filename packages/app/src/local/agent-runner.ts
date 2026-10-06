@@ -1,5 +1,4 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
-import type { LocalAgentName } from '@pulls.review/core/analyze'
 import type { AgentStreamEvent } from '@pulls.review/core/local-rpc'
 import type { AgentSessionRef, DiffsPayload, GroupedResult } from '@pulls.review/core/types'
 import type { LlmRunner } from '../analyze/llm-runner'
@@ -15,16 +14,7 @@ import { settings } from '../state/settings'
 interface Collected {
   messages: AgentMessage[]
   result?: GroupedResult
-  session?: AgentSessionRef
-}
-
-function collect(collected: Collected, event: AgentStreamEvent) {
-  if (event.kind === 'messages')
-    collected.messages = event.messages
-  else if (event.kind === 'result')
-    collected.result = event.result
-  else if (event.kind === 'session')
-    collected.session = event.session
+  agent?: AgentSessionRef
 }
 
 /** What a finished stream amounts to: the collected run, or the error it ended with. */
@@ -33,32 +23,21 @@ function ended(end: Extract<AgentStreamEvent, { kind: 'end' }>, collected: Colle
     throw new DOMException('Aborted', 'AbortError')
   if (end.stopReason === 'error')
     throw end.code === AGENT_SESSION_LOST ? diagnostics.agentSessionLost() : new Error(end.error)
-  return collected
+  return { ...collected, agent: end.agent }
 }
 
-/** The server's agent list and catalogs, read once each per page load. */
+/** The server's agent list, read once per page load. */
 export function createLocalAgents(rpc: LocalRpc): LocalAgents {
-  const agents = ref<LocalAgents['agents']['value']>()
+  const agents: LocalAgents = ref()
   void rpc.call(LOCAL_RPC.agentList).then(list => agents.value = v.parse(v.array(LocalAgentInfoSchema), list))
-  const models = new Map<LocalAgentName, Promise<{ id: string, name: string }[]>>()
-  return {
-    agents,
-    models(agent) {
-      let list = models.get(agent)
-      if (!list) {
-        list = rpc.call(LOCAL_RPC.agentModels, { agent }).then(value => v.parse(v.array(v.object({ id: v.string(), name: v.string() })), value))
-        models.set(agent, list)
-      }
-      return list
-    },
-  }
+  return agents
 }
 
 /**
  * Runs analysis and chat on the `pulls.review` server through the agent CLI chosen in
  * Settings; any other provider runs in the browser as on the site.
  */
-export function createAgentLlmRunner(rpc: LocalRpc, agents: LocalAgents, browser: LlmRunner): LlmRunner {
+export function createAgentLlmRunner(rpc: LocalRpc, browser: LlmRunner): LlmRunner {
   const chosen = () => {
     const { provider, agent, agentModel } = settings.value.llm
     return provider === 'local-agent' && agent ? { agent, model: agentModel || undefined } : undefined
@@ -77,7 +56,10 @@ export function createAgentLlmRunner(rpc: LocalRpc, agents: LocalAgents, browser
       for await (const chunk of reader) {
         // The wire validates messages loosely (`local-rpc.ts`); they are the pi messages the server built.
         const event = v.parse(AgentStreamEventSchema, chunk) as AgentStreamEvent
-        collect(collected, event)
+        if (event.kind === 'messages')
+          collected.messages = event.messages
+        else if (event.kind === 'result')
+          collected.result = event.result
         await onEvent(event)
         if (event.kind === 'end')
           return ended(event, collected)
@@ -92,10 +74,7 @@ export function createAgentLlmRunner(rpc: LocalRpc, agents: LocalAgents, browser
   }
 
   return {
-    isSetup() {
-      const choice = chosen()
-      return choice ? agents.agents.value?.some(info => info.name === choice.agent) ?? false : browser.isSetup()
-    },
+    isSetup: () => chosen() !== undefined || browser.isSetup(),
     async analyze(diff, options) {
       const choice = chosen()
       if (!choice)
@@ -110,7 +89,7 @@ export function createAgentLlmRunner(rpc: LocalRpc, agents: LocalAgents, browser
       })
       if (!run.result)
         throw new Error('The agent run ended without a result.')
-      return { result: run.result, transcript: run.messages, agent: run.session }
+      return { result: run.result, transcript: run.messages, agent: run.agent }
     },
     async chat(input) {
       const choice = chosen()

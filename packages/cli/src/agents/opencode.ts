@@ -51,7 +51,6 @@ function mapPart(part: v.InferOutput<typeof Part>, model: string): AgentCliEvent
 export const opencode: AgentCli = {
   name: 'opencode',
   label: 'OpenCode',
-  structuredOutput: false,
   detect: () => readVersion('opencode'),
   models: () => listModels().catch(() => []),
   async* run(input: AgentRunInput): AsyncGenerator<AgentCliEvent> {

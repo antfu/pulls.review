@@ -4,7 +4,8 @@ import type { AgentRunOptions } from './run'
 import { randomUUID } from 'node:crypto'
 import { CLI_AGENT_CHAT_SECTION, toGroupedResult } from '@pulls.review/core/llm'
 import { checkAnswer } from './analyze'
-import { AgentRunError, parseJsonAnswer, runTurn, systemPromptFor, toolResultMessage, withoutJsonFence, writePatch } from './run'
+import { AgentRunError, parseJsonAnswer, runTurn, systemPromptFor, withoutJsonFence, writePatch } from './run'
+import { toolResultMessage } from './types'
 
 export interface AgentChatOptions extends AgentRunOptions {
   /** The transcript to continue; `agent` names the CLI session it lives in. */
@@ -37,7 +38,7 @@ function stripGrouping(transcript: AgentMessage[]) {
  * the reply is applied like `update_grouping`: validated, emitted as `result`, and noted
  * in the transcript; one that fails validation is noted as a tool error instead.
  */
-export async function runAgentChat({ cli, model, diff, locale, cwd, repository, patchDir, emit, signal, session, text }: AgentChatOptions): Promise<void> {
+export async function runAgentChat({ cli, model, diff, locale, cwd, patchDir, emit, signal, session, text }: AgentChatOptions): Promise<void> {
   const resume = session.agent
   if (!resume || resume.agent !== cli.name)
     throw new AgentRunError(`This conversation was not started with ${cli.label}. Re-analyze to chat with it.`)
@@ -47,7 +48,7 @@ export async function runAgentChat({ cli, model, diff, locale, cwd, repository, 
 
   const { patchPath, cleanup } = await writePatch(patchDir, randomUUID(), diff)
   try {
-    const system = systemPromptFor(cli, patchPath, repository, `\n\n${CLI_AGENT_CHAT_SECTION}`)
+    const system = systemPromptFor(diff, patchPath, `\n\n${CLI_AGENT_CHAT_SECTION}`)
     const transcript: AgentMessage[] = text === undefined
       ? [...session.messages]
       : [...session.messages, { role: 'user', content: text, timestamp: Date.now() }]
@@ -68,7 +69,7 @@ export async function runAgentChat({ cli, model, diff, locale, cwd, repository, 
       }
       emit({ kind: 'messages', messages: [...transcript] })
     }
-    emit({ kind: 'end', stopReason: 'done' })
+    emit({ kind: 'end', stopReason: 'done', agent: outcome.session ?? resume })
   }
   finally {
     await cleanup()

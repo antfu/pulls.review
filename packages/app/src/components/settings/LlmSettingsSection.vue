@@ -53,7 +53,10 @@ const isOpenAi = computed(() => props.llmSettings.provider === 'openai-compatibl
 
 // Only the `pulls.review` CLI's build provides this; the site and the embed show the provider disabled.
 const localAgents = useLocalAgents()
-const agentOptions = computed(() => (localAgents?.agents.value ?? []).map(agent => ({ value: agent.name, label: `${agent.label} ${agent.version}` })))
+const hasAgentServer = localAgents !== undefined
+/** `undefined` while the server is still looking. */
+const agents = computed(() => localAgents?.value)
+const agentOptions = computed(() => (agents.value ?? []).map(agent => ({ value: agent.name, label: `${agent.label} ${agent.version}` })))
 const agentModel = computed({
   get: () => props.llmSettings.agentModel,
   set: value => update({ agentModel: value }),
@@ -135,10 +138,10 @@ const model = computed({
 
       <template v-if="!config">
         <FormField :label="$t('settings.llm.agent')">
-          <p v-if="!localAgents" class="text-sm color-faint">
+          <p v-if="!hasAgentServer" class="text-sm color-faint">
             {{ $t('settings.llm.agentNeedsCli') }}
           </p>
-          <p v-else-if="!localAgents.agents.value" class="flex items-center gap-2 text-sm color-faint">
+          <p v-else-if="!agents" class="flex items-center gap-2 text-sm color-faint">
             <span class="i-ph:circle-notch animate-spin" aria-hidden="true" />
             {{ $t('settings.llm.agentDetecting') }}
           </p>

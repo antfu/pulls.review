@@ -8,11 +8,6 @@ import { join, relative } from 'node:path'
 import { analysisJsonSchema, buildCliAgentSystemPrompt, renderFilesAsText } from '@pulls.review/core/llm'
 import { AGENT_SESSION_LOST } from '@pulls.review/core/local-rpc'
 
-export { toolResultMessage } from './types'
-
-/** A run with no event for this long is given up as failed. */
-export const AGENT_IDLE_TIMEOUT_MS = 5 * 60_000
-
 export interface AgentRunOptions {
   cli: AgentCli
   model?: string
@@ -20,7 +15,6 @@ export interface AgentRunOptions {
   locale: Locale
   /** The repository for a local diff - the agent may open its files - or a scratch dir for a GitHub one. */
   cwd: string
-  repository: boolean
   /** Where the patch is written for the agent to read. */
   patchDir: string
   emit: (event: AgentStreamEvent) => void
@@ -33,13 +27,10 @@ export class AgentRunError extends Error {
   }
 }
 
-/** The system prompt an agent gets: the role, the patch's location, and - without a schema flag - the answer's shape. */
-export function systemPromptFor(cli: AgentCli, patchPath: string, repository: boolean, extra = ''): string {
-  const base = buildCliAgentSystemPrompt({ patchPath, repository })
-  const schema = cli.structuredOutput
-    ? ''
-    : `\n\n<schema>\nThe grouping JSON must match this JSON Schema:\n${JSON.stringify(analysisJsonSchema())}\n</schema>`
-  return `${base}${extra}${schema}`
+/** The system prompt an agent gets: the role, the patch's location, and the answer's shape. */
+export function systemPromptFor(diff: DiffsPayload, patchPath: string, extra = ''): string {
+  const base = buildCliAgentSystemPrompt({ patchPath, repository: diff.ref.kind === 'local' })
+  return `${base}${extra}\n\n<schema>\nThe grouping JSON must match this JSON Schema:\n${JSON.stringify(analysisJsonSchema())}\n</schema>`
 }
 
 /** The files an agent's tool call touches, for the "reading" progress line. */
@@ -68,15 +59,11 @@ export interface TurnOutcome {
 /**
  * One subprocess of the agent: appends its messages to `transcript` (emitting the live
  * transcript and progress as it goes) and resolves with its final answer. Rejects with
- * `AgentRunError` when the CLI fails, loses the session, or goes quiet too long.
+ * `AgentRunError` when the CLI fails or has lost the session; a run the caller aborts
+ * rejects too, and the caller reads its own signal.
  */
 export async function runTurn(cli: AgentCli, input: Omit<AgentRunInput, 'signal'>, transcript: AgentMessage[], { emit, signal, cwd, model, step }: Pick<AgentRunOptions, 'emit' | 'signal' | 'cwd' | 'model'> & { step: number }): Promise<TurnOutcome> {
-  const controller = new AbortController()
-  const abort = () => controller.abort()
-  signal.addEventListener('abort', abort)
-  let idle = setTimeout(abort, AGENT_IDLE_TIMEOUT_MS)
   const progress = (next: AnalyzeProgress) => emit({ kind: 'progress', progress: next })
-
   const outcome: TurnOutcome = {}
   let failure: string | undefined
 
@@ -92,42 +79,31 @@ export async function runTurn(cli: AgentCli, input: Omit<AgentRunInput, 'signal'
 
   const onExit = (exit: Extract<AgentCliEvent, { kind: 'exit' }>) => {
     if (signal.aborted)
-      throw new AgentRunError('Aborted', 'aborted')
-    if (controller.signal.aborted)
-      throw new AgentRunError(`${cli.label} produced no output for ${AGENT_IDLE_TIMEOUT_MS / 60_000} minutes.`)
+      throw new AgentRunError('Aborted')
     if (exit.sessionLost)
       throw new AgentRunError(`${cli.label} no longer has this conversation.`, AGENT_SESSION_LOST)
     if (failure !== undefined || (exit.code !== 0 && !outcome.final))
       throw new AgentRunError(failure || exit.stderr || `${cli.label} exited with code ${exit.code}.`)
   }
 
-  try {
-    progress({ step, kind: 'thinking' })
-    for await (const event of cli.run({ ...input, signal: controller.signal })) {
-      clearTimeout(idle)
-      idle = setTimeout(abort, AGENT_IDLE_TIMEOUT_MS)
-      switch (event.kind) {
-        case 'session':
-          outcome.session = { agent: cli.name, id: event.id, model: event.model ?? model }
-          emit({ kind: 'session', session: outcome.session })
-          break
-        case 'message':
-          onMessage(event.message)
-          break
-        case 'final':
-          if (event.isError)
-            failure = event.text ?? ''
-          else
-            outcome.final = { text: event.text, structured: event.structured }
-          break
-        case 'exit':
-          onExit(event)
-      }
+  progress({ step, kind: 'thinking' })
+  for await (const event of cli.run({ ...input, signal })) {
+    switch (event.kind) {
+      case 'session':
+        outcome.session = { agent: cli.name, id: event.id, model: event.model ?? model }
+        break
+      case 'message':
+        onMessage(event.message)
+        break
+      case 'final':
+        if (event.isError)
+          failure = event.text ?? ''
+        else
+          outcome.final = { text: event.text, structured: event.structured }
+        break
+      case 'exit':
+        onExit(event)
     }
-  }
-  finally {
-    clearTimeout(idle)
-    signal.removeEventListener('abort', abort)
   }
   return outcome
 }

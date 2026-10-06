@@ -6,8 +6,11 @@ import { opencode } from './opencode'
 
 export const agents: Record<LocalAgentName, AgentCli> = { claude, opencode }
 
-/** The agent CLIs on `PATH`, with their versions. */
+/** The agent CLIs on `PATH`, with their versions and model catalogs. */
 export async function detectAgents(): Promise<LocalAgentInfo[]> {
-  const found = await Promise.all(Object.values(agents).map(async cli => ({ name: cli.name, label: cli.label, version: await cli.detect() })))
-  return found.flatMap(agent => agent.version ? [{ ...agent, version: agent.version }] : [])
+  const found = await Promise.all(Object.values(agents).map(async (cli) => {
+    const version = await cli.detect()
+    return version ? [{ name: cli.name, label: cli.label, version, models: await cli.models() }] : []
+  }))
+  return found.flat()
 }

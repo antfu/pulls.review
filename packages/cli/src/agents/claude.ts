@@ -1,5 +1,6 @@
 import type { AssistantMessage } from '@earendil-works/pi-ai'
 import type { AgentCli, AgentCliEvent, AgentRunInput } from './types'
+import { analysisJsonSchema } from '@pulls.review/core/llm'
 import * as v from 'valibot'
 import { readVersion, spawnJsonLines } from './process'
 import { assistantMessage, toolCall, toolResultMessage } from './types'
@@ -40,12 +41,11 @@ function textOf(content: string | { type: string, text?: unknown }[] | undefined
   return (content ?? []).map(part => typeof part.text === 'string' ? part.text : '').join('')
 }
 
-function args({ system, model, schema, resume }: AgentRunInput): string[] {
-  const list = ['-p', '--output-format', 'stream-json', '--verbose', '--system-prompt', system, '--permission-mode', 'dontAsk', '--allowedTools', ...READ_ONLY_TOOLS, '--disallowedTools', ...WRITE_TOOLS]
+/** Claude validates the answer itself against the grouping schema, so `final.structured` is already parsed. */
+function args({ system, model, resume }: AgentRunInput): string[] {
+  const list = ['-p', '--output-format', 'stream-json', '--verbose', '--system-prompt', system, '--permission-mode', 'dontAsk', '--allowedTools', ...READ_ONLY_TOOLS, '--disallowedTools', ...WRITE_TOOLS, '--json-schema', JSON.stringify(analysisJsonSchema())]
   if (model)
     list.push('--model', model)
-  if (schema)
-    list.push('--json-schema', JSON.stringify(schema))
   if (resume)
     list.push('--resume', resume)
   return list
@@ -83,7 +83,6 @@ function mapLine(line: ClaudeLine, model: string, toolNames: Map<string, string>
 export const claude: AgentCli = {
   name: 'claude',
   label: 'Claude Code',
-  structuredOutput: true,
   detect: () => readVersion('claude'),
   models: async () => MODELS,
   async* run(input: AgentRunInput): AsyncGenerator<AgentCliEvent> {

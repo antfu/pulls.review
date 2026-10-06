@@ -25,7 +25,7 @@ let fake: ReturnType<typeof installFakeAgents>
 let dir: string
 let events: AgentStreamEvent[]
 
-const options = () => ({ diff, locale: 'en' as const, cwd: dir, repository: true, patchDir: join(dir, 'patches'), emit: (event: AgentStreamEvent) => events.push(event), signal: new AbortController().signal })
+const options = () => ({ diff, locale: 'en' as const, cwd: dir, patchDir: join(dir, 'patches'), emit: (event: AgentStreamEvent) => events.push(event), signal: new AbortController().signal })
 const kinds = () => events.map(event => event.kind)
 const result = () => events.find(event => event.kind === 'result')?.result
 
@@ -44,8 +44,8 @@ describe('detectAgents', () => {
   it('lists the CLIs on PATH with their versions', async () => {
     fake.replay('claude-analysis.jsonl')
     expect(await detectAgents()).toEqual([
-      { name: 'claude', label: 'Claude Code', version: expect.any(String) },
-      { name: 'opencode', label: 'OpenCode', version: expect.any(String) },
+      { name: 'claude', label: 'Claude Code', version: '0.0.0-fake', models: expect.arrayContaining([{ id: 'sonnet', name: 'Sonnet (latest)' }]) },
+      { name: 'opencode', label: 'OpenCode', version: '0.0.0-fake', models: [] },
     ])
   })
 })
@@ -63,8 +63,7 @@ describe('runAgentAnalysis', () => {
     expect(call!.stdin).toContain('---MANIFEST---')
     expect(call!.cwd).toBe(dir)
 
-    expect(kinds()).toEqual(['messages', 'progress', 'session', 'messages', 'progress', 'messages', 'messages', 'progress', 'progress', 'result', 'end'])
-    expect(events.find(event => event.kind === 'session')).toEqual({ kind: 'session', session: { agent: 'claude', id: 'sess-claude-1', model: 'claude-sonnet-4-5' } })
+    expect(kinds()).toEqual(['messages', 'progress', 'messages', 'progress', 'messages', 'messages', 'progress', 'progress', 'result', 'end'])
     expect(events.filter(event => event.kind === 'progress').map(event => event.progress)).toEqual([
       { step: 1, kind: 'thinking' },
       { step: 1, kind: 'reading', paths: ['b.test.ts'] },
@@ -74,7 +73,7 @@ describe('runAgentAnalysis', () => {
     const transcript = events.findLast(event => event.kind === 'messages')!.messages
     expect(transcript.map(message => message.role)).toEqual(['system', 'user', 'assistant', 'toolResult', 'assistant'])
     expect(result()).toMatchObject({ source: 'llm', model: 'claude/claude-sonnet-4-5', locale: 'en', groups: [{ key: 'thing', filePaths: ['a.ts', 'b.test.ts'] }] })
-    expect(events.at(-1)).toEqual({ kind: 'end', stopReason: 'done' })
+    expect(events.at(-1)).toEqual({ kind: 'end', stopReason: 'done', agent: { agent: 'claude', id: 'sess-claude-1', model: 'claude-sonnet-4-5' } })
   })
 
   it('asks once more, in the same session, when the grouping misses a path', async () => {
@@ -120,7 +119,7 @@ describe('runAgentAnalysis', () => {
   it('runs a GitHub diff in a scratch directory, not the repository', async () => {
     fake.replay('opencode-analysis.jsonl')
 
-    await runAgentAnalysis({ ...options(), cli: opencode, repository: false, diff: { ...diff, ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' } } })
+    await runAgentAnalysis({ ...options(), cli: opencode, diff: { ...diff, ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' } } })
 
     expect(fake.calls()[0]!.stdin).toContain('The patch is all there is')
   })
@@ -133,7 +132,7 @@ describe('runAgentAnalysis', () => {
     await new Promise(resolve => setTimeout(resolve, 200))
     controller.abort()
 
-    await expect(run).rejects.toMatchObject({ code: 'aborted' })
+    await expect(run).rejects.toThrow('Aborted')
     delete process.env.FAKE_AGENT_SLEEP
   })
 })
@@ -153,7 +152,7 @@ describe('runAgentChat', () => {
     expect(kinds()).not.toContain('result')
     const transcript = events.findLast(event => event.kind === 'messages')!.messages
     expect(transcript.map(message => message.role)).toEqual(['user', 'user', 'assistant'])
-    expect(events.at(-1)).toEqual({ kind: 'end', stopReason: 'done' })
+    expect(events.at(-1)).toEqual({ kind: 'end', stopReason: 'done', agent: { agent: 'opencode', id: 'ses_oc1' } })
   })
 
   it('applies a fenced grouping in the reply like update_grouping', async () => {

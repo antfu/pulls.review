@@ -18,7 +18,12 @@ export async function* spawnJsonLines(bin: string, args: string[], { cwd, signal
   child.stderr.setEncoding('utf8')
   child.stderr.on('data', (chunk: string) => stderr = (stderr + chunk).slice(-4000))
   const exited = new Promise<number | null>((resolve, reject) => {
-    child.on('error', error => (error as NodeJS.ErrnoException).name === 'AbortError' ? resolve(null) : reject(error))
+    child.on('error', (error: NodeJS.ErrnoException) => {
+      if (error.name === 'AbortError')
+        resolve(null)
+      else
+        reject(error.code === 'ENOENT' ? new Error(`${bin} is not installed (not on PATH).`) : error)
+    })
     child.on('close', resolve)
   })
 

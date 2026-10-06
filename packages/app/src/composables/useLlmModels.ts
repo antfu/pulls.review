@@ -85,33 +85,20 @@ export function useLlmModels(): UseLlmModelsReturn {
     requestId++
   })
 
-  /** A local agent's catalog comes from the `pulls.review` server, headed by its own default. */
-  async function loadAgentModels(id: number) {
-    const { agent } = settings.value.llm
-    if (!agent || !localAgents)
-      return
-    loading.value = true
-    try {
-      const list = await localAgents.models(agent)
-      if (id === requestId)
-        models.value = [{ id: '', name: t('settings.models.agentDefault') }, ...list]
-    }
-    catch (err) {
-      if (id === requestId)
-        error.value = err instanceof Error ? err.message : String(err)
-    }
-    finally {
-      if (id === requestId)
-        loading.value = false
-    }
+  /** A local agent's catalog came with the server's agent list, headed by the agent's own default. */
+  const agentModels = () => {
+    const found = localAgents?.value?.find(agent => agent.name === settings.value.llm.agent)
+    return found ? [{ id: '', name: t('settings.models.agentDefault') }, ...found.models] : null
   }
 
-  watch(() => [settings.value.llm.provider, settings.value.llm.agent, llmCredentials(settings.value.llm)] as const, async ([provider]) => {
+  watch(() => [settings.value.llm.provider, settings.value.llm.agent, llmCredentials(settings.value.llm), localAgents?.value] as const, async ([provider]) => {
     const id = ++requestId
     models.value = null
     error.value = undefined
-    if (provider === 'local-agent')
-      return loadAgentModels(id)
+    if (provider === 'local-agent') {
+      models.value = agentModels()
+      return
+    }
     if (!llmToken(settings.value.llm))
       return
     const credentials = llmCredentials(settings.value.llm)

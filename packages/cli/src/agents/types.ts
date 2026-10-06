@@ -2,7 +2,6 @@ import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import type { AssistantMessage, ToolCall, ToolResultMessage } from '@earendil-works/pi-ai'
 import type { LocalAgentName } from '@pulls.review/core/analyze'
 import type { ModelOption } from '@pulls.review/core/llm'
-import type { JsonSchema } from '@valibot/to-json-schema'
 
 export interface AgentRunInput {
   /** The repository for a local target; an empty temp dir for a GitHub one. */
@@ -11,8 +10,6 @@ export interface AgentRunInput {
   prompt: string
   /** Omitted = the agent's default. */
   model?: string
-  /** The final answer's JSON Schema, for CLIs that take one; the others get it in the prompt. */
-  schema?: JsonSchema
   /** A session id to continue. */
   resume?: string
   signal: AbortSignal
@@ -29,8 +26,6 @@ export type AgentCliEvent
 export interface AgentCli {
   name: LocalAgentName
   label: string
-  /** Whether the CLI validates the final answer against `AgentRunInput.schema` itself; otherwise the schema goes in the prompt. */
-  structuredOutput: boolean
   /** The CLI's version, or `undefined` when it is not on `PATH`. */
   detect: () => Promise<string | undefined>
   /** The agent's model catalog; `[]` when the CLI has none to list. */
