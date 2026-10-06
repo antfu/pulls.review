@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import type { FileNote } from './group-utils'
+import type { ResolvedNote } from './group-utils'
 import { mockMultiReplyThread, mockPendingThread, mockThread } from '../../../test/fixtures/mock-reviews'
 import binaryFile from '../../../test/fixtures/synthetic/binary-file.json'
 import hugeFile from '../../../test/fixtures/synthetic/huge-file.json'
@@ -17,7 +17,7 @@ export default meta
 
 type Story = StoryObj<typeof FileDiff>
 
-const notes: FileNote[] = [
+const notes: ResolvedNote[] = [
   { text: 'Replaces the old constant with a derived value; every caller now sees the new default.', critical: true },
   { text: 'This line is read before the config is loaded, so it still sees the fallback.', critical: false, anchor: { side: 'additions', line: 2 } },
   { text: 'The removed branch handled the legacy format; nothing else does now.', critical: true, anchor: { side: 'deletions', line: 2 } },

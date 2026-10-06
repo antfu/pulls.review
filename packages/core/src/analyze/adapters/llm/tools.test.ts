@@ -133,16 +133,17 @@ describe('createSubmitGroupingTool', () => {
     })
   })
 
-  it('advertises optional notes and critical flags, requiring only a path and text per note', () => {
+  it('advertises optional file and line notes and critical flags; line notes always carry a side and line', () => {
     expect(toJsonSchema(AnalysisSchema)).toMatchObject({
       properties: {
         groups: {
           items: {
-            required: expect.not.arrayContaining(['notes', 'critical']),
+            required: expect.not.arrayContaining(['fileNotes', 'lineNotes', 'critical']),
             properties: {
               critical: { type: 'boolean' },
-              notes: { items: {
-                required: ['path', 'text'],
+              fileNotes: { items: { required: ['path', 'text'], properties: { critical: { type: 'boolean' } } } },
+              lineNotes: { items: {
+                required: ['path', 'side', 'line', 'text'],
                 properties: { line: { type: 'number' }, side: { enum: ['additions', 'deletions'] }, critical: { type: 'boolean' } },
               } },
             },

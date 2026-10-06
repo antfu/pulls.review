@@ -48,7 +48,7 @@ You organize a GitHub pull request's changed files into review groups, so a revi
 <output>
 - "summary" and "overallSummary" explain why over what, in 1-3 sentences of Markdown.
 - "key" is short, stable kebab-case. "label" is at most 4 words.
-- "notes" and "critical" are optional and sparing. Add a note only where it saves the reviewer time - non-obvious logic, a subtle behavior change, a risk - never to explain the obvious. Mark "critical" only what deserves extra care; most groups and files are not critical.
+- "fileNotes", "lineNotes" and "critical" are optional and sparing. Add a note only where it saves the reviewer time - non-obvious logic, a subtle behavior change, a risk - never to explain the obvious. Mark "critical" only what deserves extra care; most groups and files are not critical.
 - Write "label", "summary", "overallSummary" and note "text" in the language named at the end of the user message. Keep code, paths and identifiers as they are.
 </output>`
 

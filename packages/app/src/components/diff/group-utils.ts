@@ -1,8 +1,8 @@
-import type { DiffCategory, DiffGroup, DiffGroupLeaf, DiffSide, FileChange, GroupNote } from '@pulls.review/core/types'
+import type { DiffCategory, DiffGroup, DiffGroupLeaf, DiffSide, FileChange, LineNote } from '@pulls.review/core/types'
 import { t } from '../../i18n'
 
-/** A group note resolved against its file: `anchor` is set only when a hunk actually shows that line. */
-export interface FileNote {
+/** A note resolved against its file: `anchor` is set only for a line note whose line a hunk actually shows. */
+export interface ResolvedNote {
   text: string
   critical: boolean
   anchor?: { side: DiffSide, line: number }
@@ -17,7 +17,7 @@ export interface ResolvedGroup {
   critical: boolean
   files: FileChange[]
   /** Notes by file sha; files without notes have no entry. */
-  notes: Map<string, FileNote[]>
+  notes: Map<string, ResolvedNote[]>
   /** Paths the analysis named that are no longer in the diff, rendered as removed. */
   missing: string[]
   added: number
@@ -35,21 +35,18 @@ function hunkShowsLine(file: FileChange, side: DiffSide, line: number): boolean 
   })
 }
 
-function resolveNote(note: GroupNote, file: FileChange): FileNote {
-  const resolved: FileNote = { text: note.text, critical: note.critical ?? false }
-  if (note.line === undefined)
-    return resolved
-  const side = note.side ?? (file.status === 'removed' ? 'deletions' : 'additions')
-  if (hunkShowsLine(file, side, note.line))
-    resolved.anchor = { side, line: note.line }
+function resolveLineNote(note: LineNote, file: FileChange): ResolvedNote {
+  const resolved: ResolvedNote = { text: note.text, critical: note.critical ?? false }
+  if (hunkShowsLine(file, note.side, note.line))
+    resolved.anchor = { side: note.side, line: note.line }
   return resolved
 }
 
-export function fileIsCritical(notes: FileNote[] | undefined): boolean {
+export function fileIsCritical(notes: ResolvedNote[] | undefined): boolean {
   return notes?.some(note => note.critical) ?? false
 }
 
-function toResolvedGroup(leaf: Pick<DiffGroupLeaf, 'key' | 'label' | 'summary' | 'category' | 'critical'>, files: FileChange[], notes: Map<string, FileNote[]>, missing: string[]): ResolvedGroup {
+function toResolvedGroup(leaf: Pick<DiffGroupLeaf, 'key' | 'label' | 'summary' | 'category' | 'critical'>, files: FileChange[], notes: Map<string, ResolvedNote[]>, missing: string[]): ResolvedGroup {
   return {
     key: leaf.key,
     label: leaf.label,
@@ -89,12 +86,16 @@ export function resolveGroups(groups: DiffGroup[], files: FileChange[]): Resolve
         missing.push(path)
       }
     }
-    const notes = new Map<string, FileNote[]>()
-    for (const note of leaf.notes ?? []) {
-      const file = byPath.get(note.path) ?? byPreviousPath.get(note.path)
+    const notes = new Map<string, ResolvedNote[]>()
+    function attach(path: string, resolve: (file: FileChange) => ResolvedNote) {
+      const file = byPath.get(path) ?? byPreviousPath.get(path)
       if (file)
-        notes.set(file.sha, [...notes.get(file.sha) ?? [], resolveNote(note, file)])
+        notes.set(file.sha, [...notes.get(file.sha) ?? [], resolve(file)])
     }
+    for (const note of leaf.fileNotes ?? [])
+      attach(note.path, () => ({ text: note.text, critical: note.critical ?? false }))
+    for (const note of leaf.lineNotes ?? [])
+      attach(note.path, file => resolveLineNote(note, file))
     return toResolvedGroup(leaf, resolved, notes, missing)
   }
 

@@ -112,12 +112,13 @@ analysis strategy later never touches the view layer:
   it only for files whose `patch` GitHub's JSON API omitted (very large
   diffs); `paste` uses it as its only parsing path; `local` will too.
 - **`AnalyzeAdapter`** (`app/analyze/`) turns a `DiffsPayload` into a
-  `GroupedResult`: grouped files plus optional summaries, optional `notes`
-  explaining one file or one line of it (`path`, `line?`, `side?`, `text`),
-  and an optional `critical` flag on a group or a note marking what deserves
-  extra reviewer care. Only the `llm` adapter fills notes and flags; the view
-  derives a group's criticality from its own flag, its notes and its
-  children, and renders a note whose line no hunk shows at file level. Each
+  `GroupedResult`: grouped files plus optional summaries, optional
+  `fileNotes` (`path`, `text`) and `lineNotes` (`path`, `side`, `line`,
+  `text`) explaining a file or one line of it, and an optional `critical`
+  flag on a group or a note marking what deserves extra reviewer care. Only
+  the `llm` adapter fills notes and flags; the view derives a group's
+  criticality from its own flag, its notes and its children, and renders a
+  line note whose line no hunk shows at file level. Each
   adapter lives in its own folder (`app/analyze/adapters/{id}/index.ts`):
   - `none` — implemented. A single flat group containing every file, for
     users who just want the plain file list with no classification.

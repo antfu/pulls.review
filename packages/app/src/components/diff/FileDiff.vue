@@ -2,7 +2,7 @@
 import type { DiffLineAnnotation, FileDiffOptions, SelectedLineRange } from '@pierre/diffs'
 import type { CommentThread, DiffSide, FileChange, ReviewDraftTarget } from '@pulls.review/core/types'
 import type { DiffsStore } from '../../stores/types'
-import type { FileNote } from './group-utils'
+import type { ResolvedNote } from './group-utils'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
@@ -28,7 +28,7 @@ const props = defineProps<{
   store: DiffsStore
   file: FileChange
   /** Analysis notes resolved for this file (see `resolveGroups`). */
-  notes?: FileNote[]
+  notes?: ResolvedNote[]
 }>()
 
 const status = computed(() => reviewStatus(props.store, props.file))
@@ -185,7 +185,7 @@ const draftError = ref<string>()
 interface AnnotationGroup {
   side: DiffSide
   line: number
-  notes: FileNote[]
+  notes: ResolvedNote[]
   threads: CommentThread[]
   hasDraft: boolean
 }

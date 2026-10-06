@@ -1,6 +1,6 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import type { Locale } from '../../../locales'
-import type { DiffGroup, GroupedResult, GroupedResultCore, GroupNote } from '../../../types/analyze'
+import type { DiffGroup, FileNote, GroupedResult, GroupedResultCore, LineNote } from '../../../types/analyze'
 import type { DiffsPayload } from '../../../types/diff'
 import type { LlmAnalyzeOptions } from './agent'
 import type { ResolvedModel } from './model'
@@ -11,9 +11,10 @@ import { runAgent } from './agent'
 export const LLM_SCHEMA_VERSION = 1
 
 /** Notes only make sense on a file the group actually holds. */
-function keepOwnNotes<T extends { filePaths: string[], notes?: GroupNote[] }>(group: T): T {
-  const notes = group.notes?.filter(note => group.filePaths.includes(note.path))
-  return { ...group, notes: notes?.length ? notes : undefined }
+function keepOwnNotes<T extends { filePaths: string[], fileNotes?: FileNote[], lineNotes?: LineNote[] }>(group: T): T {
+  const fileNotes = group.fileNotes?.filter(note => group.filePaths.includes(note.path))
+  const lineNotes = group.lineNotes?.filter(note => group.filePaths.includes(note.path))
+  return { ...group, fileNotes: fileNotes?.length ? fileNotes : undefined, lineNotes: lineNotes?.length ? lineNotes : undefined }
 }
 
 /**

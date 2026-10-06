@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FileChange } from '@pulls.review/core/types'
 import type { DiffsStore } from '../../stores/types'
-import type { FileNote } from './group-utils'
+import type { ResolvedNote } from './group-utils'
 import DisplayFileIcon from '@antfu/design/components/Display/DisplayFileIcon.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
 import { useVirtualizer } from '@tanstack/vue-virtual'
@@ -17,7 +17,7 @@ const props = defineProps<{
   store: DiffsStore
   files: FileChange[]
   /** Analysis notes by file sha, for the critical marker. */
-  notes?: Map<string, FileNote[]>
+  notes?: Map<string, ResolvedNote[]>
   /** Paths the analysis named that have since left the diff, shown as removed. */
   missing?: string[]
   /** Shas of the files currently scrolled into view. */

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { FileNote } from './group-utils'
+import type { ResolvedNote } from './group-utils'
 import { Markdown } from '@comark/vue'
 import CriticalMark from './CriticalMark.vue'
 
 defineProps<{
-  note: FileNote
+  note: ResolvedNote
 }>()
 </script>
 

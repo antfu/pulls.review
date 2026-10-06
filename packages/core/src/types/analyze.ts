@@ -55,18 +55,28 @@ const CATEGORY_GUIDE = [
 ].join(' ')
 
 /**
- * An optional explanation the model attaches to a file in its group, or to one line of it.
- * Sides use pierre's vocabulary like review threads do: `additions` lines are numbered by
- * the new file, `deletions` lines by the old one.
+ * Optional explanations the model attaches to a file in its group, or to one line of it.
+ * Line sides use pierre's vocabulary like review threads do: `additions` lines are
+ * numbered by the new file, `deletions` lines by the old one.
  */
-export const GroupNoteSchema = v.object({
+const noteText = v.pipe(v.string(), v.description('1-2 sentences explaining what a reviewer would otherwise have to work out: non-obvious logic, a subtle behavior change, a risk. Rendered as Markdown.'))
+const noteCritical = v.optional(v.pipe(v.boolean(), v.description('Set only when the reviewer should take extra care here: security, data loss, hard to revert, easy to get wrong.')))
+
+export const FileNoteSchema = v.object({
   path: v.pipe(v.string(), v.description('A path from this group\'s filePaths.')),
-  line: v.optional(v.pipe(v.number(), v.description('Omit for a note about the whole file. Otherwise the line number as counted in the hunk headers: new-file numbering for "additions", old-file numbering for "deletions".'))),
-  side: v.optional(v.pipe(DiffSideSchema, v.description('Which side "line" refers to. Defaults to "additions"; use "deletions" for a removed line.'))),
-  text: v.pipe(v.string(), v.description('1-2 sentences explaining what a reviewer would otherwise have to work out: non-obvious logic, a subtle behavior change, a risk. Rendered as Markdown.')),
-  critical: v.optional(v.pipe(v.boolean(), v.description('Set only when the reviewer should take extra care here: security, data loss, hard to revert, easy to get wrong.'))),
+  text: noteText,
+  critical: noteCritical,
 })
-export type GroupNote = v.InferOutput<typeof GroupNoteSchema>
+export type FileNote = v.InferOutput<typeof FileNoteSchema>
+
+export const LineNoteSchema = v.object({
+  path: v.pipe(v.string(), v.description('A path from this group\'s filePaths.')),
+  side: v.pipe(DiffSideSchema, v.description('"additions" for a line that is new or unchanged in the new file, "deletions" for a removed line.')),
+  line: v.pipe(v.number(), v.description('Line number as counted in the hunk headers: new-file numbering for "additions", old-file numbering for "deletions".')),
+  text: noteText,
+  critical: noteCritical,
+})
+export type LineNote = v.InferOutput<typeof LineNoteSchema>
 
 /**
  * Leaf group shape (no further nesting), reused for both root groups and their children,
@@ -83,7 +93,8 @@ export const SubmittedGroupLeafSchema = v.object({
   category: v.pipe(DiffCategorySchema, v.description(`Which part of the system this group touches. ${CATEGORY_GUIDE}`)),
   filePaths: v.pipe(v.array(v.string()), v.description('File paths belonging directly to this group (not to a child). Every file path given to you MUST end up in exactly one group or child - never both, never omitted.')), // references into DiffsPayload.files by path
   critical: v.optional(v.pipe(v.boolean(), v.description('Set only when the whole group deserves extra reviewer care (security, data loss, hard to revert). Most groups are not critical.'))),
-  notes: v.optional(v.pipe(v.array(GroupNoteSchema), v.description('Optional. Add a note only where it saves the reviewer time; never explain the obvious. Most files need none.'))),
+  fileNotes: v.optional(v.pipe(v.array(FileNoteSchema), v.description('Optional notes about a whole file. Add one only where it saves the reviewer time; never explain the obvious. Most files need none.'))),
+  lineNotes: v.optional(v.pipe(v.array(LineNoteSchema), v.description('Optional notes about one specific line. Same bar as fileNotes; prefer a line note when the point is about one spot in the diff.'))),
 })
 
 /**
