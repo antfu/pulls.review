@@ -3,6 +3,7 @@ import type { DiffsStore } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
 import { computed } from 'vue'
+import { scrollToFile } from '../../composables/scrollToFile'
 import AppModal from '../AppModal.vue'
 import { reviewStatus } from './review-status'
 import ReviewCheckbox from './ReviewCheckbox.vue'
@@ -38,7 +39,7 @@ async function invert() {
 function jumpTo(sha: string) {
   const root = props.document ?? document
   emit('update:open', false)
-  root.getElementById(`file-${sha}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  scrollToFile(root, sha)
 }
 </script>
 

@@ -6,6 +6,7 @@ import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.v
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { Markdown } from '@comark/vue'
 import { computed, nextTick, ref } from 'vue'
+import { scrollToFile } from '../../composables/scrollToFile'
 import { useFitText } from '../../composables/useFitText'
 import { showGroupSidebar } from '../../state/group-nav'
 import CriticalMark from './CriticalMark.vue'
@@ -91,7 +92,7 @@ function setFileDiffRef(sha: string, el: InstanceType<typeof FileDiff> | null) {
 function navigateToFile(sha: string) {
   fileDiffRefs.get(sha)?.expand()
   nextTick(() => {
-    document.getElementById(`file-${sha}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    scrollToFile(document, sha)
   })
 }
 </script>
@@ -219,8 +220,8 @@ function navigateToFile(sha: string) {
       <div class="min-w-0 flex flex-col">
         <template v-if="!collapsed">
           <template v-for="file of group.files" :key="file.sha">
-            <!-- Non-sticky scroll-spy anchor read by DiffsPage, since the file header is sticky. -->
-            <div :data-file-start="file.sha" />
+            <!-- Non-sticky anchor for scroll-spy (DiffsPage) and jump-to-file: the file header is sticky, so its own rect stays put once stuck. -->
+            <div :data-file-start="file.sha" class="scroll-mt-[var(--diffs-header-height)]" />
             <FileDiff
               :ref="el => setFileDiffRef(file.sha, el as InstanceType<typeof FileDiff> | null)"
               :store="store"
