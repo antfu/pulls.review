@@ -28,6 +28,11 @@ runtime skill; pulls.review browser and Storybook surfaces normally use
   capture route.
 - Capture the same state from the merge base and proposed HEAD with identical
   viewport, fixture data, locale, theme, readiness condition, and stable ID.
+- Present visual evidence as a comparison table. For a single surface, a
+  two-column `Before | After` table is sufficient. When a change affects
+  multiple surfaces, prefer one row per surface in a
+  `Surface | Before | After` table so reviewers can scan the complete change
+  set without stepping through separate sections.
 - Keep generated captures under `.vishot/`. If the installed GitHub CLI
   supports `gh ... --attach`, use it to upload PR-only evidence. Otherwise,
   invoke `$upload-github-attachment` and use the returned user-attachment URL.
