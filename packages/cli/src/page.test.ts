@@ -41,6 +41,14 @@ describe('pageFor', () => {
     expect(await pageFor(repo, 'topic', true)).toBe('/worktree')
   })
 
+  it('opens a GitHub target on the site\'s route, without consulting git', async () => {
+    expect(await pageFor(repo, 'antfu/diffs#12', false)).toBe('/gh/antfu/diffs/12')
+    expect(await pageFor(repo, 'https://github.com/antfu/diffs/pull/12/files', false)).toBe('/gh/antfu/diffs/12')
+    expect(await pageFor(repo, 'https://github.com/antfu/diffs/compare/main...feat/x', false)).toBe('/gh/antfu/diffs/compare/main...feat/x')
+    expect(await pageFor(repo, 'https://github.com/antfu/diffs/commit/a1b2c3d', false)).toBe('/gh/antfu/diffs/commit/a1b2c3d')
+    expect(await pageFor(repo, 'https://github.com/antfu/diffs', false)).toBe('/gh/antfu/diffs')
+  })
+
   it('rejects a revision that would read as an option', async () => {
     await expect(pageFor(repo, '--all', false)).rejects.toThrow(/Invalid revision/)
   })

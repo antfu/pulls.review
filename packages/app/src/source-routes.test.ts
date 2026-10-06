@@ -31,6 +31,7 @@ describe('source routes', () => {
     expect(routeFromGithubUrl('https://github.com/antfu/diffs/commit/a1b2c3d?diff=split')).toBe('/gh/antfu/diffs/commit/a1b2c3d')
     expect(routeFromGithubUrl('github.com/antfu/diffs')).toBe('/gh/antfu/diffs')
     expect(routeFromGithubUrl('https://github.com/antfu/diffs/pulls')).toBe('/gh/antfu/diffs')
+    expect(routeFromGithubUrl('antfu/diffs#12')).toBe('/gh/antfu/diffs/12')
     expect(routeFromGithubUrl('https://github.com/antfu/diffs/compare/main')).toBeUndefined()
     expect(routeFromGithubUrl('https://example.com/antfu/diffs')).toBeUndefined()
   })

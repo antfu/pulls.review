@@ -404,7 +404,8 @@
       "recentCommits": "Letzte Commits",
       "branches": "Branches",
       "against": "gegen {base}",
-      "current": "Ausgecheckt"
+      "current": "Ausgecheckt",
+      "github": "Oder ein GitHub-Pull-Request, -Vergleich oder -Commit"
     }
   }
 }

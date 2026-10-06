@@ -31,12 +31,14 @@ A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
   `pulls.review [target]` serves local git reviews through devframe
   (`plans/09-devframe-local-review.md`, on Plan 04's `local` source) at `/`
   standalone and `/__pulls.review/` in a hub. The server holds no target: pages
-  (`/`, `/branch/<name>`, `/compare/<A...B>`, `/worktree`, `/commit/<sha>`)
-  name their own, and the argument only picks which one opens. Its SPA is the
-  app's `PR_LOCAL` build (`vite.config.local.ts`), which swaps only the app
-  context: the cache is an RPC driver over `<git-common-dir>/pulls-review` and
-  the GitHub token comes from the server. It MUST NOT take over the
-  Actions entry point, and the public site MUST NOT bundle the devframe client.
+  (`/`, `/branch/<name>`, `/compare/<A...B>`, `/worktree`, `/commit/<sha>`,
+  and the site's own `/gh/...` pages) name their own, and the argument (a git
+  revision, `owner/repo#1` or a github.com URL) only picks which one opens.
+  Its SPA is the app's `PR_LOCAL` build (`vite.config.local.ts`), which swaps
+  only the app context: the cache is an RPC driver over
+  `<git-common-dir>/pulls-review` and the GitHub token comes from the server.
+  It MUST NOT take over the Actions entry point, and the public site MUST NOT
+  bundle the devframe client.
 
 ## Invariants
 
@@ -80,7 +82,9 @@ analysis strategy later never touches the view layer:
   neutral payload fields (`label`, `url`, `author`) and store flags
   (`canRefresh` from `fingerprint`, `auth` from the source), and link through
   `app/source-routes.ts` - the only module that maps refs to routes and back -
-  so no component checks a ref's `kind` or spells out a `/gh/...` path. `Credentials.githubToken()` is read
+  so no component checks a ref's `kind` or spells out a `/gh/...` path. A
+  pasted github.com URL or `owner/repo#1` is read by core's `parseGithubUrl`
+  (`core/github`), shared by the site's URL box and the CLI's argument. `Credentials.githubToken()` is read
   per request, so a token saved later applies without rebuilding a store.
   Implementations (`core/providers/`):
   - `github-pr` (`createGithubPullRequestSource`) — GitHub REST API (PR

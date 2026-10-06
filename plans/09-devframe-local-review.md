@@ -3,10 +3,11 @@
 Status: **in progress**. Depends on Plan 04 (the `local` source) and Plan 10.
 
 Built so far: the `pulls.review [target]` server, the `source.*`, `repo-info`,
-storage and GitHub-token RPC functions, and the `PR_LOCAL` SPA with its code
-prompt, ref picker and review pages. Not built yet: the env LLM keys over RPC,
-the change push, the current-branch PR, the `build` snapshot, and the hub
-playground.
+storage and GitHub-token RPC functions, the `PR_LOCAL` SPA with its code
+prompt, ref picker and review pages, and the site's `/gh/...` pages reached
+from the picker's URL box or a GitHub argument. Not built yet: the env LLM keys
+over RPC (superseded by `plans/11-local-agents.md`), the change push, the
+current-branch PR, the `build` snapshot, and the hub playground.
 
 ## Pages
 
@@ -20,14 +21,16 @@ only picks which page opens:
 | `/compare/<A...B>` | Any range, `A...B` or `A..B`.                                                                                                                                                     |
 | `/worktree`        | Uncommitted changes against `HEAD`, untracked files included.                                                                                                                     |
 | `/commit/<sha>`    | One commit against its parent.                                                                                                                                                    |
+| `/gh/...`          | The site's GitHub pages (PR, compare, commit, open-PR list), unchanged, with the server's token: comments and reviews work. The picker has a URL box for them.                    |
 
-| Command                       | Opens                                                                                   |
-| ----------------------------- | --------------------------------------------------------------------------------------- |
-| `pulls.review`                | `/branch/<current>`, or `/` when the default branch is checked out or HEAD is detached. |
-| `pulls.review A...B` / `A..B` | `/compare/A...B`                                                                        |
-| `pulls.review <local branch>` | `/branch/<name>`                                                                        |
-| `pulls.review <other rev>`    | `/commit/<rev>`                                                                         |
-| `pulls.review --worktree`     | `/worktree`                                                                             |
+| Command                                      | Opens                                                                                   |
+| -------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `pulls.review`                               | `/branch/<current>`, or `/` when the default branch is checked out or HEAD is detached. |
+| `pulls.review A...B` / `A..B`                | `/compare/A...B`                                                                        |
+| `pulls.review <local branch>`                | `/branch/<name>`                                                                        |
+| `pulls.review <other rev>`                   | `/commit/<rev>`                                                                         |
+| `pulls.review --worktree`                    | `/worktree`                                                                             |
+| `pulls.review owner/repo#1` / `<github URL>` | The matching `/gh/...` page (`parseGithubUrl` in core, shared with the site's URL box). |
 
 ## How the built part differs from the plan below
 
@@ -44,9 +47,9 @@ only picks which page opens:
     the router and devframe's connection lookup all resolve from it.
   - devframe's SPA fallback skips paths that look like files, and refs do
     (`main...feat`, `v1.2`). So the CLI serves `index.html` itself for
-    `/compare/`, `/branch/` and `/commit/`. Inside a hub, a reload of a ref page
-    whose ref ends in `.<word>` still misses; navigating there from the picker
-    works.
+    `/compare/`, `/branch/`, `/commit/` and `/gh/`. Inside a hub, a reload of a
+    ref page whose ref ends in `.<word>` still misses; navigating there from the
+    picker works.
 
 ## Why
 
@@ -117,9 +120,10 @@ ships the devframe client or the `/local` route.
 - **Routes.**
   - `/local?target=<target>` builds a `DiffSource` proxy over the RPC
     `source.*` functions.
-  - When `branch.pullRequest` finds a PR, a banner links to the in-app
-    `/gh/{owner}/{repo}/{number}` route. That route works there with comments
-    and reviews, using the server's token.
+  - The site's `/gh/...` routes stay registered (`router.ts`), so a PR, compare,
+    commit or open-PR list works there with comments and reviews, using the
+    server's token. The picker's URL box and the CLI argument lead to them;
+    when `branch.pullRequest` finds a PR, a banner will too.
 - **Base path.** The build uses relative assets (`base: './'`), and the router
   reads its base at runtime. The same bundle then runs at `/` (standalone) and
   at `/__pulls.review/` (hub).

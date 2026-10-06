@@ -9,9 +9,9 @@ import { pageFor } from './page'
 
 const HELP = `Usage: pulls.review [target] [options]
 
-Reviews local git changes in the browser, grouped and summarized. Run it inside
-a git repository. The target only picks the page that opens; any other can be
-picked from the browser.
+Reviews local git changes - or any GitHub pull request - in the browser, grouped
+and summarized. Run it inside a git repository. The target only picks the page
+that opens; any other can be picked from the browser.
 
 Target (git revision syntax):
   (none)     the current branch against the default branch, or the ref picker
@@ -21,25 +21,29 @@ Target (git revision syntax):
   A...B      what B adds since it forked from A
   A..B       the tree diff between two revisions
 
+Target (GitHub):
+  owner/repo#123, or a github.com pull request, compare, commit or repo URL.
+  Uses the GitHub token from GITHUB_TOKEN, else from \`gh auth token\`.
+
 Options:
   --worktree     open the uncommitted changes against HEAD
   --port <port>  port to listen on
   --no-open      do not open the browser
   -h, --help
 
-To review a GitHub pull request in CI, use @pulls.review/actions.
+To analyze a GitHub pull request from CI, use @pulls.review/actions.
 `
 
 /**
  * devframe's SPA fallback skips any path that looks like a file, and refs do: `main...feat`
- * ends in `.feat`, `v1.2` in `.2`. Pages whose path carries a ref get the SPA's
- * `index.html` here, before devframe's static handler sees them.
+ * ends in `.feat`, `v1.2` in `.2`. Pages whose path carries a ref (local ones, and GitHub
+ * compares under `/gh/`) get the SPA's `index.html` here, before devframe's static handler sees them.
  */
 function createAppWithRefRoutes(): H3 {
   const app = new H3()
   const index = fileURLToPath(new URL('./client/index.html', import.meta.url))
   app.use(async (event, next) => {
-    if (!/^\/(?:compare|branch|commit)\//.test(event.url.pathname) || !event.req.headers.get('accept')?.includes('text/html'))
+    if (!/^\/(?:compare|branch|commit|gh)\//.test(event.url.pathname) || !event.req.headers.get('accept')?.includes('text/html'))
       return next()
     return new Response(await readFile(index, 'utf8'), { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
   })

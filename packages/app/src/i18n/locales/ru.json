@@ -404,7 +404,8 @@
       "recentCommits": "Последние коммиты",
       "branches": "Ветки",
       "against": "относительно {base}",
-      "current": "Текущая ветка"
+      "current": "Текущая ветка",
+      "github": "Или pull request, сравнение или коммит на GitHub"
     }
   }
 }

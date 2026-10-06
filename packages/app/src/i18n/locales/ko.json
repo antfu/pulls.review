@@ -404,7 +404,8 @@
       "recentCommits": "최근 커밋",
       "branches": "브랜치",
       "against": "{base} 대비",
-      "current": "체크아웃됨"
+      "current": "체크아웃됨",
+      "github": "또는 GitHub 풀 리퀘스트, 비교 또는 커밋"
     }
   }
 }

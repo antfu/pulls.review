@@ -404,7 +404,8 @@
       "recentCommits": "Commits récents",
       "branches": "Branches",
       "against": "par rapport à {base}",
-      "current": "Branche actuelle"
+      "current": "Branche actuelle",
+      "github": "Ou une pull request, une comparaison ou un commit GitHub"
     }
   }
 }

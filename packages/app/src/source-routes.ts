@@ -1,5 +1,6 @@
 import type { SourceRef } from '@pulls.review/core/types'
 import type { RouteComponent, RouteLocation, RouteRecordRaw } from 'vue-router'
+import { parseGithubUrl, splitRange } from '@pulls.review/core/github'
 
 /**
  * The one place that maps diff refs to app routes and back. Components link through
@@ -40,12 +41,6 @@ export function routeForRef(ref: SourceRef): string | undefined {
   }
 }
 
-/** `base...head` into its two sides; `undefined` without the three dots. */
-function splitRange(range: string): { base: string, head: string } | undefined {
-  const dots = range.indexOf('...')
-  return dots > 0 && dots + 3 < range.length ? { base: range.slice(0, dots), head: range.slice(dots + 3) } : undefined
-}
-
 export function refFromRoute(route: Pick<RouteLocation, 'name' | 'params'>): RoutableRef | undefined {
   const param = (name: string) => String(route.params[name])
   const owner = param('owner')
@@ -74,23 +69,12 @@ export function parentForRef(ref: SourceRef): { route: string, label: string } |
 }
 
 /**
- * A pasted github.com URL as an app route: a PR, compare or commit opens its diff,
- * a bare repo (or its `/pulls`) the PR list.
+ * A pasted github.com URL (or `owner/repo#123`) as an app route: a PR, compare or
+ * commit opens its diff, a bare repo (or its `/pulls`) the PR list.
  */
 export function routeFromGithubUrl(text: string): string | undefined {
-  const match = text.trim().match(/github\.com\/([^/\s]+)\/([^/\s#?]+)(?:\/(pull|commit|compare)\/([^\s#?]+)|\/pulls\/?)?(?:[/?#]|$)/)
-  if (!match)
+  const location = parseGithubUrl(text)
+  if (!location)
     return undefined
-  const [, owner = '', repo = '', kind, rest = ''] = match
-  if (kind === 'pull') {
-    const number = rest.match(/^\d+/)?.[0]
-    return number ? routeForRef({ kind: 'github-pr', owner, repo, number }) : undefined
-  }
-  if (kind === 'commit')
-    return routeForRef({ kind: 'github-commit', owner, repo, sha: rest.replace(/\/.*$/, '') })
-  if (kind === 'compare') {
-    const range = splitRange(rest)
-    return range && routeForRef({ kind: 'github-compare', owner, repo, ...range })
-  }
-  return repoRoute(owner, repo)
+  return location.kind === 'github-repo' ? repoRoute(location.owner, location.repo) : routeForRef(location)
 }

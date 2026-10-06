@@ -404,7 +404,8 @@
       "recentCommits": "最近のコミット",
       "branches": "ブランチ",
       "against": "{base} に対して",
-      "current": "チェックアウト中"
+      "current": "チェックアウト中",
+      "github": "または GitHub のプルリクエスト・比較・コミット"
     }
   }
 }

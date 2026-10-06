@@ -2,6 +2,7 @@
 import type { RefSuggestion } from '../components/RefAutocomplete.vue'
 import type { RepoInfo } from '../local/pages'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
+import FormTextInput from '@antfu/design/components/Form/FormTextInput.vue'
 import { computed, inject, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -13,6 +14,7 @@ import RefAutocomplete from '../components/RefAutocomplete.vue'
 import { useDocumentTitle } from '../composables/useDocumentTitle'
 import { localRpcKey } from '../local/local-rpc-key'
 import { readRepoInfo, routeForPage } from '../local/pages'
+import { routeFromGithubUrl } from '../source-routes'
 
 /** Branches listed; the rest stay reachable by typing them. */
 const BRANCH_LIMIT = 10
@@ -47,6 +49,15 @@ onMounted(async () => {
 
 function compare() {
   router.push(routeForPage({ kind: 'compare', range: `${base.value.trim()}...${head.value.trim()}` }))
+}
+
+// The site's `/gh/...` pages are in this build too, reading GitHub with the server's token.
+const githubUrl = ref('')
+const githubRoute = computed(() => routeFromGithubUrl(githubUrl.value))
+
+function openGithub() {
+  if (githubRoute.value)
+    router.push(githubRoute.value)
 }
 
 useDocumentTitle(() => t('local.picker.title'))
@@ -91,6 +102,23 @@ useDocumentTitle(() => t('local.picker.title'))
               </DiffPill>
               <DiffPill :to="routeForPage({ kind: 'worktree' })" :parent="$t('local.picker.worktree')" />
             </div>
+          </div>
+          <div class="max-w-md flex flex-col gap-3">
+            <h2 class="text-xs font-mono op-fade">
+              {{ $t('local.picker.github') }}
+            </h2>
+            <form class="flex items-stretch gap-2" @submit.prevent="openGithub">
+              <FormTextInput v-model="githubUrl" icon="i-ph:link-simple-duotone" placeholder="https://github.com/owner/repo/pull/123" class="flex-1" />
+              <ActionButton
+                type="submit"
+                variant="primary"
+                class="pl-3 pr-4"
+                icon="i-ph-arrow-right-bold"
+                :disabled="!githubRoute"
+              >
+                {{ $t('landing.open') }}
+              </ActionButton>
+            </form>
           </div>
         </div>
 

@@ -404,7 +404,8 @@
       "recentCommits": "最近的提交",
       "branches": "分支",
       "against": "对比 {base}",
-      "current": "当前分支"
+      "current": "当前分支",
+      "github": "或打开 GitHub 的 Pull Request、比较或提交"
     }
   }
 }
