@@ -48,6 +48,7 @@ const progressModalOpen = ref(false)
       v-if="reviews"
       v-model:open="reviewModalOpen"
       :reviews="reviews"
+      :author-login="store.diff?.author?.name"
       :document="document"
     />
     <ReviewProgressModal

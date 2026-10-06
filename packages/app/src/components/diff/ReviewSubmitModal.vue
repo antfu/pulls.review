@@ -4,13 +4,14 @@ import type { DiffsStoreReviews } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionToggleGroup from '@antfu/design/components/Action/ActionToggleGroup.vue'
 import FormTextarea from '@antfu/design/components/Form/FormTextarea.vue'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppModal from '../AppModal.vue'
 
 const props = defineProps<{
   open: boolean
   reviews: DiffsStoreReviews
+  authorLogin?: string
   document?: Document | ShadowRoot
 }>()
 
@@ -24,10 +25,16 @@ const busy = ref(false)
 const error = ref<string>()
 
 const { t } = useI18n()
+const isOwnPr = computed(() => !!props.authorLogin && !!props.reviews.viewerLogin
+  && props.authorLogin.toLowerCase() === props.reviews.viewerLogin.toLowerCase())
+watch(isOwnPr, (own) => {
+  if (own)
+    verdict.value = 'COMMENT'
+})
 const verdictOptions = computed(() => [
   { value: 'COMMENT', label: t('review.comment'), icon: 'i-octicon-comment-16' },
-  { value: 'APPROVE', label: t('review.approve'), icon: 'i-octicon-check-circle-16' },
-  { value: 'REQUEST_CHANGES', label: t('review.requestChanges'), icon: 'i-octicon-code-review-16' },
+  { value: 'APPROVE', label: t('review.approve'), icon: 'i-octicon-check-circle-16', disabled: isOwnPr.value },
+  { value: 'REQUEST_CHANGES', label: t('review.requestChanges'), icon: 'i-octicon-code-review-16', disabled: isOwnPr.value },
 ])
 
 async function run(action: () => Promise<void>) {
@@ -72,8 +79,9 @@ async function run(action: () => Promise<void>) {
       </p>
       <div class="flex flex-wrap items-center justify-end gap-2">
         <ActionToggleGroup
-          v-model="verdict"
+          :model-value="verdict"
           :options="verdictOptions"
+          @update:model-value="value => { if (value) verdict = value as ReviewVerdict }"
         />
         <div class="flex-auto" />
         <ActionButton
@@ -96,6 +104,9 @@ async function run(action: () => Promise<void>) {
           {{ $t('common.submit') }}
         </ActionButton>
       </div>
+      <p v-if="isOwnPr" class="text-xs color-muted">
+        {{ $t('review.ownPrCommentOnly') }}
+      </p>
     </div>
   </AppModal>
 </template>

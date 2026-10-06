@@ -17,6 +17,13 @@ type Story = StoryObj<typeof ReviewSubmitModal>
 
 export const FreshReview: Story = {}
 
+export const OwnPullRequest: Story = {
+  args: {
+    authorLogin: 'octocat',
+    reviews: createMockReviewsStore({ viewerLogin: 'octocat' }),
+  },
+}
+
 export const WithPendingComments: Story = {
   args: {
     reviews: createMockReviewsStore({

@@ -290,6 +290,7 @@
     "comment": "Comment",
     "approve": "Approve",
     "requestChanges": "Request changes",
+    "ownPrCommentOnly": "You cannot approve or request changes on your own pull requests.",
     "discard": "Discard review",
     "leaveComment": "Leave a comment",
     "addSingle": "Add single comment",
