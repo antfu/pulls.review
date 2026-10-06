@@ -41,6 +41,7 @@ allowBuilds:
 catalogs:
   agentic:
     '@antfu/skills': ^0.1.0
+    '@vishot/cli': ^0.3.1
     skills-npm: ^4.0.0
   build:
     '@unocss/core': ^66.10.5

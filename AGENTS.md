@@ -12,6 +12,22 @@ where the two disagree, the packages' `src/` and test suites win, and the docs g
   (rendered Markdown, `v-html`), add a shortcut in `packages/app/uno.config.ts`
   built from arbitrary descendant variants (`[&_pre]:p-3`).
 
+## Pull request visual evidence
+
+When `$antfu-create-pr` handles a user-visible UI change, it **MUST** invoke
+`$use-vishot` for before/after evidence. Let `$use-vishot` select the matching
+runtime skill; pulls.review browser and Storybook surfaces normally use
+`$use-vishot-with-web`.
+
+- Prefer an existing Storybook story or product-owned scenario over an ad hoc
+  capture route.
+- Capture the same state from the merge base and proposed HEAD with identical
+  viewport, fixture data, locale, theme, readiness condition, and stable ID.
+- Keep generated captures under `.vishot/`. If the installed GitHub CLI
+  supports `gh ... --attach`, use it to upload PR-only evidence. Otherwise,
+  invoke `$upload-github-attachment` and use the returned user-attachment URL.
+  **MUST NOT** commit PR-only evidence to the repository.
+
 ## Find the contract
 
 | Task                                                                                                                   | Read                                            |
