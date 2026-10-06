@@ -23,6 +23,8 @@ const llmModels = useLlmModels()
   <AppModal
     :title="$t('common.settings')"
     :open="open"
+    padding="none"
+    body-class="min-h-180"
     :document="document"
     @update:open="emit('update:open', $event ?? false)"
   >

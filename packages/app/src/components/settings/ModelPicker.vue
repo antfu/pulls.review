@@ -84,6 +84,7 @@ function priceTitle(model: ModelOption): string | undefined {
     :placeholder="$t('settings.models.placeholder')"
   />
 
+  <!-- TODO: model picker panel should be floating -->
   <div v-else class="flex flex-col border border-base rounded bg-raised">
     <button
       type="button"

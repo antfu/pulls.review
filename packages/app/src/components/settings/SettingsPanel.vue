@@ -48,7 +48,7 @@ const tabs = computed(() => [
 
 <template>
   <TabsRoot v-model="tab" class="flex flex-col">
-    <TabsList class="relative flex items-center gap-1 border-b border-base px-1" :aria-label="$t('common.settings')">
+    <TabsList class="relative flex items-center gap-1 border-b border-base px-2 pt2" :aria-label="$t('common.settings')">
       <TabsTrigger
         v-for="item in tabs"
         :key="item.value"
@@ -66,17 +66,17 @@ const tabs = computed(() => [
       <TabsIndicator class="absolute bottom-0 left-0 h-0.5 w-[--reka-tabs-indicator-size] translate-x-[--reka-tabs-indicator-position] rounded-full bg-primary-500 transition-all duration-200" />
     </TabsList>
 
-    <TabsContent value="appearance" class="flex flex-col gap-4 p-2 pt-4 outline-none data-[state=inactive]:hidden">
+    <TabsContent value="appearance" class="flex flex-col gap-4 p4 outline-none data-[state=inactive]:hidden">
       <LayoutSettingsSection />
       <div class="border-t border-base" />
       <SyntaxThemeSettingsSection />
     </TabsContent>
 
-    <TabsContent value="behavior" class="flex flex-col gap-4 p-2 pt-4 outline-none data-[state=inactive]:hidden">
+    <TabsContent value="behavior" class="flex flex-col gap-4 p4 outline-none data-[state=inactive]:hidden">
       <AutoRefreshSettingsSection />
     </TabsContent>
 
-    <TabsContent value="github" class="flex flex-col gap-4 p-2 pt-4 outline-none data-[state=inactive]:hidden">
+    <TabsContent value="github" class="flex flex-col gap-4 p4 outline-none data-[state=inactive]:hidden">
       <GithubTokenSettings
         :token-set="githubTokenSet"
         :meta="githubTokenMeta"
@@ -86,7 +86,7 @@ const tabs = computed(() => [
       />
     </TabsContent>
 
-    <TabsContent value="ai" class="flex flex-col gap-4 p-2 pt-4 outline-none data-[state=inactive]:hidden">
+    <TabsContent value="ai" class="flex flex-col gap-4 p4 outline-none data-[state=inactive]:hidden">
       <LlmSettingsSection
         :llm-settings="llmSettings"
         :models="models"

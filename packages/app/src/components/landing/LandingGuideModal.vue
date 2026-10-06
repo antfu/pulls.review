@@ -37,7 +37,7 @@ npx pulls.review --worktree  # uncommitted changes, new files included`
   <AppModal
     :open="!!guide"
     :title="guide && $t(`guide.${guide}.title`)"
-    spacious
+    padding="medium"
     @update:open="guide = undefined"
   >
     <div v-if="guide" class="flex flex-col gap-4 text-sm">

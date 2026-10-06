@@ -12,8 +12,8 @@ const props = defineProps<{
   title?: string
   description?: string
   document?: Document | ShadowRoot
-  /** Wider dialog with roomier padding, for reading content rather than a form. */
-  spacious?: boolean
+  padding?: 'none' | 'small' | 'medium' | 'large'
+  bodyClass?: string
 }>()
 
 const emit = defineEmits<{
@@ -43,6 +43,18 @@ watch(() => props.open, (isOpen) => {
 })
 
 onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
+
+const paddingClass = computed(() => {
+  return props.padding === 'large'
+    ? 'p-6'
+    : props.padding === 'medium'
+      ? 'p-4'
+      : props.padding === 'small'
+        ? 'p-3'
+        : props.padding === 'none'
+          ? ''
+          : 'p-2'
+})
 </script>
 
 <template>
@@ -56,8 +68,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
         class="relative z-modal-content max-h-full max-w-3xl w-full flex flex-col overflow-hidden border border-base rounded-lg bg-base shadow-xl outline-none"
       >
         <header
-          v-if="title || description || $slots.header" class="flex shrink-0 items-start justify-between gap-2 border-b border-base"
-          :class="spacious ? 'px-6 py-3' : 'px-3 py-2'"
+          v-if="title || description || $slots.header" class="flex shrink-0 items-center justify-between gap-2 border-b border-base px-4 py-2"
         >
           <div class="min-w-0">
             <h2 v-if="title" class="color-base font-medium">
@@ -72,7 +83,10 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
             <span class="i-ph:x" aria-hidden="true" />
           </button>
         </header>
-        <div class="flex-1 overflow-auto" :class="spacious ? 'p-6' : 'p-3'">
+        <div
+          class="flex-1 overflow-auto"
+          :class="[paddingClass, bodyClass]"
+        >
           <slot />
         </div>
         <footer v-if="$slots.footer" class="flex shrink-0 justify-end gap-2 border-t border-base px-2 py-2">
