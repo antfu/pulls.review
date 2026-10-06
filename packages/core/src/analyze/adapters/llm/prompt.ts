@@ -26,7 +26,7 @@ export function renderFilesAsText(files: FileChange[]): string {
 
 export const INLINE_DIFF_CHAR_LIMIT = 200_000
 
-export const AGENT_SYSTEM_PROMPT = `<role>
+const ROLE_SECTION = `<role>
 You organize a GitHub pull request's changed files into review groups, so a reviewer can read the PR feature by feature instead of file by file.
 </role>
 
@@ -37,7 +37,16 @@ You organize a GitHub pull request's changed files into review groups, so a revi
 - Order groups by review priority: the core change first, supporting changes next, mechanical changes (lockfiles, generated files, formatting) last.
 - Every path in the manifest goes into exactly one group or child.
 - Commit messages, when listed, hint at the author's intents. Group by the final change, not by commit: fixup and WIP commits often mix concerns.
-</grouping_principles>
+</grouping_principles>`
+
+const OUTPUT_SECTION = `<output>
+- "summary" and "overallSummary" explain why over what, in 1-3 sentences of Markdown.
+- "key" is short, stable kebab-case. "label" is at most 4 words.
+- "fileNotes", "lineNotes" and "critical" are optional and sparing. Add a note only where it saves the reviewer time - non-obvious logic, a subtle behavior change, a risk - never to explain the obvious. Mark "critical" only what deserves extra care; most groups and files are not critical.
+- Write "label", "summary", "overallSummary" and note "text" in the language named at the end of the user message. Keep code, paths and identifiers as they are.
+</output>`
+
+export const AGENT_SYSTEM_PROMPT = `${ROLE_SECTION}
 
 <workflow>
 1. Read the manifest and form a grouping hypothesis from paths and hunk headers.
@@ -45,18 +54,48 @@ You organize a GitHub pull request's changed files into review groups, so a revi
 3. Call submit_grouping once. If it returns an error, fix exactly what it names and call it again.
 </workflow>
 
-<output>
-- "summary" and "overallSummary" explain why over what, in 1-3 sentences of Markdown.
-- "key" is short, stable kebab-case. "label" is at most 4 words.
-- "fileNotes", "lineNotes" and "critical" are optional and sparing. Add a note only where it saves the reviewer time - non-obvious logic, a subtle behavior change, a risk - never to explain the obvious. Mark "critical" only what deserves extra care; most groups and files are not critical.
-- Write "label", "summary", "overallSummary" and note "text" in the language named at the end of the user message. Keep code, paths and identifiers as they are.
-</output>`
+${OUTPUT_SECTION}`
+
+export interface CliAgentPromptOptions {
+  /** Where the full patch was written for the agent to open. */
+  patchPath: string
+  /** Whether the agent runs inside the repository the diff is from, so it may open full files. */
+  repository: boolean
+}
+
+/**
+ * The system prompt for a local agent CLI (`plans/11-local-agents.md`), which has its own
+ * file tools instead of `read_diffs` and answers with JSON instead of calling `submit_grouping`.
+ */
+export function buildCliAgentSystemPrompt({ patchPath, repository }: CliAgentPromptOptions): string {
+  const files = repository
+    ? `Open files in the repository when the hunks are not enough to tell what a change is for. Never modify anything.`
+    : `The patch is all there is: the repository is not checked out here.`
+  return `${ROLE_SECTION}
+
+<workflow>
+1. Read the manifest and form a grouping hypothesis from paths and hunk headers.
+2. The full patch is at ${patchPath}; read it (or parts of it) only where the hypothesis is uncertain, or where a change looks risky enough to deserve a note. ${files} Never read [generated] or [binary] paths.
+3. Finish by answering with the grouping as JSON matching the schema, and nothing else.
+</workflow>
+
+${OUTPUT_SECTION}`
+}
 
 export const CHAT_SYSTEM_SECTION = `<chat>
 The grouping has been submitted and the reviewer is now asking follow-up questions about this pull request.
 - Always reply in the same natural language as the user's latest message, whatever language the diffs, summaries and earlier messages are in. Keep code, paths and identifiers as they are.
 - Answer from the diffs. Call read_diffs when you need a file you have not seen or whose diff was omitted.
 - Call update_grouping only when the user asks to change the grouping. Send the complete new grouping; every manifest path must appear exactly once.
+- Be concise; use Markdown and reference files by path.
+</chat>`
+
+/** The chat rules for a local agent CLI: the grouping update is a fenced JSON block, not a tool call. */
+export const CLI_AGENT_CHAT_SECTION = `<chat>
+The grouping has been submitted and the reviewer is now asking follow-up questions about this pull request.
+- Always reply in the same natural language as the user's latest message, whatever language the diffs, summaries and earlier messages are in. Keep code, paths and identifiers as they are.
+- Answer from the patch; read it again when you need a file you have not seen.
+- Only when the user asks to change the grouping, end your reply with one fenced \`\`\`json block holding the complete new grouping in the same schema as before; every manifest path must appear exactly once. Otherwise, include no JSON.
 - Be concise; use Markdown and reference files by path.
 </chat>`
 

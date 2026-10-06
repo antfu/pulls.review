@@ -2,14 +2,16 @@ import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import type { CacheRepositories, LlmSession } from '@pulls.review/core/cache'
 import type { DiffsPayload, GroupedResult } from '@pulls.review/core/types'
 import type { Ref } from 'vue'
+import type { LlmRunner } from '../analyze/llm-runner'
 import type { DiffsStoreLlm, LlmProgress } from './types'
 import { computed, reactive, ref, shallowRef } from 'vue'
-import { llmAdapter, runLlmAnalysis } from '../analyze/adapters/llm'
 import { useLlmChat } from '../composables/useLlmChat'
 import { describeProgress, localizeError } from '../i18n/core-messages'
 
 export interface LlmStoreOptions {
   cache: CacheRepositories
+  /** Where the model runs (the browser, or the `pulls.review` server's local agent). */
+  runner: LlmRunner
   diff: Ref<DiffsPayload | undefined>
   /** The analysis transcript the chat continues from; `createDiffsStore` owns it because it is loaded from and reset with the PR cache entry. */
   session: Ref<LlmSession | undefined>
@@ -31,7 +33,7 @@ export function createLlmStore(opts: LlmStoreOptions): DiffsStoreLlm {
   const progress = ref<LlmProgress>()
   const transcript = shallowRef<AgentMessage[]>([])
   const error = ref<Error>()
-  const isSetup = computed(() => llmAdapter.available)
+  const isSetup = computed(() => opts.runner.isSetup())
   let abortController: AbortController | undefined
 
   async function setSession(session: LlmSession) {
@@ -49,6 +51,7 @@ export function createLlmStore(opts: LlmStoreOptions): DiffsStoreLlm {
   }
 
   const chat = useLlmChat({
+    runner: opts.runner,
     diff: opts.diff,
     session: opts.session,
     onSessionChange: setSession,
@@ -66,7 +69,7 @@ export function createLlmStore(opts: LlmStoreOptions): DiffsStoreLlm {
     const controller = new AbortController()
     abortController = controller
     try {
-      const { result, transcript: messages } = await runLlmAnalysis(currentDiff, {
+      const { result, transcript: messages, agent } = await opts.runner.analyze(currentDiff, {
         onProgress: next => progress.value = { step: next.step, message: describeProgress(next) },
         onTranscript: next => transcript.value = next,
         signal: controller.signal,
@@ -74,7 +77,7 @@ export function createLlmStore(opts: LlmStoreOptions): DiffsStoreLlm {
       if (controller.signal.aborted)
         return
       await setResult(result)
-      await setSession({ messages, chatStartIndex: messages.length })
+      await setSession({ messages, chatStartIndex: messages.length, agent })
     }
     catch (err) {
       if (!controller.signal.aborted)

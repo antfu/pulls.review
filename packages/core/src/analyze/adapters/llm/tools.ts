@@ -53,7 +53,8 @@ export function findCoverageIssues(diff: DiffsPayload, analysis: Analysis): Cove
   return { missing, duplicated: [...duplicated], unknown }
 }
 
-function describeCoverageIssues(issues: CoverageIssues, toolName: string): string | undefined {
+/** The model-facing list of what a grouping got wrong, ending in `fix` - `undefined` when nothing did. */
+export function describeCoverageIssues(issues: CoverageIssues, fix: string): string | undefined {
   const lines: string[] = []
   if (issues.missing.length > 0)
     lines.push(`Missing paths: ${issues.missing.join(', ')}`)
@@ -63,7 +64,7 @@ function describeCoverageIssues(issues: CoverageIssues, toolName: string): strin
     lines.push(`Unknown paths: ${issues.unknown.join(', ')}`)
   if (lines.length === 0)
     return undefined
-  lines.push(`Fix these and call ${toolName} again.`)
+  lines.push(fix)
   return lines.join('\n')
 }
 
@@ -181,7 +182,7 @@ export function createSubmitGroupingTool(diff: DiffsPayload, ledger: AnalysisLed
         throw new Error(v.summarize(parsed.issues))
       const analysis = parsed.output
 
-      const message = describeCoverageIssues(findCoverageIssues(diff, analysis), 'submit_grouping')
+      const message = describeCoverageIssues(findCoverageIssues(diff, analysis), 'Fix these and call submit_grouping again.')
       if (message && ledger.submitAttempts < 2)
         throw new Error(message)
 
@@ -212,7 +213,7 @@ export function createUpdateGroupingTool(diff: DiffsPayload, onUpdate: (analysis
         throw new Error(v.summarize(parsed.issues))
       const analysis = parsed.output
 
-      const message = describeCoverageIssues(findCoverageIssues(diff, analysis), 'update_grouping')
+      const message = describeCoverageIssues(findCoverageIssues(diff, analysis), 'Fix these and call update_grouping again.')
       if (message)
         throw new Error(message)
 

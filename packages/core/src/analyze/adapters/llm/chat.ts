@@ -6,7 +6,7 @@ import type { ResolvedModel } from './model'
 import { Agent } from '@earendil-works/pi-agent-core'
 import { serializeRef } from '../../../types/source'
 import { toLlmMessages } from './agent'
-import { toGroupedResult } from './index'
+import { modelStamp, toGroupedResult } from './index'
 import { CHAT_SYSTEM_SECTION } from './prompt'
 import { createStreamFn } from './runtime'
 import { createLedger, createReadDiffsTool, createUpdateGroupingTool, UPDATE_GROUPING_DECLARATION } from './tools'
@@ -86,7 +86,7 @@ export function createChatSession({ diff, resolved, locale, messages, onGrouping
       model: resolved.model,
       tools: [
         createReadDiffsTool(diff, ledger),
-        createUpdateGroupingTool(diff, analysis => onGroupingUpdate(toGroupedResult(diff, analysis, resolved, locale))),
+        createUpdateGroupingTool(diff, analysis => onGroupingUpdate(toGroupedResult(diff, analysis, modelStamp(resolved), locale))),
       ],
       messages: withChatInstructions(messages),
     },

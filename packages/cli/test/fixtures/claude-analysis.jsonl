@@ -1,0 +1,5 @@
+{"type":"system","subtype":"init","session_id":"sess-claude-1","model":"claude-sonnet-4-5","tools":["Read","Grep","Glob"],"cwd":"/repo"}
+{"type":"assistant","message":{"id":"msg_1","role":"assistant","model":"claude-sonnet-4-5","content":[{"type":"text","text":"Let me look at the test."},{"type":"tool_use","id":"toolu_1","name":"Read","input":{"file_path":"b.test.ts"}}],"stop_reason":"tool_use"},"session_id":"sess-claude-1"}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_1","content":"1: test"}]},"session_id":"sess-claude-1"}
+{"type":"assistant","message":{"id":"msg_2","role":"assistant","model":"claude-sonnet-4-5","content":[{"type":"text","text":"One group."}],"stop_reason":"end_turn"},"session_id":"sess-claude-1"}
+{"type":"result","subtype":"success","is_error":false,"num_turns":2,"result":"One group.","structured_output":{"overallSummary":"Adds the thing.","groups":[{"key":"thing","label":"The thing","summary":"Adds it.","category":"core","filePaths":["a.ts","b.test.ts"]}]},"session_id":"sess-claude-1"}

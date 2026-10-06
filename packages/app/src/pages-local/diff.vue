@@ -16,10 +16,10 @@ const props = defineProps<{ page: LocalPage }>()
 
 // Only `installLocal` registers this page, after providing the RPC client.
 const rpc = inject(localRpcKey)!
-const { cache } = useAppContext()
+const { cache, llm } = useAppContext()
 
 // Read once: another page is another path, which remounts this one.
-const store = createDiffsStore(createRpcSource(rpc, targetFor(props.page, rpc)), { cache })
+const store = createDiffsStore(createRpcSource(rpc, targetFor(props.page, rpc)), { cache, llm })
 
 useDocumentTitle(() => store.diff?.title ?? routeForPage(props.page))
 

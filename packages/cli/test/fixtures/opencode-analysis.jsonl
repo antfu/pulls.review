@@ -1,0 +1,6 @@
+{"type":"step_start","timestamp":1,"sessionID":"ses_oc1","part":{"id":"prt_1","messageID":"msg_1","sessionID":"ses_oc1","type":"step-start"}}
+{"type":"tool_use","timestamp":2,"sessionID":"ses_oc1","part":{"type":"tool","tool":"read","callID":"call_1","state":{"status":"completed","input":{"filePath":"/repo/b.test.ts"},"output":"<content>1: test</content>","title":"b.test.ts"},"messageID":"msg_1","sessionID":"ses_oc1"}}
+{"type":"step_finish","timestamp":3,"sessionID":"ses_oc1","part":{"id":"prt_2","reason":"tool-calls","messageID":"msg_1","sessionID":"ses_oc1","type":"step-finish","tokens":{"total":1}}}
+{"type":"step_start","timestamp":4,"sessionID":"ses_oc1","part":{"id":"prt_3","messageID":"msg_2","sessionID":"ses_oc1","type":"step-start"}}
+{"type":"text","timestamp":5,"sessionID":"ses_oc1","part":{"id":"prt_4","messageID":"msg_2","sessionID":"ses_oc1","type":"text","text":"One group.\n\n```json\n{\"overallSummary\":\"Adds the thing.\",\"groups\":[{\"key\":\"thing\",\"label\":\"The thing\",\"summary\":\"Adds it.\",\"category\":\"core\",\"filePaths\":[\"a.ts\",\"b.test.ts\"]}]}\n```"}}
+{"type":"step_finish","timestamp":6,"sessionID":"ses_oc1","part":{"id":"prt_5","reason":"stop","messageID":"msg_2","sessionID":"ses_oc1","type":"step-finish","tokens":{"total":2}}}

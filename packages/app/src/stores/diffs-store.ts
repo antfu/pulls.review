@@ -1,5 +1,6 @@
 import type { CacheRepositories, LlmSession, PrCacheEntry } from '@pulls.review/core/cache'
 import type { DiffSource, DiffsPayload, FileChange, GroupedResult, GroupSource, ReviewData } from '@pulls.review/core/types'
+import type { LlmRunner } from '../analyze/llm-runner'
 import type { DiffsStore, DiffsStoreLlm } from './types'
 import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef, watch } from 'vue'
 import { resolveAdapter, ruleBasedAdapter } from '../analyze'
@@ -18,6 +19,8 @@ import { createWriteAccess } from './write-access'
  */
 export interface DiffsStoreOptions {
   cache: CacheRepositories
+  /** Where AI analysis runs; absent in a build without LLM support (the embed), which then has no `store.llm`. */
+  llm?: LlmRunner
   /** Login from the page's `?from=` query: load that user's shared analysis (see plans/07). */
   from?: string
 }
@@ -67,10 +70,12 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
   // The flag is a compile-time literal: with it off, this `import()` is dead code and the
   // whole LLM sub-store (runs, chat, the pi runtime behind them) stays out of the bundle.
   // `load()` awaits it so `store.llm` is set by the time the diff renders.
-  const llmReady = import.meta.env.PR_LLM
+  const runner = opts.llm
+  const llmReady = import.meta.env.PR_LLM && runner
     ? import('./llm-store').then(({ createLlmStore }) => {
         llm.value = createLlmStore({
           cache,
+          runner,
           diff,
           session: llmSession,
           getCacheKey: () => cacheKey.value,

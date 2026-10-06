@@ -1,6 +1,7 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import type { CacheRepositories } from '@pulls.review/core/cache'
 import type { DiffSource, DiffsPayload } from '@pulls.review/core/types'
+import type { LlmRunner } from '../analyze/llm-runner'
 import { createCacheRepositories } from '@pulls.review/core/cache'
 import { createGithubPullRequestSource } from '@pulls.review/core/github'
 import { createPasteSource } from '@pulls.review/core/paste'
@@ -13,16 +14,9 @@ import { createDiffsStore } from './diffs-store'
 
 let cache: CacheRepositories
 
-const mocks = vi.hoisted(() => ({
-  runLlmAnalysis: vi.fn(),
-}))
-
-vi.mock('../analyze/adapters/llm', () => ({
-  llmAdapter: { id: 'llm', available: true, analyze: vi.fn() },
-  runLlmAnalysis: mocks.runLlmAnalysis,
-}))
-
-const runLlmAnalysisMock = mocks.runLlmAnalysis
+const runLlmAnalysisMock = vi.fn()
+/** The store's model runner, standing in for the browser's pi loop. */
+const llm: LlmRunner = { isSetup: () => true, analyze: runLlmAnalysisMock, chat: vi.fn() }
 
 const PATCH_TEXT = `diff --git a/a.ts b/a.ts\nindex 000..111 100644\n--- a/a.ts\n+++ b/a.ts\n@@ -1 +1 @@\n-old\n+new\n`
 
@@ -40,11 +34,11 @@ beforeEach(() => {
 
 describe('createDiffsStore review marks', () => {
   it('loads the changed-since-reviewed flags from the cache and clears them on marking', async () => {
-    const seed = createDiffsStore(createPasteSource(PATCH_TEXT), { cache })
+    const seed = createDiffsStore(createPasteSource(PATCH_TEXT), { cache, llm })
     await seed.load()
     await cache.diffs.setChangedSinceReviewed(serializeRef(seed.diff!.ref), ['a.ts'])
 
-    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache })
+    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache, llm })
     await store.load()
     const sha = store.diff!.files[0]!.sha
     expect(store.changedSinceReviewed).toEqual(new Set(['a.ts']))
@@ -59,7 +53,7 @@ describe('createDiffsStore review marks', () => {
 
 describe('createDiffsStore llm session/progress/error', () => {
   it('stores the result and session on a successful analysis, with chatStartIndex at the transcript end', async () => {
-    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache })
+    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache, llm })
     await store.load()
 
     const result = { source: 'llm' as const, groups: [], schemaVersion: 1, generatedAt: new Date().toISOString() }
@@ -77,7 +71,7 @@ describe('createDiffsStore llm session/progress/error', () => {
   })
 
   it('sets llm.error and leaves analyzedBy.llm/cache untouched on failure', async () => {
-    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache })
+    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache, llm })
     await store.load()
 
     runLlmAnalysisMock.mockRejectedValue(new Error('boom'))
@@ -92,7 +86,7 @@ describe('createDiffsStore llm session/progress/error', () => {
   })
 
   it('surfaces progress during the run and clears it afterwards', async () => {
-    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache })
+    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache, llm })
     await store.load()
 
     let capturedProgress: unknown
@@ -109,7 +103,7 @@ describe('createDiffsStore llm session/progress/error', () => {
   })
 
   it('surfaces the transcript live and keeps it alongside the error when the run fails', async () => {
-    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache })
+    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache, llm })
     await store.load()
 
     let capturedTranscript: AgentMessage[] | undefined
@@ -133,7 +127,7 @@ describe('createDiffsStore llm session/progress/error', () => {
   })
 
   it('leaves llm.error unset when the run is aborted through llm.abort', async () => {
-    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache })
+    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache, llm })
     await store.load()
 
     runLlmAnalysisMock.mockImplementation((_diff: unknown, options: { signal: AbortSignal }) =>
@@ -149,7 +143,7 @@ describe('createDiffsStore llm session/progress/error', () => {
   })
 
   it('never persists the rule-based result, recomputing it from the diff instead', async () => {
-    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache })
+    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache, llm })
     await store.load()
 
     expect(store.grouped?.source).toBe('rule-based')
@@ -158,7 +152,7 @@ describe('createDiffsStore llm session/progress/error', () => {
   })
 
   it('discards an in-flight analysis on refresh but keeps the last stored result and session', async () => {
-    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache })
+    const store = createDiffsStore(createPasteSource(PATCH_TEXT), { cache, llm })
     await store.load()
 
     const stored = { source: 'llm' as const, groups: [], schemaVersion: 1, generatedAt: new Date().toISOString() }
@@ -213,10 +207,10 @@ describe('createDiffsStore over any source', () => {
   it('serves a cached diff and flags it stale when the source fingerprint moves', async () => {
     const head = { sha: 'a' }
     const source = fakeSource(head)
-    await createDiffsStore(source, { cache }).load()
+    await createDiffsStore(source, { cache, llm }).load()
 
     head.sha = 'b'
-    const store = createDiffsStore(source, { cache })
+    const store = createDiffsStore(source, { cache, llm })
     await store.load()
     await settle()
 
@@ -231,8 +225,8 @@ describe('createDiffsStore over any source', () => {
 
   it('never checks staleness for a source without a fingerprint', async () => {
     const { fingerprint: _, ...source } = fakeSource({ sha: 'a' })
-    await createDiffsStore(source, { cache }).load()
-    const store = createDiffsStore(source, { cache })
+    await createDiffsStore(source, { cache, llm }).load()
+    const store = createDiffsStore(source, { cache, llm })
     await store.load()
     await settle()
     expect(store.isStale).toBe(false)
@@ -248,7 +242,7 @@ describe('createDiffsStore over any source', () => {
         return `${path}@${sha}`
       },
     }
-    const store = createDiffsStore(source, { cache })
+    const store = createDiffsStore(source, { cache, llm })
     await store.load()
     const renamed = { path: 'new.ts', previousPath: 'old.ts', status: 'renamed' as const, additions: 0, deletions: 0, isBinary: false, sha: 's', hunks: [] }
 
@@ -259,18 +253,18 @@ describe('createDiffsStore over any source', () => {
   })
 
   it('offers no full file content for a source that cannot load files', () => {
-    expect(createDiffsStore(createPasteSource(PATCH_TEXT), { cache }).fileContent).toBeUndefined()
+    expect(createDiffsStore(createPasteSource(PATCH_TEXT), { cache, llm }).fileContent).toBeUndefined()
   })
 
   it('can refresh only a source with a fingerprint, and names the credential the source asks for', () => {
-    const live = createDiffsStore({ ...fakeSource({ sha: 'a' }), auth: 'github-token' }, { cache })
-    const paste = createDiffsStore(createPasteSource(PATCH_TEXT), { cache })
+    const live = createDiffsStore({ ...fakeSource({ sha: 'a' }), auth: 'github-token' }, { cache, llm })
+    const paste = createDiffsStore(createPasteSource(PATCH_TEXT), { cache, llm })
     expect([live.canRefresh, live.auth]).toEqual([true, 'github-token'])
     expect([paste.canRefresh, paste.auth]).toEqual([false, undefined])
   })
 
   it('offers no review threads or shared analyses for a source that is not a GitHub PR', () => {
-    const store = createDiffsStore(fakeSource({ sha: 'a' }), { cache })
+    const store = createDiffsStore(fakeSource({ sha: 'a' }), { cache, llm })
     expect(store.reviews).toBeUndefined()
     expect(store.shared).toBeUndefined()
   })
@@ -287,7 +281,7 @@ describe('createDiffsStore credentials', () => {
     vi.stubGlobal('fetch', fetchMock)
     let token: string | undefined
     const credentials = { githubToken: async () => token }
-    const store = createDiffsStore(createGithubPullRequestSource({ owner: 'o', repo: 'r', number: '1' }, credentials), { cache })
+    const store = createDiffsStore(createGithubPullRequestSource({ owner: 'o', repo: 'r', number: '1' }, credentials), { cache, llm })
 
     await store.load()
     token = 'saved-later'

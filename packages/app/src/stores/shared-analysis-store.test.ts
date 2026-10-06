@@ -1,5 +1,6 @@
 import type { CacheRepositories, PrCacheEntry } from '@pulls.review/core/cache'
 import type { GroupedResult } from '@pulls.review/core/types'
+import type { LlmRunner } from '../analyze/llm-runner'
 import type { MockedFunction } from 'vitest'
 import { computeEntrySizeBytes, createCacheRepositories } from '@pulls.review/core/cache'
 import { createGithubPullRequestSource, renderSharedAnalysisComment } from '@pulls.review/core/github'
@@ -12,11 +13,7 @@ import { resolveStoredTokenMeta } from '../composables/useGithubTokenMeta'
 import { createDiffsStore } from './diffs-store'
 
 let cache: CacheRepositories
-
-vi.mock('../analyze/adapters/llm', () => ({
-  llmAdapter: { id: 'llm', available: true, analyze: vi.fn() },
-  runLlmAnalysis: vi.fn(),
-}))
+const llm: LlmRunner = { isSetup: () => true, analyze: vi.fn(), chat: vi.fn() }
 
 const pr = { owner: 'antfu', repo: 'diffs', number: '1' }
 const CACHE_KEY = 'github:antfu/diffs#1'
@@ -39,7 +36,7 @@ async function seedCache(analyzedBy: PrCacheEntry['analyzedBy'], extra: Partial<
 }
 
 function storeFor({ token, from }: { token?: string, from?: string } = {}) {
-  return createDiffsStore(createGithubPullRequestSource(pr, staticCredentials(token), { tokenMeta: resolveStoredTokenMeta }), { cache, from })
+  return createDiffsStore(createGithubPullRequestSource(pr, staticCredentials(token), { tokenMeta: resolveStoredTokenMeta }), { cache, llm, from })
 }
 
 interface Route {

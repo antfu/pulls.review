@@ -25,7 +25,8 @@ export function llmSettingsFromEnv(env: Env, flags: { provider?: string, model?:
     openaiApiKey: first(env.OPENAI_API_KEY),
   }
   const requested = first(flags.provider, env.PULLS_REVIEW_PROVIDER)
-  if (requested !== undefined && !isLlmProvider(requested))
+  // A local agent is chosen in the `pulls.review` CLI's settings, never from the environment.
+  if (requested !== undefined && (!isLlmProvider(requested) || requested === 'local-agent'))
     throw new Error(`Unknown provider "${requested}": expected gateway, anthropic or openai-compatible.`)
   const provider = requested ?? deriveProvider(conventional)
   const apiKey = first(env.PULLS_REVIEW_API_KEY)

@@ -43,10 +43,14 @@
     "@pulls.review/core": "workspace:^",
     "devframe": "catalog:frontend",
     "h3": "catalog:frontend",
-    "unstorage": "catalog:frontend"
+    "unstorage": "catalog:frontend",
+    "valibot": "catalog:frontend"
   },
   "devDependencies": {
+    "@earendil-works/pi-agent-core": "catalog:frontend",
+    "@earendil-works/pi-ai": "catalog:frontend",
     "@types/node": "catalog:dev",
+    "@valibot/to-json-schema": "catalog:frontend",
     "tsdown": "catalog:build",
     "typescript": "catalog:dev",
     "vitest": "catalog:testing"

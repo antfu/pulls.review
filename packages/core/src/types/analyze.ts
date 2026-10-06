@@ -151,11 +151,21 @@ export function normalizeGroupedResult(source: GroupSource, core: GroupedResultC
 }
 
 /** What the llm adapter is doing, by agent turn; the caller renders it in its own words. */
-export type AnalyzeProgress = { step: number } & (
-  | { kind: 'thinking' }
-  | { kind: 'reading', paths: string[] }
-  | { kind: 'organizing' }
-)
+export const AnalyzeProgressSchema = v.variant('kind', [
+  v.object({ step: v.number(), kind: v.literal('thinking') }),
+  v.object({ step: v.number(), kind: v.literal('reading'), paths: v.array(v.string()) }),
+  v.object({ step: v.number(), kind: v.literal('organizing') }),
+])
+export type AnalyzeProgress = v.InferOutput<typeof AnalyzeProgressSchema>
+
+/** A conversation held by a local agent CLI on the user's machine (`plans/11-local-agents.md`), valid only there. */
+export const AgentSessionRefSchema = v.object({
+  agent: v.string(),
+  id: v.string(),
+  /** The model the agent reported, when it did. */
+  model: v.optional(v.string()),
+})
+export type AgentSessionRef = v.InferOutput<typeof AgentSessionRefSchema>
 export interface AnalyzeOptions { onProgress?: (progress: AnalyzeProgress) => void, signal?: AbortSignal }
 
 export interface AnalyzeAdapter {

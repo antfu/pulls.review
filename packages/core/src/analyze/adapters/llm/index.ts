@@ -52,17 +52,22 @@ function reconcile(diff: DiffsPayload, analysis: Analysis): DiffGroup[] {
   return groups
 }
 
-export function toGroupedResult(diff: DiffsPayload, analysis: Analysis, resolved: ResolvedModel, locale: Locale): GroupedResult {
+/** `model` is the `provider/model-id` stamp, so a result from a local agent CLI needs no `ResolvedModel`. */
+export function toGroupedResult(diff: DiffsPayload, analysis: Analysis, model: string, locale: Locale): GroupedResult {
   const core: GroupedResultCore = {
     overallSummary: analysis.overallSummary,
     groups: reconcile(diff, analysis),
     schemaVersion: LLM_SCHEMA_VERSION,
   }
-  return { ...normalizeGroupedResult('llm', core, `${resolved.model.provider}/${resolved.model.id}`), locale }
+  return { ...normalizeGroupedResult('llm', core, model), locale }
+}
+
+export function modelStamp(resolved: ResolvedModel): string {
+  return `${resolved.model.provider}/${resolved.model.id}`
 }
 
 /** `locale` is both the language the summaries are written in and the stamp on the result. */
 export async function runLlmAnalysis(diff: DiffsPayload, resolved: ResolvedModel, locale: Locale, options?: LlmAnalyzeOptions): Promise<{ result: GroupedResult, transcript: AgentMessage[] }> {
   const { analysis, transcript } = await runAgent(diff, resolved, locale, options)
-  return { result: toGroupedResult(diff, analysis, resolved, locale), transcript }
+  return { result: toGroupedResult(diff, analysis, modelStamp(resolved), locale), transcript }
 }

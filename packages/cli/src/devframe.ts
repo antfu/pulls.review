@@ -1,10 +1,12 @@
+import { join } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import { LOCAL_DEVFRAME_ID } from '@pulls.review/core/local-rpc'
+import { LOCAL_AGENT_CHANNEL, LOCAL_DEVFRAME_ID } from '@pulls.review/core/local-rpc'
 import { defineDevframe } from 'devframe'
 import pkg from '../package.json' with { type: 'json' }
+import { agentRpcFunctions } from './agents/rpc'
 import { localRpcFunctions } from './rpc'
-import { createRepoCacheDriver } from './storage'
+import { createRepoCacheDriver, repoCacheDir } from './storage'
 
 /**
  * The one definition every surface consumes: the `pulls.review` CLI (`index.ts`)
@@ -27,11 +29,18 @@ export default defineDevframe({
   // which page opens.
   async setup(ctx) {
     const scope = ctx.scope(LOCAL_DEVFRAME_ID)
-    const functions = localRpcFunctions({
-      cwd: ctx.cwd,
-      driver: await createRepoCacheDriver(ctx.cwd),
-      env: process.env,
-    })
+    const functions = [
+      ...localRpcFunctions({
+        cwd: ctx.cwd,
+        driver: await createRepoCacheDriver(ctx.cwd),
+        env: process.env,
+      }),
+      ...agentRpcFunctions({
+        cwd: ctx.cwd,
+        patchDir: join(await repoCacheDir(ctx.cwd), 'agent'),
+        channel: scope.rpc.streaming.create(LOCAL_AGENT_CHANNEL),
+      }),
+    ]
     for (const fn of functions)
       scope.rpc.register(fn)
   },

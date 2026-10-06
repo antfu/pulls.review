@@ -1,0 +1,3 @@
+{"type":"system","subtype":"init","session_id":"sess-claude-1","model":"claude-sonnet-4-5","tools":["Read"]}
+{"type":"assistant","message":{"model":"claude-sonnet-4-5","content":[{"type":"text","text":"One group."}]},"session_id":"sess-claude-1"}
+{"type":"result","subtype":"success","is_error":false,"result":"One group.","structured_output":{"overallSummary":"Adds the thing.","groups":[{"key":"thing","label":"The thing","summary":"Adds it.","category":"core","filePaths":["a.ts"]}]},"session_id":"sess-claude-1"}

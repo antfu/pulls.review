@@ -1,6 +1,6 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import * as v from 'valibot'
-import { GroupedResultSchema } from '../types/analyze'
+import { AgentSessionRefSchema, GroupedResultSchema } from '../types/analyze'
 import { ReviewDataSchema } from '../types/comment-threads'
 import { DiffsPayloadSchema, PullRequestStateSchema } from '../types/diff'
 import { PullRequestListPageSchema } from '../types/pull-request-list'
@@ -21,9 +21,11 @@ export type PersistedGroupSource = keyof PersistedAnalyses
 const LlmSessionSchema = v.object({
   messages: v.array(v.looseObject({ role: v.string() })),
   chatStartIndex: v.number(),
+  agent: v.optional(AgentSessionRefSchema),
 })
 
-export interface LlmSession { messages: AgentMessage[], chatStartIndex: number }
+/** `agent` names the local agent CLI session the chat continues in (`plans/11-local-agents.md`). */
+export interface LlmSession { messages: AgentMessage[], chatStartIndex: number, agent?: v.InferOutput<typeof AgentSessionRefSchema> }
 
 /**
  * The small, often-rewritten half of a cached diff: everything eviction, the recent

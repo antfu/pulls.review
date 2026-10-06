@@ -15,7 +15,7 @@ import { createDiffsStore } from '../../../../stores/diffs-store'
 const props = defineProps<{ sourceRef: RoutableRef }>()
 
 const route = useRoute()
-const { cache, credentials } = useAppContext()
+const { cache, credentials, llm } = useAppContext()
 
 // Read once: `App.vue` keys the routed page by path, so another diff mounts a fresh page and store.
 const ref = props.sourceRef
@@ -23,7 +23,7 @@ const ref = props.sourceRef
 // `?from=<login>` deep-links a shared analysis (see plans/07); read once, never rewritten.
 const from = typeof route.query.from === 'string' ? route.query.from : undefined
 
-const store = createDiffsStore(createGithubSource(ref, credentials, { tokenMeta: resolveStoredTokenMeta }), { cache, from })
+const store = createDiffsStore(createGithubSource(ref, credentials, { tokenMeta: resolveStoredTokenMeta }), { cache, llm, from })
 
 // Matches the header's title and label; before the diff loads, the repo still
 // identifies what is opening.

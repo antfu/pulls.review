@@ -60,5 +60,8 @@ export function listModels(llm: LlmSettings): Promise<ModelOption[]> {
       return listAnthropicModels(llm.anthropicApiKey)
     case 'openai-compatible':
       return listOpenAiCompatibleModels(llm.openaiBaseUrl, llm.openaiApiKey)
+    case 'local-agent':
+      // The agent's catalog comes from the `pulls.review` server, not from a key.
+      return Promise.resolve([])
   }
 }

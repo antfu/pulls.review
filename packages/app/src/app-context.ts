@@ -1,7 +1,9 @@
 import type { CacheRepositories } from '@pulls.review/core/cache'
 import type { Credentials } from '@pulls.review/core/types'
 import type { App, InjectionKey } from 'vue'
+import type { LlmRunner } from './analyze/llm-runner'
 import { inject } from 'vue'
+import { browserLlmRunner } from './analyze/browser-llm-runner'
 import { createBrowserCache } from './cache/browser-cache'
 import { settings } from './state/settings'
 
@@ -13,6 +15,8 @@ import { settings } from './state/settings'
 export interface AppContext {
   cache: CacheRepositories
   credentials: Credentials
+  /** Absent when the build has no LLM support (the embed). */
+  llm?: LlmRunner
 }
 
 export const appContextKey: InjectionKey<AppContext> = Symbol('app-context')
@@ -22,7 +26,7 @@ export const settingsCredentials: Credentials = {
   githubToken: async () => settings.value.githubToken || undefined,
 }
 
-export function installAppContext(app: App, context: AppContext = { cache: createBrowserCache(), credentials: settingsCredentials }): void {
+export function installAppContext(app: App, context: AppContext = { cache: createBrowserCache(), credentials: settingsCredentials, llm: browserLlmRunner }): void {
   app.provide(appContextKey, context)
 }
 

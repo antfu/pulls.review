@@ -15,6 +15,9 @@ export function llmToken(llm: LlmSettings): string {
       return llm.anthropicApiKey
     case 'openai-compatible':
       return llm.openaiApiKey
+    case 'local-agent':
+      // Needs no key; its catalog comes from the `pulls.review` server (`useLocalAgents`).
+      return ''
   }
 }
 

@@ -1,0 +1,3 @@
+{"type":"system","subtype":"init","session_id":"sess-claude-2","model":"claude-sonnet-4-5","tools":[]}
+{"type":"assistant","message":{"model":"<synthetic>","content":[{"type":"text","text":"API Error: 400 Not a valid API key for this workspace"}]},"session_id":"sess-claude-2"}
+{"type":"result","subtype":"success","is_error":true,"result":"API Error: 400 Not a valid API key for this workspace","session_id":"sess-claude-2"}
