@@ -2,6 +2,7 @@
 import { useGithubTokenMeta } from '../../composables/useGithubTokenMeta'
 import { useLlmModels } from '../../composables/useLlmModels'
 import { settings } from '../../state/settings'
+import { settingsModalTab } from '../../state/settingsModal'
 import AppModal from '../AppModal.vue'
 import SettingsPanel from './SettingsPanel.vue'
 
@@ -26,6 +27,7 @@ const llmModels = useLlmModels()
     @update:open="emit('update:open', $event ?? false)"
   >
     <SettingsPanel
+      v-model:tab="settingsModalTab"
       :github-token-set="!!settings.githubToken"
       :github-token-meta="githubToken.meta.value"
       :github-token-busy="githubToken.busy.value"

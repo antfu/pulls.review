@@ -341,6 +341,13 @@
       "checking": "Memeriksa token…",
       "couldNotVerify": "Token ini tidak dapat diverifikasi."
     },
+    "tabs": {
+      "appearance": "Tampilan",
+      "behavior": "Perilaku",
+      "github": "GitHub",
+      "ai": "Analisis AI",
+      "notSetUp": "Belum diatur"
+    },
     "llm": {
       "title": "Analisis AI",
       "description": "Konfigurasikan penyedia model untuk mengaktifkan ringkasan buatan AI. Hanya disimpan di browser ini dan hanya dikirim ke penyedia yang Anda pilih.",
@@ -364,7 +371,8 @@
       "agentNeedsCli": "Agen lokal berjalan di CLI pulls.review: jalankan di sebuah repositori dengan `npx pulls.review` dan pilih di sana.",
       "agentDetecting": "Mencari CLI agen…",
       "agentNone": "Tidak ada CLI agen ditemukan di mesin ini.",
-      "agentHint": "Agen pengkodean yang terpasang di mesin ini, masuk dengan akunnya sendiri: {claude} atau {opencode}. Ia membaca patch dan repositori, tidak pernah menulis."
+      "agentHint": "Agen pengkodean yang terpasang di mesin ini, masuk dengan akunnya sendiri: {claude} atau {opencode}. Ia membaca patch dan repositori, tidak pernah menulis.",
+      "agentPick": "Pilih agen…"
     },
     "models": {
       "placeholder": "id model",

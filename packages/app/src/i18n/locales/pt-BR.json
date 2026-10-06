@@ -341,6 +341,13 @@
       "checking": "Verificando token…",
       "couldNotVerify": "Não foi possível verificar este token."
     },
+    "tabs": {
+      "appearance": "Aparência",
+      "behavior": "Comportamento",
+      "github": "GitHub",
+      "ai": "Análise com IA",
+      "notSetUp": "Ainda não configurado"
+    },
     "llm": {
       "title": "Análise de IA",
       "description": "Configure um provedor de modelos para habilitar resumos gerados por IA. Armazenado apenas neste navegador e enviado somente ao provedor que você escolher.",
@@ -364,7 +371,8 @@
       "agentNeedsCli": "Agentes locais rodam na CLI do pulls.review: inicie-a em um repositório com `npx pulls.review` e escolha um lá.",
       "agentDetecting": "Procurando CLIs de agentes…",
       "agentNone": "Nenhuma CLI de agente encontrada nesta máquina.",
-      "agentHint": "Um agente de código instalado nesta máquina, com sua própria conta: {claude} ou {opencode}. Ele lê o patch e o repositório, nunca escreve."
+      "agentHint": "Um agente de código instalado nesta máquina, com sua própria conta: {claude} ou {opencode}. Ele lê o patch e o repositório, nunca escreve.",
+      "agentPick": "Escolha um agente…"
     },
     "models": {
       "placeholder": "id do modelo",

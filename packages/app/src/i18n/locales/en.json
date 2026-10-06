@@ -341,6 +341,13 @@
       "checking": "Checking token…",
       "couldNotVerify": "Could not verify this token."
     },
+    "tabs": {
+      "appearance": "Appearance",
+      "behavior": "Behavior",
+      "github": "GitHub",
+      "ai": "AI Analysis",
+      "notSetUp": "Not set up yet"
+    },
     "llm": {
       "title": "AI Analysis",
       "description": "Configure a model provider to enable AI-generated summaries. Stored only in this browser and sent only to the provider you select.",
@@ -364,7 +371,8 @@
       "agentNeedsCli": "Local agents run in the pulls.review CLI: start it in a repository with `npx pulls.review` and pick one there.",
       "agentDetecting": "Looking for agent CLIs…",
       "agentNone": "No agent CLI found on this machine.",
-      "agentHint": "A coding agent installed on this machine, signed in with its own account: {claude} or {opencode}. It reads the patch and the repository, never writes."
+      "agentHint": "A coding agent installed on this machine, signed in with its own account: {claude} or {opencode}. It reads the patch and the repository, never writes.",
+      "agentPick": "Pick an agent…"
     },
     "models": {
       "placeholder": "model id",

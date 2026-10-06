@@ -341,6 +341,13 @@
       "checking": "Token wird geprüft…",
       "couldNotVerify": "Dieses Token konnte nicht überprüft werden."
     },
+    "tabs": {
+      "appearance": "Darstellung",
+      "behavior": "Verhalten",
+      "github": "GitHub",
+      "ai": "KI-Analyse",
+      "notSetUp": "Noch nicht eingerichtet"
+    },
     "llm": {
       "title": "KI-Analyse",
       "description": "Konfiguriere einen Modellanbieter, um KI-generierte Zusammenfassungen zu aktivieren. Nur in diesem Browser gespeichert und nur an den gewählten Anbieter gesendet.",
@@ -364,7 +371,8 @@
       "agentNeedsCli": "Lokale Agenten laufen in der pulls.review-CLI: starte sie in einem Repository mit `npx pulls.review` und wähle dort einen aus.",
       "agentDetecting": "Suche nach Agent-CLIs…",
       "agentNone": "Keine Agent-CLI auf diesem Rechner gefunden.",
-      "agentHint": "Ein auf diesem Rechner installierter Coding-Agent mit eigenem Konto: {claude} oder {opencode}. Er liest den Patch und das Repository, schreibt nie."
+      "agentHint": "Ein auf diesem Rechner installierter Coding-Agent mit eigenem Konto: {claude} oder {opencode}. Er liest den Patch und das Repository, schreibt nie.",
+      "agentPick": "Agent wählen…"
     },
     "models": {
       "placeholder": "Modell-ID",

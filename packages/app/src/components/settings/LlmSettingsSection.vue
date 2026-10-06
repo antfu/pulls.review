@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import type { KeyedLlmProvider, LlmProvider, LlmSettings, LocalAgentName } from '@pulls.review/core/analyze'
+import type { KeyedLlmProvider, LlmProvider, LlmSettings } from '@pulls.review/core/analyze'
 import type { ModelOption } from '@pulls.review/core/llm'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import ActionToggleGroup from '@antfu/design/components/Action/ActionToggleGroup.vue'
 import FormField from '@antfu/design/components/Form/FormField.vue'
 import FormTextInput from '@antfu/design/components/Form/FormTextInput.vue'
-import { computed, ref, watch } from 'vue'
-import { useLocalAgents } from '../../analyze/local-agents'
+import { computed, defineAsyncComponent, ref, watch } from 'vue'
 import ModelPicker from './ModelPicker.vue'
 
 const props = defineProps<{
@@ -51,20 +50,9 @@ const config = computed(() => props.llmSettings.provider === 'local-agent' ? und
 const token = computed(() => config.value ? props.llmSettings[config.value.tokenKey] : '')
 const isOpenAi = computed(() => props.llmSettings.provider === 'openai-compatible')
 
-// Only the `pulls.review` CLI's build provides this; the site and the embed show the provider disabled.
-const localAgents = useLocalAgents()
-const hasAgentServer = localAgents !== undefined
-/** `undefined` while the server is still looking. */
-const agents = computed(() => localAgents?.value)
-const agentOptions = computed(() => (agents.value ?? []).map(agent => ({ value: agent.name, label: `${agent.label} ${agent.version}` })))
-const agentModel = computed({
-  get: () => props.llmSettings.agentModel,
-  set: value => update({ agentModel: value }),
-})
-/** One agent's model ids mean nothing to another: switching resets to its default. */
-function pickAgent(agent: LocalAgentName) {
-  update({ agent, agentModel: '' })
-}
+// The "Local agent" provider's form exists only in the `pulls.review` CLI's build; the site
+// and the embed show the provider with a note instead, and never bundle the form.
+const LocalAgentSettings = import.meta.env.PR_LOCAL ? defineAsyncComponent(() => import('./LocalAgentSettings.vue')) : undefined
 
 function update(patch: Partial<LlmSettings>) {
   emit('update:llmSettings', { ...props.llmSettings, ...patch })
@@ -136,45 +124,19 @@ const model = computed({
         />
       </FormField>
 
-      <!-- TODO: the Local agent config should be a separate component, and branch out with build flags on different build -->
       <template v-if="!config">
-        <FormField :label="$t('settings.llm.agent')">
-          <p v-if="!hasAgentServer" class="text-sm color-faint">
+        <LocalAgentSettings
+          v-if="LocalAgentSettings"
+          :llm-settings="llmSettings"
+          :models="models"
+          :models-loading="modelsLoading"
+          :models-error="modelsError"
+          @update:llm-settings="emit('update:llmSettings', $event)"
+        />
+        <FormField v-else :label="$t('settings.llm.agent')">
+          <p class="text-sm color-faint">
             {{ $t('settings.llm.agentNeedsCli') }}
           </p>
-          <p v-else-if="!agents" class="flex items-center gap-2 text-sm color-faint">
-            <span class="i-ph:circle-notch animate-spin" aria-hidden="true" />
-            {{ $t('settings.llm.agentDetecting') }}
-          </p>
-          <!-- TODO: use a dropdown list for agents, with pre-define icons for each known agent -->
-          <ActionToggleGroup
-            v-else-if="agentOptions.length"
-            :model-value="llmSettings.agent"
-            :options="agentOptions"
-            @update:model-value="pickAgent($event as LocalAgentName)"
-          />
-          <p v-else class="text-sm color-faint">
-            {{ $t('settings.llm.agentNone') }}
-          </p>
-          <template #description>
-            <i18n-t keypath="settings.llm.agentHint" scope="global">
-              <template #claude>
-                <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank" rel="noopener" class="hover:underline">Claude Code</a>
-              </template>
-              <template #opencode>
-                <a href="https://opencode.ai" target="_blank" rel="noopener" class="hover:underline">OpenCode</a>
-              </template>
-            </i18n-t>
-          </template>
-        </FormField>
-
-        <FormField v-if="llmSettings.agent" :label="$t('settings.llm.model')">
-          <ModelPicker
-            v-model="agentModel"
-            :models="models"
-            :loading="modelsLoading"
-            :error="modelsError"
-          />
         </FormField>
       </template>
 

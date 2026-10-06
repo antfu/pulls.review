@@ -341,6 +341,13 @@
       "checking": "トークンを確認中…",
       "couldNotVerify": "このトークンを検証できませんでした。"
     },
+    "tabs": {
+      "appearance": "外観",
+      "behavior": "動作",
+      "github": "GitHub",
+      "ai": "AI 分析",
+      "notSetUp": "未設定"
+    },
     "llm": {
       "title": "AI 分析",
       "description": "モデルプロバイダーを設定すると AI 生成の要約が有効になります。このブラウザにのみ保存され、選択したプロバイダーにのみ送信されます。",
@@ -364,7 +371,8 @@
       "agentNeedsCli": "ローカルエージェントは pulls.review CLI で動作します。リポジトリ内で `npx pulls.review` を起動し、そこで選択してください。",
       "agentDetecting": "エージェント CLI を検索中…",
       "agentNone": "このマシンにエージェント CLI が見つかりません。",
-      "agentHint": "このマシンにインストールされ、自身のアカウントでサインイン済みのコーディングエージェント（{claude} または {opencode}）。パッチとリポジトリを読むだけで、書き込みはしません。"
+      "agentHint": "このマシンにインストールされ、自身のアカウントでサインイン済みのコーディングエージェント（{claude} または {opencode}）。パッチとリポジトリを読むだけで、書き込みはしません。",
+      "agentPick": "エージェントを選択…"
     },
     "models": {
       "placeholder": "モデル id",

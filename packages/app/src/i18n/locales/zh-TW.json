@@ -341,6 +341,13 @@
       "checking": "正在檢查 token…",
       "couldNotVerify": "無法驗證此 token。"
     },
+    "tabs": {
+      "appearance": "外觀",
+      "behavior": "行為",
+      "github": "GitHub",
+      "ai": "AI 分析",
+      "notSetUp": "尚未設定"
+    },
     "llm": {
       "title": "AI 分析",
       "description": "設定模型供應商以啟用 AI 產生的摘要。僅儲存在此瀏覽器中，且只傳送給你選擇的供應商。",
@@ -364,7 +371,8 @@
       "agentNeedsCli": "本機代理在 pulls.review CLI 中執行：在儲存庫中執行 `npx pulls.review`，然後在那裡選擇。",
       "agentDetecting": "正在尋找代理 CLI…",
       "agentNone": "在此機器上找不到代理 CLI。",
-      "agentHint": "安裝在此機器上並以自己的帳號登入的編碼代理：{claude} 或 {opencode}。它只讀取補丁和儲存庫，不會寫入。"
+      "agentHint": "安裝在此機器上並以自己的帳號登入的編碼代理：{claude} 或 {opencode}。它只讀取補丁和儲存庫，不會寫入。",
+      "agentPick": "選擇代理…"
     },
     "models": {
       "placeholder": "模型 id",

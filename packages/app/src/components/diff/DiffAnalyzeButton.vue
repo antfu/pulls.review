@@ -3,7 +3,7 @@ import type { DiffsStore } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { settingsModalOpen } from '../../state/settingsModal'
+import { openSettings } from '../../state/settingsModal'
 import AnalyzeStatusModal from './AnalyzeStatusModal.vue'
 
 const props = defineProps<{
@@ -59,7 +59,7 @@ function onClick() {
     size="sm"
     icon="i-ph:key-duotone"
     variant="primary"
-    @click="settingsModalOpen = true"
+    @click="openSettings('ai')"
   >
     {{ $t('analyze.setupKeys') }}
   </ActionButton>
