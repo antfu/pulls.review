@@ -10,3 +10,5 @@ packages/app/public/pulls-review-github.user.js
 packages/app/public/diffs-github.user.js
 packages/app/src/embed/.generated
 .agents/skills
+.fx/skills
+.goose/skills
