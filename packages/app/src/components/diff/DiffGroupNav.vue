@@ -44,12 +44,13 @@ function onSelectSubgroup(key: string) {
         @select="onSelectSubgroup($event)"
         @toggle="toggleExpanded(group.key)"
       />
+      <slot />
     </div>
     <template v-if="subgroups.length">
       <div class="flex items-center gap-1">
         <div class="i-ph-folder-notch-open-duotone op-fade" />
         <div class="text-sm">
-          <span class="op-fade">{{ $t('group.subgroupsOf') }} </span><span>{{ props.groups.find(g => g.key === expandedKey)?.label }}</span>
+          <span class="op-fade">{{ $t('group.subgroupsOf') }} </span> <span>{{ props.groups.find(g => g.key === expandedKey)?.label }}</span>
         </div>
         <div class="flex-auto border-t border-base" />
       </div>

@@ -78,7 +78,6 @@ function scrollToGroup(key: string) {
           v-if="aiResult"
           class="flex shrink-0 items-center gap-1.5 text-sm"
         >
-          <span class="op-fade">{{ $t('pr.analyzeBy') }}</span>
           <ActionToggleGroup
             :model-value="store.analyzeMode"
             :options="analyzeOptions"
@@ -151,9 +150,9 @@ function scrollToGroup(key: string) {
           :groups-visable="groupsVisable"
           :reviewed="store.reviewed"
           @select="scrollToGroup"
-        />
-
-        <DiffPrMeta class="ml-auto self-end pt-2" :store="store" :document="document" />
+        >
+          <DiffPrMeta class="ml-auto self-end pt-2" :store="store" :document="document" />
+        </DiffGroupNav>
       </div>
     </div>
   </header>
