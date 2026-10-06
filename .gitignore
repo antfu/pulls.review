@@ -12,4 +12,6 @@ packages/app/src/embed/.generated
 .agents/skills/*
 !.agents/skills/upload-github-attachment/
 !.agents/skills/upload-github-attachment/**
+!.agents/skills/prefer-pr-body-as/
+!.agents/skills/prefer-pr-body-as/**
 .vishot

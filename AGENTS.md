@@ -16,64 +16,9 @@ where the two disagree, the packages' `src/` and test suites win, and the docs g
 
 When preparing, creating, or updating a pull request, invoke
 `$antfu-create-pr` when it is available. Its title and publication workflow
-still apply. The repository contract below applies even when that skill cannot
-be resolved.
-
-### Comparison and review
-
-- Record the target branch, head branch, merge base, and exact `base...head`
-  range. For stacked work, name the parent branch or PR and separate inherited
-  changes from this PR's own changes.
-- Review the complete diff. Trace changed files to their entry points, callers,
-  state owners, persistence, providers, and other external boundaries when
-  those relationships affect the change.
-- After publishing or updating the PR, reopen it and verify the title, base,
-  head, body, tables, diagrams, image Markdown, review threads, and checks.
-
-### PR body contract
-
-Every PR **MUST** contain `## Summary` and `## Verification`. The summary starts
-with the changed user or system behavior, then explains the result and why the
-change belongs in this PR. Verification lists exact commands and outcomes,
-keeps focused tests, static checks, CI, runtime inspection, and manual
-acceptance distinct, and names each unverified condition.
-
-Add the following sections only when they improve reviewability:
-
-| Section                        | Use when                                                                                    |
-| ------------------------------ | ------------------------------------------------------------------------------------------- |
-| `## Change map`                | Several modules, responsibilities, or ownership boundaries change.                          |
-| `## Architecture and behavior` | Module flow, ordering, async work, events, IPC, cleanup, or state transitions change.       |
-| `## Boundaries and risks`      | The change has meaningful invariants, failure modes, migrations, or external effects.       |
-| `## Visual changes`            | The change affects user-visible UI.                                                         |
-| `## Rollout and follow-up`     | The change needs migration order, feature gates, monitoring, known gaps, or a follow-up PR. |
-
-A change map **MUST** describe modules or domain boundaries, not repeat the
-changed-file list:
-
-```markdown
-| Module                 | Before                      | After                  | Description           |
-| ---------------------- | --------------------------- | ---------------------- | --------------------- |
-| `<module or boundary>` | `<previous responsibility>` | `<new responsibility>` | `<reason and effect>` |
-```
-
-Use a module flow for changed ownership or dependencies, a sequence diagram for
-ordering, and a state diagram for transitions or terminal states. A fix whose
-fault is explained by flow or state **SHOULD** show structurally comparable
-`Before` and `After` diagrams, followed by the exact changed edge, step, owner,
-or transition.
-
-When several invariants or edge cases matter, map each one to its protection and
-evidence:
-
-```markdown
-| Invariant or boundary | Failure mode        | Protection               | Evidence or gap                             |
-| --------------------- | ------------------- | ------------------------ | ------------------------------------------- |
-| `<required behavior>` | `<how it can fail>` | `<code or design guard>` | `<test, runtime evidence, or Not verified>` |
-```
-
-Do not add empty sections or invent content to fill the template. Do not claim
-that a green CI run proves behavior outside its configured checks.
+still apply. Invoke `$prefer-pr-body-as` with the `airi` profile for comparison,
+body structure, behavior evidence, risk mapping, and verification. This body
+profile applies even when `$antfu-create-pr` cannot be resolved.
 
 ### Visual evidence
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prefer PR Body As"
+  short_description: "Apply a named PR body profile as an overlay"
+  default_prompt: "Use $prefer-pr-body-as with the AIRI profile to structure this pull request body."
