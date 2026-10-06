@@ -9,4 +9,7 @@ packages/app/public/embed
 packages/app/public/pulls-review-github.user.js
 packages/app/public/diffs-github.user.js
 packages/app/src/embed/.generated
-.agents/skills
+.agents/skills/*
+!.agents/skills/upload-github-attachment/
+!.agents/skills/upload-github-attachment/**
+.vishot

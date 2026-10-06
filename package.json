@@ -30,6 +30,7 @@
     "@antfu/skills": "catalog:agentic",
     "@types/node": "catalog:dev",
     "@unocss/eslint-config": "catalog:build",
+    "@vishot/cli": "catalog:agentic",
     "bumpp": "catalog:dev",
     "eslint": "catalog:dev",
     "eslint-plugin-format": "catalog:dev",
