@@ -419,8 +419,8 @@ defineExpose({
         {{ $t('file.markReviewed') }}
       </ActionButton>
     </div>
-    <div v-if="fileNotes.length" class="border-b border-base px-2 py-1">
-      <AnalysisNoteCard v-for="(note, index) in fileNotes" :key="index" :note="note" />
+    <div v-if="fileNotes.length" class="mb-2 flex flex-col border-b border-base">
+      <AnalysisNoteCard v-for="(note, index) in fileNotes" :key="index" :note="note" :borderless="true" />
     </div>
     <div v-if="file.isBinary" class="p-4 text-sm op-fade">
       {{ $t('file.binaryNotShown') }}
