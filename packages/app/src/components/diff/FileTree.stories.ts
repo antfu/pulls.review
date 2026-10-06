@@ -21,6 +21,15 @@ export const ChangedSinceReviewed: Story = {
   args: { files: partiallyReviewed.diff.files as any, store: createMockDiffsStore({ reviewed: partiallyReviewed.reviewedShas, changedSinceReviewed: ['src/b.ts'] }) },
 }
 
+/** A file carrying a critical analysis note gets the warning mark next to its name. */
+export const Critical: Story = {
+  args: {
+    files: partiallyReviewed.diff.files as any,
+    notes: new Map([[(partiallyReviewed.diff.files[0] as any).sha, [{ text: 'Careful here.', critical: true }]]]),
+    store: createMockDiffsStore({}),
+  },
+}
+
 export const Empty: Story = {
   args: { files: zeroFiles.diff.files as any, store: createMockDiffsStore({}) },
 }
