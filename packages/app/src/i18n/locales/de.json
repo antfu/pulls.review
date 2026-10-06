@@ -172,7 +172,8 @@
     "reading": "Lese {n} Datei: {first} | Lese {n} Dateien: {first}",
     "organizing": "Gruppen werden geordnet…",
     "notConfigured": "Die KI-Analyse ist nicht konfiguriert: Füge in den Einstellungen ein Gateway-Token oder einen Anbieter-API-Key hinzu",
-    "chatFailed": "Chat-Anfrage fehlgeschlagen"
+    "chatFailed": "Chat-Anfrage fehlgeschlagen",
+    "agentSessionLost": "Der Agent hat diese Unterhaltung nicht mehr. Erneut analysieren, um zu chatten."
   },
   "share": {
     "button": "Ergebnis teilen",
@@ -358,7 +359,12 @@
       "modelListFailed": "Die Modellliste konnte nicht geladen werden ({error}). Gib eine Modell-ID manuell ein.",
       "embedUnavailable": "KI-Funktionen sind im eingebetteten Modus nicht verfügbar",
       "embedReason": "Die strikte CSP von github.com blockiert die Anfragen, die KI-Funktionen hier benötigen. {link}, um sie zu nutzen.",
-      "goToWebsite": "Zur Website"
+      "goToWebsite": "Zur Website",
+      "agent": "Agent",
+      "agentNeedsCli": "Lokale Agenten laufen in der pulls.review-CLI: starte sie in einem Repository mit `npx pulls.review` und wähle dort einen aus.",
+      "agentDetecting": "Suche nach Agent-CLIs…",
+      "agentNone": "Keine Agent-CLI auf diesem Rechner gefunden.",
+      "agentHint": "Ein auf diesem Rechner installierter Coding-Agent mit eigenem Konto: {claude} oder {opencode}. Er liest den Patch und das Repository, schreibt nie."
     },
     "models": {
       "placeholder": "Modell-ID",
@@ -367,7 +373,8 @@
       "noMatch": "Kein passendes Modell",
       "useCustom": "„{id}“ verwenden",
       "free": "Kostenlos",
-      "priceTitle": "Eingabe {input}/M · Ausgabe {output}/M Tokens"
+      "priceTitle": "Eingabe {input}/M · Ausgabe {output}/M Tokens",
+      "agentDefault": "Standard des Agenten"
     }
   },
   "rules": {

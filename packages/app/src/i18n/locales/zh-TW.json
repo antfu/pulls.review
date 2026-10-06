@@ -172,7 +172,8 @@
     "reading": "正在讀取 {n} 個檔案：{first}",
     "organizing": "正在整理群組…",
     "notConfigured": "尚未設定 AI 分析：請在設定中新增 gateway token 或廠商 API key",
-    "chatFailed": "對話請求失敗"
+    "chatFailed": "對話請求失敗",
+    "agentSessionLost": "代理已不再保留此對話。重新分析後即可聊天。"
   },
   "share": {
     "button": "分享結果",
@@ -358,7 +359,12 @@
       "modelListFailed": "無法載入模型清單（{error}）。請手動輸入模型 id。",
       "embedUnavailable": "嵌入模式下無法使用 AI 功能",
       "embedReason": "github.com 嚴格的 CSP 會阻擋 AI 功能所需的請求。{link} 即可使用。",
-      "goToWebsite": "前往網站"
+      "goToWebsite": "前往網站",
+      "agent": "代理",
+      "agentNeedsCli": "本機代理在 pulls.review CLI 中執行：在儲存庫中執行 `npx pulls.review`，然後在那裡選擇。",
+      "agentDetecting": "正在尋找代理 CLI…",
+      "agentNone": "在此機器上找不到代理 CLI。",
+      "agentHint": "安裝在此機器上並以自己的帳號登入的編碼代理：{claude} 或 {opencode}。它只讀取補丁和儲存庫，不會寫入。"
     },
     "models": {
       "placeholder": "模型 id",
@@ -367,7 +373,8 @@
       "noMatch": "沒有符合的模型",
       "useCustom": "使用「{id}」",
       "free": "免費",
-      "priceTitle": "輸入 {input}/M · 輸出 {output}/M tokens"
+      "priceTitle": "輸入 {input}/M · 輸出 {output}/M tokens",
+      "agentDefault": "代理預設"
     }
   },
   "rules": {

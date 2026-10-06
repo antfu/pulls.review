@@ -5,6 +5,7 @@ import { t } from './index'
 /** Core diagnostics the UI has a translation for, by code. */
 const DIAGNOSTIC_KEYS = {
   llmNotConfigured: 'analyze.notConfigured',
+  agentSessionLost: 'analyze.agentSessionLost',
   tokenRejected: 'errors.tokenRejected',
   commentTooLarge: 'errors.tooLarge',
 } as const

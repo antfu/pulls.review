@@ -36,7 +36,9 @@ A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
   revision, `owner/repo#1` or a github.com URL) only picks which one opens.
   Its SPA is the app's `PR_LOCAL` build (`vite.config.local.ts`), which swaps
   only the app context: the cache is an RPC driver over
-  `<git-common-dir>/pulls-review` and the GitHub token comes from the server.
+  `<git-common-dir>/pulls-review`, the GitHub token comes from the server, and
+  the `local-agent` LLM provider runs analysis and chat on the server through an
+  agent CLI on the machine (`claude`, `opencode`; `plans/11-local-agents.md`).
   It MUST NOT take over the Actions entry point, and the public site MUST NOT
   bundle the devframe client.
 
@@ -45,7 +47,8 @@ A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
 - Nothing is proxied through a server we run. There is no backend — no server
   routes, no OAuth client-secret exchange, no edge functions. Auth is a
   user-supplied GitHub token (optional for public repos); LLM access is a
-  user-supplied key or gateway token. This rules out anything that needs a
+  user-supplied key or gateway token, or - in the CLI only - an agent CLI the
+  user already signed into, run by the user's own `pulls.review` process. This rules out anything that needs a
   server to keep a secret. The site does everything in the browser; the CLI
   does the same work in the user's own CI with the user's own secrets.
 - The app MUST build as a static SPA and deploy as static files, on Vercel.
@@ -132,7 +135,12 @@ analysis strategy later never touches the view layer:
     provider the caller resolved (`resolveModel(llm)`: AI Gateway, Anthropic,
     or OpenAI-compatible — only the selected one is ever called). Core's
     `runLlmAnalysis(diff, resolved, locale)` knows nothing of Settings; the
-    app binds it to `settings.value` in `app/analyze/adapters/llm/index.ts`. The prompt
+    app binds it to `settings.value` in `app/analyze/browser-llm-runner.ts`, the
+    site's `LlmRunner`. The runner (`app/analyze/llm-runner.ts`: `isSetup`,
+    `analyze`, `chat`) sits on the app context next to `cache` and `credentials`,
+    and is the only thing `stores/llm-store.ts` and `composables/useLlmChat.ts`
+    call to run a model; the `PR_LOCAL` build's runner sends the `local-agent`
+    provider to the server instead (`plans/11-local-agents.md`). The prompt
     carries a file manifest, the commit subject lines when there is more than
     one commit, and the full diffs when they are small; the model pulls
     diffs on demand with `read_diffs` and finishes with `submit_grouping`,
@@ -155,10 +163,11 @@ analysis strategy later never touches the view layer:
     `vite.config.embed.ts` fails the build if an LLM SDK slips in anyway.
     `store.llm` is `undefined` iff the flag is off.
   - Follow-up chat reuses the analysis transcript: `llmSession` (`messages`
-    + `chatStartIndex`) is persisted alongside the result in the cached diff
-    entry, and `composables/useLlmChat.ts` builds a fresh pi `Agent` from it
-    per message (`read_diffs` plus `update_grouping`, which replaces
-    `analyzedBy.llm` in store and cache). Re-analyze or loading a shared
+    + `chatStartIndex`, plus `agent` when a local agent CLI holds the
+    conversation) is persisted alongside the result in the cached diff
+    entry, and the runner's `chat` continues it per message - the browser one
+    builds a fresh pi `Agent` (`read_diffs` plus `update_grouping`, which
+    replaces `analyzedBy.llm` in store and cache). Re-analyze or loading a shared
     result replaces the session; a refetch keeps it (the transcript still
     reads the live diff). Results cached without one show `Re-analyze to
     enable chat`.

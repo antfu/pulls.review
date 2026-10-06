@@ -10,6 +10,10 @@ export const diagnostics = defineDiagnostics({
       why: 'No LLM provider is configured.',
       fix: 'Set an API key or gateway token for the selected provider.',
     },
+    agentSessionLost: {
+      why: 'The agent no longer has this conversation.',
+      fix: 'Re-analyze to chat.',
+    },
     tokenRejected: {
       why: 'GitHub rejected the token.',
       fix: 'Check that the token is valid and has not expired.',

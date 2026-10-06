@@ -4,7 +4,7 @@ import type { AgentRunOptions } from './run'
 import { randomUUID } from 'node:crypto'
 import { CLI_AGENT_CHAT_SECTION, toGroupedResult } from '@pulls.review/core/llm'
 import { checkAnswer } from './analyze'
-import { AgentRunError, parseJsonAnswer, runTurn, systemPromptFor, toolResultMessage, writePatch } from './run'
+import { AgentRunError, parseJsonAnswer, runTurn, systemPromptFor, toolResultMessage, withoutJsonFence, writePatch } from './run'
 
 export interface AgentChatOptions extends AgentRunOptions {
   /** The transcript to continue; `agent` names the CLI session it lives in. */
@@ -18,6 +18,18 @@ function lastUserText(messages: AgentMessage[]): string | undefined {
   if (!last || last.role !== 'user')
     return undefined
   return typeof last.content === 'string' ? last.content : last.content.map(part => part.type === 'text' ? part.text : '').join('')
+}
+
+/** Drops the fenced grouping from the reply as shown; the notice that follows says what it did. */
+function stripGrouping(transcript: AgentMessage[]) {
+  const index = transcript.findLastIndex(message => message.role === 'assistant')
+  const reply = transcript[index]
+  if (!reply || reply.role !== 'assistant')
+    return
+  const content = reply.content
+    .map(part => part.type === 'text' ? { ...part, text: withoutJsonFence(part.text) } : part)
+    .filter(part => part.type !== 'text' || part.text)
+  transcript[index] = { ...reply, content }
 }
 
 /**
@@ -44,6 +56,7 @@ export async function runAgentChat({ cli, model, diff, locale, cwd, repository, 
     const outcome = await runTurn(cli, { cwd, system, prompt: message, model, resume: resume.id }, transcript, { emit, signal, cwd, model, step: 1 })
     const answer = parseJsonAnswer(outcome.final?.text)
     if (answer !== undefined) {
+      stripGrouping(transcript)
       const checked = checkAnswer(diff, answer)
       if ('analysis' in checked) {
         const stamp = `${cli.name}/${outcome.session?.model ?? resume.model ?? model ?? 'default'}`

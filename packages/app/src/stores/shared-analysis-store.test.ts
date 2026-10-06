@@ -1,7 +1,7 @@
 import type { CacheRepositories, PrCacheEntry } from '@pulls.review/core/cache'
 import type { GroupedResult } from '@pulls.review/core/types'
-import type { LlmRunner } from '../analyze/llm-runner'
 import type { MockedFunction } from 'vitest'
+import type { LlmRunner } from '../analyze/llm-runner'
 import { computeEntrySizeBytes, createCacheRepositories } from '@pulls.review/core/cache'
 import { createGithubPullRequestSource, renderSharedAnalysisComment } from '@pulls.review/core/github'
 import { staticCredentials } from '@pulls.review/core/types'

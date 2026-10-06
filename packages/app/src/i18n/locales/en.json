@@ -172,7 +172,8 @@
     "reading": "Reading {n} file: {first} | Reading {n} files: {first}",
     "organizing": "Organizing groups…",
     "notConfigured": "AI analysis is not configured: add a gateway token or a vendor API key in Settings",
-    "chatFailed": "Chat request failed"
+    "chatFailed": "Chat request failed",
+    "agentSessionLost": "The agent no longer has this conversation. Re-analyze to chat."
   },
   "share": {
     "button": "Share result",
@@ -358,7 +359,12 @@
       "modelListFailed": "Could not load the model list ({error}). Enter a model id manually.",
       "embedUnavailable": "AI features aren't available in embedded mode",
       "embedReason": "github.com's strict Content Security Policy blocks the requests AI features need here. {link} to use them.",
-      "goToWebsite": "Go to the website"
+      "goToWebsite": "Go to the website",
+      "agent": "Agent",
+      "agentNeedsCli": "Local agents run in the pulls.review CLI: start it in a repository with `npx pulls.review` and pick one there.",
+      "agentDetecting": "Looking for agent CLIs…",
+      "agentNone": "No agent CLI found on this machine.",
+      "agentHint": "A coding agent installed on this machine, signed in with its own account: {claude} or {opencode}. It reads the patch and the repository, never writes."
     },
     "models": {
       "placeholder": "model id",
@@ -367,7 +373,8 @@
       "noMatch": "No matching model",
       "useCustom": "Use “{id}”",
       "free": "Free",
-      "priceTitle": "Input {input}/M · Output {output}/M tokens"
+      "priceTitle": "Input {input}/M · Output {output}/M tokens",
+      "agentDefault": "Agent default"
     }
   },
   "rules": {

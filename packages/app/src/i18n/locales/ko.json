@@ -172,7 +172,8 @@
     "reading": "파일 {n}개 읽는 중: {first}",
     "organizing": "그룹 정리 중…",
     "notConfigured": "AI 분석이 설정되지 않았습니다: 설정에서 gateway 토큰이나 공급자 API 키를 추가하세요",
-    "chatFailed": "채팅 요청 실패"
+    "chatFailed": "채팅 요청 실패",
+    "agentSessionLost": "에이전트에 이 대화가 더 이상 없습니다. 다시 분석하면 채팅할 수 있습니다."
   },
   "share": {
     "button": "결과 공유",
@@ -358,7 +359,12 @@
       "modelListFailed": "모델 목록을 불러올 수 없습니다 ({error}). 모델 id를 직접 입력하세요.",
       "embedUnavailable": "임베드 모드에서는 AI 기능을 사용할 수 없습니다",
       "embedReason": "github.com의 엄격한 CSP가 AI 기능에 필요한 요청을 차단합니다. 사용하려면 {link}.",
-      "goToWebsite": "웹사이트로 이동"
+      "goToWebsite": "웹사이트로 이동",
+      "agent": "에이전트",
+      "agentNeedsCli": "로컬 에이전트는 pulls.review CLI에서 실행됩니다. 저장소에서 `npx pulls.review`를 실행하고 거기서 선택하세요.",
+      "agentDetecting": "에이전트 CLI 찾는 중…",
+      "agentNone": "이 컴퓨터에서 에이전트 CLI를 찾을 수 없습니다.",
+      "agentHint": "이 컴퓨터에 설치되어 자체 계정으로 로그인된 코딩 에이전트({claude} 또는 {opencode})입니다. 패치와 저장소를 읽기만 하고 쓰지 않습니다."
     },
     "models": {
       "placeholder": "모델 id",
@@ -367,7 +373,8 @@
       "noMatch": "일치하는 모델이 없습니다",
       "useCustom": "“{id}” 사용",
       "free": "무료",
-      "priceTitle": "입력 {input}/M · 출력 {output}/M 토큰"
+      "priceTitle": "입력 {input}/M · 출력 {output}/M 토큰",
+      "agentDefault": "에이전트 기본값"
     }
   },
   "rules": {

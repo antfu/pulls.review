@@ -25,6 +25,9 @@ Target (GitHub):
   owner/repo#123, or a github.com pull request, compare, commit or repo URL.
   Uses the GitHub token from GITHUB_TOKEN, else from \`gh auth token\`.
 
+AI analysis uses a key from Settings, or a coding agent installed here (Claude
+Code, OpenCode) when "Local agent" is the provider in Settings.
+
 Options:
   --worktree     open the uncommitted changes against HEAD
   --port <port>  port to listen on

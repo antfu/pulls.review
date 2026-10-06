@@ -31,7 +31,7 @@ export async function* spawnJsonLines(bin: string, args: string[], { cwd, signal
   yield { exit: { code: await exited, stderr: stderr.trim() } }
 }
 
-/** The CLI's `--version`, or `undefined` when it is not on `PATH` or fails to run. */
+/** The version number in the CLI's `--version`, or `undefined` when it is not on `PATH` or fails to run. */
 export function readVersion(bin: string, args = ['--version']): Promise<string | undefined> {
   return new Promise((resolve) => {
     const child = spawn(bin, args, { stdio: ['ignore', 'pipe', 'ignore'] })
@@ -39,6 +39,6 @@ export function readVersion(bin: string, args = ['--version']): Promise<string |
     child.stdout.setEncoding('utf8')
     child.stdout.on('data', (chunk: string) => stdout += chunk)
     child.on('error', () => resolve(undefined))
-    child.on('close', code => resolve(code === 0 ? stdout.trim().split('\n')[0]?.trim() || undefined : undefined))
+    child.on('close', code => resolve(code === 0 ? stdout.match(/\d+\.\d[\w.-]*/)?.[0] : undefined))
   })
 }

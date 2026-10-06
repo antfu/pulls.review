@@ -172,7 +172,8 @@
     "reading": "Lettura di {n} file: {first} | Lettura di {n} file: {first}",
     "organizing": "Organizzazione dei gruppi…",
     "notConfigured": "L'analisi IA non è configurata: aggiungi un token gateway o un'API key del fornitore nelle Impostazioni",
-    "chatFailed": "Richiesta della chat fallita"
+    "chatFailed": "Richiesta della chat fallita",
+    "agentSessionLost": "L’agente non ha più questa conversazione. Rianalizza per chattare."
   },
   "share": {
     "button": "Condividi risultato",
@@ -358,7 +359,12 @@
       "modelListFailed": "Impossibile caricare l'elenco dei modelli ({error}). Inserisci un id di modello manualmente.",
       "embedUnavailable": "Le funzioni IA non sono disponibili in modalità incorporata",
       "embedReason": "La rigida CSP di github.com blocca le richieste necessarie alle funzioni IA. {link} per usarle.",
-      "goToWebsite": "Vai al sito"
+      "goToWebsite": "Vai al sito",
+      "agent": "Agente",
+      "agentNeedsCli": "Gli agenti locali girano nella CLI di pulls.review: avviala in un repository con `npx pulls.review` e scegline uno lì.",
+      "agentDetecting": "Ricerca delle CLI degli agenti…",
+      "agentNone": "Nessuna CLI di agente trovata su questa macchina.",
+      "agentHint": "Un agente di codice installato su questa macchina, con il proprio account: {claude} o {opencode}. Legge la patch e il repository, non scrive mai."
     },
     "models": {
       "placeholder": "id del modello",
@@ -367,7 +373,8 @@
       "noMatch": "Nessun modello corrispondente",
       "useCustom": "Usa “{id}”",
       "free": "Gratis",
-      "priceTitle": "Input {input}/M · Output {output}/M token"
+      "priceTitle": "Input {input}/M · Output {output}/M token",
+      "agentDefault": "Predefinito dell’agente"
     }
   },
   "rules": {

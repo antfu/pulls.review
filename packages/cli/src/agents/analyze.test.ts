@@ -163,6 +163,7 @@ describe('runAgentChat', () => {
 
     expect(result()?.groups.map(group => group.key)).toEqual(['thing', 'tests'])
     const transcript = events.findLast(event => event.kind === 'messages')!.messages
+    expect(transcript.at(-2)).toMatchObject({ role: 'assistant', content: [{ type: 'text', text: 'Split as asked.' }] })
     expect(transcript.at(-1)).toMatchObject({ role: 'toolResult', toolName: 'update_grouping', isError: false, content: [{ type: 'text', text: 'Grouping updated: 2 groups.' }] })
   })
 

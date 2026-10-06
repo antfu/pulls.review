@@ -172,7 +172,8 @@
     "reading": "{n} ファイルを読み取り中：{first}",
     "organizing": "グループを整理中…",
     "notConfigured": "AI 分析が設定されていません：設定で gateway トークンまたはベンダーの API キーを追加してください",
-    "chatFailed": "チャットのリクエストに失敗しました"
+    "chatFailed": "チャットのリクエストに失敗しました",
+    "agentSessionLost": "エージェントはこの会話を保持していません。再分析するとチャットできます。"
   },
   "share": {
     "button": "結果を共有",
@@ -358,7 +359,12 @@
       "modelListFailed": "モデル一覧を読み込めませんでした（{error}）。モデル id を手動で入力してください。",
       "embedUnavailable": "埋め込みモードでは AI 機能を利用できません",
       "embedReason": "github.com の厳しい CSP により、AI 機能に必要なリクエストがブロックされます。利用するには{link}。",
-      "goToWebsite": "ウェブサイトへ"
+      "goToWebsite": "ウェブサイトへ",
+      "agent": "エージェント",
+      "agentNeedsCli": "ローカルエージェントは pulls.review CLI で動作します。リポジトリ内で `npx pulls.review` を起動し、そこで選択してください。",
+      "agentDetecting": "エージェント CLI を検索中…",
+      "agentNone": "このマシンにエージェント CLI が見つかりません。",
+      "agentHint": "このマシンにインストールされ、自身のアカウントでサインイン済みのコーディングエージェント（{claude} または {opencode}）。パッチとリポジトリを読むだけで、書き込みはしません。"
     },
     "models": {
       "placeholder": "モデル id",
@@ -367,7 +373,8 @@
       "noMatch": "一致するモデルがありません",
       "useCustom": "「{id}」を使う",
       "free": "無料",
-      "priceTitle": "入力 {input}/M · 出力 {output}/M トークン"
+      "priceTitle": "入力 {input}/M · 出力 {output}/M トークン",
+      "agentDefault": "エージェントの既定"
     }
   },
   "rules": {

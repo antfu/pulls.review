@@ -38,7 +38,8 @@ export default defineDevframe({
       ...agentRpcFunctions({
         cwd: ctx.cwd,
         patchDir: join(await repoCacheDir(ctx.cwd), 'agent'),
-        channel: scope.rpc.streaming.create(LOCAL_AGENT_CHANNEL),
+        // The browser subscribes after the call that started the run returns: replay what it missed.
+        channel: scope.rpc.streaming.create(LOCAL_AGENT_CHANNEL, { replayWindow: 4096 }),
       }),
     ]
     for (const fn of functions)

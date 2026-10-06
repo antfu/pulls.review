@@ -6,17 +6,19 @@ import { settings } from '../state/settings'
 export const NOT_COMPILED_MESSAGE = 'llm adapter is not compiled into this build (PR_LLM is off)'
 
 function resolveConfiguredModel() {
-  // The flag is a compile-time literal: with it off, every branch holding an `import()`
-  // below is eliminated, so the embed bundle never discovers the pi runtime.
-  if (!import.meta.env.PR_LLM)
-    throw new Error(NOT_COMPILED_MESSAGE)
   const resolved = resolveModel(settings.value.llm)
   if (!resolved)
     throw diagnostics.llmNotConfigured()
   return resolved
 }
 
+// `import.meta.env.PR_LLM` is a compile-time literal: with it off, the `throw` right before each
+// `import()` makes the import dead code, so the embed bundle never discovers the pi runtime.
+// The check must sit in the same function as the import for the bundler to see that.
+
 async function chat({ diff, session, text, signal, onMessages, onGroupingUpdate }: LlmChatInput) {
+  if (!import.meta.env.PR_LLM)
+    throw new Error(NOT_COMPILED_MESSAGE)
   const resolved = resolveConfiguredModel()
   const { createChatSession } = await import('@pulls.review/core/llm')
   if (signal.aborted)
@@ -44,6 +46,8 @@ async function chat({ diff, session, text, signal, onMessages, onGroupingUpdate 
 export const browserLlmRunner: LlmRunner = {
   isSetup: () => import.meta.env.PR_LLM && resolveModel(settings.value.llm) !== undefined,
   async analyze(diff, options) {
+    if (!import.meta.env.PR_LLM)
+      throw new Error(NOT_COMPILED_MESSAGE)
     const resolved = resolveConfiguredModel()
     // Read once per run so a mid-run settings change can't split the prompt and the stamp.
     const locale = settings.value.locale

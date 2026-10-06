@@ -3,8 +3,11 @@ import type { Router } from 'vue-router'
 import { createCacheRepositories } from '@pulls.review/core/cache'
 import { createStorage } from 'unstorage'
 import { createApp } from 'vue'
+import { browserLlmRunner } from '../analyze/browser-llm-runner'
+import { localAgentsKey } from '../analyze/local-agents'
 import { installAppContext, settingsCredentials } from '../app-context'
 import { i18n } from '../i18n'
+import { createAgentLlmRunner, createLocalAgents } from './agent-runner'
 import { connectLocal } from './connection'
 import { localRpcKey } from './local-rpc-key'
 import LocalAuthGate from './LocalAuthGate.vue'
@@ -28,18 +31,22 @@ async function ensureTrusted(client: Awaited<ReturnType<typeof connectLocal>>['c
 
 /**
  * Wires a `PR_LOCAL` build to the `pulls.review` server: the cache lives in the repo
- * (over RPC), the GitHub token comes from the server's environment, `/` picks refs and
- * `/compare`, `/branch`, `/worktree` and `/commit` review them.
+ * (over RPC), the GitHub token comes from the server's environment, a local agent CLI
+ * can run the analysis, `/` picks refs and `/compare`, `/branch`, `/worktree` and
+ * `/commit` review them.
  */
 export async function installLocal(app: App, router: Router): Promise<void> {
   const { client, rpc } = await connectLocal()
   await ensureTrusted(client)
 
+  const localAgents = createLocalAgents(rpc)
   installAppContext(app, {
     cache: createCacheRepositories(createStorage({ driver: createRpcDriver(rpc) })),
     credentials: createRpcCredentials(rpc, settingsCredentials),
+    llm: createAgentLlmRunner(rpc, localAgents, browserLlmRunner),
   })
   app.provide(localRpcKey, rpc)
+  app.provide(localAgentsKey, localAgents)
 
   for (const route of localRoutes(() => import('../pages-local/diff.vue')))
     router.addRoute(route)

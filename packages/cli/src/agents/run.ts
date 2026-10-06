@@ -140,16 +140,23 @@ export async function writePatch(patchDir: string, id: string, diff: DiffsPayloa
   return { patchPath, cleanup: () => rm(patchPath, { force: true }) }
 }
 
+const JSON_FENCE = /```(?:json)?\n([\s\S]*?)\n```/g
+
 /** The last fenced ```json block in an answer, parsed; else the whole text when it is JSON. */
 export function parseJsonAnswer(text: string | undefined): unknown {
   if (!text)
     return undefined
-  const fences = [...text.matchAll(/```(?:json)?\n([\s\S]*?)\n```/g)]
-  const candidate = fences.at(-1)?.[1] ?? text
+  const candidate = [...text.matchAll(JSON_FENCE)].at(-1)?.[1] ?? text
   try {
     return JSON.parse(candidate)
   }
   catch {
     return undefined
   }
+}
+
+/** The reply without the fenced grouping it carried - the browser path shows a tool call there, not JSON. */
+export function withoutJsonFence(text: string): string {
+  const last = [...text.matchAll(JSON_FENCE)].at(-1)
+  return last ? `${text.slice(0, last.index)}${text.slice(last.index + last[0].length)}`.trim() : text
 }

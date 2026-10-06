@@ -172,7 +172,8 @@
     "reading": "Membaca {n} berkas: {first}",
     "organizing": "Menyusun grup…",
     "notConfigured": "Analisis AI belum dikonfigurasi: tambahkan token gateway atau API key penyedia di Pengaturan",
-    "chatFailed": "Permintaan chat gagal"
+    "chatFailed": "Permintaan chat gagal",
+    "agentSessionLost": "Agen tidak lagi memiliki percakapan ini. Analisis ulang untuk mengobrol."
   },
   "share": {
     "button": "Bagikan hasil",
@@ -358,7 +359,12 @@
       "modelListFailed": "Daftar model tidak dapat dimuat ({error}). Masukkan id model secara manual.",
       "embedUnavailable": "Fitur AI tidak tersedia dalam mode tersemat",
       "embedReason": "CSP github.com yang ketat memblokir permintaan yang dibutuhkan fitur AI di sini. {link} untuk menggunakannya.",
-      "goToWebsite": "Kunjungi situs web"
+      "goToWebsite": "Kunjungi situs web",
+      "agent": "Agen",
+      "agentNeedsCli": "Agen lokal berjalan di CLI pulls.review: jalankan di sebuah repositori dengan `npx pulls.review` dan pilih di sana.",
+      "agentDetecting": "Mencari CLI agen…",
+      "agentNone": "Tidak ada CLI agen ditemukan di mesin ini.",
+      "agentHint": "Agen pengkodean yang terpasang di mesin ini, masuk dengan akunnya sendiri: {claude} atau {opencode}. Ia membaca patch dan repositori, tidak pernah menulis."
     },
     "models": {
       "placeholder": "id model",
@@ -367,7 +373,8 @@
       "noMatch": "Tidak ada model yang cocok",
       "useCustom": "Gunakan “{id}”",
       "free": "Gratis",
-      "priceTitle": "Input {input}/M · Output {output}/M token"
+      "priceTitle": "Input {input}/M · Output {output}/M token",
+      "agentDefault": "Bawaan agen"
     }
   },
   "rules": {

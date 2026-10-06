@@ -3,7 +3,9 @@ import type { ModelOption } from '@pulls.review/core/llm'
 import type { Ref } from 'vue'
 import { listModels } from '@pulls.review/core/llm'
 import { onScopeDispose, ref, watch } from 'vue'
+import { useLocalAgents } from '../analyze/local-agents'
 import { sha256Hex } from '../cache/token-hash'
+import { t } from '../i18n'
 import { settings } from '../state/settings'
 
 /** The selected provider's configured token/key ('' when unset). */
@@ -73,6 +75,8 @@ export function useLlmModels(): UseLlmModelsReturn {
   if (!import.meta.env.PR_LLM)
     return { models, loading, error }
 
+  const localAgents = useLocalAgents()
+
   // Stopping the scope stops the watcher, but not an async callback already
   // suspended at an await - invalidate those instead of fetching/writing for
   // a dead owner.
@@ -80,10 +84,34 @@ export function useLlmModels(): UseLlmModelsReturn {
   onScopeDispose(() => {
     requestId++
   })
-  watch(() => [settings.value.llm.provider, llmCredentials(settings.value.llm)] as const, async ([provider]) => {
+
+  /** A local agent's catalog comes from the `pulls.review` server, headed by its own default. */
+  async function loadAgentModels(id: number) {
+    const { agent } = settings.value.llm
+    if (!agent || !localAgents)
+      return
+    loading.value = true
+    try {
+      const list = await localAgents.models(agent)
+      if (id === requestId)
+        models.value = [{ id: '', name: t('settings.models.agentDefault') }, ...list]
+    }
+    catch (err) {
+      if (id === requestId)
+        error.value = err instanceof Error ? err.message : String(err)
+    }
+    finally {
+      if (id === requestId)
+        loading.value = false
+    }
+  }
+
+  watch(() => [settings.value.llm.provider, settings.value.llm.agent, llmCredentials(settings.value.llm)] as const, async ([provider]) => {
     const id = ++requestId
     models.value = null
     error.value = undefined
+    if (provider === 'local-agent')
+      return loadAgentModels(id)
     if (!llmToken(settings.value.llm))
       return
     const credentials = llmCredentials(settings.value.llm)
