@@ -28,6 +28,9 @@ defineEmits<{
 
 <template>
   <div class="flex flex-col gap-4 p2">
+    <!-- TODO: introduce tabs for settings: "Appearance", "Behavior", "GitHub PAT", "AI Analysis" -->
+    <!-- The tab should have a notification dot when the tokens are not set yet -->
+    <!-- The icons buttons like "Setup AI Keys" should open the settings modal with the corresponding tab active -->
     <LayoutSettingsSection />
 
     <div class="border-t border-base" />

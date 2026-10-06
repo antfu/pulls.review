@@ -136,6 +136,7 @@ const model = computed({
         />
       </FormField>
 
+      <!-- TODO: the Local agent config should be a separate component, and branch out with build flags on different build -->
       <template v-if="!config">
         <FormField :label="$t('settings.llm.agent')">
           <p v-if="!hasAgentServer" class="text-sm color-faint">
@@ -145,6 +146,7 @@ const model = computed({
             <span class="i-ph:circle-notch animate-spin" aria-hidden="true" />
             {{ $t('settings.llm.agentDetecting') }}
           </p>
+          <!-- TODO: use a dropdown list for agents, with pre-define icons for each known agent -->
           <ActionToggleGroup
             v-else-if="agentOptions.length"
             :model-value="llmSettings.agent"

@@ -53,8 +53,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
         role="dialog"
         aria-modal="true"
         :aria-label="title"
-        class="relative z-modal-content max-h-full w-full flex flex-col overflow-hidden border border-base rounded-lg bg-base shadow-xl outline-none"
-        :class="spacious ? 'max-w-2xl' : 'max-w-xl'"
+        class="relative z-modal-content max-h-full max-w-3xl w-full flex flex-col overflow-hidden border border-base rounded-lg bg-base shadow-xl outline-none"
       >
         <header
           v-if="title || description || $slots.header" class="flex shrink-0 items-start justify-between gap-2 border-b border-base"
