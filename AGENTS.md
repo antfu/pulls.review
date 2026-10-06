@@ -28,6 +28,18 @@ runtime skill; pulls.review browser and Storybook surfaces normally use
   capture route.
 - Capture the same state from the merge base and proposed HEAD with identical
   viewport, fixture data, locale, theme, readiness condition, and stable ID.
+- Put every captured pair under `## Visual changes` in the PR body. The image
+  row **MUST** appear before the component or page name row:
+
+  ```markdown
+  | Before | After |
+  | --- | --- |
+  | ![](before-user-asset-url) | ![](after-user-asset-url) |
+  | Settings / Connection | Settings / Connection |
+  ```
+
+  Use `Before: absent` for a newly added state and `After: removed` for a
+  deleted state. A failed capture **MUST NOT** be silently omitted.
 - Keep generated captures under `.vishot/`. If the installed GitHub CLI
   supports `gh ... --attach`, use it to upload PR-only evidence. Otherwise,
   invoke `$upload-github-attachment` and use the returned user-attachment URL.
