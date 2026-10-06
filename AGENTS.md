@@ -14,6 +14,11 @@ where the two disagree, the packages' `src/` and test suites win, and the docs g
 
 ## Pull request visual evidence
 
+When preparing or creating a pull request, invoke `$antfu-create-pr`. Its
+title, body, and verification contract is authoritative; the rules below add
+repository-specific visual evidence requirements without replacing that
+contract.
+
 When `$antfu-create-pr` handles a user-visible UI change, it **MUST** invoke
 `$use-vishot` for before/after evidence. Let `$use-vishot` select the matching
 runtime skill; pulls.review browser and Storybook surfaces normally use
