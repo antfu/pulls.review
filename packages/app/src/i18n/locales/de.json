@@ -215,7 +215,6 @@
     "uncategorizedSummary": "Dateien, die die aktuelle Analyse nicht abdeckt."
   },
   "note": {
-    "label": "Analysehinweis",
     "critical": "Sorgfältig prüfen"
   },
   "file": {

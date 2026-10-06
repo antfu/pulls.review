@@ -215,7 +215,6 @@
     "uncategorizedSummary": "当前分析未覆盖的文件。"
   },
   "note": {
-    "label": "分析备注",
     "critical": "请仔细审查"
   },
   "file": {
