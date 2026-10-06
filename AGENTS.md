@@ -12,15 +12,12 @@ where the two disagree, the packages' `src/` and test suites win, and the docs g
   (rendered Markdown, `v-html`), add a shortcut in `packages/app/uno.config.ts`
   built from arbitrary descendant variants (`[&_pre]:p-3`).
 
-## Pull request preparation
+## Pull request visual evidence
 
 When preparing, creating, or updating a pull request, invoke
-`$antfu-create-pr` when it is available. Its title and publication workflow
-still apply. Invoke `$prefer-pr-body-as` with the `airi` profile for comparison,
-body structure, behavior evidence, risk mapping, and verification. This body
-profile applies even when `$antfu-create-pr` cannot be resolved.
-
-### Visual evidence
+`$antfu-create-pr`. It owns the title, body structure, evidence format, and
+publication workflow. The rules below specialize its visual-evidence workflow
+for this repository.
 
 When `$antfu-create-pr` handles a user-visible UI change, it **MUST** invoke
 `$use-vishot` for before/after evidence. Let `$use-vishot` select the matching
@@ -31,19 +28,6 @@ runtime skill; pulls.review browser and Storybook surfaces normally use
   capture route.
 - Capture the same state from the merge base and proposed HEAD with identical
   viewport, fixture data, locale, theme, readiness condition, and stable ID.
-- Put every captured pair under `## Visual changes` in the PR body. The image
-  row **MUST** appear before the component or page name row:
-
-  ```markdown
-  | Before                                                  | After                                                 |
-  | ------------------------------------------------------- | ----------------------------------------------------- |
-  | ![Before: Settings / Connection](before-user-asset-url) | ![After: Settings / Connection](after-user-asset-url) |
-  | Settings / Connection                                   | Settings / Connection                                 |
-  ```
-
-  Use `Before: absent` for a newly added state and `After: removed` for a
-  deleted state. A failed capture **MUST NOT** be silently omitted.
-
 - Keep generated captures under `.vishot/`. If the installed GitHub CLI
   supports `gh ... --attach`, use it to upload PR-only evidence. Otherwise,
   invoke `$upload-github-attachment` and use the returned user-attachment URL.
