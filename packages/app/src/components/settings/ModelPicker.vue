@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import type { ModelOption } from '@pulls.review/core/llm'
 import FormTextInput from '@antfu/design/components/Form/FormTextInput.vue'
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-// Inline expandable picker (no floating popper: the embed build runs in a
-// Shadow DOM where teleported poppers escape the shadow root unstyled).
-// Collapsed it's a single trigger row; expanded it grows in-flow into a
-// searchable list with per-model pricing where the provider exposes it.
+// A trigger row that floats a searchable list with per-model pricing where the
+// provider exposes it. The list portals into this component rather than
+// `document.body`: the embed runs in a Shadow DOM a body teleport would escape
+// unstyled, and in the Settings modal a body-level popper would stack behind it.
 const props = defineProps<{
   /** Catalog for the active provider; `null` while unavailable. */
   models: ModelOption[] | null
@@ -21,17 +22,9 @@ const { t } = useI18n()
 
 const open = ref(false)
 const query = ref('')
-const listEl = useTemplateRef<HTMLDivElement>('listEl')
+const host = useTemplateRef<HTMLDivElement>('host')
 
-watch(open, async (isOpen) => {
-  query.value = ''
-  if (isOpen) {
-    // The list expands in-flow near the bottom of a scrollable modal body -
-    // bring it into view so opening the picker actually reveals options.
-    await nextTick()
-    listEl.value?.scrollIntoView({ block: 'nearest' })
-  }
-})
+watch(open, () => query.value = '')
 
 const current = computed(() => props.models?.find(m => m.id === modelId.value))
 
@@ -84,74 +77,78 @@ function priceTitle(model: ModelOption): string | undefined {
     :placeholder="$t('settings.models.placeholder')"
   />
 
-  <!-- TODO: model picker panel should be floating -->
-  <div v-else class="flex flex-col border border-base rounded bg-raised">
-    <button
-      type="button"
-      class="h-9 inline-flex items-center justify-between gap-2 px-2.5 text-sm outline-none transition focus-visible:ring-2 focus-visible:ring-primary-500/40"
-      :aria-expanded="open"
-      @click="open = !open"
-    >
-      <span v-if="loading" class="flex items-center gap-2 op-fade">
-        <span class="i-ph:circle-notch animate-spin" aria-hidden="true" />
-        {{ $t('settings.models.loading') }}
-      </span>
-      <span v-else class="min-w-0 flex items-center gap-2 color-base">
-        <span class="truncate">{{ current?.name ?? modelId }}</span>
-        <span v-if="current && priceLabel(current)" class="shrink-0 text-xs tabular-nums op-mute" :title="priceTitle(current)">
-          {{ priceLabel(current) }}
-        </span>
-      </span>
-      <span :class="open ? 'i-ph:caret-up' : 'i-ph:caret-down'" class="shrink-0 op-fade" aria-hidden="true" />
-    </button>
-
-    <div v-if="open" ref="listEl" class="flex flex-col border-t border-base">
-      <div class="p-1.5">
-        <FormTextInput
-          v-model="query"
-          size="sm"
-          icon="i-ph:magnifying-glass"
-          :placeholder="$t('settings.models.search')"
-          clearable
-          class="w-full"
-        />
-      </div>
-      <div class="max-h-56 of-y-auto pb-1" role="listbox">
-        <div v-if="loading" class="px-3 py-4 text-center text-sm op-mute">
+  <div v-else ref="host" class="relative">
+    <PopoverRoot v-model:open="open">
+      <PopoverTrigger
+        class="h-9 w-full inline-flex items-center justify-between gap-2 border border-base rounded bg-raised px-2.5 text-sm outline-none transition focus-visible:ring-2 focus-visible:ring-primary-500/40"
+      >
+        <span v-if="loading" class="flex items-center gap-2 op-fade">
+          <span class="i-ph:circle-notch animate-spin" aria-hidden="true" />
           {{ $t('settings.models.loading') }}
-        </div>
-        <div v-else-if="!filtered.length && !customCandidate" class="px-3 py-4 text-center text-sm op-mute">
-          {{ $t('settings.models.noMatch') }}
-        </div>
-        <button
-          v-for="model in filtered"
-          :key="model.id"
-          type="button"
-          role="option"
-          :aria-selected="model.id === modelId"
-          class="w-full flex items-center gap-2 px-3 py-1.5 text-left text-sm outline-none transition focus-visible:bg-hover"
-          :class="model.id === modelId ? 'color-active bg-active' : 'op-fade hover:op100 hover:bg-hover'"
-          @click="pick(model.id)"
+        </span>
+        <span v-else class="min-w-0 flex items-center gap-2 color-base">
+          <span class="truncate">{{ current?.name ?? modelId }}</span>
+          <span v-if="current && priceLabel(current)" class="shrink-0 text-xs tabular-nums op-mute" :title="priceTitle(current)">
+            {{ priceLabel(current) }}
+          </span>
+        </span>
+        <span :class="open ? 'i-ph:caret-up' : 'i-ph:caret-down'" class="shrink-0 op-fade" aria-hidden="true" />
+      </PopoverTrigger>
+
+      <PopoverPortal :to="host ?? undefined">
+        <PopoverContent
+          align="start"
+          :side-offset="6"
+          class="z-dropdown w-[--reka-popover-trigger-width] flex flex-col overflow-hidden border border-base rounded-lg bg-glass:75 shadow-lg outline-none"
         >
-          <span class="min-w-0 flex-1 truncate">{{ model.name }}</span>
-          <span
-            v-if="priceLabel(model)"
-            class="shrink-0 text-xs tabular-nums"
-            :class="model.pricing?.input === 0 && model.pricing.output === 0 ? 'color-active' : 'op-mute'"
-            :title="priceTitle(model)"
-          >{{ priceLabel(model) }}</span>
-          <span v-if="model.id === modelId" class="i-ph:check shrink-0 text-xs" aria-hidden="true" />
-        </button>
-        <button
-          v-if="customCandidate"
-          type="button"
-          class="w-full flex items-center gap-2 px-3 py-1.5 text-left text-sm op-fade outline-none transition focus-visible:bg-hover hover:bg-hover hover:op100"
-          @click="pick(customCandidate)"
-        >
-          <span class="i-ph:plus shrink-0 text-xs" aria-hidden="true" />
-          <span class="min-w-0 flex-1 truncate">{{ $t('settings.models.useCustom', { id: customCandidate }) }}</span>
-        </button>
-      </div>
-    </div>
+          <div class="p-1.5">
+            <FormTextInput
+              v-model="query"
+              size="sm"
+              icon="i-ph:magnifying-glass"
+              :placeholder="$t('settings.models.search')"
+              clearable
+              class="w-full"
+            />
+          </div>
+          <div class="max-h-56 of-y-auto pb-1" role="listbox">
+            <div v-if="loading" class="px-3 py-4 text-center text-sm op-mute">
+              {{ $t('settings.models.loading') }}
+            </div>
+            <div v-else-if="!filtered.length && !customCandidate" class="px-3 py-4 text-center text-sm op-mute">
+              {{ $t('settings.models.noMatch') }}
+            </div>
+            <button
+              v-for="model in filtered"
+              :key="model.id"
+              type="button"
+              role="option"
+              :aria-selected="model.id === modelId"
+              class="w-full flex items-center gap-2 px-3 py-1.5 text-left text-sm outline-none transition focus-visible:bg-hover"
+              :class="model.id === modelId ? 'color-active bg-active' : 'op-fade hover:op100 hover:bg-hover'"
+              @click="pick(model.id)"
+            >
+              <span class="min-w-0 flex-1 truncate">{{ model.name }}</span>
+              <span
+                v-if="priceLabel(model)"
+                class="shrink-0 text-xs tabular-nums"
+                :class="model.pricing?.input === 0 && model.pricing.output === 0 ? 'color-active' : 'op-mute'"
+                :title="priceTitle(model)"
+              >{{ priceLabel(model) }}</span>
+              <span v-if="model.id === modelId" class="i-ph:check shrink-0 text-xs" aria-hidden="true" />
+            </button>
+            <button
+              v-if="customCandidate"
+              type="button"
+              class="w-full flex items-center gap-2 px-3 py-1.5 text-left text-sm op-fade outline-none transition focus-visible:bg-hover hover:bg-hover hover:op100"
+              @click="pick(customCandidate)"
+            >
+              <span class="i-ph:plus shrink-0 text-xs" aria-hidden="true" />
+              <span class="min-w-0 flex-1 truncate">{{ $t('settings.models.useCustom', { id: customCandidate }) }}</span>
+            </button>
+          </div>
+        </PopoverContent>
+      </PopoverPortal>
+    </PopoverRoot>
   </div>
 </template>
