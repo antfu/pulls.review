@@ -214,6 +214,10 @@
     "uncategorized": "미분류",
     "uncategorizedSummary": "현재 분석에 포함되지 않은 파일."
   },
+  "note": {
+    "label": "분석 메모",
+    "critical": "주의 깊게 검토"
+  },
   "file": {
     "markReviewed": "리뷰 완료로 표시",
     "markFolderReviewed": "{name}의 모든 파일을 리뷰 완료로 표시",

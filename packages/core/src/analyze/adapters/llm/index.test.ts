@@ -230,7 +230,29 @@ describe('reconcile', () => {
     const result = (await analyze(diffWithFiles(file('a.ts'), file('b.ts')))).result
 
     expect(result.groups).toEqual([
-      { key: 'code', label: 'Code', category: 'core', filePaths: ['a.ts'], children: undefined },
+      { key: 'code', label: 'Code', category: 'core', filePaths: ['a.ts'], children: undefined, notes: undefined },
     ])
+  })
+
+  it('keeps notes and critical flags, dropping notes on paths the group does not hold', async () => {
+    const analysis: Analysis = {
+      overallSummary: 'Summary.',
+      groups: [
+        { key: 'code', label: 'Code', category: 'core', critical: true, filePaths: ['a.ts', 'made-up.ts'], notes: [
+          { path: 'a.ts', line: 3, text: 'Subtle.', critical: true },
+          { path: 'made-up.ts', text: 'Hallucinated.' },
+          { path: 'b.ts', text: 'Belongs to the child.' },
+        ], children: [{ key: 'child', label: 'Child', category: 'tests', filePaths: ['b.ts'], notes: [{ path: 'b.ts', text: 'Covers the edge case.' }] }] },
+      ],
+    }
+    faux.setResponses([submit(analysis), submit(analysis)])
+
+    const result = (await analyze(diffWithFiles(file('a.ts'), file('b.ts')))).result
+
+    expect(result.groups[0]).toMatchObject({
+      critical: true,
+      notes: [{ path: 'a.ts', line: 3, text: 'Subtle.', critical: true }],
+      children: [{ notes: [{ path: 'b.ts', text: 'Covers the edge case.' }] }],
+    })
   })
 })

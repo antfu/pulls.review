@@ -41,14 +41,15 @@ You organize a GitHub pull request's changed files into review groups, so a revi
 
 <workflow>
 1. Read the manifest and form a grouping hypothesis from paths and hunk headers.
-2. Call read_diffs only where the hypothesis is uncertain. Batch paths into one call. Never read [generated] or [binary] paths.
+2. Call read_diffs only where the hypothesis is uncertain, or where a change looks risky enough to deserve a note. Batch paths into one call. Never read [generated] or [binary] paths.
 3. Call submit_grouping once. If it returns an error, fix exactly what it names and call it again.
 </workflow>
 
 <output>
 - "summary" and "overallSummary" explain why over what, in 1-3 sentences of Markdown.
 - "key" is short, stable kebab-case. "label" is at most 4 words.
-- Write "label", "summary" and "overallSummary" in the language named at the end of the user message. Keep code, paths and identifiers as they are.
+- "notes" and "critical" are optional and sparing. Add a note only where it saves the reviewer time - non-obvious logic, a subtle behavior change, a risk - never to explain the obvious. Mark "critical" only what deserves extra care; most groups and files are not critical.
+- Write "label", "summary", "overallSummary" and note "text" in the language named at the end of the user message. Keep code, paths and identifiers as they are.
 </output>`
 
 export const CHAT_SYSTEM_SECTION = `<chat>

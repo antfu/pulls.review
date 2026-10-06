@@ -1,6 +1,6 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import type { Locale } from '../../../locales'
-import type { DiffGroup, GroupedResult, GroupedResultCore } from '../../../types/analyze'
+import type { DiffGroup, GroupedResult, GroupedResultCore, GroupNote } from '../../../types/analyze'
 import type { DiffsPayload } from '../../../types/diff'
 import type { LlmAnalyzeOptions } from './agent'
 import type { ResolvedModel } from './model'
@@ -10,11 +10,17 @@ import { runAgent } from './agent'
 
 export const LLM_SCHEMA_VERSION = 1
 
+/** Notes only make sense on a file the group actually holds. */
+function keepOwnNotes<T extends { filePaths: string[], notes?: GroupNote[] }>(group: T): T {
+  const notes = group.notes?.filter(note => group.filePaths.includes(note.path))
+  return { ...group, notes: notes?.length ? notes : undefined }
+}
+
 /**
  * Drops any file path the model hallucinated (not in the diff) and any it duplicated
- * across groups (first group wins). Files the model left out are not re-attached
- * here: `resolveGroups` surfaces them as "Uncategorized" at view time, the same way
- * it handles files added by later commits.
+ * across groups (first group wins), along with notes on paths the group lost. Files
+ * the model left out are not re-attached here: `resolveGroups` surfaces them as
+ * "Uncategorized" at view time, the same way it handles files added by later commits.
  */
 function reconcile(diff: DiffsPayload, analysis: Analysis): DiffGroup[] {
   const validPaths = new Set(diff.files.map(file => file.path))
@@ -26,7 +32,7 @@ function reconcile(diff: DiffsPayload, analysis: Analysis): DiffGroup[] {
     filePaths.forEach(path => seen.add(path))
 
     const children = group.children
-      ?.map(child => ({
+      ?.map(child => keepOwnNotes({
         ...child,
         filePaths: child.filePaths.filter((path) => {
           if (!validPaths.has(path) || seen.has(path))
@@ -39,7 +45,7 @@ function reconcile(diff: DiffsPayload, analysis: Analysis): DiffGroup[] {
 
     if (filePaths.length === 0 && !children?.length)
       continue
-    groups.push({ ...group, filePaths, children: children?.length ? children : undefined })
+    groups.push(keepOwnNotes({ ...group, filePaths, children: children?.length ? children : undefined }))
   }
 
   return groups

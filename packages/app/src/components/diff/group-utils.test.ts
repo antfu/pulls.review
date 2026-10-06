@@ -1,6 +1,6 @@
 import type { FileChange } from '@pulls.review/core/types'
 import { describe, expect, it } from 'vitest'
-import { countGroupFiles, countGroupStats, resolveGroups } from './group-utils'
+import { countGroupFiles, countGroupStats, fileIsCritical, groupIsCritical, resolveGroups } from './group-utils'
 
 function file(path: string, previousPath?: string): FileChange {
   return { path, previousPath, status: previousPath ? 'renamed' : 'modified', additions: 2, deletions: 1, isBinary: false, sha: path, hunks: [] }
@@ -73,5 +73,71 @@ describe('resolveGroups', () => {
     )
 
     expect(groups.map(group => group.files.length)).toEqual([1, 1])
+  })
+})
+
+describe('resolveGroups notes', () => {
+  const hunk = { header: '@@ -10,3 +20,5 @@', oldStart: 10, oldLines: 3, newStart: 20, newLines: 5, patch: '' }
+  const changed: FileChange = { ...file('x.ts'), hunks: [hunk] }
+
+  it('attaches notes to their file and anchors a line a hunk shows, defaulting to the additions side', () => {
+    const [group] = resolveGroups(
+      [{ key: 'a', label: 'A', filePaths: ['x.ts'], notes: [
+        { path: 'x.ts', text: 'whole file' },
+        { path: 'x.ts', line: 22, text: 'new line' },
+        { path: 'x.ts', line: 11, side: 'deletions', text: 'old line', critical: true },
+      ] }],
+      [changed],
+    )
+
+    expect(group!.notes.get('x.ts')).toEqual([
+      { text: 'whole file', critical: false },
+      { text: 'new line', critical: false, anchor: { side: 'additions', line: 22 } },
+      { text: 'old line', critical: true, anchor: { side: 'deletions', line: 11 } },
+    ])
+    expect(fileIsCritical(group!.notes.get('x.ts'))).toBe(true)
+  })
+
+  it('renders a note whose line no hunk shows as a file-level note instead of losing it', () => {
+    const [group] = resolveGroups(
+      [{ key: 'a', label: 'A', filePaths: ['x.ts'], notes: [{ path: 'x.ts', line: 99, text: 'off-screen' }] }],
+      [changed],
+    )
+
+    expect(group!.notes.get('x.ts')).toEqual([{ text: 'off-screen', critical: false }])
+  })
+
+  it('anchors to the deletions side by default on a deleted file', () => {
+    const deleted: FileChange = { ...file('x.ts'), status: 'removed', hunks: [{ ...hunk, newStart: 0, newLines: 0 }] }
+    const [group] = resolveGroups(
+      [{ key: 'a', label: 'A', filePaths: ['x.ts'], notes: [{ path: 'x.ts', line: 11, text: 'gone' }] }],
+      [deleted],
+    )
+
+    expect(group!.notes.get('x.ts')![0]!.anchor).toEqual({ side: 'deletions', line: 11 })
+  })
+
+  it('drops notes on paths that left the diff and finds a renamed file by its old path', () => {
+    const [group] = resolveGroups(
+      [{ key: 'a', label: 'A', filePaths: ['old.ts', 'gone.ts'], notes: [
+        { path: 'old.ts', text: 'renamed' },
+        { path: 'gone.ts', text: 'vanished' },
+      ] }],
+      [file('new.ts', 'old.ts')],
+    )
+
+    expect([...group!.notes.keys()]).toEqual(['new.ts'])
+  })
+
+  it('derives criticality from the group flag, a critical note, or a critical child', () => {
+    const groups = resolveGroups([
+      { key: 'flagged', label: 'F', critical: true, filePaths: ['x.ts'] },
+      { key: 'noted', label: 'N', filePaths: ['y.ts'], notes: [{ path: 'y.ts', text: 'careful', critical: true }] },
+      { key: 'parent', label: 'P', filePaths: [], children: [{ key: 'child', label: 'C', critical: true, filePaths: ['z.ts'] }] },
+      { key: 'plain', label: 'Q', filePaths: ['w.ts'], notes: [{ path: 'w.ts', text: 'fyi' }] },
+    ], [file('x.ts'), file('y.ts'), file('z.ts'), file('w.ts')])
+
+    expect(groups.map(group => group.critical)).toEqual([true, true, false, false])
+    expect(groups.map(groupIsCritical)).toEqual([true, true, true, false])
   })
 })

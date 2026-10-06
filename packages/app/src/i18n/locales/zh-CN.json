@@ -214,6 +214,10 @@
     "uncategorized": "未分类",
     "uncategorizedSummary": "当前分析未覆盖的文件。"
   },
+  "note": {
+    "label": "分析备注",
+    "critical": "请仔细审查"
+  },
   "file": {
     "markReviewed": "标记为已审阅",
     "markFolderReviewed": "将 {name} 中的所有文件标记为已审阅",

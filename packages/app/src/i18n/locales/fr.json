@@ -214,6 +214,10 @@
     "uncategorized": "Non classés",
     "uncategorizedSummary": "Fichiers non couverts par l'analyse actuelle."
   },
+  "note": {
+    "label": "Note d'analyse",
+    "critical": "À relire attentivement"
+  },
   "file": {
     "markReviewed": "Marquer comme relu",
     "markFolderReviewed": "Marquer tous les fichiers de {name} comme relus",

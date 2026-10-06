@@ -214,6 +214,10 @@
     "uncategorized": "未分類",
     "uncategorizedSummary": "目前分析未涵蓋的檔案。"
   },
+  "note": {
+    "label": "分析備註",
+    "critical": "請仔細審查"
+  },
   "file": {
     "markReviewed": "標記為已審閱",
     "markFolderReviewed": "將 {name} 中的所有檔案標記為已審閱",

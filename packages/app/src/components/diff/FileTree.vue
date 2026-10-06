@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import type { FileChange } from '@pulls.review/core/types'
 import type { DiffsStore } from '../../stores/types'
+import type { FileNote } from './group-utils'
 import DisplayFileIcon from '@antfu/design/components/Display/DisplayFileIcon.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
 import { useVirtualizer } from '@tanstack/vue-virtual'
 import { computed, useTemplateRef } from 'vue'
+import CriticalMark from './CriticalMark.vue'
 import DiffStats from './DiffStats.vue'
 import FileStatus from './FileStatus.vue'
+import { fileIsCritical } from './group-utils'
 import { reviewStatus } from './review-status'
 import ReviewCheckbox from './ReviewCheckbox.vue'
 
 const props = defineProps<{
   store: DiffsStore
   files: FileChange[]
+  /** Analysis notes by file sha, for the critical marker. */
+  notes?: Map<string, FileNote[]>
   /** Paths the analysis named that have since left the diff, shown as removed. */
   missing?: string[]
   /** Shas of the files currently scrolled into view. */
@@ -154,6 +159,7 @@ const virtualizer = useVirtualizer(computed(() => ({
             @click="emit('navigate', row.row.file.sha)"
           >
             <DisplayFilePath :path="row.row.name" :dim="false" class="min-w-0 flex-1" />
+            <CriticalMark v-if="fileIsCritical(notes?.get(row.row.file.sha))" class="text-sm" />
             <DiffStats :additions="row.row.file.additions" :deletions="row.row.file.deletions" />
             <FileStatus :status="row.row.file.status" />
           </button>

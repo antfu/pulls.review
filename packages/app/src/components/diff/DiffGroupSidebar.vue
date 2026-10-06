@@ -3,8 +3,9 @@ import type { ResolvedGroupWithChildren } from './group-utils'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { computed, ref } from 'vue'
+import CriticalMark from './CriticalMark.vue'
 import DiffStats from './DiffStats.vue'
-import { countGroupFiles, countGroupStats, groupProgress } from './group-utils'
+import { countGroupFiles, countGroupStats, groupIsCritical, groupProgress } from './group-utils'
 import GroupCategoryIcon from './GroupCategoryIcon.vue'
 
 const props = defineProps<{
@@ -61,6 +62,7 @@ const rows = computed(() => props.groups.flatMap(group => [
             :class="groupsVisable.includes(group.key) ? '' : 'saturate-0'"
           />
           <span class="truncate" :title="group.label">{{ group.label }}</span>
+          <CriticalMark v-if="groupIsCritical(group)" class="text-sm" />
         </span>
         <span class="flex items-center gap-1 text-xs">
           <DiffStats :additions="countGroupStats(group).added" :deletions="countGroupStats(group).deleted" />

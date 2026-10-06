@@ -4,8 +4,9 @@ import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.v
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { computed } from 'vue'
 import { CATEGORY_COLOR_CLASS } from './category-icons'
+import CriticalMark from './CriticalMark.vue'
 import DiffStats from './DiffStats.vue'
-import { countGroupFiles, countGroupStats, groupProgress } from './group-utils'
+import { countGroupFiles, countGroupStats, groupIsCritical, groupProgress } from './group-utils'
 import GroupCategoryIcon from './GroupCategoryIcon.vue'
 
 const props = defineProps<{
@@ -24,6 +25,7 @@ const stats = computed(() => countGroupStats(props.group))
 const fileCount = computed(() => countGroupFiles(props.group))
 const subgroupCount = computed(() => props.group.children.length)
 const progress = computed(() => groupProgress(props.group, props.reviewed))
+const isCritical = computed(() => groupIsCritical(props.group))
 </script>
 
 <template>
@@ -50,6 +52,7 @@ const progress = computed(() => groupProgress(props.group, props.reviewed))
             :class="active ? '' : 'saturate-0'"
           />
           <span>{{ group.label }}</span>
+          <CriticalMark v-if="isCritical" class="text-sm" />
         </div>
         <div class="flex items-center text-xs">
           <DiffStats :additions="stats.added" :deletions="stats.deleted" />

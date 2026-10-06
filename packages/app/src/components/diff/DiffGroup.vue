@@ -8,12 +8,13 @@ import { Markdown } from '@comark/vue'
 import { computed, nextTick, ref } from 'vue'
 import { useFitText } from '../../composables/useFitText'
 import { showGroupSidebar } from '../../state/group-nav'
+import CriticalMark from './CriticalMark.vue'
 import DiffGroup from './DiffGroup.vue'
 import DiffGroupNav from './DiffGroupNav.vue'
 import DiffStats from './DiffStats.vue'
 import FileDiff from './FileDiff.vue'
 import FileTree from './FileTree.vue'
-import { countGroupFiles, countGroupStats } from './group-utils'
+import { countGroupFiles, countGroupStats, groupIsCritical } from './group-utils'
 import GroupCategoryIcon from './GroupCategoryIcon.vue'
 
 const props = defineProps<{
@@ -31,6 +32,7 @@ const emit = defineEmits<{
 }>()
 
 const totalFiles = computed(() => countGroupFiles(props.group))
+const isCritical = computed(() => groupIsCritical(props.group))
 const stats = computed(() => countGroupStats(props.group))
 const totalAdded = computed(() => stats.value.added)
 const totalDeleted = computed(() => stats.value.deleted)
@@ -115,6 +117,7 @@ function navigateToFile(sha: string) {
             <div class="flex items-center gap-2 leading-1em">
               <GroupCategoryIcon :category="group.category" class="text-xl" />
               <span class="truncate text-2xl font-medium leading-1em" :title="group.label">{{ group.label }}</span>
+              <CriticalMark v-if="isCritical" class="text-xl" />
             </div>
             <div class="flex items-center gap-2 leading-1em">
               <DiffStats :additions="totalAdded" :deletions="totalDeleted" />
@@ -182,6 +185,7 @@ function navigateToFile(sha: string) {
                   >
                     <span ref="labelText">{{ group.label }}</span>
                   </span>
+                  <CriticalMark v-if="isCritical" class="text-base" />
                   <div class="flex shrink-0 items-center" :title="$t('group.filesReviewed', { reviewed: reviewedCount, total: totalFiles })" />
                 </div>
                 <div class="flex items-center gap-2 leading-1em">
@@ -204,6 +208,7 @@ function navigateToFile(sha: string) {
             class="min-h-0 flex-1"
             :store="store"
             :files="group.files"
+            :notes="group.notes"
             :missing="group.missing"
             :files-visible="filesVisible"
             @navigate="navigateToFile"
@@ -220,6 +225,7 @@ function navigateToFile(sha: string) {
               :ref="el => setFileDiffRef(file.sha, el as InstanceType<typeof FileDiff> | null)"
               :store="store"
               :file="file"
+              :notes="group.notes.get(file.sha)"
             />
           </template>
         </template>

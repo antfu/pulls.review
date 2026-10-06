@@ -2,6 +2,7 @@
 import type { DiffLineAnnotation, FileDiffOptions, SelectedLineRange } from '@pierre/diffs'
 import type { CommentThread, DiffSide, FileChange, ReviewDraftTarget } from '@pulls.review/core/types'
 import type { DiffsStore } from '../../stores/types'
+import type { FileNote } from './group-utils'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
@@ -10,10 +11,13 @@ import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, useTemplat
 import { isDark as globalIsDark, isDarkKey } from '../../state/dark'
 import { syntaxTheme } from '../../state/syntax-theme'
 import { wrapLines } from '../../state/wrap-lines'
+import AnalysisNoteCard from './AnalysisNoteCard.vue'
 import CommentComposer from './CommentComposer.vue'
+import CriticalMark from './CriticalMark.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffStats from './DiffStats.vue'
 import FileStatus from './FileStatus.vue'
+import { fileIsCritical } from './group-utils'
 import { isNoisyFile } from './noisy-files'
 import { ensurePierreDiffsShadowRoot } from './pierre-diffs-shadow'
 import { reviewStatus } from './review-status'
@@ -23,10 +27,14 @@ import ReviewThreadCard from './ReviewThreadCard.vue'
 const props = defineProps<{
   store: DiffsStore
   file: FileChange
+  /** Analysis notes resolved for this file (see `resolveGroups`). */
+  notes?: FileNote[]
 }>()
 
 const status = computed(() => reviewStatus(props.store, props.file))
 const isReviewed = computed(() => status.value === 'reviewed')
+const isCritical = computed(() => fileIsCritical(props.notes))
+const fileNotes = computed(() => props.notes?.filter(note => !note.anchor) ?? [])
 
 // Reads the embed's own scoped ref when provided (see `state/dark.ts`), otherwise the
 // app-wide singleton - never targets `document.documentElement` from inside the embed.
@@ -177,23 +185,28 @@ const draftError = ref<string>()
 interface AnnotationGroup {
   side: DiffSide
   line: number
+  notes: FileNote[]
   threads: CommentThread[]
   hasDraft: boolean
 }
 
 // One annotation (and one slotted wrapper) per anchor line: pierre emits one
 // shadow-DOM `<slot>` per annotation, and duplicate slot names would swallow
-// all but the first wrapper - so threads sharing a line stack in one group.
+// all but the first wrapper - so notes and threads sharing a line stack in one group.
 const annotationGroups = computed<AnnotationGroup[]>(() => {
   const groups = new Map<string, AnnotationGroup>()
   function groupFor(side: DiffSide, line: number): AnnotationGroup {
     const key = `${side}-${line}`
     let group = groups.get(key)
     if (!group) {
-      group = { side, line, threads: [], hasDraft: false }
+      group = { side, line, notes: [], threads: [], hasDraft: false }
       groups.set(key, group)
     }
     return group
+  }
+  for (const note of props.notes ?? []) {
+    if (note.anchor)
+      groupFor(note.anchor.side, note.anchor.line).notes.push(note)
   }
   for (const thread of visibleThreads.value)
     groupFor(thread.side, thread.line!).threads.push(thread)
@@ -370,6 +383,7 @@ defineExpose({
           @update="store.setReviewed([file.sha], $event)"
         />
         <DisplayFilePath :path="file.path" class="min-w-0" />
+        <CriticalMark v-if="isCritical" />
       </div>
       <div class="flex shrink-0 items-center gap-2">
         <span v-if="resolvedCount" class="text-xs op-fade">{{ $t('file.resolved', { n: resolvedCount }) }}</span>
@@ -405,6 +419,9 @@ defineExpose({
         {{ $t('file.markReviewed') }}
       </ActionButton>
     </div>
+    <div v-if="fileNotes.length" class="border-b border-base px-2 py-1">
+      <AnalysisNoteCard v-for="(note, index) in fileNotes" :key="index" :note="note" />
+    </div>
     <div v-if="file.isBinary" class="p-4 text-sm op-fade">
       {{ $t('file.binaryNotShown') }}
     </div>
@@ -427,6 +444,7 @@ defineExpose({
         data-annotation-slot
         class="whitespace-normal px-2 text-left font-sans"
       >
+        <AnalysisNoteCard v-for="(note, index) in group.notes" :key="index" :note="note" />
         <ReviewThreadCard
           v-for="thread in group.threads"
           :key="thread.rootId"

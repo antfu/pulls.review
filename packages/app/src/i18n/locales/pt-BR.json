@@ -214,6 +214,10 @@
     "uncategorized": "Sem categoria",
     "uncategorizedSummary": "Arquivos não cobertos pela análise atual."
   },
+  "note": {
+    "label": "Nota da análise",
+    "critical": "Revisar com atenção"
+  },
   "file": {
     "markReviewed": "Marcar como revisado",
     "markFolderReviewed": "Marcar todos os arquivos em {name} como revisados",

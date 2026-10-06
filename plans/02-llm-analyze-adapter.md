@@ -5,8 +5,8 @@
 Implement `app/analyze/adapters/llm/index.ts`, currently a stub that throws
 `'llm adapter not implemented yet'`. Fits into the existing `AnalyzeAdapter`
 registry (`app/analyze/index.ts`); no changes needed to the registry itself
-or to view components, which already render `summary`/`walkthrough`/
-`overallSummary` conditionally.
+or to view components, which already render `summary`/`overallSummary`
+conditionally.
 
 ## Approach
 
@@ -18,9 +18,9 @@ or to view components, which already render `summary`/`walkthrough`/
 - Groups may nest one level (root group with `children`), unlike
   `rule-based`'s flat groups. Depth is capped at 2 total, already enforced by
   the schema (`DiffGroupLeafSchema` has no `children` field).
-- Populate `overallSummary`, per-group `summary`, and `walkthrough`. These
-  fields are optional in the schema specifically for this adapter; keep them
-  present here since it is the adapter meant to populate them.
+- Populate `overallSummary` and per-group `summary`. These fields are
+  optional in the schema specifically for this adapter; keep them present
+  here since it is the adapter meant to populate them.
 - `available` flips to `true` once a key or gateway token is configured in
   Settings; wire that check through `useSettings.ts`.
 - Large diffs must not blow the model's context: chunk by file/group rather

@@ -214,6 +214,10 @@
     "uncategorized": "Без категории",
     "uncategorizedSummary": "Файлы, не охваченные текущим анализом."
   },
+  "note": {
+    "label": "Заметка анализа",
+    "critical": "Проверьте внимательно"
+  },
   "file": {
     "markReviewed": "Отметить как проверенный",
     "markFolderReviewed": "Отметить все файлы в {name} как проверенные",

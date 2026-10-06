@@ -214,6 +214,10 @@
     "uncategorized": "Tanpa kategori",
     "uncategorizedSummary": "Berkas yang tidak tercakup oleh analisis saat ini."
   },
+  "note": {
+    "label": "Catatan analisis",
+    "critical": "Tinjau dengan cermat"
+  },
   "file": {
     "markReviewed": "Tandai sudah ditinjau",
     "markFolderReviewed": "Tandai semua berkas di {name} sudah ditinjau",

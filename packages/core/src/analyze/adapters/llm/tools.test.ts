@@ -133,6 +133,25 @@ describe('createSubmitGroupingTool', () => {
     })
   })
 
+  it('advertises optional notes and critical flags, requiring only a path and text per note', () => {
+    expect(toJsonSchema(AnalysisSchema)).toMatchObject({
+      properties: {
+        groups: {
+          items: {
+            required: expect.not.arrayContaining(['notes', 'critical']),
+            properties: {
+              critical: { type: 'boolean' },
+              notes: { items: {
+                required: ['path', 'text'],
+                properties: { line: { type: 'number' }, side: { enum: ['additions', 'deletions'] }, critical: { type: 'boolean' } },
+              } },
+            },
+          },
+        },
+      },
+    })
+  })
+
   it('throws on the first attempt when coverage issues remain, and accepts the second', async () => {
     const diff = diffWithFiles([file({ path: 'a.ts' }), file({ path: 'b.ts' })])
     const ledger = createLedger()
