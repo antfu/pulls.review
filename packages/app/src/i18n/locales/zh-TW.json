@@ -104,6 +104,8 @@
   },
   "pr": {
     "description": "描述",
+    "descriptionExpand": "展開完整描述",
+    "descriptionCollapse": "收合描述",
     "loading": "正在載入 pull request…",
     "loadFailed": "無法載入此 pull request",
     "somethingWrong": "發生了一些問題",

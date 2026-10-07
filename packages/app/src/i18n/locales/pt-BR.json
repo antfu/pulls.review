@@ -104,6 +104,8 @@
   },
   "pr": {
     "description": "Descrição",
+    "descriptionExpand": "Mostrar descrição completa",
+    "descriptionCollapse": "Recolher descrição",
     "loading": "Carregando pull request…",
     "loadFailed": "Não foi possível carregar este pull request",
     "somethingWrong": "Algo deu errado",

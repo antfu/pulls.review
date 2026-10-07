@@ -6,7 +6,7 @@ import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.v
 import FormCheckbox from '@antfu/design/components/Form/FormCheckbox.vue'
 import { Markdown } from '@comark/vue'
 import { Virtualizer } from '@pierre/diffs'
-import { useElementBounding, useEventListener } from '@vueuse/core'
+import { useElementBounding, useElementSize, useEventListener } from '@vueuse/core'
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, reactive, ref, useId, useTemplateRef, watch } from 'vue'
 import { autoRefresh } from '../../state/auto-refresh'
 import { isWide, showGroupSidebar } from '../../state/group-nav'
@@ -89,9 +89,15 @@ const { height: headerHeight } = useElementBounding(() => headerRef.value?.$el)
 // scroll down and comes back on any scroll up. Sticky offsets then collapse to the top.
 const headerHidden = computed(() => !isWide.value && scrolledDownBy.value > 300)
 const headerOffset = computed(() => headerHidden.value ? 0 : headerHeight.value)
+const DESCRIPTION_COLLAPSED_HEIGHT = 160
 const groupsVisable = ref<string[]>([])
 const descriptionId = useId()
 const descriptionVisible = ref(false)
+const descriptionOpen = ref(false)
+const descriptionBodyRef = useTemplateRef<HTMLElement>('descriptionBody')
+const { height: descriptionHeight } = useElementSize(descriptionBodyRef)
+const descriptionCollapsible = computed(() => descriptionHeight.value > DESCRIPTION_COLLAPSED_HEIGHT)
+const descriptionClamped = computed(() => descriptionCollapsible.value && !descriptionOpen.value)
 function updateVisibleGroups() {
   const root = props.document ?? document
   const viewportHeight = window.innerHeight
@@ -197,6 +203,7 @@ function refreshFromBanner() {
           :hidden="headerHidden"
           :description-id="descriptionId"
           :description-visible="descriptionVisible"
+          @open-description="descriptionOpen = true"
         />
 
         <!-- The sidebar sits at the viewport's left edge, outside the max-width column, so it doesn't narrow the diffs on wide screens. -->
@@ -223,9 +230,27 @@ function refreshFromBanner() {
               <h2 :id="`${descriptionId}-title`" class="mb-3 font-semibold">
                 {{ $t('pr.description') }}
               </h2>
-              <Suspense>
-                <Markdown :value="diff.description" class="description-markdown min-w-0" />
-              </Suspense>
+              <div
+                class="overflow-hidden"
+                :class="descriptionClamped && '[mask-image:linear-gradient(to_bottom,black_60%,transparent)]'"
+                :style="descriptionClamped ? { maxHeight: `${DESCRIPTION_COLLAPSED_HEIGHT}px` } : undefined"
+              >
+                <div ref="descriptionBody">
+                  <Suspense>
+                    <Markdown :value="diff.description" class="description-markdown min-w-0" />
+                  </Suspense>
+                </div>
+              </div>
+              <button
+                v-if="descriptionCollapsible"
+                type="button"
+                class="mt-2 flex items-center gap-1 text-sm color-muted hover:color-base"
+                :aria-expanded="descriptionOpen"
+                @click="descriptionOpen = !descriptionOpen"
+              >
+                <span :class="descriptionOpen ? 'i-ph:caret-up' : 'i-ph:caret-down'" aria-hidden="true" />
+                {{ descriptionOpen ? $t('pr.descriptionCollapse') : $t('pr.descriptionExpand') }}
+              </button>
             </section>
             <slot name="stale" :refresh="() => store?.refresh()">
               <div v-if="isStale" class="mb-4 flex flex-wrap items-center justify-between gap-3 border border-amber:20 rounded-lg bg-amber:10 bg-raised px-3 py-2 text-sm text-amber-700 dark:text-amber-400">

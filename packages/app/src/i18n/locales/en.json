@@ -104,6 +104,8 @@
   },
   "pr": {
     "description": "Description",
+    "descriptionExpand": "Show full description",
+    "descriptionCollapse": "Collapse description",
     "loading": "Loading pull request…",
     "loadFailed": "Couldn't load this pull request",
     "somethingWrong": "Something went wrong",

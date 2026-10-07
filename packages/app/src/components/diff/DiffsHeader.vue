@@ -31,6 +31,8 @@ const props = defineProps<{
   descriptionVisible?: boolean
 }>()
 
+const emit = defineEmits<{ openDescription: [] }>()
+
 const { t } = useI18n()
 
 // `store.diff` is guaranteed set - `DiffsPage` only renders this component once it is.
@@ -58,7 +60,8 @@ function scrollToGroup(key: string) {
 }
 
 function scrollToDescription() {
-  (props.document ?? document).getElementById(props.descriptionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  emit('openDescription')
+  ;(props.document ?? document).getElementById(props.descriptionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 </script>
 

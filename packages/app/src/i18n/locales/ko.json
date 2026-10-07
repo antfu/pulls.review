@@ -104,6 +104,8 @@
   },
   "pr": {
     "description": "설명",
+    "descriptionExpand": "설명 전체 보기",
+    "descriptionCollapse": "설명 접기",
     "loading": "pull request 불러오는 중…",
     "loadFailed": "이 pull request를 불러올 수 없습니다",
     "somethingWrong": "문제가 발생했습니다",
