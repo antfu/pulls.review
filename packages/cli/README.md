@@ -16,6 +16,6 @@ Run it inside a git repository. It serves on `localhost` through [devframe](http
 
 AI analysis can run through a coding agent already installed and signed in on the machine - [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [OpenCode](https://opencode.ai), or [Pi](https://github.com/earendil-works/pi) - instead of an API key: pick **Local agent** as the provider in Settings. The agent reads the patch and, for a local diff, the repository, with read-only tools; follow-up chat continues in its session.
 
-GitHub pull requests open on the same `/gh/{owner}/{repo}/{number}` pages as the site, with comments and reviews, using the token from `GITHUB_TOKEN` (or `PULLS_REVIEW_GITHUB_TOKEN`), else from `gh auth token`.
+GitHub pull requests open on the same `/gh/{owner}/{repo}/{number}` pages as the site, with comments and reviews, using the token passed with `--github-token`, else from `GITHUB_TOKEN` (or `PULLS_REVIEW_GITHUB_TOKEN`), else from `gh auth token`.
 
 To analyze a GitHub pull request in CI, use [`@pulls.review/actions`](../actions).

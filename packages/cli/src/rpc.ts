@@ -13,6 +13,8 @@ export interface LocalRpcOptions {
   /** Where the browser's cache lives (see `createRepoCacheDriver`). */
   driver: Driver
   env: Env
+  /** From `--github-token`: wins over `env` and `gh auth token`. */
+  githubToken?: string
 }
 
 const target = v.object({ target: v.string() })
@@ -21,7 +23,7 @@ const target = v.object({ target: v.string() })
  * Every function the `PR_LOCAL` SPA calls. Only a client devframe has trusted
  * reaches them; inputs are still validated, since they decide what `git` runs.
  */
-export function localRpcFunctions({ cwd, driver, env }: LocalRpcOptions) {
+export function localRpcFunctions({ cwd, driver, env, githubToken }: LocalRpcOptions) {
   const source = (text: string) => createLocalSource({ cwd, target: text })
   return [
     defineRpcFunction({ name: LOCAL_RPC.repoInfo, type: 'query', handler: () => readRepoInfo(cwd) }),
@@ -70,6 +72,6 @@ export function localRpcFunctions({ cwd, driver, env }: LocalRpcOptions) {
       returns: v.array(v.string()),
       handler: ({ base }) => driver.getKeys(base, {}),
     }),
-    defineRpcFunction({ name: LOCAL_RPC.githubToken, type: 'query', handler: () => resolveGithubToken(env) }),
+    defineRpcFunction({ name: LOCAL_RPC.githubToken, type: 'query', handler: () => resolveGithubToken(env, githubToken) }),
   ]
 }

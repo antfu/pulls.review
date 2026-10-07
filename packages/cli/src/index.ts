@@ -23,15 +23,17 @@ Target (git revision syntax):
 
 Target (GitHub):
   owner/repo#123, or a github.com pull request, compare, commit or repo URL.
-  Uses the GitHub token from GITHUB_TOKEN, else from \`gh auth token\`.
+  Uses the GitHub token from --github-token, else from GITHUB_TOKEN, else from
+  \`gh auth token\`.
 
 AI analysis uses a key from Settings, or a coding agent installed here (Claude
 Code, OpenCode, Pi) when "Local agent" is the provider in Settings.
 
 Options:
-  --worktree     open the uncommitted changes against HEAD
-  --port <port>  port to listen on
-  --no-open      do not open the browser
+  --worktree              open the uncommitted changes against HEAD
+  --github-token <token>  GitHub token for GitHub targets
+  --port <port>           port to listen on
+  --no-open               do not open the browser
   -h, --help
 
 To analyze a GitHub pull request from CI, use @pulls.review/actions.
@@ -57,6 +59,7 @@ async function main() {
   const { values: flags, positionals } = parseArgs({
     options: {
       'worktree': { type: 'boolean' },
+      'github-token': { type: 'string' },
       'port': { type: 'string' },
       'no-open': { type: 'boolean' },
       'help': { type: 'boolean', short: 'h' },
@@ -71,6 +74,7 @@ async function main() {
   await createDevServer(devframe, {
     app: createAppWithRefRoutes(),
     port: flags.port ? Number(flags.port) : undefined,
+    flags: { githubToken: flags['github-token'] },
     openBrowser: flags['no-open'] ? false : page,
     onReady: ({ origin }) => {
       process.stdout.write(`pulls.review is serving ${origin}${page}\n`)

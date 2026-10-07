@@ -67,10 +67,10 @@ is the user's own process on the user's own machine.
 this in #49). The GitHub Actions entry point stays `@pulls.review/actions`
 and MUST NOT depend on devframe. Releases require explicit approval.
 
-| Command                                                   | Does                                                                                  |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `pulls.review [target] [--worktree] [--port] [--no-open]` | Serves reviews of the repo at `cwd`, opening the page for `target` (see Pages above). |
-| `pulls.review build [target] --out-dir <dir> [--analyze]` | Writes a static, read-only snapshot of one target.                                    |
+| Command                                                                    | Does                                                                                  |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `pulls.review [target] [--worktree] [--github-token] [--port] [--no-open]` | Serves reviews of the repo at `cwd`, opening the page for `target` (see Pages above). |
+| `pulls.review build [target] --out-dir <dir> [--analyze]`                  | Writes a static, read-only snapshot of one target.                                    |
 
 - **Hub mount.** The package also exports the definition for a hub through
   `createPluginFromDevframe`. The devframe id is `pulls.review`, so hubs mount
@@ -87,7 +87,7 @@ Each function is a `defineRpcFunction` with valibot schemas.
 | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `source.key` / `source.fetch` / `source.fingerprint` / `source.loadFile` | Plan 04's `local` source for the target in the URL.                                                                                                                                                                                                                    |
 | `cache.*`                                                                | Core `/cache` repositories over the unstorage fs driver at `<git-common-dir>/pulls-review` (`git rev-parse --git-common-dir`). The cache is shared by every worktree of the repo, is never committed, and is gone when the repo is. Eviction runs here, on the server. |
-| `credentials.githubToken`                                                | `@pulls.review/core/env`, then `gh auth token`; `undefined` when neither has one.                                                                                                                                                                                      |
+| `credentials.githubToken`                                                | `--github-token`, then `@pulls.review/core/env`, then `gh auth token`; `undefined` when none has one.                                                                                                                                                                  |
 | `credentials.llm`                                                        | `llmSettingsFromEnv(process.env)`.                                                                                                                                                                                                                                     |
 | `branch.pullRequest`                                                     | The open GitHub PR whose head is the checked-out branch (below).                                                                                                                                                                                                       |
 

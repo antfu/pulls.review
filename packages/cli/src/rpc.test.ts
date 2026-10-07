@@ -57,4 +57,10 @@ describe('local RPC', () => {
     await cache.reviewMarks.set(['sha-a'], true)
     expect(await cache.reviewMarks.get(['sha-a', 'sha-b'])).toEqual(new Set(['sha-a']))
   })
+
+  it('serves the --github-token flag over the environment', async () => {
+    const env = { GITHUB_TOKEN: 'from-env' }
+    expect(await call(localRpcFunctions({ cwd: repo, driver: memoryDriver(), env, githubToken: 'from-flag' }), LOCAL_RPC.githubToken)).toBe('from-flag')
+    expect(await call(localRpcFunctions({ cwd: repo, driver: memoryDriver(), env, githubToken: '' }), LOCAL_RPC.githubToken)).toBe('from-env')
+  })
 })

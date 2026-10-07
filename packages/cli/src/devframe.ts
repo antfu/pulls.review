@@ -3,6 +3,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { LOCAL_AGENT_CHANNEL, LOCAL_DEVFRAME_ID } from '@pulls.review/core/local-rpc'
 import { defineDevframe } from 'devframe'
+import * as v from 'valibot'
 import pkg from '../package.json' with { type: 'json' }
 import { agentRpcFunctions } from './agents/rpc'
 import { localRpcFunctions } from './rpc'
@@ -27,13 +28,15 @@ export default defineDevframe({
   // No base path: devframe serves it at `/` standalone and at `/__pulls.review/` in a hub.
   // The server holds no target - every page names its own, so the CLI's argument only picks
   // which page opens.
-  async setup(ctx) {
+  async setup(ctx, info) {
     const scope = ctx.scope(LOCAL_DEVFRAME_ID)
     const functions = [
       ...localRpcFunctions({
         cwd: ctx.cwd,
         driver: await createRepoCacheDriver(ctx.cwd),
         env: process.env,
+        // The CLI hands `--github-token` over as a flag, not through `process.env`, which the agent CLIs inherit.
+        githubToken: v.parse(v.optional(v.string()), info?.flags?.githubToken),
       }),
       ...agentRpcFunctions({
         cwd: ctx.cwd,
