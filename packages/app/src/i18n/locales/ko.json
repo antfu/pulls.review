@@ -219,6 +219,8 @@
     "critical": "주의 깊게 검토"
   },
   "file": {
+    "layoutTree": "파일을 트리로 표시",
+    "layoutList": "파일을 목록으로 표시",
     "markReviewed": "리뷰 완료로 표시",
     "markFolderReviewed": "{name}의 모든 파일을 리뷰 완료로 표시",
     "changedSinceReviewed": "이 파일은 이전에 리뷰했지만 이후 커밋에서 변경되었습니다",

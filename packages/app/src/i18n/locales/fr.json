@@ -219,6 +219,8 @@
     "critical": "À relire attentivement"
   },
   "file": {
+    "layoutTree": "Afficher les fichiers en arborescence",
+    "layoutList": "Afficher les fichiers en liste",
     "markReviewed": "Marquer comme relu",
     "markFolderReviewed": "Marquer tous les fichiers de {name} comme relus",
     "changedSinceReviewed": "Ce fichier avait été relu, mais a changé dans des commits ultérieurs",

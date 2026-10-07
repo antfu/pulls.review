@@ -219,6 +219,8 @@
     "critical": "Tinjau dengan cermat"
   },
   "file": {
+    "layoutTree": "Tampilkan berkas sebagai pohon",
+    "layoutList": "Tampilkan berkas sebagai daftar",
     "markReviewed": "Tandai sudah ditinjau",
     "markFolderReviewed": "Tandai semua berkas di {name} sudah ditinjau",
     "changedSinceReviewed": "Berkas ini sudah pernah ditinjau, tetapi berubah di commit berikutnya",

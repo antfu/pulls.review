@@ -219,6 +219,8 @@
     "critical": "请仔细审查"
   },
   "file": {
+    "layoutTree": "以树形显示文件",
+    "layoutList": "以列表显示文件",
     "markReviewed": "标记为已审阅",
     "markFolderReviewed": "将 {name} 中的所有文件标记为已审阅",
     "changedSinceReviewed": "此文件之前已审阅，但在后续提交中发生了更改",

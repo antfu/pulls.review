@@ -219,6 +219,8 @@
     "critical": "慎重にレビュー"
   },
   "file": {
+    "layoutTree": "ファイルをツリーで表示",
+    "layoutList": "ファイルをリストで表示",
     "markReviewed": "レビュー済みにする",
     "markFolderReviewed": "{name} 内のすべてのファイルをレビュー済みにする",
     "changedSinceReviewed": "このファイルはレビュー済みでしたが、その後のコミットで変更されました",

@@ -8,6 +8,7 @@ import { Markdown } from '@comark/vue'
 import { computed, nextTick, ref } from 'vue'
 import { scrollToFile } from '../../composables/scrollToFile'
 import { useFitText } from '../../composables/useFitText'
+import { fileListLayout } from '../../state/file-list'
 import { showGroupSidebar } from '../../state/group-nav'
 import CriticalMark from './CriticalMark.vue'
 import DiffGroup from './DiffGroup.vue'
@@ -212,6 +213,7 @@ function navigateToFile(sha: string) {
             :notes="group.notes"
             :missing="group.missing"
             :files-visible="filesVisible"
+            :layout="fileListLayout"
             @navigate="navigateToFile"
           />
         </template>

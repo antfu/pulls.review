@@ -219,6 +219,8 @@
     "critical": "Review carefully"
   },
   "file": {
+    "layoutTree": "Show files as tree",
+    "layoutList": "Show files as list",
     "markReviewed": "Mark as reviewed",
     "markFolderReviewed": "Mark all files in {name} as reviewed",
     "changedSinceReviewed": "This file was previously reviewed but changed in later commits",

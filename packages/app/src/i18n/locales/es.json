@@ -219,6 +219,8 @@
     "critical": "Revisar con cuidado"
   },
   "file": {
+    "layoutTree": "Mostrar archivos como árbol",
+    "layoutList": "Mostrar archivos como lista",
     "markReviewed": "Marcar como revisado",
     "markFolderReviewed": "Marcar todos los archivos de {name} como revisados",
     "changedSinceReviewed": "Este archivo ya fue revisado, pero cambió en commits posteriores",

@@ -7,7 +7,7 @@ import FileTree from './FileTree.vue'
 const meta: Meta<typeof FileTree> = {
   title: 'Diff/FileTree',
   component: FileTree,
-  args: { filesVisible: [] },
+  args: { filesVisible: [], layout: 'tree' },
 }
 export default meta
 
@@ -28,6 +28,10 @@ export const Critical: Story = {
     notes: new Map([[(partiallyReviewed.diff.files[0] as any).sha, [{ text: 'Careful here.', critical: true }]]]),
     store: createMockDiffsStore({}),
   },
+}
+
+export const List: Story = {
+  args: { ...Default.args, layout: 'list' },
 }
 
 export const Empty: Story = {
