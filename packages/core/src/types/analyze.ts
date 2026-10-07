@@ -112,7 +112,7 @@ export type DiffGroupLeaf = v.InferOutput<typeof DiffGroupLeafSchema>
 export function withChildren<const TEntries extends v.ObjectEntries>(leaf: v.ObjectSchema<TEntries, undefined>) {
   return v.object({
     ...leaf.entries,
-    children: v.optional(v.pipe(v.array(leaf), v.description('One extra level of nesting, e.g. splitting a large group by sub-area. Children cannot have children of their own.'))),
+    children: v.optional(v.pipe(v.array(leaf), v.description('Rarely needed; omit by default. One extra level of nesting, only to split a very large group into clearly distinct sub-areas. Children cannot have children of their own.'))),
   })
 }
 

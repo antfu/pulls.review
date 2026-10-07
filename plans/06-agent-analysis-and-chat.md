@@ -97,13 +97,14 @@ Static text (cache-friendly), four sections:
 - `<role>`: organize a PR's changed files into review groups so a reviewer reads it
   feature by feature.
 - `<grouping_principles>`:
-  - Group by intent, not directory. One feature across modules is ONE group; split
-    by module with `children` when it has more than 5 files.
-  - Fewest groups that still separate independent intents; typically 1-5 top-level
+  - Group by intent, not directory. One feature across modules is ONE group.
+  - Keep groups flat: `children` only for a group of more than 15 files that
+    splits into clearly distinct sub-areas; no single-file children, no group
+    with only one child.
+  - Fewest groups that still separate independent intents; typically 1-5
     groups. A single-file group needs a reason.
-  - Tests, stories and fixtures belong to the feature they cover, as a `tests`
-    child when the group has children. Only tests unrelated to any feature form
-    their own group.
+  - Tests, stories and fixtures belong to the feature they cover, in the same
+    group. Only tests unrelated to any feature form their own group.
   - Order by review priority: core change first, supporting changes next,
     mechanical changes (lockfiles, generated, formatting) last.
   - Every manifest path goes into exactly one group or child.
