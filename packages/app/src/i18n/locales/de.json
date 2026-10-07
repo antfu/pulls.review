@@ -230,6 +230,10 @@
     "loadFull": "Vollständigen Dateiinhalt laden",
     "expand": "Datei ausklappen",
     "collapse": "Datei einklappen",
+    "collapseMenu": "Dateien ein-/ausklappen",
+    "expandAll": "Alle Dateien ausklappen",
+    "collapseAll": "Alle Dateien einklappen",
+    "collapseReviewed": "Reviewte Dateien einklappen",
     "noLongerInDiff": "Nicht mehr in diesem Diff",
     "removed": "entfernt"
   },

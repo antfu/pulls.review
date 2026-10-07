@@ -7,7 +7,7 @@ import FormCheckbox from '@antfu/design/components/Form/FormCheckbox.vue'
 import { Markdown } from '@comark/vue'
 import { Virtualizer } from '@pierre/diffs'
 import { useElementBounding, useEventListener } from '@vueuse/core'
-import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, reactive, ref, useTemplateRef, watch } from 'vue'
 import { autoRefresh } from '../../state/auto-refresh'
 import { showGroupSidebar } from '../../state/group-nav'
 import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
@@ -15,6 +15,7 @@ import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffGroup from './DiffGroup.vue'
 import DiffGroupSidebar from './DiffGroupSidebar.vue'
 import DiffsHeader from './DiffsHeader.vue'
+import { fileCollapseKey } from './file-collapse'
 import ReviewSummaries from './ReviewSummaries.vue'
 import SharedAnalysisBanner from './SharedAnalysisBanner.vue'
 
@@ -41,6 +42,7 @@ const groups = computed(() => props.store?.groups ?? [])
 // wrapper. `FileDiff`s mount first and connect early; the virtualizer queues them until `setup()`.
 const virtualizer = new Virtualizer()
 provide(diffVirtualizerKey, virtualizer)
+provide(fileCollapseKey, reactive(new Map<string, boolean>()))
 const rootEl = useTemplateRef<HTMLElement>('root')
 onMounted(() => {
   virtualizer.setup(props.document && !(props.document instanceof Document) ? rootEl.value! : document)

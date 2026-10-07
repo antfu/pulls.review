@@ -230,6 +230,10 @@
     "loadFull": "전체 파일 내용 불러오기",
     "expand": "파일 펼치기",
     "collapse": "파일 접기",
+    "collapseMenu": "파일 펼치기/접기",
+    "expandAll": "모든 파일 펼치기",
+    "collapseAll": "모든 파일 접기",
+    "collapseReviewed": "리뷰한 파일 접기",
     "noLongerInDiff": "더 이상 이 diff에 없음",
     "removed": "제거됨"
   },

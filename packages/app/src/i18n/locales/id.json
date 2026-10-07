@@ -230,6 +230,10 @@
     "loadFull": "Muat isi berkas lengkap",
     "expand": "Buka berkas",
     "collapse": "Tutup berkas",
+    "collapseMenu": "Buka atau tutup berkas",
+    "expandAll": "Buka semua berkas",
+    "collapseAll": "Tutup semua berkas",
+    "collapseReviewed": "Tutup berkas yang sudah ditinjau",
     "noLongerInDiff": "Tidak lagi ada di diff ini",
     "removed": "dihapus"
   },

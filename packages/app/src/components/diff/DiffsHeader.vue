@@ -12,6 +12,7 @@ import { showGroupSidebar } from '../../state/group-nav'
 import GithubAvatar from '../GithubAvatar.vue'
 import NavControls from '../NavControls.vue'
 import DiffAnalyzeButton from './DiffAnalyzeButton.vue'
+import DiffCollapseMenu from './DiffCollapseMenu.vue'
 import DiffGroupNav from './DiffGroupNav.vue'
 import DiffGroupNavToggle from './DiffGroupNavToggle.vue'
 import DiffPrMeta from './DiffPrMeta.vue'
@@ -92,6 +93,7 @@ function scrollToGroup(key: string) {
         />
         <div class="shrink-0">
           <NavControls :document="document">
+            <DiffCollapseMenu :store="store" />
             <!-- The sidebar only exists at `lg` and up, so the choice is only offered there. -->
             <div class="hidden lg:block">
               <DiffGroupNavToggle />

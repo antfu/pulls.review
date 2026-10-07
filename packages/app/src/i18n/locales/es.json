@@ -230,6 +230,10 @@
     "loadFull": "Cargar el contenido completo del archivo",
     "expand": "Desplegar archivo",
     "collapse": "Plegar archivo",
+    "collapseMenu": "Expandir o plegar archivos",
+    "expandAll": "Expandir todos los archivos",
+    "collapseAll": "Plegar todos los archivos",
+    "collapseReviewed": "Plegar archivos revisados",
     "noLongerInDiff": "Ya no está en este diff",
     "removed": "eliminado"
   },

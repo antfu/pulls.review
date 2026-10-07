@@ -230,6 +230,10 @@
     "loadFull": "Load full file content",
     "expand": "Expand file",
     "collapse": "Collapse file",
+    "collapseMenu": "Expand or collapse files",
+    "expandAll": "Expand all files",
+    "collapseAll": "Collapse all files",
+    "collapseReviewed": "Collapse reviewed files",
     "noLongerInDiff": "No longer in this diff",
     "removed": "removed"
   },

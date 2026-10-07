@@ -230,6 +230,10 @@
     "loadFull": "Charger le contenu complet du fichier",
     "expand": "Déplier le fichier",
     "collapse": "Replier le fichier",
+    "collapseMenu": "Déplier ou replier les fichiers",
+    "expandAll": "Déplier tous les fichiers",
+    "collapseAll": "Replier tous les fichiers",
+    "collapseReviewed": "Replier les fichiers relus",
     "noLongerInDiff": "N'est plus dans ce diff",
     "removed": "supprimé"
   },

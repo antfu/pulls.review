@@ -230,6 +230,10 @@
     "loadFull": "加载完整文件内容",
     "expand": "展开文件",
     "collapse": "折叠文件",
+    "collapseMenu": "展开或折叠文件",
+    "expandAll": "展开所有文件",
+    "collapseAll": "折叠所有文件",
+    "collapseReviewed": "折叠已审阅的文件",
     "noLongerInDiff": "已不在此 diff 中",
     "removed": "已移除"
   },

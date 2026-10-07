@@ -230,6 +230,10 @@
     "loadFull": "ファイル全体を読み込む",
     "expand": "ファイルを展開",
     "collapse": "ファイルを折りたたむ",
+    "collapseMenu": "ファイルの展開/折りたたみ",
+    "expandAll": "すべてのファイルを展開",
+    "collapseAll": "すべてのファイルを折りたたむ",
+    "collapseReviewed": "レビュー済みのファイルを折りたたむ",
     "noLongerInDiff": "この diff にはもう含まれていません",
     "removed": "削除済み"
   },

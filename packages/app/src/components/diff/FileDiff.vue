@@ -7,7 +7,7 @@ import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
 import { FileDiff as PierreFileDiff, processFile, VirtualizedFileDiff } from '@pierre/diffs'
-import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, inject, nextTick, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
 import { isDark as globalIsDark, isDarkKey } from '../../state/dark'
 import { syntaxTheme } from '../../state/syntax-theme'
 import { wrapLines } from '../../state/wrap-lines'
@@ -16,6 +16,7 @@ import CommentComposer from './CommentComposer.vue'
 import CriticalMark from './CriticalMark.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffStats from './DiffStats.vue'
+import { fileCollapseKey } from './file-collapse'
 import FileStatus from './FileStatus.vue'
 import { fileIsCritical } from './group-utils'
 import { isNoisyFile } from './noisy-files'
@@ -42,7 +43,12 @@ const isDark = inject(isDarkKey, globalIsDark)
 const virtualizer = inject(diffVirtualizerKey, undefined)
 
 const containerRef = useTemplateRef<HTMLDivElement>('container')
-const collapsed = ref(isReviewed.value || isNoisyFile(props.file.path))
+// Standalone (stories) there's no `DiffsPage` providing it, so state stays local.
+const collapseState = inject(fileCollapseKey, () => reactive(new Map<string, boolean>()), true)
+const collapsed = computed({
+  get: () => collapseState.get(props.file.sha) ?? (isReviewed.value || isNoisyFile(props.file.path)),
+  set: value => collapseState.set(props.file.sha, value),
+})
 let instance: PierreFileDiff | undefined
 
 function buildUnifiedDiffText(file: FileChange): string {
@@ -356,8 +362,8 @@ watch(lineAnnotations, (annotations) => {
 
 watch(isReviewed, (value) => {
   // Auto-collapse a file once it's marked reviewed (and re-expand it if unmarked) - it's
-  // already handled, no need to keep it open. `collapsed`'s initial value above mirrors
-  // this for a file that's already reviewed on first render.
+  // already handled, no need to keep it open. `collapsed`'s default above mirrors this
+  // for a file the viewer hasn't toggled yet.
   collapsed.value = value
 })
 
