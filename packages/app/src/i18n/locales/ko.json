@@ -332,6 +332,8 @@
     },
     "cached": "캐시된 pull request",
     "autoRefresh": "새 커밋이 발견되면 자동 새로 고침",
+    "autoFetchFullFile": "전체 파일 내용을 자동으로 불러오기",
+    "autoFetchFullFileHint": "전체 파일 내용으로 구문 강조를 개선합니다.",
     "language": "언어",
     "token": {
       "label": "GitHub 개인 액세스 토큰",

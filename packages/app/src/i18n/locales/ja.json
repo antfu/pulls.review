@@ -332,6 +332,8 @@
     },
     "cached": "キャッシュされた pull request",
     "autoRefresh": "新しいコミットが見つかったら自動更新",
+    "autoFetchFullFile": "ファイルの全内容を自動的に読み込む",
+    "autoFetchFullFileHint": "ファイル全体の内容で構文の強調表示を改善します。",
     "language": "言語",
     "token": {
       "label": "GitHub 個人アクセストークン",

@@ -332,6 +332,8 @@
     },
     "cached": "Pull request di cache",
     "autoRefresh": "Muat ulang otomatis saat ada commit baru",
+    "autoFetchFullFile": "Muat isi file lengkap secara otomatis",
+    "autoFetchFullFileHint": "Meningkatkan penyorotan sintaks dengan isi file lengkap.",
     "language": "Bahasa",
     "token": {
       "label": "GitHub Personal Access Token",

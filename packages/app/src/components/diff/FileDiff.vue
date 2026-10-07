@@ -9,6 +9,7 @@ import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vu
 import { FileDiff as PierreFileDiff, VirtualizedFileDiff } from '@pierre/diffs'
 import { useIntersectionObserver } from '@vueuse/core'
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
+import { autoFetchFullFile } from '../../state/auto-fetch-full-file'
 import { isDark as globalIsDark, isDarkKey } from '../../state/dark'
 import { syntaxTheme } from '../../state/syntax-theme'
 import { wrapLines } from '../../state/wrap-lines'
@@ -127,13 +128,18 @@ const fileDiff = computed(() => {
 
 // Loads the full file once the diff nears the viewport: a patch alone can't give correct
 // highlighting (see `needsFullFileToHighlight`). Loads are cached per sha and path.
+const nearViewport = ref(false)
 const { stop: stopFullFilePreload } = useIntersectionObserver(containerRef, ([entry]) => {
-  if (!entry?.isIntersecting)
+  nearViewport.value = !!entry?.isIntersecting
+}, { rootMargin: '600px 0px' })
+
+watch([nearViewport, autoFetchFullFile], ([near, enabled]) => {
+  if (!near || !enabled)
     return
   stopFullFilePreload()
   if (canLoadFullFile.value && needsFullFileToHighlight(props.file))
     loadFullFile()
-}, { rootMargin: '600px 0px' })
+})
 
 // Container width, tracked for `effectiveLayout` below - a `ResizeObserver` rather than
 // a viewport-width media query since this is per-file-diff container width (the sidebar/

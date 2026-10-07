@@ -332,6 +332,8 @@
     },
     "cached": "已缓存的 pull request",
     "autoRefresh": "发现新提交时自动刷新",
+    "autoFetchFullFile": "自动加载完整文件内容",
+    "autoFetchFullFileHint": "使用完整文件内容改善语法高亮。",
     "language": "语言",
     "token": {
       "label": "GitHub Personal Access Token",

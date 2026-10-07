@@ -7,6 +7,7 @@ import { resolveModel } from '@pulls.review/core/analyze'
 import { TabsContent, TabsIndicator, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AutoFetchFullFileSettingsSection from './AutoFetchFullFileSettingsSection.vue'
 import AutoRefreshSettingsSection from './AutoRefreshSettingsSection.vue'
 import GithubTokenSettings from './GithubTokenSettings.vue'
 import LayoutSettingsSection from './LayoutSettingsSection.vue'
@@ -74,6 +75,8 @@ const tabs = computed(() => [
 
     <TabsContent value="behavior" class="flex flex-col gap-4 p4 outline-none data-[state=inactive]:hidden">
       <AutoRefreshSettingsSection />
+      <div class="border-t border-base" />
+      <AutoFetchFullFileSettingsSection />
     </TabsContent>
 
     <TabsContent value="github" class="flex flex-col gap-4 p4 outline-none data-[state=inactive]:hidden">

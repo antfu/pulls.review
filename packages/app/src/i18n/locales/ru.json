@@ -332,6 +332,8 @@
     },
     "cached": "Кэшированные pull request",
     "autoRefresh": "Автоматически обновлять при обнаружении новых коммитов",
+    "autoFetchFullFile": "Автоматически загружать полное содержимое файлов",
+    "autoFetchFullFileHint": "Улучшает подсветку синтаксиса с помощью полного содержимого файла.",
     "language": "Язык",
     "token": {
       "label": "GitHub Personal Access Token",

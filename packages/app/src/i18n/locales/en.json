@@ -333,6 +333,8 @@
     },
     "cached": "Cached pull requests",
     "autoRefresh": "Auto refresh when new commits are found",
+    "autoFetchFullFile": "Smartly fix broken syntax highlighting",
+    "autoFetchFullFileHint": "Detects syntax errors in partial content and fetches the full version.",
     "language": "Language",
     "token": {
       "label": "GitHub Personal Access Token",
@@ -395,12 +397,21 @@
   "rules": {
     "allFiles": "All files",
     "code": { "label": "Code", "summary": "Source changes." },
-    "other": { "label": "Other", "summary": "Other changes that don't fit an existing category." },
+    "other": {
+      "label": "Other",
+      "summary": "Other changes that don't fit an existing category."
+    },
     "docs": { "label": "Docs", "summary": "Documentation updates." },
     "tests": { "label": "Tests", "summary": "Test coverage for the change." },
     "config": { "label": "Config", "summary": "Configuration changes." },
-    "deps": { "label": "Dependencies", "summary": "Dependency version changes." },
-    "generated": { "label": "Generated", "summary": "Generated or build output changes." }
+    "deps": {
+      "label": "Dependencies",
+      "summary": "Dependency version changes."
+    },
+    "generated": {
+      "label": "Generated",
+      "summary": "Generated or build output changes."
+    }
   },
   "errors": {
     "tokenRequired": "A GitHub token is required to write to this pull request.",

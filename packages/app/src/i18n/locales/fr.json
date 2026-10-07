@@ -332,6 +332,8 @@
     },
     "cached": "Pull requests en cache",
     "autoRefresh": "Actualiser automatiquement quand de nouveaux commits sont trouvés",
+    "autoFetchFullFile": "Charger automatiquement le contenu complet des fichiers",
+    "autoFetchFullFileHint": "Améliore la coloration syntaxique avec le contenu complet du fichier.",
     "language": "Langue",
     "token": {
       "label": "Personal Access Token GitHub",
