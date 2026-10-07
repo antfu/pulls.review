@@ -332,8 +332,8 @@
     },
     "cached": "Zwischengespeicherte Pull Requests",
     "autoRefresh": "Automatisch aktualisieren, wenn neue Commits gefunden werden",
-    "autoFetchFullFile": "Vollständigen Dateiinhalt automatisch laden",
-    "autoFetchFullFileHint": "Verbessert die Syntaxhervorhebung mit dem vollständigen Dateiinhalt.",
+    "autoFetchFullFile": "Fehlerhafte Syntaxhervorhebung intelligent korrigieren",
+    "autoFetchFullFileHint": "Erkennt Syntaxfehler in Teilinhalten und lädt die vollständige Version.",
     "language": "Sprache",
     "token": {
       "label": "GitHub Personal Access Token",
