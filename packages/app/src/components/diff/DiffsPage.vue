@@ -181,7 +181,8 @@ function refreshFromBanner() {
           :scroll-y="scrollY"
         />
 
-        <div class="mxa max-w-500 w-full flex">
+        <!-- The sidebar sits at the viewport's left edge, outside the max-width column, so it doesn't narrow the diffs on wide screens. -->
+        <div class="flex">
           <!-- The aside stretches to the full row height so its border does too; the content inside sticks. -->
           <aside v-if="showGroupSidebar" class="w-64 shrink-0 border-r border-base">
             <div class="sticky top-[calc(var(--diffs-header-height)+10px)] max-h-[calc(100vh-var(--diffs-header-height)-20px)] overflow-auto py-3 pl-3 pr-2">
@@ -194,7 +195,7 @@ function refreshFromBanner() {
             </div>
           </aside>
 
-          <div class="min-w-0 flex flex-auto flex-col gap-4">
+          <div class="mxa max-w-500 min-w-0 flex flex-auto flex-col gap-4">
             <slot name="stale" :refresh="() => store?.refresh()">
               <div v-if="isStale" class="mb-4 flex flex-wrap items-center justify-between gap-3 border border-amber:20 rounded-lg bg-amber:10 bg-raised px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
                 <span>{{ $t('pr.newCommits') }}</span>
