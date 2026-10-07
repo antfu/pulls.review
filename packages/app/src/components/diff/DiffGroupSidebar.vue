@@ -46,7 +46,7 @@ const rows = computed(() => props.groups.flatMap(group => [
       class="group flex items-center rounded pr-1 transition-colors"
       :class="[
         groupsVisable.includes(group.key) ? 'bg-active' : 'hover:bg-hover',
-        depth ? 'ml-3.5 border-l border-base rounded-l-none' : '',
+        depth ? 'pl-4 border-base rounded-l-none' : 'mt-1',
       ]"
     >
       <button
@@ -64,12 +64,18 @@ const rows = computed(() => props.groups.flatMap(group => [
           <span class="truncate" :title="group.label">{{ group.label }}</span>
           <CriticalMark v-if="groupIsCritical(group)" class="text-sm" />
         </span>
-        <span class="flex items-center gap-1 text-xs">
+        <span class="ml-6 flex items-center gap-1 text-xs">
           <DiffStats :additions="countGroupStats(group).added" :deletions="countGroupStats(group).deleted" />
           <span class="op-mute">・{{ $t('common.files', { n: countGroupFiles(group) }, countGroupFiles(group)) }}</span>
         </span>
       </button>
-      <DisplayDonut :value="groupProgress(group, reviewed)" :size="16" :thickness="2" class="shrink-0" />
+      <DisplayDonut
+        v-if="groupProgress(group, reviewed)"
+        :value="groupProgress(group, reviewed)"
+        :size="16"
+        :thickness="2"
+        class="shrink-0"
+      />
       <ActionIconButton
         v-if="group.children.length"
         :icon="collapsed.has(group.key) ? 'i-ph:caret-right' : 'i-ph:caret-down'"
