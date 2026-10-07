@@ -9,7 +9,7 @@ import { Virtualizer } from '@pierre/diffs'
 import { useElementBounding, useEventListener } from '@vueuse/core'
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, reactive, ref, useTemplateRef, watch } from 'vue'
 import { autoRefresh } from '../../state/auto-refresh'
-import { showGroupSidebar } from '../../state/group-nav'
+import { isWide, showGroupSidebar } from '../../state/group-nav'
 import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffGroup from './DiffGroup.vue'
@@ -66,8 +66,15 @@ function toggleGroup(key: string) {
 // scrolling element is a descendant `overflow-auto` div) or the real `document` (the
 // main site, where the page itself scrolls) both work the same way.
 const scrollY = ref(0)
+// Where the current downward run started; any upward scroll restarts it.
+let scrollDownFrom = 0
+const scrolledDownBy = ref(0)
 useEventListener(() => props.document ?? document, 'scroll', (event) => {
-  scrollY.value = event.target instanceof Element ? event.target.scrollTop : window.scrollY
+  const y = event.target instanceof Element ? event.target.scrollTop : window.scrollY
+  if (y < scrollY.value)
+    scrollDownFrom = y
+  scrolledDownBy.value = y - scrollDownFrom
+  scrollY.value = y
   updateVisibleGroups()
   updateVisibleFiles()
 }, { capture: true })
@@ -78,6 +85,10 @@ useEventListener(() => props.document ?? document, 'scroll', (event) => {
 // counts as "visible" once it's scrolled past the header, not merely past the viewport top.
 const headerRef = useTemplateRef<{ $el: HTMLElement }>('header')
 const { height: headerHeight } = useElementBounding(() => headerRef.value?.$el)
+// Below `lg` the header eats a big share of the screen, so it slides away after a long
+// scroll down and comes back on any scroll up. Sticky offsets then collapse to the top.
+const headerHidden = computed(() => !isWide.value && scrolledDownBy.value > 300)
+const headerOffset = computed(() => headerHidden.value ? 0 : headerHeight.value)
 const groupsVisable = ref<string[]>([])
 function updateVisibleGroups() {
   const root = props.document ?? document
@@ -88,7 +99,7 @@ function updateVisibleGroups() {
     if (!el)
       return false
     const rect = el.getBoundingClientRect()
-    return rect.bottom > headerHeight.value && rect.top < viewportHeight
+    return rect.bottom > headerOffset.value && rect.top < viewportHeight
   })
 }
 // Groups render async (v-for over `groups`), so the first measurement has to wait for
@@ -108,11 +119,11 @@ function updateVisibleFiles() {
     const bottom = next && next.parentElement === marker.parentElement
       ? next.getBoundingClientRect().top
       : marker.parentElement!.getBoundingClientRect().bottom
-    return bottom > headerHeight.value && top < viewportHeight
+    return bottom > headerOffset.value && top < viewportHeight
   }).map(marker => marker.dataset.fileStart!)
 }
 
-watch([groups, headerHeight], () => nextTick(() => {
+watch([groups, headerOffset], () => nextTick(() => {
   updateVisibleGroups()
   updateVisibleFiles()
 }), { immediate: true })
@@ -123,7 +134,7 @@ function scrollToGroup(key: string) {
 
 const styles = computed(() => {
   return {
-    '--diffs-header-height': headerHeight.value ? `${headerHeight.value}px` : undefined,
+    '--diffs-header-height': headerHeight.value ? `${headerOffset.value}px` : undefined,
   }
 })
 
@@ -179,6 +190,7 @@ function refreshFromBanner() {
           :store="store!"
           :groups-visable="groupsVisable"
           :scroll-y="scrollY"
+          :hidden="headerHidden"
         />
 
         <div class="mxa max-w-500 w-full flex">
