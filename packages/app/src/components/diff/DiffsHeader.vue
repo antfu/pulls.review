@@ -27,12 +27,15 @@ const props = defineProps<{
   groupsVisable: string[]
   scrollY: number
   hidden?: boolean
+  descriptionId: string
+  descriptionVisible?: boolean
 }>()
 
 const { t } = useI18n()
 
 // `store.diff` is guaranteed set - `DiffsPage` only renders this component once it is.
 const meta = computed(() => props.store.diff!)
+const hasDescription = computed(() => !!meta.value.description?.trim())
 const groups = computed(() => props.store.groups)
 // The embedded view keys off the compile-time `PR_EMBED` flag instead of a runtime flag
 // threaded down from the store.
@@ -52,6 +55,10 @@ const reviews = computed(() => props.store.reviews)
 
 function scrollToGroup(key: string) {
   (props.document ?? document).getElementById(`group-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+function scrollToDescription() {
+  (props.document ?? document).getElementById(props.descriptionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 </script>
 
@@ -133,30 +140,28 @@ function scrollToGroup(key: string) {
         <DiffShareButton v-if="canShareResult" :store="store" :document="document" />
         <DiffPrMeta v-if="showGroupSidebar" class="ml-auto" :store="store" :document="document" />
       </div>
-      <!-- <template v-if="meta.description">
-      <button
-        type="button"
-        class="text-sm color-muted mt-1 flex gap-1 items-center hover:color-base"
-        :aria-expanded="descriptionOpen"
-        @click="descriptionOpen = !descriptionOpen"
-      >
-        <span :class="descriptionOpen ? 'i-ph:caret-down' : 'i-ph:caret-right'" aria-hidden="true" />
-        Description
-      </button>
-      <p v-if="descriptionOpen" class="text-sm whitespace-pre-wrap">
-        {{ meta.description }}
-      </p>
-    </template> -->
-
-      <div v-if="!showGroupSidebar" class="flex items-center gap-2 pt-2 text-sm">
+      <div v-if="!showGroupSidebar || hasDescription" class="flex items-center gap-2 pt-2 text-sm">
         <DiffGroupNav
           class="flex-auto"
-          :groups="groups"
+          :groups="showGroupSidebar ? [] : groups"
           :groups-visable="groupsVisable"
           :reviewed="store.reviewed"
           @select="scrollToGroup"
         >
-          <DiffPrMeta class="ml-auto self-end pt-2" :store="store" :document="document" />
+          <template #before>
+            <button
+              v-if="hasDescription"
+              type="button"
+              class="flex items-center self-stretch gap-1.5 border border-b-2 border-base rounded-t px-2 py-0.5 text-sm transition-all hover:bg-active"
+              :class="descriptionVisible ? 'border-b-current shadow translate-y--1px' : 'op-fade hover:op-100'"
+              :aria-current="descriptionVisible ? 'location' : undefined"
+              @click="scrollToDescription"
+            >
+              <span class="i-ph:text-align-left" aria-hidden="true" />
+              {{ $t('pr.description') }}
+            </button>
+          </template>
+          <DiffPrMeta v-if="!showGroupSidebar" class="ml-auto self-end pt-2" :store="store" :document="document" />
         </DiffGroupNav>
       </div>
     </div>

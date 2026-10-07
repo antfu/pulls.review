@@ -103,6 +103,7 @@
     "goHome": "回到首頁"
   },
   "pr": {
+    "description": "描述",
     "loading": "正在載入 pull request…",
     "loadFailed": "無法載入此 pull request",
     "somethingWrong": "發生了一些問題",

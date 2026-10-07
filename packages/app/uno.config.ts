@@ -61,6 +61,7 @@ export function createUnoConfig() {
         'color-accent-magenta': 'color-accent-magenta-600 dark:color-accent-magenta-400',
       },
       { 'chat-markdown': chatMarkdown },
+      { 'description-markdown': chatMarkdown },
       // Overrides
       {
         'bg-active': 'bg-[#8881]',

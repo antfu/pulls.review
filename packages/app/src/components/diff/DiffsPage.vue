@@ -7,7 +7,7 @@ import FormCheckbox from '@antfu/design/components/Form/FormCheckbox.vue'
 import { Markdown } from '@comark/vue'
 import { Virtualizer } from '@pierre/diffs'
 import { useElementBounding, useEventListener } from '@vueuse/core'
-import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, reactive, ref, useTemplateRef, watch } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, reactive, ref, useId, useTemplateRef, watch } from 'vue'
 import { autoRefresh } from '../../state/auto-refresh'
 import { isWide, showGroupSidebar } from '../../state/group-nav'
 import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
@@ -90,9 +90,13 @@ const { height: headerHeight } = useElementBounding(() => headerRef.value?.$el)
 const headerHidden = computed(() => !isWide.value && scrolledDownBy.value > 300)
 const headerOffset = computed(() => headerHidden.value ? 0 : headerHeight.value)
 const groupsVisable = ref<string[]>([])
+const descriptionId = useId()
+const descriptionVisible = ref(false)
 function updateVisibleGroups() {
   const root = props.document ?? document
   const viewportHeight = window.innerHeight
+  const descriptionRect = root.getElementById(descriptionId)?.getBoundingClientRect()
+  descriptionVisible.value = !!descriptionRect && descriptionRect.bottom > headerHeight.value && descriptionRect.top < viewportHeight
   const keys = groups.value.flatMap(group => [group.key, ...group.children.map(child => child.key)])
   groupsVisable.value = keys.filter((key) => {
     const el = root.getElementById(`group-${key}`)
@@ -191,6 +195,8 @@ function refreshFromBanner() {
           :groups-visable="groupsVisable"
           :scroll-y="scrollY"
           :hidden="headerHidden"
+          :description-id="descriptionId"
+          :description-visible="descriptionVisible"
         />
 
         <!-- The sidebar sits at the viewport's left edge, outside the max-width column, so it doesn't narrow the diffs on wide screens. -->
@@ -208,6 +214,19 @@ function refreshFromBanner() {
           </aside>
 
           <div class="mxa max-w-500 min-w-0 flex flex-auto flex-col gap-4">
+            <section
+              v-if="diff.description?.trim()"
+              :id="descriptionId"
+              :aria-labelledby="`${descriptionId}-title`"
+              class="scroll-mt-[calc(var(--diffs-header-height)+10px)] border-b border-base p-4"
+            >
+              <h2 :id="`${descriptionId}-title`" class="mb-3 font-semibold">
+                {{ $t('pr.description') }}
+              </h2>
+              <Suspense>
+                <Markdown :value="diff.description" class="description-markdown min-w-0" />
+              </Suspense>
+            </section>
             <slot name="stale" :refresh="() => store?.refresh()">
               <div v-if="isStale" class="mb-4 flex flex-wrap items-center justify-between gap-3 border border-amber:20 rounded-lg bg-amber:10 bg-raised px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
                 <span>{{ $t('pr.newCommits') }}</span>

@@ -31,6 +31,25 @@ export const Synthetic: Story = {
   },
 }
 
+export const MarkdownDescription: Story = {
+  args: {
+    store: createMockDiffsStore({
+      diff: {
+        ...partiallyReviewed.diff as any,
+        description: [
+          '## What changed',
+          'Show **pull request descriptions** with [Markdown](https://commonmark.org/) formatting.',
+          '- Review the context before reading the diff.\n- Use the navigation to jump between the description and code.',
+          '```ts\nconst description = "A long code example that should scroll horizontally on narrow screens"\n```',
+          '| Feature | Status |\n| --- | --- |\n| Description | Ready |',
+          ...Array.from({ length: 20 }, (_, index) => `### Detail ${index + 1}\nDescriptions stay visible in the page flow.`),
+        ].join('\n\n'),
+      },
+      grouped: partiallyReviewed.grouped as any,
+    }),
+  },
+}
+
 export const NestedGroups: Story = {
   args: {
     store: createMockDiffsStore({

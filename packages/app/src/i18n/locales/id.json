@@ -103,6 +103,7 @@
     "goHome": "Ke halaman utama"
   },
   "pr": {
+    "description": "Deskripsi",
     "loading": "Memuat pull request…",
     "loadFailed": "Pull request ini tidak dapat dimuat",
     "somethingWrong": "Terjadi kesalahan",

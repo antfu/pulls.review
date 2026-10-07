@@ -34,6 +34,7 @@ function onSelectSubgroup(key: string) {
 <template>
   <div class="min-w-0 flex flex-1 flex-col gap-1.5">
     <div class="flex flex-wrap items-center gap-1.5">
+      <slot name="before" />
       <DiffGroupNavItem
         v-for="group in groups"
         :key="group.key"

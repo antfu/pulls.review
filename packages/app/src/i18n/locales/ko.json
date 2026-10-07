@@ -103,6 +103,7 @@
     "goHome": "홈으로"
   },
   "pr": {
+    "description": "설명",
     "loading": "pull request 불러오는 중…",
     "loadFailed": "이 pull request를 불러올 수 없습니다",
     "somethingWrong": "문제가 발생했습니다",

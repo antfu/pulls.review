@@ -103,6 +103,7 @@
     "goHome": "Accueil"
   },
   "pr": {
+    "description": "Description",
     "loading": "Chargement de la pull request…",
     "loadFailed": "Impossible de charger cette pull request",
     "somethingWrong": "Une erreur est survenue",

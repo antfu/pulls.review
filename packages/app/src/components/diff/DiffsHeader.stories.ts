@@ -11,6 +11,7 @@ const meta: Meta<typeof DiffsHeader> = {
   args: {
     groupsVisable: [],
     scrollY: 0,
+    descriptionId: 'pr-description',
   },
 }
 export default meta
