@@ -102,9 +102,9 @@ Static text (cache-friendly), four sections:
     splits into clearly distinct sub-areas; no single-file children, no group
     with only one child.
   - Fewest groups that still separate independent intents; typically 1-5
-    groups. A single-file group needs a reason.
-  - Tests, stories and fixtures belong to the feature they cover, in the same
-    group. Only tests unrelated to any feature form their own group.
+    groups.
+  - Tests, stories and fixtures usually go in a group of their own, separate
+    from the code they cover.
   - Order by review priority: core change first, supporting changes next,
     mechanical changes (lockfiles, generated, formatting) last.
   - Every manifest path goes into exactly one group or child.
