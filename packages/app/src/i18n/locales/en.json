@@ -213,7 +213,8 @@
     "navTabs": "Show groups as tabs",
     "navSidebar": "Show groups as sidebar",
     "uncategorized": "Uncategorized",
-    "uncategorizedSummary": "Files not covered by the current analysis."
+    "uncategorizedSummary": "Files not covered by the current analysis.",
+    "resize": "Drag to resize, double-click to reset"
   },
   "note": {
     "critical": "Review carefully"

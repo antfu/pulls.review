@@ -213,7 +213,8 @@
     "navTabs": "Afficher les groupes en onglets",
     "navSidebar": "Afficher les groupes en barre latérale",
     "uncategorized": "Non classés",
-    "uncategorizedSummary": "Fichiers non couverts par l'analyse actuelle."
+    "uncategorizedSummary": "Fichiers non couverts par l'analyse actuelle.",
+    "resize": "Glisser pour redimensionner, double-cliquer pour réinitialiser"
   },
   "note": {
     "critical": "À relire attentivement"

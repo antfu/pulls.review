@@ -375,6 +375,11 @@ land later without a rewrite:
   and a sticky left sidebar tree (`DiffGroupSidebar`, subgroups nested under
   their parent). The sidebar only applies at `lg` and up; narrower viewports
   always get the tabs. Persisted like the diff layout (`state/group-nav.ts`).
+- At `lg` and up the sidebar and each group's aside (title, summary, file tree)
+  are drag-resizable (`composables/useDragResize.ts`); a double-click on the
+  handle restores the default. One aside width is shared by every group, so
+  their diff columns line up. Both widths persist (`state/group-nav.ts`,
+  `state/group-aside.ts`).
 - Large PRs are a first-class case, not an edge case: file lists and diff
   content MUST be virtualized (`@tanstack/vue-virtual`).
 - Every component in `app/components/` gets a Storybook story, backed by a

@@ -213,7 +213,8 @@
     "navTabs": "以分頁顯示群組",
     "navSidebar": "以側邊欄顯示群組",
     "uncategorized": "未分類",
-    "uncategorizedSummary": "目前分析未涵蓋的檔案。"
+    "uncategorizedSummary": "目前分析未涵蓋的檔案。",
+    "resize": "拖曳調整寬度，按兩下恢復預設"
   },
   "note": {
     "critical": "請仔細審查"

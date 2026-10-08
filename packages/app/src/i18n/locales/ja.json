@@ -213,7 +213,8 @@
     "navTabs": "グループをタブで表示",
     "navSidebar": "グループをサイドバーで表示",
     "uncategorized": "未分類",
-    "uncategorizedSummary": "現在の分析に含まれていないファイル。"
+    "uncategorizedSummary": "現在の分析に含まれていないファイル。",
+    "resize": "ドラッグで幅を調整、ダブルクリックでリセット"
   },
   "note": {
     "critical": "慎重にレビュー"

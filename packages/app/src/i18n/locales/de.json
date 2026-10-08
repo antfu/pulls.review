@@ -213,7 +213,8 @@
     "navTabs": "Gruppen als Tabs anzeigen",
     "navSidebar": "Gruppen als Seitenleiste anzeigen",
     "uncategorized": "Nicht kategorisiert",
-    "uncategorizedSummary": "Dateien, die die aktuelle Analyse nicht abdeckt."
+    "uncategorizedSummary": "Dateien, die die aktuelle Analyse nicht abdeckt.",
+    "resize": "Ziehen, um die Breite zu ändern; Doppelklick zum Zurücksetzen"
   },
   "note": {
     "critical": "Sorgfältig prüfen"

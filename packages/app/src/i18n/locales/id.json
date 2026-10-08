@@ -213,7 +213,8 @@
     "navTabs": "Tampilkan grup sebagai tab",
     "navSidebar": "Tampilkan grup sebagai bilah samping",
     "uncategorized": "Tanpa kategori",
-    "uncategorizedSummary": "Berkas yang tidak tercakup oleh analisis saat ini."
+    "uncategorizedSummary": "Berkas yang tidak tercakup oleh analisis saat ini.",
+    "resize": "Seret untuk mengubah ukuran, klik dua kali untuk mengatur ulang"
   },
   "note": {
     "critical": "Tinjau dengan cermat"

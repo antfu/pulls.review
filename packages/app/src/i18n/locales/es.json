@@ -213,7 +213,8 @@
     "navTabs": "Mostrar grupos como pestañas",
     "navSidebar": "Mostrar grupos como barra lateral",
     "uncategorized": "Sin categoría",
-    "uncategorizedSummary": "Archivos no cubiertos por el análisis actual."
+    "uncategorizedSummary": "Archivos no cubiertos por el análisis actual.",
+    "resize": "Arrastra para cambiar el ancho; doble clic para restablecer"
   },
   "note": {
     "critical": "Revisar con cuidado"

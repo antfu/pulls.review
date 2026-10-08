@@ -8,8 +8,9 @@ import { Markdown } from '@comark/vue'
 import { Virtualizer } from '@pierre/diffs'
 import { useElementBounding, useEventListener } from '@vueuse/core'
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, reactive, ref, useTemplateRef, watch } from 'vue'
+import { useDragResize } from '../../composables/useDragResize'
 import { autoRefresh } from '../../state/auto-refresh'
-import { isWide, showGroupSidebar } from '../../state/group-nav'
+import { GROUP_SIDEBAR_MAX_RATIO, GROUP_SIDEBAR_MIN_WIDTH, groupSidebarWidth, isWide, showGroupSidebar } from '../../state/group-nav'
 import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffGroup from './DiffGroup.vue'
@@ -132,6 +133,21 @@ function scrollToGroup(key: string) {
   (props.document ?? document).getElementById(`group-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
+// Once dragged, the sidebar takes that width over its default `w-64` - capped, so the
+// diffs keep the rest when the window narrows later.
+const sidebarStyle = computed(() => groupSidebarWidth.value
+  ? { width: `min(${groupSidebarWidth.value}px, ${GROUP_SIDEBAR_MAX_RATIO * 100}%)` }
+  : undefined)
+const sidebarRowEl = useTemplateRef<HTMLElement>('sidebarRow')
+const sidebarEl = useTemplateRef<HTMLElement>('sidebar')
+const { resizing: resizingSidebar, onPointerDown: onSidebarResizeDown } = useDragResize({
+  target: () => sidebarEl.value,
+  width: groupSidebarWidth,
+  min: GROUP_SIDEBAR_MIN_WIDTH,
+  // Same bound as the `%` in `sidebarStyle`, which resolves against this flex row.
+  max: () => sidebarRowEl.value!.clientWidth * GROUP_SIDEBAR_MAX_RATIO,
+})
+
 const styles = computed(() => {
   return {
     '--diffs-header-height': headerHeight.value ? `${headerOffset.value}px` : undefined,
@@ -194,15 +210,30 @@ function refreshFromBanner() {
         />
 
         <!-- The sidebar sits at the viewport's left edge, outside the max-width column, so it doesn't narrow the diffs on wide screens. -->
-        <div class="flex">
+        <div ref="sidebarRow" class="flex">
           <!-- The aside stretches to the full row height so its border does too; the content inside sticks. -->
-          <aside v-if="showGroupSidebar" class="w-64 shrink-0 border-r border-base">
+          <aside v-if="showGroupSidebar" ref="sidebar" class="relative w-64 shrink-0 border-r border-base" :style="sidebarStyle">
             <div class="sticky top-[calc(var(--diffs-header-height)+10px)] max-h-[calc(100vh-var(--diffs-header-height)-20px)] overflow-auto py-3 pl-3 pr-2">
               <DiffGroupSidebar
                 :groups="groups"
                 :groups-visable="groupsVisable"
                 :reviewed="store!.reviewed"
                 @select="scrollToGroup"
+              />
+            </div>
+            <!-- Straddles the border, so it's as tall as the aside; a double-click resets the width. -->
+            <div
+              role="separator"
+              aria-orientation="vertical"
+              :aria-label="$t('group.resize')"
+              :title="$t('group.resize')"
+              class="group/resize absolute inset-y-0 right-0 w-3 flex translate-x-1/2 cursor-col-resize touch-none justify-center"
+              @pointerdown="onSidebarResizeDown"
+              @dblclick="groupSidebarWidth = null"
+            >
+              <div
+                class="w-px transition-colors"
+                :class="resizingSidebar ? 'bg-primary-500' : 'group-hover/resize:bg-primary-500'"
               />
             </div>
           </aside>

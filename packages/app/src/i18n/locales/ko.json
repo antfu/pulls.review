@@ -213,7 +213,8 @@
     "navTabs": "그룹을 탭으로 표시",
     "navSidebar": "그룹을 사이드바로 표시",
     "uncategorized": "미분류",
-    "uncategorizedSummary": "현재 분석에 포함되지 않은 파일."
+    "uncategorizedSummary": "현재 분석에 포함되지 않은 파일.",
+    "resize": "드래그하여 너비 조절, 더블 클릭하여 초기화"
   },
   "note": {
     "critical": "주의 깊게 검토"
