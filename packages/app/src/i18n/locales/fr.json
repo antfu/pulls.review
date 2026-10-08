@@ -332,6 +332,8 @@
     },
     "cached": "Pull requests en cache",
     "autoRefresh": "Actualiser automatiquement quand de nouveaux commits sont trouvés",
+    "navigation": "Navigation",
+    "smoothScroll": "Animer le défilement vers un groupe ou un fichier",
     "language": "Langue",
     "token": {
       "label": "Personal Access Token GitHub",

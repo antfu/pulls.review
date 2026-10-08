@@ -332,6 +332,8 @@
     },
     "cached": "캐시된 pull request",
     "autoRefresh": "새 커밋이 발견되면 자동 새로 고침",
+    "navigation": "탐색",
+    "smoothScroll": "그룹이나 파일로 이동할 때 스크롤 애니메이션 사용",
     "language": "언어",
     "token": {
       "label": "GitHub 개인 액세스 토큰",

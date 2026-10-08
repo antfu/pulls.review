@@ -332,6 +332,8 @@
     },
     "cached": "キャッシュされた pull request",
     "autoRefresh": "新しいコミットが見つかったら自動更新",
+    "navigation": "ナビゲーション",
+    "smoothScroll": "グループやファイルへ移動するときにスクロールをアニメーションする",
     "language": "言語",
     "token": {
       "label": "GitHub 個人アクセストークン",

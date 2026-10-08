@@ -333,6 +333,8 @@
     },
     "cached": "Cached pull requests",
     "autoRefresh": "Auto refresh when new commits are found",
+    "navigation": "Navigation",
+    "smoothScroll": "Animate scrolling when jumping to a group or file",
     "language": "Language",
     "token": {
       "label": "GitHub Personal Access Token",

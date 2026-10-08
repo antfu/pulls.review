@@ -332,6 +332,8 @@
     },
     "cached": "Pull request di cache",
     "autoRefresh": "Muat ulang otomatis saat ada commit baru",
+    "navigation": "Navigasi",
+    "smoothScroll": "Animasikan gulir saat melompat ke grup atau file",
     "language": "Bahasa",
     "token": {
       "label": "GitHub Personal Access Token",

@@ -332,6 +332,8 @@
     },
     "cached": "Кэшированные pull request",
     "autoRefresh": "Автоматически обновлять при обнаружении новых коммитов",
+    "navigation": "Навигация",
+    "smoothScroll": "Плавно прокручивать при переходе к группе или файлу",
     "language": "Язык",
     "token": {
       "label": "GitHub Personal Access Token",

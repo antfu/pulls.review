@@ -10,6 +10,7 @@ import { useElementBounding, useEventListener } from '@vueuse/core'
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, reactive, ref, useTemplateRef, watch } from 'vue'
 import { autoRefresh } from '../../state/auto-refresh'
 import { isWide, showGroupSidebar } from '../../state/group-nav'
+import { scrollBehavior } from '../../state/smooth-scroll'
 import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffGroup from './DiffGroup.vue'
@@ -129,7 +130,7 @@ watch([groups, headerOffset], () => nextTick(() => {
 }), { immediate: true })
 
 function scrollToGroup(key: string) {
-  (props.document ?? document).getElementById(`group-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  (props.document ?? document).getElementById(`group-${key}`)?.scrollIntoView({ behavior: scrollBehavior.value, block: 'start' })
 }
 
 const styles = computed(() => {

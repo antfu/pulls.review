@@ -332,6 +332,8 @@
     },
     "cached": "Zwischengespeicherte Pull Requests",
     "autoRefresh": "Automatisch aktualisieren, wenn neue Commits gefunden werden",
+    "navigation": "Navigation",
+    "smoothScroll": "Beim Springen zu einer Gruppe oder Datei animiert scrollen",
     "language": "Sprache",
     "token": {
       "label": "GitHub Personal Access Token",

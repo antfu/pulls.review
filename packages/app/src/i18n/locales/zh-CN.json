@@ -332,6 +332,8 @@
     },
     "cached": "已缓存的 pull request",
     "autoRefresh": "发现新提交时自动刷新",
+    "navigation": "导航",
+    "smoothScroll": "跳转到分组或文件时使用滚动动画",
     "language": "语言",
     "token": {
       "label": "GitHub Personal Access Token",
