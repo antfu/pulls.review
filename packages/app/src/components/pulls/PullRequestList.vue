@@ -51,7 +51,7 @@ watch(() => virtualRows.value.at(-1)?.index, (last) => {
       class="absolute left-0 top-0 w-full"
       :style="{ transform: `translateY(${row.start - virtualizer.options.scrollMargin}px)` }"
     >
-      <PullRequestRow :owner="store.owner" :repo="store.repo" :pr="rows[row.index]!" :viewed="store.viewed.get(rows[row.index]!.number)" />
+      <PullRequestRow :repository="store.source.repository" :pr="rows[row.index]!" :viewed="store.viewed.get(rows[row.index]!.number)" />
     </div>
   </div>
 </template>

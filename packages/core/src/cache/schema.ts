@@ -3,7 +3,7 @@ import * as v from 'valibot'
 import { AgentSessionRefSchema, GroupedResultSchema } from '../types/analyze'
 import { ReviewDataSchema } from '../types/comment-threads'
 import { DiffsPayloadSchema, PullRequestStateSchema } from '../types/diff'
-import { PullRequestListPageSchema } from '../types/pull-request-list'
+import { PullRequestListPageSchema, RepositoryRefSchema } from '../types/pull-request-list'
 import { SourceRefSchema } from '../types/source'
 
 /**
@@ -88,10 +88,16 @@ export type FileReviewState = v.InferOutput<typeof FileReviewStateSchema>
  * revalidation nobody asked for. `lastViewedAt` doubles as the home page's
  * "recent repositories" order and the LRU eviction key.
  */
-export const PullRequestListCacheEntrySchema = v.object({
-  owner: v.string(),
-  repo: v.string(),
-  page: PullRequestListPageSchema,
-  lastViewedAt: v.number(),
-})
+export const PullRequestListCacheEntrySchema = v.union([
+  v.object({
+    repository: RepositoryRefSchema,
+    page: PullRequestListPageSchema,
+    lastViewedAt: v.number(),
+  }),
+  // An entry written when every list belonged to a GitHub repository.
+  v.pipe(
+    v.object({ owner: v.string(), repo: v.string(), page: PullRequestListPageSchema, lastViewedAt: v.number() }),
+    v.transform(({ owner, repo, ...entry }) => ({ repository: { kind: 'github-repo' as const, owner, repo }, ...entry })),
+  ),
+])
 export type PullRequestListCacheEntry = v.InferOutput<typeof PullRequestListCacheEntrySchema>

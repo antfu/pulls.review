@@ -27,7 +27,7 @@
     "tagline": "변경된 파일을 묶고 핵심을 요약해, 한 범위씩 리뷰합니다. 모든 것이 브라우저에서 로컬로 동작합니다.",
     "documentTitle": "명확하고 체계적인 풀 리퀘스트 리뷰",
     "open": "열기",
-    "pasteHint": "GitHub pull request URL을 붙여 넣거나 아래 데모를 선택하세요.",
+    "pasteHint": "GitHub pull request 또는 GitLab merge request URL을 붙여 넣거나 아래 데모를 선택하세요.",
     "recentlyViewed": "// 최근 본 항목",
     "recentRepositories": "// 최근 본 저장소",
     "tryDemos": "// 데모 살펴보기",
@@ -107,6 +107,7 @@
     "loadFailed": "이 pull request를 불러올 수 없습니다",
     "somethingWrong": "문제가 발생했습니다",
     "newCommits": "캐시 이후 이 pull request에 새 커밋이 있습니다.",
+    "incomplete": "이 변경의 일부만 표시됩니다. 호스트가 한도에서 파일 목록을 중단했습니다.",
     "autoRefreshNextTime": "다음부터 자동 새로 고침",
     "endOfDiff": "diff의 끝에 도달했습니다.",
     "analyzeBy": "분석 방식",
@@ -180,12 +181,12 @@
     "updateButton": "공유한 댓글 업데이트",
     "sharing": "공유 중…",
     "tooltip": "이 분석을 pull request 댓글로 게시해 다른 사람이 불러올 수 있게 합니다",
-    "needsToken": "공유하려면 쓰기 권한이 있는 GitHub 토큰이 필요합니다",
+    "needsToken": "공유하려면 쓰기 권한이 있는 {provider} 토큰이 필요합니다",
     "failed": "공유 실패: {message}",
     "titleUpdate": "공유한 분석 업데이트",
-    "titleShare": "이 분석을 GitHub에 공유",
-    "willUpdate": "이 pull request의 기존 {comment}이 GitHub 토큰을 사용해 {user} 계정으로 업데이트됩니다.",
-    "willPost": "GitHub 토큰을 사용해 {user} 계정으로 이 pull request에 공개 댓글이 게시됩니다.",
+    "titleShare": "이 분석을 {provider}에 공유",
+    "willUpdate": "이 pull request의 기존 {comment}이 {provider} 토큰을 사용해 {user} 계정으로 업데이트됩니다.",
+    "willPost": "{provider} 토큰을 사용해 {user} 계정으로 이 pull request에 공개 댓글이 게시됩니다.",
     "commentLink": "댓글",
     "contains": "댓글에 포함되는 내용:",
     "containsLink": "{site}에서 이 리뷰를 열 수 있는 링크",
@@ -297,6 +298,7 @@
     "approve": "승인",
     "requestChanges": "변경 요청",
     "discard": "리뷰 버리기",
+    "revokeApproval": "승인 취소",
     "leaveComment": "댓글 남기기",
     "addSingle": "단일 댓글 추가",
     "addToReview": "리뷰 댓글 추가",
@@ -347,10 +349,18 @@
       "checking": "토큰 확인 중…",
       "couldNotVerify": "이 토큰을 확인할 수 없습니다."
     },
+    "gitlabToken": {
+      "label": "GitLab 개인 액세스 토큰",
+      "optional": "공개 프로젝트에는 선택 사항이며, 비공개 프로젝트, 댓글, 리뷰에는 필요합니다.",
+      "scopes": "읽기에는 {readApi} 스코프가, 댓글과 승인에는 {api}가 필요합니다.",
+      "generate": "GitLab에서 생성 →",
+      "noScopes": "스코프 알 수 없음"
+    },
     "tabs": {
       "appearance": "모양",
       "behavior": "동작",
       "github": "GitHub",
+      "gitlab": "GitLab",
       "ai": "AI 분석",
       "notSetUp": "아직 설정되지 않음"
     },
@@ -402,10 +412,10 @@
     "generated": { "label": "생성 파일", "summary": "생성물 또는 빌드 산출물 변경." }
   },
   "errors": {
-    "tokenRequired": "이 pull request에 쓰려면 GitHub 토큰이 필요합니다.",
+    "tokenRequired": "이 pull request에 쓰려면 {provider} 토큰이 필요합니다.",
     "diffNotLoaded": "diff 불러오기가 아직 끝나지 않았습니다.",
-    "noViewer": "이 토큰의 GitHub 사용자를 확인할 수 없습니다.",
-    "tokenRejected": "GitHub가 이 토큰을 거부했습니다 (401). 완전히 붙여 넣었는지, 취소되지 않았는지 확인하세요.",
+    "noViewer": "이 토큰의 {provider} 사용자를 확인할 수 없습니다.",
+    "tokenRejected": "{provider}에서 이 토큰을 거부했습니다 (401). 완전히 붙여 넣었는지, 취소되지 않았는지 확인하세요.",
     "tooLarge": "분석이 너무 커서 댓글로 공유할 수 없습니다 ({n}자)."
   },
   "local": {

@@ -59,8 +59,13 @@ export const mockPullRequests: PullRequestListItem[] = [
 
 export function createMockPullRequestListStore(overrides: Partial<PullRequestListStore> = {}): PullRequestListStore {
   return reactive({
-    owner: 'antfu',
-    repo: 'pulls.review',
+    source: {
+      repository: { kind: 'github-repo', owner: 'antfu', repo: 'pulls.review' },
+      url: 'https://github.com/antfu/pulls.review/pulls',
+      ownerUrl: 'https://github.com/antfu',
+      auth: 'github-token',
+      fetchPage: async () => ({ totalCount: mockPullRequests.length, items: mockPullRequests }),
+    },
     items: mockPullRequests,
     totalCount: mockPullRequests.length,
     isLoading: false,

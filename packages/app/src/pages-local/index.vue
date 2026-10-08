@@ -14,7 +14,7 @@ import RefAutocomplete from '../components/RefAutocomplete.vue'
 import { useDocumentTitle } from '../composables/useDocumentTitle'
 import { localRpcKey } from '../local/local-rpc-key'
 import { readRepoInfo, routeForPage } from '../local/pages'
-import { routeFromGithubUrl } from '../source-routes'
+import { routeFromUrl } from '../source-routes'
 
 /** Branches listed; the rest stay reachable by typing them. */
 const BRANCH_LIMIT = 10
@@ -53,7 +53,7 @@ function compare() {
 
 // The site's `/gh/...` pages are in this build too, reading GitHub with the server's token.
 const githubUrl = ref('')
-const githubRoute = computed(() => routeFromGithubUrl(githubUrl.value))
+const githubRoute = computed(() => routeFromUrl(githubUrl.value))
 
 function openGithub() {
   if (githubRoute.value)

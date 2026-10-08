@@ -3,6 +3,7 @@ import type { DiffsStore } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { hostName } from '../../host-name'
 import AppModal from '../AppModal.vue'
 import GithubAvatar from '../GithubAvatar.vue'
 
@@ -20,6 +21,7 @@ const { t } = useI18n()
 
 // Only opened when both are set - `DiffShareButton` gates on them.
 const shared = computed(() => props.store.shared!)
+const provider = computed(() => hostName(props.store.auth))
 // Results from before the language setting existed carry no locale and get no nudge.
 const notEnglish = computed(() => {
   const locale = props.store.aiResult?.locale
@@ -41,19 +43,22 @@ async function confirm() {
 
 <template>
   <AppModal
-    :title="$t(shared.ownComment ? 'share.titleUpdate' : 'share.titleShare')"
+    :title="$t(shared.ownComment ? 'share.titleUpdate' : 'share.titleShare', { provider })"
     :open="open"
     :document="document"
     @update:open="emit('update:open', $event)"
   >
     <div class="w-full flex flex-col gap-3 text-sm">
       <i18n-t :keypath="shared.ownComment ? 'share.willUpdate' : 'share.willPost'" tag="p" scope="global">
+        <template #provider>
+          {{ provider }}
+        </template>
         <template #comment>
           <a :href="shared.ownComment?.url" target="_blank" rel="noopener" class="underline">{{ $t('share.commentLink') }}</a>
         </template>
         <template #user>
           <span v-if="shared.viewerLogin" class="inline-flex items-center gap-1 align-middle">
-            <span class="h-4 w-4 overflow-hidden rounded-full"><GithubAvatar :login="shared.viewerLogin" :size="16" /></span>
+            <span class="h-4 w-4 overflow-hidden rounded-full"><GithubAvatar :login="shared.viewerLogin" :auth="store.auth" :size="16" /></span>
             <strong>{{ shared.viewerLogin }}</strong>
           </span>
           <template v-else>

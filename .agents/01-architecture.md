@@ -16,7 +16,7 @@ A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
   below written as `app/…` live in `packages/app/src/`.
 - `packages/core` (`@pulls.review/core`) — everything runtime-agnostic,
   exposed as subpaths rather than one barrel: `/types`, `/patch-parser`,
-  `/github`, `/paste`, `/cache` (persistence repositories), `/analyze` (rule-based/none adapters, LLM settings and
+  `/github`, `/gitlab`, `/paste`, `/cache` (persistence repositories), `/analyze` (rule-based/none adapters, LLM settings and
   model resolution), `/llm` (the agent runtime and SDKs), `/diagnostics`,
   `/locales`. Built with tsdown; the app resolves `@pulls.review/core/*` to
   source through a Vite alias. Core MUST load
@@ -87,8 +87,12 @@ analysis strategy later never touches the view layer:
   `app/source-routes.ts` - the only module that maps refs to routes and back -
   so no component checks a ref's `kind` or spells out a `/gh/...` path. A
   pasted github.com URL or `owner/repo#1` is read by core's `parseGithubUrl`
-  (`core/github`), shared by the site's URL box and the CLI's argument. `Credentials.githubToken()` is read
-  per request, so a token saved later applies without rebuilding a store.
+  (`core/github`), shared by the site's URL box and the CLI's argument; a gitlab.com URL or
+  `group/project!1` by `parseGitlabUrl` (`core/gitlab`), tried first.
+  `Credentials.githubToken()` and `Credentials.gitlabToken(host)` are read per
+  request, so a token saved later applies without rebuilding a store. A GitLab
+  token is asked for by host and only ever returned for the host it was saved
+  for. `app/sources.ts` is the only module that picks a provider for a ref.
   Implementations (`core/providers/`):
   - `github-pr` (`createGithubPullRequestSource`) — GitHub REST API (PR
     metadata + paginated file list/patches) through one `GithubClient`.
@@ -100,6 +104,16 @@ analysis strategy later never touches the view layer:
     picks the right one for any GitHub ref, served at
     `/gh/{owner}/{repo}/compare/{base}...{head}` and
     `/gh/{owner}/{repo}/commit/{sha}` by the same page as a PR.
+  - `gitlab-mr` (`createGitlabMergeRequestSource`, `plans/12-gitlab-merge-requests.md`) -
+    GitLab REST v4 through one `GitlabClient` bound to an instance. The diffs
+    listing names the files; the raw diff supplies blob shas, binary markers
+    and the patches the listing left out. A listing GitLab cut at its file
+    limit sets `DiffsPayload.incomplete`, shown as a banner. Its `reviews`
+    reports `supports: { pendingReview: false, requestChanges: false }` (a
+    comment posts at once, approving is its own call), and the view offers
+    only what `supports` allows. The ref carries its `host`. A build serves
+    one instance under `/gl/...`: gitlab.com, or the host `PR_GITLAB_HOST`
+    named at build time (`app/gitlab-host.ts`).
   - `paste` (`createPasteSource`) — accepts raw unified-diff/patch text (pasted, or an uploaded
     `.diff`/`.patch` file, e.g. GitHub's `.diff` endpoint or `git diff >
     diff.patch` output) via the shared `app/patch-parser/`. Fed to the
@@ -208,7 +222,9 @@ analysis strategy later never touches the view layer:
 
 An `llm`/`web-llm` `GroupedResult` MAY be posted as a Conversation (issue)
 comment on the GitHub PR, one comment per user, updated in place on later
-shares. This is the only way the github.com embed gets an AI result at all
+shares. A GitLab merge request carries the same body as a note, linking to its
+`/gl/...` page (`core/providers/shared-analysis-body.ts` renders and parses it
+for both). This is the only way the github.com embed gets an AI result at all
 (GitHub's CSP blocks model providers), and lets token-less visitors on public
 repos read one. Contract:
 
@@ -308,7 +324,8 @@ flat key-value, so there's no native "object store" split):
   sources. No eviction of its own yet
   (unlike the diff cache and review marks), a known gap for later.
 - `pulls:*` — a repo's first page of open PRs (`PullRequestListPage`), keyed
-  `pulls:{owner}/{repo}`. Stale-while-revalidate: it renders instantly on
+  by its `RepositoryRef`: `pulls:{owner}/{repo}` for GitHub,
+  `pulls:gitlab:{host}/{project}` for a GitLab project. Stale-while-revalidate: it renders instantly on
   revisit and is silently replaced by a fresh first page every time — unlike
   a cached diff, nothing paid hangs off a list, so auto-refetching costs nothing.
   Later pages chain off it via `next` and are never persisted. Search is
@@ -348,15 +365,15 @@ land later without a rewrite:
   and switched from the `LanguageMenu` icon in `NavControls`. Model-facing
   text (prompts, tool errors) and diagnostics that embed URLs/status codes
   stay English.
-- Settings (GitHub PAT, later model keys) and loading a pasted/uploaded diff
+- Settings (GitHub and GitLab tokens, model keys) and loading a pasted/uploaded diff
   are both modals/panels (`SettingsModal.vue`/`LoadDiffModal.vue` wrapping
   pure `*Panel.vue` content), triggered from `AppHeader.vue` — never routed
   pages. `AppHeader` itself only renders on the landing pages
   (`pages-web/index.vue`, and `pages-local/index.vue` in the `PR_LOCAL`
   build). The reading views stay header-free: their own sticky `DiffsHeader`
   is the only scroll nav there.
-- Routed pages live in `app/pages-web/` (the site: landing, `/upload`,
-  `/gh/...`) and `app/pages-local/` (only registered by the `PR_LOCAL` build:
+- Routed pages live in `app/pages-web/` (the site: landing, `/upload`, and
+  `diff.vue` and `pulls.vue`, which serve every `/gh/...` and `/gl/...` route) and `app/pages-local/` (only registered by the `PR_LOCAL` build:
   the ref picker and the local review page).
 - A generated userscript (`scripts/build-userscript.ts`) mounts
   `<pulls-review-embed-panel>` (`app/embed/`, a Vue custom element built as

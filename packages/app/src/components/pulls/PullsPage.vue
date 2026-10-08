@@ -7,6 +7,7 @@ import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.v
 import { useEventListener } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
+import GitlabTokenRecovery from '../settings/GitlabTokenRecovery.vue'
 import { filterPullRequests } from './pull-request-list-query'
 import PullRequestList from './PullRequestList.vue'
 import PullsHeader from './PullsHeader.vue'
@@ -59,7 +60,8 @@ const isSearching = computed(() => query.value.trim() !== '' && props.store.hasM
               </ActionButton>
             </template>
           </FeedbackEmptyState>
-          <GithubTokenRecovery class="mxa max-w-200 border border-base border-rounded p4" @saved="store.load()" />
+          <GitlabTokenRecovery v-if="store.source.auth === 'gitlab-token'" class="mxa max-w-200 border border-base border-rounded p4" @saved="store.load()" />
+          <GithubTokenRecovery v-else class="mxa max-w-200 border border-base border-rounded p4" @saved="store.load()" />
         </div>
       </template>
 

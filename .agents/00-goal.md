@@ -5,7 +5,9 @@ diff: grouped, summarized, and fast, instead of GitHub's flat file-by-file
 list. It renders any PR at `/gh/{owner}/{repo}/{number}` (and any compare or
 commit at `/gh/{owner}/{repo}/compare/{base}...{head}` and `.../commit/{sha}`), lists a repo's open
 PRs at `/gh/{owner}/{repo}`, and renders any raw `.diff`/`.patch` text pasted
-or uploaded at `/upload`.
+or uploaded at `/upload`. A gitlab.com merge request opens the same way at
+`/gl/{namespace...}/{project}/-/merge_requests/{iid}`, and a project's open
+merge requests at `/gl/{namespace...}/{project}`.
 
 ## Why
 
@@ -49,8 +51,9 @@ management product.
   can't write.
 - Sources beyond GitHub: pasted/uploaded raw patches (built early, since
   it's essentially free once a patch parser exists), GitHub compare ranges and
-  single commits (built), and a `local` source for a git working tree, commit
-  or range (`plans/04-local-provider.md`).
+  single commits (built), gitlab.com merge requests with their discussions and
+  approvals (built, `plans/12-gitlab-merge-requests.md`), and a `local` source
+  for a git working tree, commit or range (`plans/04-local-provider.md`).
 - A userscript that embeds pulls.review as a sidepanel directly inside GitHub's own
   PR page, next to the real comment thread — reviewing with pulls.review's grouping
   without leaving github.com.

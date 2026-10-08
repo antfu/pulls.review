@@ -1,3 +1,4 @@
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 /** `@pulls.review/core/*` resolves to its source entries so the app needs no core build step. */
@@ -27,6 +28,8 @@ export const alias = [
  */
 export function features(flags: { llm: boolean, embed: boolean, local?: boolean }) {
   return {
+    // The one GitLab instance a build talks to; set `PR_GITLAB_HOST` to build for a self-managed one.
+    'import.meta.env.PR_GITLAB_HOST': JSON.stringify(process.env.PR_GITLAB_HOST || 'gitlab.com'),
     'import.meta.env.PR_LLM': JSON.stringify(flags.llm),
     'import.meta.env.PR_EMBED': JSON.stringify(flags.embed),
     'import.meta.env.PR_LOCAL': JSON.stringify(flags.local ?? false),

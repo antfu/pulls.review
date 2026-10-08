@@ -66,4 +66,40 @@ describe('reviewSubmitModal', () => {
     expect(button('Approve').disabled).toBe(true)
     expect(button('Comment').getAttribute('data-state')).toBe('on')
   })
+
+  describe('on a source without pending reviews or change requests', () => {
+    function mountLimited(approver = 'octocat') {
+      const reviews = createMockReviewsStore({
+        viewerLogin: 'octocat',
+        summaries: [{ id: -1, author: { login: approver }, state: 'approved', body: '' }],
+        supports: { pendingReview: false, requestChanges: false },
+        canRevokeApproval: true,
+      })
+      wrapper = mount(ReviewSubmitModal, {
+        props: { open: true, reviews, authorLogin: 'someone-else' },
+        global: { plugins: [i18n] },
+        attachTo: document.body,
+      })
+      return reviews
+    }
+
+    it('offers Comment and Approve only', () => {
+      mountLimited()
+      expect(button('Comment')).toBeDefined()
+      expect(button('Approve')).toBeDefined()
+      expect(button('Request changes')).toBeUndefined()
+    })
+
+    it('lets the viewer revoke an approval they gave', async () => {
+      const reviews = mountLimited()
+      button('Revoke approval').click()
+      await flushPromises()
+      expect(reviews.summaries).toEqual([])
+    })
+
+    it('offers nothing to revoke when the approval is someone else\'s', () => {
+      mountLimited('someone-else')
+      expect(button('Revoke approval')).toBeUndefined()
+    })
+  })
 })

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { LlmSettings } from '@pulls.review/core/analyze'
 import type { ModelOption } from '@pulls.review/core/llm'
-import type { StoredGithubTokenMeta } from '../../composables/useGithubTokenMeta'
+import type { StoredTokenMeta } from '../../composables/useTokenMeta'
 import type { SettingsTab } from '../../state/settingsModal'
 import { resolveModel } from '@pulls.review/core/analyze'
 import { TabsContent, TabsIndicator, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
@@ -9,15 +9,20 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AutoRefreshSettingsSection from './AutoRefreshSettingsSection.vue'
 import GithubTokenSettings from './GithubTokenSettings.vue'
+import GitlabTokenSettings from './GitlabTokenSettings.vue'
 import LayoutSettingsSection from './LayoutSettingsSection.vue'
 import LlmSettingsSection from './LlmSettingsSection.vue'
 import SyntaxThemeSettingsSection from './SyntaxThemeSettingsSection.vue'
 
 const props = defineProps<{
   githubTokenSet: boolean
-  githubTokenMeta: StoredGithubTokenMeta | null
+  githubTokenMeta: StoredTokenMeta | null
   githubTokenBusy?: boolean
   githubTokenError?: string
+  gitlabTokenSet: boolean
+  gitlabTokenMeta: StoredTokenMeta | null
+  gitlabTokenBusy?: boolean
+  gitlabTokenError?: string
   llmSettings: LlmSettings
   models: ModelOption[] | null
   modelsLoading?: boolean
@@ -27,6 +32,8 @@ const props = defineProps<{
 defineEmits<{
   /** Save a new GitHub token (validated by the container); `''` removes it. */
   'saveGithubToken': [token: string]
+  /** Save a new gitlab.com token (validated by the container); `''` removes it. */
+  'saveGitlabToken': [token: string]
   'update:llmSettings': [value: LlmSettings]
 }>()
 
@@ -42,6 +49,8 @@ const tabs = computed(() => [
   { value: 'appearance', label: t('settings.tabs.appearance'), icon: 'i-ph:paint-brush-duotone' },
   { value: 'behavior', label: t('settings.tabs.behavior'), icon: 'i-ph:sliders-duotone' },
   { value: 'github', label: t('settings.tabs.github'), icon: 'i-ph:github-logo-duotone', attention: !props.githubTokenSet },
+  // The embed lives on github.com pull request pages, where a GitLab token has no use.
+  ...import.meta.env.PR_EMBED ? [] : [{ value: 'gitlab' as const, label: t('settings.tabs.gitlab'), icon: 'i-ph:gitlab-logo-simple-duotone' }],
   { value: 'ai', label: t('settings.tabs.ai'), icon: 'i-ph:sparkle-duotone', attention: !llmSetup.value },
 ] satisfies { value: SettingsTab, label: string, icon: string, attention?: boolean }[])
 </script>
@@ -83,6 +92,16 @@ const tabs = computed(() => [
         :busy="githubTokenBusy"
         :error="githubTokenError"
         @save="$emit('saveGithubToken', $event)"
+      />
+    </TabsContent>
+
+    <TabsContent value="gitlab" class="flex flex-col gap-4 p4 outline-none data-[state=inactive]:hidden">
+      <GitlabTokenSettings
+        :token-set="gitlabTokenSet"
+        :meta="gitlabTokenMeta"
+        :busy="gitlabTokenBusy"
+        :error="gitlabTokenError"
+        @save="$emit('saveGitlabToken', $event)"
       />
     </TabsContent>
 

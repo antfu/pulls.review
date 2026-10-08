@@ -20,6 +20,11 @@ interface ImportMetaEnv {
    * local git diff. Same truthiness-only testing rule as `PR_LLM`.
    */
   readonly PR_LOCAL: boolean
+  /**
+   * The GitLab instance this build opens merge requests from, as a host with an optional
+   * port (`gitlab.example.com`); `gitlab.com` unless the build set `PR_GITLAB_HOST`.
+   */
+  readonly PR_GITLAB_HOST: string
   /** Short git sha the embed bundle was built from; only defined by `vite.config.embed.ts`. */
   readonly PR_EMBED_SHA: string | undefined
 }

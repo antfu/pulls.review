@@ -48,7 +48,7 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
   let cachedReviewData: ReviewData | undefined
   let cachedSharedComment: PrCacheEntry['sharedComment']
 
-  const access = createWriteAccess(source.viewer ?? (async () => undefined))
+  const access = createWriteAccess(source.viewer ?? (async () => undefined), source.auth)
 
   const reviews = source.reviews
     ? createReviewsStore(source.reviews, {

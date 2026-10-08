@@ -11,6 +11,7 @@ import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, p
 import { autoRefresh } from '../../state/auto-refresh'
 import { isWide, showGroupSidebar } from '../../state/group-nav'
 import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
+import GitlabTokenRecovery from '../settings/GitlabTokenRecovery.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffGroup from './DiffGroup.vue'
 import DiffGroupSidebar from './DiffGroupSidebar.vue'
@@ -181,6 +182,11 @@ function refreshFromBanner() {
             class="mxa max-w-200 border border-base border-rounded p4"
             @saved="store?.load()"
           />
+          <GitlabTokenRecovery
+            v-else-if="store?.auth === 'gitlab-token'"
+            class="mxa max-w-200 border border-base border-rounded p4"
+            @saved="store?.load()"
+          />
         </div>
       </template>
       <template v-else-if="diff && grouped">
@@ -219,6 +225,10 @@ function refreshFromBanner() {
                 </div>
               </div>
             </slot>
+
+            <div v-if="diff.incomplete" class="mb-4 border border-amber:20 rounded-lg bg-amber:10 bg-raised px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
+              {{ $t('pr.incomplete') }}
+            </div>
 
             <SharedAnalysisBanner v-if="store?.shared" :store="store" />
 

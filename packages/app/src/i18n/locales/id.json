@@ -27,7 +27,7 @@
     "tagline": "Mengelompokkan berkas yang berubah, merangkum yang penting, dan meninjaunya satu lingkup sekaligus. Semuanya berjalan lokal di browser Anda.",
     "documentTitle": "Tinjauan pull request yang jelas dan teratur",
     "open": "Buka",
-    "pasteHint": "Tempel URL pull request GitHub mana pun, atau pilih demo di bawah.",
+    "pasteHint": "Tempel URL pull request GitHub atau merge request GitLab mana pun, atau pilih demo di bawah.",
     "recentlyViewed": "// baru dilihat",
     "recentRepositories": "// repositori yang baru dilihat",
     "tryDemos": "// coba beberapa demo",
@@ -107,6 +107,7 @@
     "loadFailed": "Pull request ini tidak dapat dimuat",
     "somethingWrong": "Terjadi kesalahan",
     "newCommits": "Pull request ini memiliki commit baru sejak disimpan di cache.",
+    "incomplete": "Hanya sebagian perubahan ini yang ditampilkan: host berhenti mendaftar file pada batasnya.",
     "autoRefreshNextTime": "Muat ulang otomatis lain kali",
     "endOfDiff": "Anda telah mencapai akhir diff.",
     "analyzeBy": "Analisis dengan",
@@ -180,12 +181,12 @@
     "updateButton": "Perbarui komentar yang dibagikan",
     "sharing": "Membagikan…",
     "tooltip": "Kirim analisis ini sebagai komentar di pull request agar orang lain dapat memuatnya",
-    "needsToken": "Membagikan memerlukan token GitHub dengan akses tulis",
+    "needsToken": "Membagikan memerlukan token {provider} dengan akses tulis",
     "failed": "Gagal membagikan: {message}",
     "titleUpdate": "Perbarui analisis yang Anda bagikan",
-    "titleShare": "Bagikan analisis ini di GitHub",
-    "willUpdate": "{comment} Anda yang sudah ada di pull request ini akan diperbarui sebagai {user} dengan token GitHub Anda.",
-    "willPost": "Komentar publik akan dikirim ke pull request ini sebagai {user} dengan token GitHub Anda.",
+    "titleShare": "Bagikan analisis ini di {provider}",
+    "willUpdate": "{comment} Anda yang sudah ada di pull request ini akan diperbarui sebagai {user} dengan token {provider} Anda.",
+    "willPost": "Komentar publik akan dikirim ke pull request ini sebagai {user} dengan token {provider} Anda.",
     "commentLink": "Komentar",
     "contains": "Komentar berisi:",
     "containsLink": "tautan untuk membuka tinjauan ini di {site}",
@@ -297,6 +298,7 @@
     "approve": "Setujui",
     "requestChanges": "Minta perubahan",
     "discard": "Buang tinjauan",
+    "revokeApproval": "Cabut persetujuan",
     "leaveComment": "Tulis komentar",
     "addSingle": "Tambah satu komentar",
     "addToReview": "Tambah komentar tinjauan",
@@ -347,10 +349,18 @@
       "checking": "Memeriksa token…",
       "couldNotVerify": "Token ini tidak dapat diverifikasi."
     },
+    "gitlabToken": {
+      "label": "GitLab Personal Access Token",
+      "optional": "Opsional untuk proyek publik; wajib untuk proyek privat, komentar, atau memberi review.",
+      "scopes": "Membaca memerlukan scope {readApi}; berkomentar dan menyetujui memerlukan {api}.",
+      "generate": "Buat di GitLab →",
+      "noScopes": "Scope tidak diketahui"
+    },
     "tabs": {
       "appearance": "Tampilan",
       "behavior": "Perilaku",
       "github": "GitHub",
+      "gitlab": "GitLab",
       "ai": "Analisis AI",
       "notSetUp": "Belum diatur"
     },
@@ -402,10 +412,10 @@
     "generated": { "label": "Hasil generate", "summary": "Perubahan berkas hasil generate atau build." }
   },
   "errors": {
-    "tokenRequired": "Token GitHub diperlukan untuk menulis ke pull request ini.",
+    "tokenRequired": "Token {provider} diperlukan untuk menulis ke pull request ini.",
     "diffNotLoaded": "Diff belum selesai dimuat.",
-    "noViewer": "Pengguna GitHub untuk token ini tidak dapat ditentukan.",
-    "tokenRejected": "GitHub menolak token ini (401). Pastikan token ditempel lengkap dan belum dicabut.",
+    "noViewer": "Pengguna {provider} untuk token ini tidak dapat ditentukan.",
+    "tokenRejected": "{provider} menolak token ini (401). Pastikan token ditempel lengkap dan belum dicabut.",
     "tooLarge": "Analisis terlalu besar untuk dibagikan sebagai komentar ({n} karakter)."
   },
   "local": {

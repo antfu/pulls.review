@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type { ChecksStatus, PullRequestListItem, ReviewDecision } from '@pulls.review/core/types'
+import type { ChecksStatus, PullRequestListItem, RepositoryRef, ReviewDecision } from '@pulls.review/core/types'
 import type { ViewedPullRequest } from '../../stores/pull-request-list-store'
 import { labelStyle } from '@antfu/design/utils/color'
+import { pullRequestRef } from '@pulls.review/core/types'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { formatTimeAgo } from '../../i18n/time-ago'
@@ -12,8 +13,7 @@ import PrStatusIcon from '../diff/PrStatusIcon.vue'
 import GithubAvatar from '../GithubAvatar.vue'
 
 const props = defineProps<{
-  owner: string
-  repo: string
+  repository: RepositoryRef
   pr: PullRequestListItem
   /** Set when this browser already viewed the PR - what the cache holds for it. */
   viewed?: ViewedPullRequest
@@ -48,7 +48,7 @@ const REVIEW_ICON: Record<ReviewDecision, string> = {
 
 <template>
   <RouterLink
-    :to="routeForRef({ kind: 'github-pr', owner, repo, number: String(pr.number) })"
+    :to="routeForRef(pullRequestRef(repository, pr.number))"
     class="flex items-start gap-3 border-b border-base px-4 py-3 transition hover:bg-hover"
   >
     <PrStatusIcon :state="pr.state" class="mt-0.5" />

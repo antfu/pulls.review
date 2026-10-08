@@ -9,6 +9,8 @@ export const SourceRefSchema = v.variant('kind', [
   /** What `head` adds since it forked from `base` (`base...head`); either may be a branch, tag or sha. */
   v.object({ kind: v.literal('github-compare'), owner: v.string(), repo: v.string(), base: v.string(), head: v.string() }),
   v.object({ kind: v.literal('github-commit'), owner: v.string(), repo: v.string(), sha: v.string() }),
+  /** `host` is the instance (`gitlab.com`), `project` its full path with every namespace (`group/subgroup/project`). */
+  v.object({ kind: v.literal('gitlab-mr'), host: v.string(), project: v.string(), iid: v.string() }),
   v.object({ kind: v.literal('paste'), hash: v.string() }),
   /** A local repository (its root path) at a target in git revision syntax; `''` is the working tree. */
   v.object({ kind: v.literal('local'), repo: v.string(), target: v.string() }),
@@ -24,6 +26,9 @@ export function serializeRef(ref: SourceRef): string {
       return `github:${ref.owner}/${ref.repo}@${ref.base}...${ref.head}`
     case 'github-commit':
       return `github:${ref.owner}/${ref.repo}@${ref.sha}`
+    case 'gitlab-mr':
+      // A host has no `/` and a project path no `!`, so the three parts can't run into each other.
+      return `gitlab:${ref.host}/${ref.project}!${ref.iid}`
     case 'paste':
       return `paste:${ref.hash}`
     case 'local':
@@ -35,6 +40,8 @@ export function serializeRef(ref: SourceRef): string {
 /** Secrets a source may need, read on every use so a token saved later applies at once. */
 export interface Credentials {
   githubToken: () => Promise<string | undefined>
+  /** The token for one GitLab instance; a token is never offered to a host it wasn't saved for. */
+  gitlabToken?: (host: string) => Promise<string | undefined>
 }
 
 export function staticCredentials(githubToken?: string): Credentials {
@@ -58,7 +65,7 @@ export interface DiffSource {
   reviews?: ReviewsApi
   sharing?: SharingApi
   /** The credential a failed load can be retried with, so the view can offer to enter it. */
-  auth?: 'github-token'
+  auth?: 'github-token' | 'gitlab-token'
 }
 
 export interface Viewer {
@@ -72,6 +79,12 @@ export interface Viewer {
  * Writes throw the `writeForbidden` diagnostic when the credentials may not write here.
  */
 export interface ReviewsApi {
+  /** What the source's review model has; the view offers only what is `true`. */
+  supports: {
+    /** Draft comments held back until the review is submitted. */
+    pendingReview: boolean
+    requestChanges: boolean
+  }
   fetch: () => Promise<ReviewData>
   /** `single` posts at once; `review` starts the viewer's pending review, or adds to `pendingReview` when given. */
   addComment: (input: { target: ReviewDraftTarget, body: string, mode: 'single' | 'review', headSha: string, pendingReview?: { nodeId: string } }) => Promise<void>
@@ -79,9 +92,13 @@ export interface ReviewsApi {
   editComment: (commentId: number, body: string) => Promise<void>
   deleteComment: (commentId: number) => Promise<void>
   resolveThread: (threadId: string) => Promise<void>
+  /** Reopens a resolved thread, where the source can. */
+  unresolveThread?: (threadId: string) => Promise<void>
   /** Submits `pendingReview` when given, else a review with no draft comments. */
   submitReview: (verdict: ReviewVerdict, body: string, pendingReview?: { id: number }) => Promise<void>
   discardPendingReview: (pendingReview: { id: number }) => Promise<void>
+  /** Withdraws the viewer's approval, where the source can. */
+  revokeApproval?: () => Promise<void>
 }
 
 /** Shared AI analyses posted alongside a diff, one per user (see plans/07). */

@@ -13,6 +13,7 @@ function toGithubSide(side: DiffSide): 'LEFT' | 'RIGHT' {
 
 export function createGithubReviewsApi(client: GithubClient, { owner, repo, number }: PullRequestRef): ReviewsApi {
   return {
+    supports: { pendingReview: true, requestChanges: true },
     async fetch() {
       const [comments, reviews] = await Promise.all([
         fetchReviewComments(client, owner, repo, number),

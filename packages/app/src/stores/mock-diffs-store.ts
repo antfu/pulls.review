@@ -1,5 +1,5 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
-import type { CommentThread, DiffsPayload, GroupedResult, GroupSource, PendingReview, ReviewDraftTarget, ReviewSummary, ReviewVerdict } from '@pulls.review/core/types'
+import type { CommentThread, DiffSource, DiffsPayload, GroupedResult, GroupSource, PendingReview, ReviewDraftTarget, ReviewsApi, ReviewSummary, ReviewVerdict } from '@pulls.review/core/types'
 import type { DiffsStore, DiffsStoreReviews, DiffsStoreShared, LlmProgress, SharedAnalysisCandidate } from './types'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { resolveGroups } from '../components/diff/group-utils'
@@ -12,6 +12,10 @@ export interface MockReviewsInput {
   viewerLogin?: string
   showThreads?: boolean
   writeBlockedReason?: string
+  /** Defaults to everything, as on a GitHub PR. */
+  supports?: ReviewsApi['supports']
+  /** Gives the store `revokeApproval`, as on a GitLab merge request. */
+  canRevokeApproval?: boolean
 }
 
 let nextMockCommentId = 1_000_000
@@ -42,6 +46,7 @@ export function createMockReviewsStore(input: MockReviewsInput = {}): DiffsStore
   }
 
   return reactive({
+    supports: input.supports ?? { pendingReview: true, requestChanges: true },
     threads,
     summaries,
     pendingReview,
@@ -99,6 +104,11 @@ export function createMockReviewsStore(input: MockReviewsInput = {}): DiffsStore
       threads.value = threads.value.filter(thread => !thread.pending)
       pendingReview.value = undefined
     },
+    revokeApproval: input.canRevokeApproval
+      ? async () => {
+        summaries.value = summaries.value.filter(summary => !(summary.state === 'approved' && summary.author?.login === viewerLogin))
+      }
+      : undefined,
   }) as DiffsStoreReviews
 }
 
@@ -176,7 +186,7 @@ export function createMockDiffsStore(input: {
   fileContent?: { old?: string, new?: string }
   /** Defaults to a live source, as most stories render a GitHub PR. */
   canRefresh?: boolean
-  auth?: 'github-token'
+  auth?: DiffSource['auth']
 }): DiffsStore {
   const llmEnabled = input.llm ?? true
   const { fileContent } = input

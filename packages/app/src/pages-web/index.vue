@@ -3,6 +3,7 @@ import type { LandingGuide } from '../components/landing/LandingGuideModal.vue'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import FormTextInput from '@antfu/design/components/Form/FormTextInput.vue'
+import { serializeRepositoryRef } from '@pulls.review/core/types'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -21,7 +22,7 @@ import { useDocumentTitle } from '../composables/useDocumentTitle'
 import { useRecentDiffs } from '../composables/useRecentDiffs'
 import { useRecentRepositories } from '../composables/useRecentRepositories'
 import { formatTimeAgo } from '../i18n/time-ago'
-import { routeForRef, routeFromGithubUrl } from '../source-routes'
+import { routeForRef, routeFromUrl } from '../source-routes'
 
 const DEMO_PRS = [
   { owner: 'antfu', repo: 'pulls.review', number: 45, state: 'merged', title: 'feat: review any GitHub compare range or single commit' },
@@ -37,7 +38,7 @@ const url = ref('')
 const loadDiffOpen = ref(false)
 const guide = ref<LandingGuide>()
 
-const parsed = computed(() => routeFromGithubUrl(url.value))
+const parsed = computed(() => routeFromUrl(url.value))
 
 function go() {
   if (parsed.value)
@@ -160,9 +161,8 @@ useDocumentTitle(() => t('landing.documentTitle'), ' - ')
         <div class="flex flex-wrap gap-2">
           <RepositoryPill
             v-for="item in recentRepos"
-            :key="`${item.owner}/${item.repo}`"
-            :owner="item.owner"
-            :repo="item.repo"
+            :key="serializeRepositoryRef(item.repository)"
+            :repository="item.repository"
           >
             <span class="text-xs op-fade">{{ $t('pulls.open', { n: item.openCount }) }}</span>
             <span class="text-xs op-fade">{{ formatTimeAgo(new Date(item.lastViewedAt), locale) }}</span>

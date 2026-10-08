@@ -1,11 +1,11 @@
 import type { PullRequestListCacheEntry } from '@pulls.review/core/cache'
+import type { RepositoryRef } from '@pulls.review/core/types'
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 import { useAppContext } from '../app-context'
 
 export interface RecentRepository {
-  owner: string
-  repo: string
+  repository: RepositoryRef
   openCount: number
   lastViewedAt: number
 }
@@ -20,8 +20,7 @@ export function useRecentRepositories(limit = 8): { recent: Ref<RecentRepository
 
   async function load() {
     recent.value = (await cache.pullRequestLists.listRecent(limit)).map((entry: PullRequestListCacheEntry) => ({
-      owner: entry.owner,
-      repo: entry.repo,
+      repository: entry.repository,
       openCount: entry.page.totalCount,
       lastViewedAt: entry.lastViewedAt,
     }))

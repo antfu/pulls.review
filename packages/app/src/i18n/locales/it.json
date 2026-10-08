@@ -27,7 +27,7 @@
     "tagline": "Raggruppa i file modificati, riassume ciò che conta e ti fa revisionare un ambito alla volta. Tutto funziona in locale nel tuo browser.",
     "documentTitle": "Revisioni delle pull request chiare e organizzate",
     "open": "Apri",
-    "pasteHint": "Incolla l'URL di una pull request GitHub o scegli una demo qui sotto.",
+    "pasteHint": "Incolla l'URL di una pull request GitHub o di una merge request GitLab, o scegli una demo qui sotto.",
     "recentlyViewed": "// visti di recente",
     "recentRepositories": "// repository visti di recente",
     "tryDemos": "// prova alcune demo",
@@ -107,6 +107,7 @@
     "loadFailed": "Impossibile caricare questa pull request",
     "somethingWrong": "Qualcosa è andato storto",
     "newCommits": "Questa pull request ha nuovi commit da quando è stata memorizzata in cache.",
+    "incomplete": "È mostrata solo una parte di questa modifica: l'host ha smesso di elencare i file al suo limite.",
     "autoRefreshNextTime": "Aggiorna automaticamente la prossima volta",
     "endOfDiff": "Hai raggiunto la fine del diff.",
     "analyzeBy": "Analizza con",
@@ -180,12 +181,12 @@
     "updateButton": "Aggiorna il commento condiviso",
     "sharing": "Condivisione…",
     "tooltip": "Pubblica questa analisi come commento nella pull request così che altri possano caricarla",
-    "needsToken": "Per condividere serve un token GitHub con accesso in scrittura",
+    "needsToken": "Per condividere serve un token {provider} con accesso in scrittura",
     "failed": "Condivisione fallita: {message}",
     "titleUpdate": "Aggiorna la tua analisi condivisa",
-    "titleShare": "Condividi questa analisi su GitHub",
-    "willUpdate": "Il tuo {comment} esistente in questa pull request sarà aggiornato come {user} con il tuo token GitHub.",
-    "willPost": "Un commento pubblico sarà pubblicato in questa pull request come {user} con il tuo token GitHub.",
+    "titleShare": "Condividi questa analisi su {provider}",
+    "willUpdate": "Il tuo {comment} esistente in questa pull request sarà aggiornato come {user} con il tuo token {provider}.",
+    "willPost": "Un commento pubblico sarà pubblicato in questa pull request come {user} con il tuo token {provider}.",
     "commentLink": "commento",
     "contains": "Il commento contiene:",
     "containsLink": "un link per aprire questa revisione su {site}",
@@ -297,6 +298,7 @@
     "approve": "Approva",
     "requestChanges": "Richiedi modifiche",
     "discard": "Scarta revisione",
+    "revokeApproval": "Revoca approvazione",
     "leaveComment": "Lascia un commento",
     "addSingle": "Aggiungi commento singolo",
     "addToReview": "Aggiungi commento di revisione",
@@ -347,10 +349,18 @@
       "checking": "Verifica del token…",
       "couldNotVerify": "Impossibile verificare questo token."
     },
+    "gitlabToken": {
+      "label": "Token di accesso personale GitLab",
+      "optional": "Facoltativo per i progetti pubblici; necessario per progetti privati, commenti o review.",
+      "scopes": "La lettura richiede lo scope {readApi}; commentare e approvare richiedono {api}.",
+      "generate": "Generane uno su GitLab →",
+      "noScopes": "Scope sconosciuti"
+    },
     "tabs": {
       "appearance": "Aspetto",
       "behavior": "Comportamento",
       "github": "GitHub",
+      "gitlab": "GitLab",
       "ai": "Analisi IA",
       "notSetUp": "Non ancora configurato"
     },
@@ -402,10 +412,10 @@
     "generated": { "label": "Generati", "summary": "Modifiche a file generati o di build." }
   },
   "errors": {
-    "tokenRequired": "Serve un token GitHub per scrivere in questa pull request.",
+    "tokenRequired": "Serve un token {provider} per scrivere in questa pull request.",
     "diffNotLoaded": "Il diff non ha ancora finito di caricarsi.",
-    "noViewer": "Impossibile determinare l'utente GitHub di questo token.",
-    "tokenRejected": "GitHub ha rifiutato questo token (401). Controlla che sia stato incollato per intero e che non sia stato revocato.",
+    "noViewer": "Impossibile determinare l'utente {provider} di questo token.",
+    "tokenRejected": "{provider} ha rifiutato questo token (401). Controlla che sia stato incollato per intero e che non sia stato revocato.",
     "tooLarge": "L'analisi è troppo grande per essere condivisa come commento ({n} caratteri)."
   },
   "local": {

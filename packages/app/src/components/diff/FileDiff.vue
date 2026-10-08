@@ -460,6 +460,7 @@ defineExpose({
         <div v-if="group.hasDraft" class="my-1 max-w-200 overflow-hidden border border-base rounded-lg bg-base">
           <CommentComposer
             :has-pending-review="!!store.reviews!.pendingReview"
+            :review-mode="store.reviews!.supports.pendingReview"
             :busy="draftBusy"
             :error="draftError"
             @submit="submitDraft"

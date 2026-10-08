@@ -3,12 +3,14 @@ import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FormTextarea from '@antfu/design/components/Form/FormTextarea.vue'
 import { ref } from 'vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   /** A pending review exists: the only action is adding to it. */
   hasPendingReview: boolean
+  /** The source can hold a comment back in a pending review; without that, a comment can only post at once. */
+  reviewMode?: boolean
   busy?: boolean
   error?: string
-}>()
+}>(), { reviewMode: true })
 
 const emit = defineEmits<{
   submit: [body: string, mode: 'single' | 'review']
@@ -32,8 +34,8 @@ function submit(mode: 'single' | 'review') {
       :placeholder="$t('review.leaveComment')"
       :disabled="busy"
       :invalid="!!error"
-      @keydown.enter.meta="submit('review')"
-      @keydown.enter.ctrl="submit('review')"
+      @keydown.enter.meta="submit(reviewMode ? 'review' : 'single')"
+      @keydown.enter.ctrl="submit(reviewMode ? 'review' : 'single')"
     />
     <p v-if="error" class="text-xs text-red-600 dark:text-red-400">
       {{ error }}
@@ -45,12 +47,15 @@ function submit(mode: 'single' | 'review') {
       <ActionButton
         v-if="!props.hasPendingReview"
         size="sm"
+        :variant="reviewMode ? undefined : 'primary'"
+        :loading="!reviewMode && busy"
         :disabled="busy || !body.trim()"
         @click="submit('single')"
       >
         {{ $t('review.addSingle') }}
       </ActionButton>
       <ActionButton
+        v-if="reviewMode"
         size="sm"
         variant="primary"
         :loading="busy"

@@ -29,6 +29,7 @@ export function createRpcCredentials(rpc: LocalRpc, fallback: Credentials): Cred
       token ??= rpc.call(LOCAL_RPC.githubToken).then(value => v.parse(v.optional(v.string()), value ?? undefined))
       return await token ?? fallback.githubToken()
     },
+    gitlabToken: fallback.gitlabToken,
   }
 }
 

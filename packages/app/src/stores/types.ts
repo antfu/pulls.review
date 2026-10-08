@@ -1,5 +1,5 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
-import type { CommentThread, DiffsPayload, FileChange, GroupedResult, GroupSource, PendingReview, ReviewDraftTarget, ReviewSummary, ReviewVerdict } from '@pulls.review/core/types'
+import type { CommentThread, DiffSource, DiffsPayload, FileChange, GroupedResult, GroupSource, PendingReview, ReviewDraftTarget, ReviewsApi, ReviewSummary, ReviewVerdict } from '@pulls.review/core/types'
 import type { ResolvedGroupWithChildren } from '../components/diff/group-utils'
 
 /** A step of the running analysis, already worded in the UI language. */
@@ -39,13 +39,15 @@ export interface DiffsStoreLlm {
 }
 
 /**
- * GitHub PR review threads and review submission, isolated behind `DiffsStore.reviews`
+ * Review threads and review submission, isolated behind `DiffsStore.reviews`
  * the same way LLM analysis sits behind `DiffsStore.llm`: components gate the whole
  * review affordance on its presence (`undefined` = the source has no review lifecycle -
  * a source without `DiffSource.reviews`). Mutations post directly from the browser with
  * the user's own credentials; every mutation refetches so the view always reflects the source.
  */
 export interface DiffsStoreReviews {
+  /** What the source's review model has (`ReviewsApi.supports`); the view offers only what is `true`. */
+  readonly supports: ReviewsApi['supports']
   readonly threads: CommentThread[]
   readonly summaries: ReviewSummary[]
   /** The viewer's unsubmitted review; new comments attach to it while it exists. */
@@ -74,6 +76,8 @@ export interface DiffsStoreReviews {
   resolveThread: (threadId: string) => Promise<void>
   submitReview: (verdict: ReviewVerdict, body: string) => Promise<void>
   discardPendingReview: () => Promise<void>
+  /** `undefined` = the source has no approval of the viewer's to withdraw. */
+  revokeApproval?: () => Promise<void>
 }
 
 /** A shared analysis found in the PR's Conversation comments, offered for loading. */
@@ -171,7 +175,7 @@ export interface DiffsStore {
   /** The source is live (its head can move), so refetching it can bring new changes. */
   readonly canRefresh: boolean
   /** The credential a failed load can be retried with; `undefined` when none would help (a paste). */
-  readonly auth?: 'github-token'
+  readonly auth?: DiffSource['auth']
   /** `undefined` = this source can't fetch a file's full content (a paste has no live origin). */
   readonly fileContent?: DiffsStoreFileContent
   load: () => Promise<void>

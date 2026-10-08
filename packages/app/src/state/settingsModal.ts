@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-export const SETTINGS_TABS = ['appearance', 'behavior', 'github', 'ai'] as const
+export const SETTINGS_TABS = ['appearance', 'behavior', 'github', 'gitlab', 'ai'] as const
 export type SettingsTab = typeof SETTINGS_TABS[number]
 
 /**

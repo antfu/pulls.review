@@ -27,7 +27,7 @@
     "tagline": "Agrupa os arquivos alterados, resume o que importa e permite revisar um escopo por vez. Tudo funciona localmente no seu navegador.",
     "documentTitle": "Revisões de pull requests claras e organizadas",
     "open": "Abrir",
-    "pasteHint": "Cole a URL de qualquer pull request do GitHub ou escolha uma demo abaixo.",
+    "pasteHint": "Cole a URL de qualquer pull request do GitHub ou merge request do GitLab, ou escolha uma demo abaixo.",
     "recentlyViewed": "// vistos recentemente",
     "recentRepositories": "// repositórios vistos recentemente",
     "tryDemos": "// experimente algumas demos",
@@ -107,6 +107,7 @@
     "loadFailed": "Não foi possível carregar este pull request",
     "somethingWrong": "Algo deu errado",
     "newCommits": "Este pull request tem novos commits desde que foi armazenado em cache.",
+    "incomplete": "Apenas parte desta alteração é exibida: o host parou de listar arquivos ao atingir seu limite.",
     "autoRefreshNextTime": "Atualizar automaticamente na próxima vez",
     "endOfDiff": "Você chegou ao fim do diff.",
     "analyzeBy": "Analisar por",
@@ -180,12 +181,12 @@
     "updateButton": "Atualizar comentário compartilhado",
     "sharing": "Compartilhando…",
     "tooltip": "Publica esta análise como comentário no pull request para que outros possam carregá-la",
-    "needsToken": "É necessário um token do GitHub com acesso de escrita para compartilhar",
+    "needsToken": "É necessário um token do {provider} com acesso de escrita para compartilhar",
     "failed": "Falha ao compartilhar: {message}",
     "titleUpdate": "Atualizar sua análise compartilhada",
-    "titleShare": "Compartilhar esta análise no GitHub",
-    "willUpdate": "Seu {comment} existente neste pull request será atualizado como {user} com seu token do GitHub.",
-    "willPost": "Um comentário público será publicado neste pull request como {user} com seu token do GitHub.",
+    "titleShare": "Compartilhar esta análise no {provider}",
+    "willUpdate": "Seu {comment} existente neste pull request será atualizado como {user} com seu token do {provider}.",
+    "willPost": "Um comentário público será publicado neste pull request como {user} com seu token do {provider}.",
     "commentLink": "comentário",
     "contains": "O comentário contém:",
     "containsLink": "um link para abrir esta revisão no {site}",
@@ -297,6 +298,7 @@
     "approve": "Aprovar",
     "requestChanges": "Solicitar alterações",
     "discard": "Descartar revisão",
+    "revokeApproval": "Revogar aprovação",
     "leaveComment": "Deixe um comentário",
     "addSingle": "Adicionar comentário único",
     "addToReview": "Adicionar comentário de revisão",
@@ -347,10 +349,18 @@
       "checking": "Verificando token…",
       "couldNotVerify": "Não foi possível verificar este token."
     },
+    "gitlabToken": {
+      "label": "Token de acesso pessoal do GitLab",
+      "optional": "Opcional para projetos públicos; obrigatório para projetos privados, comentários ou reviews.",
+      "scopes": "Ler requer o scope {readApi}; comentar e aprovar requerem {api}.",
+      "generate": "Gerar um no GitLab →",
+      "noScopes": "Scopes desconhecidos"
+    },
     "tabs": {
       "appearance": "Aparência",
       "behavior": "Comportamento",
       "github": "GitHub",
+      "gitlab": "GitLab",
       "ai": "Análise com IA",
       "notSetUp": "Ainda não configurado"
     },
@@ -402,10 +412,10 @@
     "generated": { "label": "Gerados", "summary": "Alterações em arquivos gerados ou de build." }
   },
   "errors": {
-    "tokenRequired": "É necessário um token do GitHub para escrever neste pull request.",
+    "tokenRequired": "É necessário um token do {provider} para escrever neste pull request.",
     "diffNotLoaded": "O diff ainda não terminou de carregar.",
-    "noViewer": "Não foi possível determinar o usuário do GitHub deste token.",
-    "tokenRejected": "O GitHub rejeitou este token (401). Verifique se ele foi colado por completo e não foi revogado.",
+    "noViewer": "Não foi possível determinar o usuário do {provider} deste token.",
+    "tokenRejected": "O {provider} rejeitou este token (401). Verifique se ele foi colado por completo e não foi revogado.",
     "tooLarge": "A análise é grande demais para ser compartilhada como comentário ({n} caracteres)."
   },
   "local": {

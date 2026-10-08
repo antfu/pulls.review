@@ -113,7 +113,7 @@ export function createSharedAnalysisStore(api: SharingApi, opts: SharedAnalysisS
       const comment = await access.write(() => {
         const login = access.viewerLogin.value
         if (!login)
-          throw new Error(t('errors.noViewer'))
+          throw new Error(t('errors.noViewer', { provider: access.provider }))
         return api.upsert(login, { headSha: diff.head?.sha ?? '', result }, ownComment.value)
       })
       ownComment.value = comment

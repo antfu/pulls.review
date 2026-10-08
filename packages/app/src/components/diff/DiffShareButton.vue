@@ -2,6 +2,7 @@
 import type { DiffsStore } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import { computed, ref } from 'vue'
+import { hostName } from '../../host-name'
 import ShareResultModal from './ShareResultModal.vue'
 
 const props = defineProps<{
@@ -19,7 +20,7 @@ const confirmOpen = ref(false)
     class="shrink-0 text-xs"
     variant="text"
     :disabled="shared.isSharing || !shared.canShare"
-    :title="$t(shared.canShare ? 'share.tooltip' : 'share.needsToken')"
+    :title="shared.canShare ? $t('share.tooltip') : $t('share.needsToken', { provider: hostName(store.auth) })"
     :icon="shared.isSharing ? 'i-ph:spinner-duotone animate-spin' : 'i-ph:share-network-duotone'"
     @click="confirmOpen = true"
   >

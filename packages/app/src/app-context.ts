@@ -24,6 +24,7 @@ export const appContextKey: InjectionKey<AppContext> = Symbol('app-context')
 /** Read on every request, so a token saved in Settings applies without rebuilding a store. */
 export const settingsCredentials: Credentials = {
   githubToken: async () => settings.value.githubToken || undefined,
+  gitlabToken: async host => settings.value.gitlabTokens[host] || undefined,
 }
 
 export function installAppContext(app: App, context: AppContext = { cache: createBrowserCache(), credentials: settingsCredentials, llm: browserLlmRunner }): void {

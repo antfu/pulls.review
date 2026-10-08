@@ -111,7 +111,7 @@ function scrollToGroup(key: string) {
         </RouterLink>
         <span v-if="meta.author" class="flex items-center gap-1.5">
           <span class="op-fade">{{ $t('pr.by') }}</span>
-          <GithubAvatar :login="meta.author.name" :avatar-url="meta.author.avatarUrl" :size="16" />
+          <GithubAvatar :login="meta.author.name" :avatar-url="meta.author.avatarUrl" :auth="store.auth" :size="16" />
           <span class="op-fade">{{ meta.author.name }}</span>
         </span>
         <span v-if="meta.base && meta.head && !isEmbedded" class="flex items-center gap-1 font-mono">
@@ -125,7 +125,7 @@ function scrollToGroup(key: string) {
           </template>
           <template v-else>
             {{ $t('pr.sharedBy') }}
-            <GithubAvatar :login="aiResult.sharedBy" :size="16" />
+            <GithubAvatar :login="aiResult.sharedBy" :auth="store.auth" :size="16" />
             {{ aiResult.sharedBy }}
           </template>
         </span>

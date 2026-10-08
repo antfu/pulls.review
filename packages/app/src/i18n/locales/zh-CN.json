@@ -27,7 +27,7 @@
     "tagline": "对变更文件分组、总结要点，一个范围一个范围地审阅。所有内容都在你的浏览器中本地运行。",
     "documentTitle": "清晰有序的拉取请求审阅",
     "open": "打开",
-    "pasteHint": "粘贴任意 GitHub pull request 链接，或选择下方的示例。",
+    "pasteHint": "粘贴任意 GitHub pull request 或 GitLab merge request 链接，或选择下方的示例。",
     "recentlyViewed": "// 最近查看",
     "recentRepositories": "// 最近查看的仓库",
     "tryDemos": "// 试试示例",
@@ -107,6 +107,7 @@
     "loadFailed": "无法加载此 pull request",
     "somethingWrong": "出了点问题",
     "newCommits": "自缓存以来，此 pull request 有新的提交。",
+    "incomplete": "仅显示了此变更的一部分：主机在达到上限后停止列出文件。",
     "autoRefreshNextTime": "下次自动刷新",
     "endOfDiff": "你已到达 diff 末尾。",
     "analyzeBy": "分析方式",
@@ -180,12 +181,12 @@
     "updateButton": "更新已分享的评论",
     "sharing": "分享中…",
     "tooltip": "将此分析作为评论发布到 pull request，供他人加载",
-    "needsToken": "分享需要具有写入权限的 GitHub token",
+    "needsToken": "分享需要具有写入权限的 {provider} token",
     "failed": "分享失败：{message}",
     "titleUpdate": "更新你分享的分析",
-    "titleShare": "在 GitHub 上分享此分析",
-    "willUpdate": "将使用你的 GitHub token，以 {user} 的身份更新你在此 pull request 上已有的 {comment}。",
-    "willPost": "将使用你的 GitHub token，以 {user} 的身份在此 pull request 上发布一条公开评论。",
+    "titleShare": "在 {provider} 上分享此分析",
+    "willUpdate": "将使用你的 {provider} token，以 {user} 的身份更新你在此 pull request 上已有的 {comment}。",
+    "willPost": "将使用你的 {provider} token，以 {user} 的身份在此 pull request 上发布一条公开评论。",
     "commentLink": "评论",
     "contains": "评论包含：",
     "containsLink": "在 {site} 上打开此审阅的链接",
@@ -297,6 +298,7 @@
     "approve": "批准",
     "requestChanges": "请求修改",
     "discard": "放弃审查",
+    "revokeApproval": "撤销批准",
     "leaveComment": "留下评论",
     "addSingle": "添加单条评论",
     "addToReview": "添加审查评论",
@@ -347,10 +349,18 @@
       "checking": "正在检查 token…",
       "couldNotVerify": "无法验证此 token。"
     },
+    "gitlabToken": {
+      "label": "GitLab Personal Access Token",
+      "optional": "公开项目可选；私有项目、评论或提交评审时必需。",
+      "scopes": "读取需要 {readApi} scope；评论和批准需要 {api}。",
+      "generate": "在 GitLab 上生成 →",
+      "noScopes": "Scope 未知"
+    },
     "tabs": {
       "appearance": "外观",
       "behavior": "行为",
       "github": "GitHub",
+      "gitlab": "GitLab",
       "ai": "AI 分析",
       "notSetUp": "尚未设置"
     },
@@ -402,10 +412,10 @@
     "generated": { "label": "生成文件", "summary": "生成或构建产物的变更。" }
   },
   "errors": {
-    "tokenRequired": "写入此 pull request 需要 GitHub token。",
+    "tokenRequired": "写入此 pull request 需要 {provider} token。",
     "diffNotLoaded": "diff 尚未加载完成。",
-    "noViewer": "无法确定此 token 对应的 GitHub 用户。",
-    "tokenRejected": "GitHub 拒绝了此 token（401）。请检查是否完整粘贴且未被撤销。",
+    "noViewer": "无法确定此 token 对应的 {provider} 用户。",
+    "tokenRejected": "{provider} 拒绝了此 token（401）。请检查是否完整粘贴且未被撤销。",
     "tooLarge": "分析内容过大，无法作为评论分享（{n} 个字符）。"
   },
   "local": {

@@ -15,6 +15,21 @@ Pull request review made simple. Groups changed files, summarizes what matters, 
 
 To use pulls.review on the website, simply visit [pulls.review](https://pulls.review) and follow the instructions to connect your GitHub account and start reviewing pull requests directly in your browser.
 
+## Use with GitLab
+
+Paste a gitlab.com merge request URL on [pulls.review](https://pulls.review), or open `pulls.review/gl/{group}/{project}/-/merge_requests/{number}` directly. A project URL lists its open merge requests.
+
+- Public merge requests open without a token. GitLab only serves discussions to a token, so comments and shared analyses need one even there.
+- For private projects, comments and approvals, add a personal access token under **Settings > GitLab**. `read_api` is enough to read; commenting and approving need `api`. The token stays in your browser and is only sent to gitlab.com.
+- Comments post at once: GitLab has no pending review to collect them in, and no way to request changes through its API.
+- A build talks to one GitLab instance, gitlab.com by default. For a self-managed instance, build the site with `PR_GITLAB_HOST` set to its host and serve the result yourself:
+
+  ```sh
+  PR_GITLAB_HOST=gitlab.example.com pnpm run build
+  ```
+
+  The instance must be reachable over HTTPS from the browser and allow cross-origin API requests, which GitLab does by default.
+
 ## Use in GitHub
 
 You can optionally install userscript to enhance the GitHub interface with pulls.review features.

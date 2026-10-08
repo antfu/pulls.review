@@ -9,7 +9,7 @@ import DiffsPage from '../components/diff/DiffsPage.vue'
 import { resolveStoredTokenMeta } from '../composables/useGithubTokenMeta'
 import { createDiffsStore } from '../stores/diffs-store'
 
-// Mirrors `pages-web/gh/[owner]/[repo]/diff.vue`'s wiring, from plain props instead of
+// Mirrors `pages-web/diff.vue`'s wiring, from plain props instead of
 // route params - there's no router here. `EmbedApp.ce.vue` gives this a `:key` per PR,
 // so a fresh instance (and fresh store) is created per navigation, same as the routed
 // page getting a fresh mount per route change. The store's `llm` is `undefined` here:

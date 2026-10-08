@@ -35,7 +35,7 @@ export async function fetchGithubTokenMeta(token: string): Promise<GithubTokenMe
     res = await createGithubClient(staticCredentials(token)).request('/user')
   }
   catch (err) {
-    throw err instanceof GithubApiError && err.status === 401 ? diagnostics.tokenRejected() : err
+    throw err instanceof GithubApiError && err.status === 401 ? diagnostics.tokenRejected({ provider: 'GitHub' }) : err
   }
   const user: { login: string, avatar_url: string, name: string | null } = await res.json()
   const scopesHeader = res.headers.get('x-oauth-scopes') ?? ''

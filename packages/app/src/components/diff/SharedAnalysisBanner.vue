@@ -49,7 +49,7 @@ function candidateTitle(candidate: SharedAnalysisCandidate): string | undefined 
         :title="candidateTitle(candidate)"
         @click="shared.load(candidate.login)"
       >
-        <GithubAvatar :login="candidate.login" :size="16" />
+        <GithubAvatar :login="candidate.login" :auth="store.auth" :size="16" />
         {{ candidate.own ? $t('common.you') : candidate.login }}
         <span v-if="candidate.stale" class="text-xs op-fade">{{ $t('share.outdated') }}</span>
         <span v-else-if="otherLanguage(candidate)" class="text-xs op-fade">({{ otherLanguage(candidate) }})</span>

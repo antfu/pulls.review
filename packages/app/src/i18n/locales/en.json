@@ -27,7 +27,7 @@
     "tagline": "Groups changed files, summarizes what matters, review them one scope at a time. Everything works locally in your browser.",
     "documentTitle": "Pull reviews made clear and organized",
     "open": "Open",
-    "pasteHint": "Paste any GitHub pull request URL, or pick a demo below.",
+    "pasteHint": "Paste any GitHub pull request or GitLab merge request URL, or pick a demo below.",
     "recentlyViewed": "// recently viewed",
     "recentRepositories": "// recently viewed repositories",
     "tryDemos": "// try some demos",
@@ -107,6 +107,7 @@
     "loadFailed": "Couldn't load this pull request",
     "somethingWrong": "Something went wrong",
     "newCommits": "This pull request has new commits since it was cached.",
+    "incomplete": "Only part of this change is shown: the host stopped listing files at its limit.",
     "autoRefreshNextTime": "Auto refresh next time",
     "endOfDiff": "You have reached the end of the diff.",
     "analyzeBy": "Analyze by",
@@ -180,12 +181,12 @@
     "updateButton": "Update shared comment",
     "sharing": "Sharing…",
     "tooltip": "Post this analysis as a comment on the pull request so others can load it",
-    "needsToken": "A GitHub token with write access is required to share",
+    "needsToken": "A {provider} token with write access is required to share",
     "failed": "Sharing failed: {message}",
     "titleUpdate": "Update your shared analysis",
-    "titleShare": "Share this analysis on GitHub",
-    "willUpdate": "Your existing {comment} on this pull request will be updated as {user} with your GitHub token.",
-    "willPost": "A public comment will be posted on this pull request as {user} with your GitHub token.",
+    "titleShare": "Share this analysis on {provider}",
+    "willUpdate": "Your existing {comment} on this pull request will be updated as {user} with your {provider} token.",
+    "willPost": "A public comment will be posted on this pull request as {user} with your {provider} token.",
     "commentLink": "comment",
     "contains": "The comment contains:",
     "containsLink": "a link to open this review on {site}",
@@ -298,6 +299,7 @@
     "requestChanges": "Request changes",
     "ownPrCommentOnly": "You cannot approve or request changes on your own pull requests.",
     "discard": "Discard review",
+    "revokeApproval": "Revoke approval",
     "leaveComment": "Leave a comment",
     "addSingle": "Add single comment",
     "addToReview": "Add review comment",
@@ -348,10 +350,18 @@
       "checking": "Checking token…",
       "couldNotVerify": "Could not verify this token."
     },
+    "gitlabToken": {
+      "label": "GitLab Personal Access Token",
+      "optional": "Optional for public projects; required for private projects, comments, or leaving reviews.",
+      "scopes": "Reading needs the {readApi} scope; commenting and approving need {api}.",
+      "generate": "Generate one on GitLab →",
+      "noScopes": "Scopes unknown"
+    },
     "tabs": {
       "appearance": "Appearance",
       "behavior": "Behavior",
       "github": "GitHub",
+      "gitlab": "GitLab",
       "ai": "AI Analysis",
       "notSetUp": "Not set up yet"
     },
@@ -403,10 +413,10 @@
     "generated": { "label": "Generated", "summary": "Generated or build output changes." }
   },
   "errors": {
-    "tokenRequired": "A GitHub token is required to write to this pull request.",
+    "tokenRequired": "A {provider} token is required to write to this pull request.",
     "diffNotLoaded": "The diff has not finished loading yet.",
-    "noViewer": "Could not determine the GitHub user of this token.",
-    "tokenRejected": "GitHub rejected this token (401). Check that it was pasted completely and has not been revoked.",
+    "noViewer": "Could not determine the {provider} user of this token.",
+    "tokenRejected": "{provider} rejected this token (401). Check that it was pasted completely and has not been revoked.",
     "tooLarge": "The analysis is too large to share as a comment ({n} characters)."
   },
   "local": {

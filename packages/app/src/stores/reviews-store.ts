@@ -75,7 +75,10 @@ export function createReviewsStore(api: ReviewsApi, opts: ReviewsStoreOptions): 
       await mutate(() => api.discardPendingReview(pending))
   }
 
+  const { revokeApproval } = api
+
   return reactive({
+    supports: api.supports,
     threads: computed(() => data.value.threads),
     summaries: computed(() => data.value.summaries),
     pendingReview: computed(() => data.value.pendingReview),
@@ -94,5 +97,6 @@ export function createReviewsStore(api: ReviewsApi, opts: ReviewsStoreOptions): 
     resolveThread: (threadId: string) => mutate(() => api.resolveThread(threadId)),
     submitReview: (verdict: ReviewVerdict, body: string) => mutate(() => api.submitReview(verdict, body, data.value.pendingReview)),
     discardPendingReview,
+    revokeApproval: revokeApproval && (() => mutate(revokeApproval)),
   }) as DiffsStoreReviews
 }

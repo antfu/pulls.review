@@ -5,7 +5,7 @@ import PullRequestRow from './PullRequestRow.vue'
 const meta: Meta<typeof PullRequestRow> = {
   title: 'Pulls/PullRequestRow',
   component: PullRequestRow,
-  args: { owner: 'antfu', repo: 'pulls.review' },
+  args: { repository: { kind: 'github-repo', owner: 'antfu', repo: 'pulls.review' } },
 }
 export default meta
 

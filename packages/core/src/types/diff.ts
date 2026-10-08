@@ -78,5 +78,7 @@ export const DiffsPayloadSchema = v.object({
   pullRequest: v.optional(PullRequestMetaSchema),
   commits: v.optional(v.array(CommitSchema)), // oldest first; absent when the source has no commit history
   files: v.array(FileChangeSchema),
+  /** The source stopped listing at its own limit: more files changed than `files` holds. */
+  incomplete: v.optional(v.literal(true)),
 })
 export type DiffsPayload = v.InferOutput<typeof DiffsPayloadSchema>

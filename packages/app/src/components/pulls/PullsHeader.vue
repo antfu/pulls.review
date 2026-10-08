@@ -6,14 +6,17 @@ import FormSearchField from '@antfu/design/components/Form/FormSearchField.vue'
 import FormSelect from '@antfu/design/components/Form/FormSelect.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { repositoryName } from '../../source-routes'
 import GithubAvatar from '../GithubAvatar.vue'
 import NavControls from '../NavControls.vue'
 import { PULL_REQUEST_SORTS } from './pull-request-list-query'
 
-defineProps<{
+const props = defineProps<{
   store: PullRequestListStore
   scrollY: number
 }>()
+
+const repository = computed(() => repositoryName(props.store.source.repository))
 
 const query = defineModel<string>('query', { required: true })
 const sort = defineModel<PullRequestSort>('sort', { required: true })
@@ -33,12 +36,12 @@ const sortOptions = computed(() => PULL_REQUEST_SORTS.map(value => ({ value, lab
           <span class="i-ph-house-line-duotone text-lg color-accent-teal" aria-hidden="true" />
         </RouterLink>
         <h1 class="flex flex-auto items-center gap-1.5 text-lg font-semibold">
-          <a :href="`https://github.com/${store.owner}`" target="_blank" rel="noopener" class="flex items-center gap-1.5 op-fade hover:underline">
-            <GithubAvatar :login="store.owner" :size="20" />
-            {{ store.owner }}
+          <a :href="store.source.ownerUrl" target="_blank" rel="noopener" class="flex items-center gap-1.5 op-fade hover:underline">
+            <GithubAvatar :login="repository.owner" :auth="store.source.auth" :size="20" />
+            {{ repository.owner }}
           </a>
           <span class="op-mute">/</span>
-          <a :href="`https://github.com/${store.owner}/${store.repo}/pulls`" target="_blank" rel="noopener" class="hover:underline">{{ store.repo }}</a>
+          <a :href="store.source.url" target="_blank" rel="noopener" class="hover:underline">{{ repository.name }}</a>
           <span v-if="store.totalCount !== undefined" class="ml-1 text-sm font-normal op-fade">{{ $t('pulls.open', { n: store.totalCount }) }}</span>
           <ActionIconButton
             icon="i-ph:arrows-clockwise-duotone"

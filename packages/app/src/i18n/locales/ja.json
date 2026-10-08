@@ -27,7 +27,7 @@
     "tagline": "変更ファイルをグループ化し、要点を要約して、スコープごとにレビュー。すべてブラウザ内でローカルに動作します。",
     "documentTitle": "プルリクエストのレビューを、明快に、整理して",
     "open": "開く",
-    "pasteHint": "GitHub の pull request URL を貼り付けるか、下のデモを選んでください。",
+    "pasteHint": "GitHub の pull request または GitLab の merge request の URL を貼り付けるか、下のデモを選んでください。",
     "recentlyViewed": "// 最近見たもの",
     "recentRepositories": "// 最近見たリポジトリ",
     "tryDemos": "// デモを試す",
@@ -107,6 +107,7 @@
     "loadFailed": "この pull request を読み込めませんでした",
     "somethingWrong": "問題が発生しました",
     "newCommits": "キャッシュ後にこの pull request に新しいコミットがあります。",
+    "incomplete": "この変更の一部のみ表示しています。ホストが上限でファイルの一覧を打ち切りました。",
     "autoRefreshNextTime": "次回から自動更新",
     "endOfDiff": "diff の末尾に到達しました。",
     "analyzeBy": "分析方法",
@@ -180,12 +181,12 @@
     "updateButton": "共有コメントを更新",
     "sharing": "共有中…",
     "tooltip": "この分析を pull request のコメントとして投稿し、他の人が読み込めるようにします",
-    "needsToken": "共有には書き込み権限のある GitHub トークンが必要です",
+    "needsToken": "共有には書き込み権限のある {provider} トークンが必要です",
     "failed": "共有に失敗しました：{message}",
     "titleUpdate": "共有した分析を更新",
-    "titleShare": "この分析を GitHub で共有",
-    "willUpdate": "この pull request 上の既存の{comment}を、あなたの GitHub トークンで {user} として更新します。",
-    "willPost": "この pull request に、あなたの GitHub トークンで {user} として公開コメントを投稿します。",
+    "titleShare": "この分析を {provider} で共有",
+    "willUpdate": "この pull request 上の既存の{comment}を、あなたの {provider} トークンで {user} として更新します。",
+    "willPost": "この pull request に、あなたの {provider} トークンで {user} として公開コメントを投稿します。",
     "commentLink": "コメント",
     "contains": "コメントの内容：",
     "containsLink": "{site} でこのレビューを開くリンク",
@@ -297,6 +298,7 @@
     "approve": "承認",
     "requestChanges": "変更をリクエスト",
     "discard": "レビューを破棄",
+    "revokeApproval": "承認を取り消す",
     "leaveComment": "コメントを書く",
     "addSingle": "単独コメントを追加",
     "addToReview": "レビューコメントを追加",
@@ -347,10 +349,18 @@
       "checking": "トークンを確認中…",
       "couldNotVerify": "このトークンを検証できませんでした。"
     },
+    "gitlabToken": {
+      "label": "GitLab 個人アクセストークン",
+      "optional": "公開プロジェクトでは任意。非公開プロジェクト、コメント、レビューには必須です。",
+      "scopes": "読み取りには {readApi} スコープ、コメントと承認には {api} が必要です。",
+      "generate": "GitLab で生成 →",
+      "noScopes": "スコープ不明"
+    },
     "tabs": {
       "appearance": "外観",
       "behavior": "動作",
       "github": "GitHub",
+      "gitlab": "GitLab",
       "ai": "AI 分析",
       "notSetUp": "未設定"
     },
@@ -402,10 +412,10 @@
     "generated": { "label": "生成物", "summary": "生成物やビルド成果物の変更。" }
   },
   "errors": {
-    "tokenRequired": "この pull request に書き込むには GitHub トークンが必要です。",
+    "tokenRequired": "この pull request に書き込むには {provider} トークンが必要です。",
     "diffNotLoaded": "diff の読み込みがまだ完了していません。",
-    "noViewer": "このトークンの GitHub ユーザーを特定できませんでした。",
-    "tokenRejected": "GitHub がこのトークンを拒否しました（401）。完全に貼り付けられているか、取り消されていないか確認してください。",
+    "noViewer": "このトークンの {provider} ユーザーを特定できませんでした。",
+    "tokenRejected": "{provider} がこのトークンを拒否しました（401）。完全に貼り付けられているか、取り消されていないか確認してください。",
     "tooLarge": "分析が大きすぎてコメントとして共有できません（{n} 文字）。"
   },
   "local": {

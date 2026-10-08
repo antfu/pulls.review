@@ -6,6 +6,8 @@ import { useLocalStorage } from '@vueuse/core'
 
 export interface Settings {
   githubToken: string
+  /** By GitLab host, so a token is only ever sent to the instance it was saved for. */
+  gitlabTokens: Record<string, string>
   llm: LlmSettings
   /** UI language and the language the LLM writes summaries in; seeded from the browser's preference. */
   locale: Locale
@@ -13,6 +15,7 @@ export interface Settings {
 
 const defaultSettings: Settings = {
   githubToken: '',
+  gitlabTokens: {},
   llm: defaultLlmSettings,
   locale: detectLocale(),
 }

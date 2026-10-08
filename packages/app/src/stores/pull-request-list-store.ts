@@ -1,8 +1,20 @@
 import type { CacheRepositories } from '@pulls.review/core/cache'
-import type { Credentials, PullRequestListItem, PullRequestListPage } from '@pulls.review/core/types'
-import { createGithubClient, fetchOpenPullRequests } from '@pulls.review/core/github'
+import type { DiffSource, DiffsPayload, PullRequestListItem, PullRequestListPage, RepositoryRef } from '@pulls.review/core/types'
+import { pullRequestOf, serializeRepositoryRef } from '@pulls.review/core/types'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { ruleBasedAdapter } from '../analyze'
+
+/** One repository's open pull requests on its host, already bound to credentials. */
+export interface PullRequestListSource {
+  repository: RepositoryRef
+  /** The list's own page on the host, and its namespace's. */
+  url: string
+  ownerUrl: string
+  /** The credential a failed load can be retried with. */
+  auth: NonNullable<DiffSource['auth']>
+  /** One page; `next` is the continuation the previous page returned. */
+  fetchPage: (next?: string) => Promise<PullRequestListPage>
+}
 
 /** What this browser already holds for a PR it viewed before (see `pr:*` in the cache). */
 export interface ViewedPullRequest {
@@ -15,8 +27,7 @@ export interface ViewedPullRequest {
 }
 
 export interface PullRequestListStore {
-  readonly owner: string
-  readonly repo: string
+  readonly source: PullRequestListSource
   readonly items: PullRequestListItem[]
   /** Open PR count for the whole repo (not just the loaded pages); unset until the first page lands. */
   readonly totalCount: number | undefined
@@ -38,7 +49,6 @@ export interface PullRequestListStore {
 
 export interface PullRequestListStoreOptions {
   cache: CacheRepositories
-  credentials: Credentials
 }
 
 /**
@@ -47,10 +57,9 @@ export interface PullRequestListStoreOptions {
  * cost nothing to refetch (no AI run hangs off them), so unlike `DiffsStore` the
  * refresh happens silently on every visit.
  */
-export function createPullRequestListStore(params: { owner: string, repo: string }, opts: PullRequestListStoreOptions): PullRequestListStore {
-  const { owner, repo } = params
+export function createPullRequestListStore(source: PullRequestListSource, opts: PullRequestListStoreOptions): PullRequestListStore {
+  const { repository } = source
   const { cache } = opts
-  const client = createGithubClient(opts.credentials)
   const items = shallowRef<PullRequestListItem[]>([])
   const totalCount = ref<number>()
   const next = ref<string>()
@@ -72,11 +81,11 @@ export function createPullRequestListStore(params: { owner: string, repo: string
     const current = ++generation
     error.value = undefined
     try {
-      const page = await fetchOpenPullRequests(client, owner, repo)
+      const page = await source.fetchPage()
       if (current !== generation)
         return
       installFirstPage(page)
-      await cache.pullRequestLists.set(owner, repo, page)
+      await cache.pullRequestLists.set(repository, page)
     }
     catch (err) {
       if (current === generation)
@@ -86,13 +95,14 @@ export function createPullRequestListStore(params: { owner: string, repo: string
 
   async function loadViewed() {
     const next = new Map<number, ViewedPullRequest>()
-    const entries = await cache.diffs.listMatching(({ ref }) => ref.kind === 'github-pr' && ref.owner === owner && ref.repo === repo)
-    for (const entry of entries) {
-      const { ref } = entry.diff
-      if (ref.kind !== 'github-pr')
-        continue
+    const key = serializeRepositoryRef(repository)
+    const numberHere = (ref: DiffsPayload['ref']) => {
+      const pullRequest = pullRequestOf(ref)
+      return pullRequest && serializeRepositoryRef(pullRequest.repository) === key ? pullRequest.number : undefined
+    }
+    for (const entry of await cache.diffs.listMatching(({ ref }) => numberHere(ref) !== undefined)) {
       const aiResult = entry.analyzedBy.llm ?? entry.analyzedBy['web-llm']
-      next.set(Number(ref.number), {
+      next.set(numberHere(entry.diff.ref)!, {
         additions: entry.diff.files.reduce((sum, file) => sum + file.additions, 0),
         deletions: entry.diff.files.reduce((sum, file) => sum + file.deletions, 0),
         files: entry.diff.files.length,
@@ -106,11 +116,11 @@ export function createPullRequestListStore(params: { owner: string, repo: string
   async function load() {
     // Independent of the network: what's viewed locally decorates rows whenever they arrive.
     void loadViewed()
-    const cached = await cache.pullRequestLists.get(owner, repo)
+    const cached = await cache.pullRequestLists.get(repository)
     if (cached) {
       installFirstPage(cached.page)
       // Counts as a visit even if the refresh below fails (offline, rate-limited).
-      await cache.pullRequestLists.touch(owner, repo)
+      await cache.pullRequestLists.touch(repository)
     }
     const flag = cached ? isRefreshing : isLoading
     flag.value = true
@@ -140,7 +150,7 @@ export function createPullRequestListStore(params: { owner: string, repo: string
     isLoadingMore.value = true
     error.value = undefined
     try {
-      const page = await fetchOpenPullRequests(client, owner, repo, cursor)
+      const page = await source.fetchPage(cursor)
       // A refresh landed meanwhile: its first page supersedes this continuation.
       if (current !== generation)
         return
@@ -162,8 +172,7 @@ export function createPullRequestListStore(params: { owner: string, repo: string
   }
 
   return reactive({
-    owner,
-    repo,
+    source,
     items,
     totalCount,
     isLoading,

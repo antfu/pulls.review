@@ -34,8 +34,12 @@ watch(isOwnPr, (own) => {
 const verdictOptions = computed(() => [
   { value: 'COMMENT', label: t('review.comment'), icon: 'i-octicon-comment-16' },
   { value: 'APPROVE', label: t('review.approve'), icon: 'i-octicon-check-circle-16', disabled: isOwnPr.value },
-  { value: 'REQUEST_CHANGES', label: t('review.requestChanges'), icon: 'i-octicon-code-review-16', disabled: isOwnPr.value },
+  ...props.reviews.supports.requestChanges
+    ? [{ value: 'REQUEST_CHANGES', label: t('review.requestChanges'), icon: 'i-octicon-code-review-16', disabled: isOwnPr.value }]
+    : [],
 ])
+const hasApproved = computed(() => props.reviews.summaries.some(summary =>
+  summary.state === 'approved' && !!summary.author && summary.author.login === props.reviews.viewerLogin))
 
 async function run(action: () => Promise<void>) {
   busy.value = true
@@ -92,6 +96,14 @@ async function run(action: () => Promise<void>) {
           @click="run(() => props.reviews.discardPendingReview())"
         >
           {{ $t('review.discard') }}
+        </ActionButton>
+        <ActionButton
+          v-if="reviews.revokeApproval && hasApproved"
+          variant="text"
+          :disabled="busy"
+          @click="run(() => props.reviews.revokeApproval!())"
+        >
+          {{ $t('review.revokeApproval') }}
         </ActionButton>
         <div class="flex-auto" />
         <ActionButton
