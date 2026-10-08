@@ -11,6 +11,7 @@ function withAgents(agents: LocalAgentInfo[] | undefined): Story['decorators'] {
 }
 
 const found: LocalAgentInfo[] = [
+  { name: 'codex', label: 'Codex', version: '0.161.0', models: [] },
   { name: 'claude', label: 'Claude Code', version: '2.1.220', models: [{ id: 'sonnet', name: 'Sonnet (latest)' }, { id: 'opus', name: 'Opus (latest)' }] },
   { name: 'opencode', label: 'OpenCode', version: '1.18.29', models: [{ id: 'vercel/anthropic/claude-sonnet-4.5', name: 'vercel/anthropic/claude-sonnet-4.5' }] },
 ]
@@ -41,7 +42,15 @@ export const Unpicked: Story = {
 export const Picked: Story = {
   args: {
     llmSettings: { ...defaultLlmSettings, provider: 'local-agent', agent: 'claude', agentModel: 'opus' },
-    models: [{ id: '', name: 'Agent default' }, ...found[0]!.models],
+    models: [{ id: '', name: 'Agent default' }, ...found[1]!.models],
+  },
+  decorators: withAgents(found),
+}
+
+export const Codex: Story = {
+  args: {
+    llmSettings: { ...defaultLlmSettings, provider: 'local-agent', agent: 'codex' },
+    models: [{ id: '', name: 'Agent default' }],
   },
   decorators: withAgents(found),
 }

@@ -377,7 +377,7 @@
       "agentNeedsCli": "로컬 에이전트는 pulls.review CLI에서 실행됩니다. 저장소에서 `npx pulls.review`를 실행하고 거기서 선택하세요.",
       "agentDetecting": "에이전트 CLI 찾는 중…",
       "agentNone": "이 컴퓨터에서 에이전트 CLI를 찾을 수 없습니다.",
-      "agentHint": "이 컴퓨터에 설치되어 자체 계정으로 로그인된 코딩 에이전트({claude} 또는 {opencode})입니다. 패치와 저장소를 읽기만 하고 쓰지 않습니다.",
+      "agentHint": "이 컴퓨터에 설치되어 자체 계정으로 로그인된 코딩 에이전트({claude}, {codex} 또는 {opencode})입니다. 패치와 저장소를 읽기만 하고 쓰지 않습니다.",
       "agentPick": "에이전트 선택…"
     },
     "models": {

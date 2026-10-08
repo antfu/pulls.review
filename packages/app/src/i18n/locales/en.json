@@ -378,7 +378,7 @@
       "agentNeedsCli": "Local agents run in the pulls.review CLI: start it in a repository with `npx pulls.review` and pick one there.",
       "agentDetecting": "Looking for agent CLIs…",
       "agentNone": "No agent CLI found on this machine.",
-      "agentHint": "A coding agent installed on this machine, signed in with its own account: {claude}, {opencode}, or {pi}. It reads the patch and the repository, never writes.",
+      "agentHint": "A coding agent installed on this machine, signed in with its own account: {claude}, {codex}, {opencode}, or {pi}. It reads the patch and the repository, never writes.",
       "agentPick": "Pick an agent…"
     },
     "models": {

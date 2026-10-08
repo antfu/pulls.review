@@ -61,7 +61,20 @@ describe('agent RPC', () => {
       expect.objectContaining({ name: 'claude', models: expect.arrayContaining([{ id: 'sonnet', name: 'Sonnet (latest)' }]) }),
       expect.objectContaining({ name: 'opencode' }),
       expect.objectContaining({ name: 'pi' }),
+      expect.objectContaining({ name: 'codex', models: [] }),
     ])
+  })
+
+  it('accepts Codex over RPC and returns a resumable analysis', async () => {
+    fake.replay('codex-analysis.jsonl')
+    const { channel, stream } = memoryChannel()
+    const functions = agentRpcFunctions({ cwd: dir, patchDir: join(dir, 'patches'), channel })
+    const { streamId } = await call(functions, LOCAL_RPC.agentAnalyze, { agent: 'codex', diff, locale: 'en' }) as { streamId: string }
+    await stream(streamId).done
+    const events = stream(streamId).events
+    expect(events.find(event => event.kind === 'result')?.result.groups[0]?.filePaths).toEqual(['a.ts', 'b.test.ts'])
+    expect(events.at(-1)).toMatchObject({ kind: 'end', stopReason: 'done', agent: { agent: 'codex', id: 'sess-codex-1' } })
+    expect(realpathSync(fake.calls()[0]!.cwd)).not.toBe(realpathSync(dir))
   })
 
   it('streams an analysis, ending with the result, and a GitHub diff runs outside the repository', async () => {

@@ -377,7 +377,7 @@
       "agentNeedsCli": "本地代理在 pulls.review CLI 中运行：在仓库中执行 `npx pulls.review`，然后在那里选择。",
       "agentDetecting": "正在查找代理 CLI…",
       "agentNone": "在此机器上未找到代理 CLI。",
-      "agentHint": "安装在此机器上并以自己的账号登录的编码代理：{claude} 或 {opencode}。它只读取补丁和仓库，不会写入。",
+      "agentHint": "安装在此机器上并以自己的账号登录的编码代理：{claude}, {codex} 或 {opencode}。它只读取补丁和仓库，不会写入。",
       "agentPick": "选择代理…"
     },
     "models": {

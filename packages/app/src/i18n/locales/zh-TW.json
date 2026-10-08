@@ -377,7 +377,7 @@
       "agentNeedsCli": "本機代理在 pulls.review CLI 中執行：在儲存庫中執行 `npx pulls.review`，然後在那裡選擇。",
       "agentDetecting": "正在尋找代理 CLI…",
       "agentNone": "在此機器上找不到代理 CLI。",
-      "agentHint": "安裝在此機器上並以自己的帳號登入的編碼代理：{claude} 或 {opencode}。它只讀取補丁和儲存庫，不會寫入。",
+      "agentHint": "安裝在此機器上並以自己的帳號登入的編碼代理：{claude}, {codex} 或 {opencode}。它只讀取補丁和儲存庫，不會寫入。",
       "agentPick": "選擇代理…"
     },
     "models": {

@@ -38,7 +38,7 @@ A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
   only the app context: the cache is an RPC driver over
   `<git-common-dir>/pulls-review`, the GitHub token comes from the server, and
   the `local-agent` LLM provider runs analysis and chat on the server through an
-  agent CLI on the machine (`claude`, `opencode`, `pi`; `plans/11-local-agents.md`).
+  agent CLI on the machine (`claude`, `opencode`, `pi`, `codex`; `plans/11-local-agents.md`).
   It MUST NOT take over the Actions entry point, and the public site MUST NOT
   bundle the devframe client.
 

@@ -377,7 +377,7 @@
       "agentNeedsCli": "ローカルエージェントは pulls.review CLI で動作します。リポジトリ内で `npx pulls.review` を起動し、そこで選択してください。",
       "agentDetecting": "エージェント CLI を検索中…",
       "agentNone": "このマシンにエージェント CLI が見つかりません。",
-      "agentHint": "このマシンにインストールされ、自身のアカウントでサインイン済みのコーディングエージェント（{claude} または {opencode}）。パッチとリポジトリを読むだけで、書き込みはしません。",
+      "agentHint": "このマシンにインストールされ、自身のアカウントでサインイン済みのコーディングエージェント（{claude}, {codex} または {opencode}）。パッチとリポジトリを読むだけで、書き込みはしません。",
       "agentPick": "エージェントを選択…"
     },
     "models": {

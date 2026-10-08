@@ -1,0 +1,6 @@
+{"type": "thread.started", "thread_id": "sess-codex-1"}
+{"type": "turn.started"}
+{"type": "item.started", "item": {"type": "command_execution", "id": "item_1", "command": "cat b.test.ts", "aggregated_output": "", "exit_code": null, "status": "in_progress"}}
+{"type": "item.completed", "item": {"type": "command_execution", "id": "item_1", "command": "cat b.test.ts", "aggregated_output": "test", "exit_code": 0, "status": "completed"}}
+{"type": "item.completed", "item": {"type": "agent_message", "id": "item_2", "text": "{\"overallSummary\": \"Adds the thing.\", \"groups\": [{\"key\": \"thing\", \"label\": \"Thing\", \"category\": \"core\", \"summary\": \"Implementation and test.\", \"filePaths\": [\"a.ts\", \"b.test.ts\"]}]}"}}
+{"type": "turn.completed", "usage": {"input_tokens": 10, "cached_input_tokens": 0, "output_tokens": 5}}

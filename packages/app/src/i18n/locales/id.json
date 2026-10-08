@@ -377,7 +377,7 @@
       "agentNeedsCli": "Agen lokal berjalan di CLI pulls.review: jalankan di sebuah repositori dengan `npx pulls.review` dan pilih di sana.",
       "agentDetecting": "Mencari CLI agen…",
       "agentNone": "Tidak ada CLI agen ditemukan di mesin ini.",
-      "agentHint": "Agen pengkodean yang terpasang di mesin ini, masuk dengan akunnya sendiri: {claude} atau {opencode}. Ia membaca patch dan repositori, tidak pernah menulis.",
+      "agentHint": "Agen pengkodean yang terpasang di mesin ini, masuk dengan akunnya sendiri: {claude}, {codex} atau {opencode}. Ia membaca patch dan repositori, tidak pernah menulis.",
       "agentPick": "Pilih agen…"
     },
     "models": {
