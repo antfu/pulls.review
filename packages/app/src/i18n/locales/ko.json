@@ -248,6 +248,8 @@
     "expandAll": "모든 파일 펼치기",
     "collapseAll": "모든 파일 접기",
     "collapseReviewed": "리뷰한 파일 접기",
+    "collapseTests": "테스트 파일 접기",
+    "test": "테스트 파일",
     "noLongerInDiff": "더 이상 이 diff에 없음",
     "removed": "제거됨"
   },

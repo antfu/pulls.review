@@ -248,6 +248,8 @@
     "expandAll": "すべてのファイルを展開",
     "collapseAll": "すべてのファイルを折りたたむ",
     "collapseReviewed": "レビュー済みのファイルを折りたたむ",
+    "collapseTests": "テストファイルを折りたたむ",
+    "test": "テストファイル",
     "noLongerInDiff": "この diff にはもう含まれていません",
     "removed": "削除済み"
   },

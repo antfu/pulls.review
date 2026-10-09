@@ -7,6 +7,7 @@ import { DropdownMenuContent, DropdownMenuRoot, DropdownMenuTrigger } from 'reka
 import { computed, inject, ref, useTemplateRef } from 'vue'
 import { fileCollapseKey } from './file-collapse'
 import { reviewStatus } from './review-status'
+import { isTestFile } from './test-files'
 
 const props = defineProps<{
   store: DiffsStore
@@ -31,6 +32,7 @@ const actions = [
   { label: 'file.expandAll', icon: 'i-ph:arrows-out-line-vertical-duotone', collapse: false, applies: () => true },
   { label: 'file.collapseAll', icon: 'i-ph:arrows-in-line-vertical-duotone', collapse: true, applies: () => true },
   { label: 'file.collapseReviewed', icon: 'i-ph:check-square-duotone', collapse: true, applies: (file: FileChange) => reviewStatus(props.store, file) === 'reviewed' },
+  { label: 'file.collapseTests', icon: 'i-ph:flask-duotone', collapse: true, applies: (file: FileChange) => isTestFile(file.path) },
 ] as const
 
 function run(action: typeof actions[number]) {

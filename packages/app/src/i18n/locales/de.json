@@ -248,6 +248,8 @@
     "expandAll": "Alle Dateien ausklappen",
     "collapseAll": "Alle Dateien einklappen",
     "collapseReviewed": "Reviewte Dateien einklappen",
+    "collapseTests": "Testdateien einklappen",
+    "test": "Testdatei",
     "noLongerInDiff": "Nicht mehr in diesem Diff",
     "removed": "entfernt"
   },

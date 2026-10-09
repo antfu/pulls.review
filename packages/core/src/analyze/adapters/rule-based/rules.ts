@@ -35,6 +35,27 @@ export const GENERATED_PATTERNS = [
   '**/*.lock',
 ]
 
+/**
+ * Tests and what only exists to support them (stories, fixtures, snapshots) - shared
+ * with the app's `test-files.ts`, which marks these files in the diff view, so the
+ * grouping rule and the per-file mark can't drift apart.
+ */
+export const TEST_PATTERNS = [
+  '**/*.test.*',
+  '**/*.spec.*',
+  '**/*_test.*',
+  '**/test_*.py',
+  '**/*.stories.*',
+  '**/*.snap',
+  '**/__tests__/**',
+  '**/__snapshots__/**',
+  '**/__fixtures__/**',
+  '**/test/**',
+  '**/tests/**',
+  '**/e2e/**',
+  '**/fixtures/**',
+]
+
 /** Fallback for text files no pattern matches. */
 export const codeRule: GroupRule = {
   key: 'code',
@@ -72,13 +93,7 @@ export const defaultRules: GroupRule[] = [
   {
     key: 'tests',
     category: 'tests',
-    patterns: [
-      '**/*.test.*',
-      '**/*.spec.*',
-      '**/__tests__/**',
-      '**/test/**',
-      '**/tests/**',
-    ],
+    patterns: TEST_PATTERNS,
   },
   {
     key: 'config',

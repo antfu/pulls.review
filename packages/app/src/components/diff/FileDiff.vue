@@ -27,6 +27,8 @@ import { ensurePierreDiffsShadowRoot } from './pierre-diffs-shadow'
 import { reviewStatus } from './review-status'
 import ReviewCheckbox from './ReviewCheckbox.vue'
 import ReviewThreadCard from './ReviewThreadCard.vue'
+import { isTestFile } from './test-files'
+import TestMark from './TestMark.vue'
 
 const props = defineProps<{
   store: DiffsStore
@@ -38,6 +40,7 @@ const props = defineProps<{
 const status = computed(() => reviewStatus(props.store, props.file))
 const isReviewed = computed(() => status.value === 'reviewed')
 const isCritical = computed(() => fileIsCritical(props.notes))
+const isTest = computed(() => isTestFile(props.file.path))
 const fileNotes = computed(() => props.notes?.filter(note => !note.anchor) ?? [])
 
 // Reads the embed's own scoped ref when provided (see `state/dark.ts`), otherwise the
@@ -372,9 +375,9 @@ defineExpose({
   <div class="sticky top-[calc(var(--diffs-header-height)-1px)] z-file-diff-header mt-2 bg-base">
     <header
       :id="`file-${file.sha}`"
-      class="relative flex items-center justify-between gap-2 overflow-hidden border border-base bg-base px-2 py-1.5"
+      class="relative flex items-center justify-between gap-2 overflow-hidden border border-base px-2 py-1.5"
       role="button"
-      :class="collapsed ? 'rounded-lg' : 'rounded-t-lg'"
+      :class="[collapsed ? 'rounded-lg' : 'rounded-t-lg', isTest ? 'bg-green:8' : 'bg-base']"
       @click.self="collapsed = !collapsed"
     >
       <div class="min-w-0 flex items-center gap-2 text-sm">
@@ -384,6 +387,7 @@ defineExpose({
           @update="store.setReviewed([file.sha], $event)"
         />
         <DisplayFilePath :path="file.path" class="min-w-0" />
+        <TestMark v-if="isTest" />
         <CriticalMark v-if="isCritical" />
       </div>
       <div class="flex shrink-0 items-center gap-2">
