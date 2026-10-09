@@ -2,7 +2,15 @@
 import { useRoute } from 'vue-router'
 import GithubDiffPage from '../../../../../components/diff/GithubDiffPage.vue'
 
-definePage({ name: 'github-commit' })
+definePage({
+  name: 'github-commit',
+  params: {
+    query: {
+      commit: { parser: 'string', format: 'value' },
+      from: { parser: 'string', format: 'value' },
+    },
+  },
+})
 const route = useRoute()
 </script>
 

@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import LocalDiffPage from '../components/diff/LocalDiffPage.vue'
 
-definePage({ name: 'local-worktree' })
+definePage({
+  name: 'local-worktree',
+  params: {
+    query: {
+      commit: { parser: 'string', format: 'value' },
+    },
+  },
+})
 </script>
 
 <template>

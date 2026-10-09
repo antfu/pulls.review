@@ -2,7 +2,15 @@
 import { useRoute } from 'vue-router'
 import LocalDiffPage from '../../components/diff/LocalDiffPage.vue'
 
-definePage({ name: 'local-branch', params: { path: { branch: { re: /.+/ } } } })
+definePage({
+  name: 'local-branch',
+  params: {
+    path: { branch: { re: /.+/ } },
+    query: {
+      commit: { parser: 'string', format: 'value' },
+    },
+  },
+})
 const route = useRoute()
 </script>
 

@@ -54,22 +54,22 @@ declare module 'vue-router/auto-routes' {
     'local-branch': RouteRecordInfo<
       'local-branch',
       '/branch/:branch',
-      { 'branch': Exclude<Param_localBranch, unknown[] | null> },
-      { 'branch': Exclude<Param_localBranch, unknown[] | null> },
+      { 'branch': Exclude<Param_localBranch, unknown[] | null>, 'commit'?: string | undefined },
+      { 'branch': Exclude<Param_localBranch, unknown[] | null>, 'commit': string | undefined },
       | never
     >,
     'local-commit': RouteRecordInfo<
       'local-commit',
       '/commit/:sha',
-      { 'sha': Exclude<Param_localCommit, unknown[] | null> },
-      { 'sha': Exclude<Param_localCommit, unknown[] | null> },
+      { 'commit'?: string | undefined, 'sha': Exclude<Param_localCommit, unknown[] | null> },
+      { 'commit': string | undefined, 'sha': Exclude<Param_localCommit, unknown[] | null> },
       | never
     >,
     'local-compare': RouteRecordInfo<
       'local-compare',
       '/compare/:range',
-      { 'range': Exclude<Param_localRange, unknown[] | null> },
-      { 'range': Exclude<Param_localRange, unknown[] | null> },
+      { 'commit'?: string | undefined, 'range': Exclude<Param_localRange, unknown[] | null> },
+      { 'commit': string | undefined, 'range': Exclude<Param_localRange, unknown[] | null> },
       | never
     >,
     '/gh/[owner]/[repo]/': RouteRecordInfo<
@@ -82,22 +82,22 @@ declare module 'vue-router/auto-routes' {
     'github-pr': RouteRecordInfo<
       'github-pr',
       '/gh/:owner/:repo/:number',
-      { 'number': Exclude<Param_pr, unknown[] | null>, 'owner': string, 'repo': string },
-      { 'number': Exclude<Param_pr, unknown[] | null>, 'owner': string, 'repo': string },
+      { 'commit'?: string | undefined, 'from'?: string | undefined, 'number': Exclude<Param_pr, unknown[] | null>, 'owner': string, 'repo': string },
+      { 'commit': string | undefined, 'from': string | undefined, 'number': Exclude<Param_pr, unknown[] | null>, 'owner': string, 'repo': string },
       | never
     >,
     'github-commit': RouteRecordInfo<
       'github-commit',
       '/gh/:owner/:repo/commit/:sha',
-      { 'owner': string, 'repo': string, 'sha': string },
-      { 'owner': string, 'repo': string, 'sha': string },
+      { 'commit'?: string | undefined, 'from'?: string | undefined, 'owner': string, 'repo': string, 'sha': string },
+      { 'commit': string | undefined, 'from': string | undefined, 'owner': string, 'repo': string, 'sha': string },
       | never
     >,
     'github-compare': RouteRecordInfo<
       'github-compare',
       '/gh/:owner/:repo/compare/:range',
-      { 'owner': string, 'range': Exclude<Param_range, unknown[] | null>, 'repo': string },
-      { 'owner': string, 'range': Exclude<Param_range, unknown[] | null>, 'repo': string },
+      { 'commit'?: string | undefined, 'from'?: string | undefined, 'owner': string, 'range': Exclude<Param_range, unknown[] | null>, 'repo': string },
+      { 'commit': string | undefined, 'from': string | undefined, 'owner': string, 'range': Exclude<Param_range, unknown[] | null>, 'repo': string },
       | never
     >,
     '/upload': RouteRecordInfo<
@@ -110,8 +110,8 @@ declare module 'vue-router/auto-routes' {
     'local-worktree': RouteRecordInfo<
       'local-worktree',
       '/worktree',
-      Record<never, never>,
-      Record<never, never>,
+      { 'commit'?: string | undefined },
+      { 'commit': string | undefined },
       | never
     >,
   }

@@ -6,7 +6,7 @@ import memoryDriver from 'unstorage/drivers/memory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
 import { createMemoryHistory } from 'vue-router'
-import { createFixedResolver, experimental_createRouter, MatcherPatternPathStatic, normalizeRouteRecord } from 'vue-router/experimental'
+import { createFixedResolver, experimental_createRouter, MatcherPatternPathStatic, MatcherPatternQueryParam, normalizeRouteRecord } from 'vue-router/experimental'
 import { createDiffsStore } from '../stores/diffs-store'
 import { useCommitView } from './useCommitView'
 
@@ -43,7 +43,15 @@ async function setup(path: string, commits: DiffsPayload['commits'] = COMMITS) {
   const router = experimental_createRouter({
     history: createMemoryHistory(),
     resolver: createFixedResolver([
-      normalizeRouteRecord({ name: 'diff', path: new MatcherPatternPathStatic('/diff'), components: { default: Page } }),
+      normalizeRouteRecord({
+        name: 'diff',
+        path: new MatcherPatternPathStatic('/diff'),
+        query: [
+          new MatcherPatternQueryParam('commit', 'commit', 'value'),
+          new MatcherPatternQueryParam('from', 'from', 'value'),
+        ],
+        components: { default: Page },
+      }),
     ]),
   })
   await router.push(path)
@@ -74,7 +82,7 @@ describe('useCommitView', () => {
 
     view.commitNav.value!.select()
     await nextTick()
-    await vi.waitFor(() => expect(router.currentRoute.value.query.commit).toBeUndefined())
+    await vi.waitFor(() => expect(router.currentRoute.value.fullPath).toBe('/diff'))
     await vi.waitFor(() => expect(view.store.value.diff?.title).toBe('parent'))
     expect(scrollTo).toHaveBeenCalledWith({ top: 0 })
   })
@@ -102,12 +110,15 @@ describe('useCommitView', () => {
     await vi.waitFor(() => expect(view.store.value.diff?.title).toBe('parent'))
   })
 
-  it('shows the whole diff when the commit query has multiple values or no value', async () => {
-    const { view, router } = await setup('/diff?commit=aaa&commit=bbb')
-    expect(view.store.value.diff?.title).toBe('parent')
-    expect(view.selected.value).toBeUndefined()
+  it('uses the last value when the commit query has multiple values', async () => {
+    const { view } = await setup('/diff?commit=aaa&commit=bbb')
 
-    await router.push('/diff?commit')
+    await vi.waitFor(() => expect(view.store.value.diff?.title).toBe('commit bbb'))
+    expect(view.selected.value).toBe('bbb')
+  })
+
+  it('shows the whole diff when the commit query has no value', async () => {
+    const { view } = await setup('/diff?commit')
     expect(view.store.value.diff?.title).toBe('parent')
     expect(view.selected.value).toBeUndefined()
   })

@@ -15,14 +15,14 @@ import { createDiffsStore } from '../../stores/diffs-store'
 
 const props = defineProps<{ sourceRef: RoutableRef }>()
 
-const route = useRoute()
+const route = useRoute<'github-pr' | 'github-commit' | 'github-compare'>()
 const { cache, credentials, llm } = useAppContext()
 
 // Read once: `App.vue` keys the routed page by path, so another diff mounts a fresh page and store.
 const ref = props.sourceRef
 
 // `?from=<login>` deep-links a shared analysis (see plans/07); read once, never rewritten.
-const from = Array.isArray(route.query.from) && route.query.from.length === 1 ? route.query.from[0] ?? undefined : undefined
+const from = route.params.from
 
 const parent = createDiffsStore(createGithubSource(ref, credentials, { tokenMeta: resolveStoredTokenMeta }), { cache, llm, from })
 const { store, commitNav, selected } = useCommitView(

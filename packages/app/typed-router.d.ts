@@ -61,22 +61,22 @@ declare module 'vue-router/auto-routes' {
     'github-pr': RouteRecordInfo<
       'github-pr',
       '/gh/:owner/:repo/:number',
-      { 'number': Exclude<Param_pr, unknown[] | null>, 'owner': string, 'repo': string },
-      { 'number': Exclude<Param_pr, unknown[] | null>, 'owner': string, 'repo': string },
+      { 'commit'?: string | undefined, 'from'?: string | undefined, 'number': Exclude<Param_pr, unknown[] | null>, 'owner': string, 'repo': string },
+      { 'commit': string | undefined, 'from': string | undefined, 'number': Exclude<Param_pr, unknown[] | null>, 'owner': string, 'repo': string },
       | never
     >,
     'github-commit': RouteRecordInfo<
       'github-commit',
       '/gh/:owner/:repo/commit/:sha',
-      { 'owner': string, 'repo': string, 'sha': string },
-      { 'owner': string, 'repo': string, 'sha': string },
+      { 'commit'?: string | undefined, 'from'?: string | undefined, 'owner': string, 'repo': string, 'sha': string },
+      { 'commit': string | undefined, 'from': string | undefined, 'owner': string, 'repo': string, 'sha': string },
       | never
     >,
     'github-compare': RouteRecordInfo<
       'github-compare',
       '/gh/:owner/:repo/compare/:range',
-      { 'owner': string, 'range': Exclude<Param_range, unknown[] | null>, 'repo': string },
-      { 'owner': string, 'range': Exclude<Param_range, unknown[] | null>, 'repo': string },
+      { 'commit'?: string | undefined, 'from'?: string | undefined, 'owner': string, 'range': Exclude<Param_range, unknown[] | null>, 'repo': string },
+      { 'commit': string | undefined, 'from': string | undefined, 'owner': string, 'range': Exclude<Param_range, unknown[] | null>, 'repo': string },
       | never
     >,
     '/upload': RouteRecordInfo<
