@@ -28,6 +28,7 @@ const AGENT_ICONS: Record<LocalAgentName, string> = {
   claude: 'i-simple-icons-claudecode',
   opencode: 'i-simple-icons-opencode',
   pi: 'i-ph:terminal-window-duotone',
+  codex: 'i-simple-icons-openai',
 }
 
 // The list portals into this field rather than `document.body`, where `z-dropdown` would
@@ -99,6 +100,9 @@ const agentModel = computed({
         </template>
         <template #opencode>
           <a href="https://opencode.ai" target="_blank" rel="noopener" class="hover:underline">OpenCode</a>
+        </template>
+        <template #codex>
+          <a href="https://developers.openai.com/codex/cli" target="_blank" rel="noopener" class="hover:underline">Codex</a>
         </template>
         <template #pi>
           <a href="https://github.com/earendil-works/pi" target="_blank" rel="noopener" class="hover:underline">Pi</a>

@@ -213,7 +213,8 @@
     "navTabs": "Mostrar grupos como abas",
     "navSidebar": "Mostrar grupos como barra lateral",
     "uncategorized": "Sem categoria",
-    "uncategorizedSummary": "Arquivos não cobertos pela análise atual."
+    "uncategorizedSummary": "Arquivos não cobertos pela análise atual.",
+    "resize": "Arraste para redimensionar; clique duas vezes para redefinir"
   },
   "note": {
     "critical": "Revisar com atenção"
@@ -334,6 +335,8 @@
     "autoRefresh": "Atualizar automaticamente quando novos commits forem encontrados",
     "navigation": "Navegação",
     "smoothScroll": "Animar a rolagem ao pular para um grupo ou arquivo",
+    "autoFetchFullFile": "Corrigir de forma inteligente o destaque de sintaxe incorreto",
+    "autoFetchFullFileHint": "Detecta erros de sintaxe no conteúdo parcial e carrega a versão completa.",
     "language": "Idioma",
     "token": {
       "label": "Token de acesso pessoal do GitHub",
@@ -379,7 +382,7 @@
       "agentNeedsCli": "Agentes locais rodam na CLI do pulls.review: inicie-a em um repositório com `npx pulls.review` e escolha um lá.",
       "agentDetecting": "Procurando CLIs de agentes…",
       "agentNone": "Nenhuma CLI de agente encontrada nesta máquina.",
-      "agentHint": "Um agente de código instalado nesta máquina, com sua própria conta: {claude} ou {opencode}. Ele lê o patch e o repositório, nunca escreve.",
+      "agentHint": "Um agente de código instalado nesta máquina, com sua própria conta: {claude}, {codex} ou {opencode}. Ele lê o patch e o repositório, nunca escreve.",
       "agentPick": "Escolha um agente…"
     },
     "models": {
