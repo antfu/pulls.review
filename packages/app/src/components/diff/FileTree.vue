@@ -14,6 +14,8 @@ import FileStatus from './FileStatus.vue'
 import { fileIsCritical } from './group-utils'
 import { reviewStatus } from './review-status'
 import ReviewCheckbox from './ReviewCheckbox.vue'
+import { isTestFile } from './test-files'
+import TestMark from './TestMark.vue'
 
 const props = defineProps<{
   store: DiffsStore
@@ -40,6 +42,14 @@ function folderStatus(files: FileChange[]): 'reviewed' | 'partial' | 'unreviewed
   return reviewedCount === files.length ? 'reviewed' : 'partial'
 }
 
+function rowClass(file: FileChange | undefined): string {
+  if (!file)
+    return ''
+  if (props.filesVisible.includes(file.sha))
+    return 'bg-active'
+  return isTestFile(file.path) ? 'bg-green:8' : ''
+}
+
 const scrollElRef = useTemplateRef<HTMLDivElement>('scrollEl')
 
 const virtualizer = useVirtualizer(computed(() => ({
@@ -57,7 +67,7 @@ const virtualizer = useVirtualizer(computed(() => ({
         v-for="row in virtualizer.getVirtualItems().map(item => ({ item, row: rows[item.index]! }))"
         :key="row.row.key"
         class="flex items-center gap-1.5 rounded text-sm"
-        :class="row.row.file && filesVisible.includes(row.row.file.sha) ? 'bg-active' : ''"
+        :class="rowClass(row.row.file)"
         :style="{
           position: 'absolute',
           top: 0,
@@ -90,6 +100,7 @@ const virtualizer = useVirtualizer(computed(() => ({
             @click="emit('navigate', row.row.file.sha)"
           >
             <DisplayFilePath :path="row.row.name" :dim="layout === 'list'" class="min-w-0 flex-1" />
+            <TestMark v-if="isTestFile(row.row.file.path)" class="text-sm" />
             <CriticalMark v-if="fileIsCritical(notes?.get(row.row.file.sha))" class="text-sm" />
             <DiffStats :additions="row.row.file.additions" :deletions="row.row.file.deletions" />
             <FileStatus :status="row.row.file.status" />

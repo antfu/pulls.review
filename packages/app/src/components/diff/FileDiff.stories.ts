@@ -27,6 +27,11 @@ export const Modified: Story = {
   args: { file: partiallyReviewed.diff.files[0] as any },
 }
 
+/** A test file gets a tinted header and the flask mark, so it reads apart from the code it covers. */
+export const TestFile: Story = {
+  args: { file: partiallyReviewed.diff.files[2] as any },
+}
+
 export const Reviewed: Story = {
   args: { file: partiallyReviewed.diff.files[0] as any, store: createMockDiffsStore({ reviewed: [(partiallyReviewed.diff.files[0] as any).sha] }) },
 }

@@ -248,6 +248,8 @@
     "expandAll": "Expand all files",
     "collapseAll": "Collapse all files",
     "collapseReviewed": "Collapse reviewed files",
+    "collapseTests": "Collapse test files",
+    "test": "Test file",
     "noLongerInDiff": "No longer in this diff",
     "removed": "removed"
   },

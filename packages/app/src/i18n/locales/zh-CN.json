@@ -248,6 +248,8 @@
     "expandAll": "展开所有文件",
     "collapseAll": "折叠所有文件",
     "collapseReviewed": "折叠已审阅的文件",
+    "collapseTests": "折叠测试文件",
+    "test": "测试文件",
     "noLongerInDiff": "已不在此 diff 中",
     "removed": "已移除"
   },
