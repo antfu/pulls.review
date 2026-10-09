@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { pageFor } from './page'
+import { browserPath, pageFor } from './page'
 
 let repo: string
 
@@ -30,6 +30,20 @@ describe('pageFor', () => {
     expect(await pageFor(repo, undefined, false)).toBe('/')
     git('switch', '-q', '-c', 'feat/x')
     expect(await pageFor(repo, undefined, false)).toBe('/branch/feat/x')
+  })
+
+  it('keeps a valid branch name containing # in the browser path', async () => {
+    git('switch', '-q', '-c', 'feature#topic')
+    const opened = new URL(browserPath(await pageFor(repo, undefined, false)), 'http://localhost:3000')
+    expect(opened.hash).toBe('')
+    expect(decodeURIComponent(opened.pathname)).toBe('/branch/feature#topic')
+  })
+
+  it.each(['feature%topic', 'feat/x'])('keeps the %s branch path intact', async (branch) => {
+    git('branch', branch)
+    const opened = new URL(browserPath(await pageFor(repo, branch, false)), 'http://localhost:3000')
+    expect(opened.hash).toBe('')
+    expect(decodeURIComponent(opened.pathname)).toBe(`/branch/${branch}`)
   })
 
   it('maps an argument by its shape', async () => {

@@ -5,7 +5,7 @@ import { parseArgs } from 'node:util'
 import { createDevServer } from 'devframe/adapters/dev'
 import { H3 } from 'h3'
 import devframe from './devframe'
-import { pageFor } from './page'
+import { browserPath, pageFor } from './page'
 
 const HELP = `Usage: pulls.review [target] [options]
 
@@ -67,7 +67,7 @@ async function main() {
     process.stdout.write(HELP)
     return
   }
-  const page = encodeURI(await pageFor(process.cwd(), positionals[0], !!flags.worktree))
+  const page = browserPath(await pageFor(process.cwd(), positionals[0], !!flags.worktree))
   await createDevServer(devframe, {
     app: createAppWithRefRoutes(),
     port: flags.port ? Number(flags.port) : undefined,

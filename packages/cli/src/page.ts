@@ -34,3 +34,8 @@ export async function pageFor(cwd: string, arg: string | undefined, worktree: bo
     return `/compare/${arg}`
   return await isLocalBranch(cwd, arg) ? `/branch/${arg}` : `/commit/${arg}`
 }
+
+/** Encode a page path without treating a valid `#` in a git ref as a URL fragment. */
+export function browserPath(page: string): string {
+  return encodeURI(page).replaceAll('#', '%23')
+}

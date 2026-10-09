@@ -26,9 +26,9 @@ export async function readRepoInfo(rpc: LocalRpc): Promise<RepoInfo> {
 export function routeForPage(page: LocalPage): string {
   switch (page.kind) {
     case 'compare':
-      return `/compare/${page.range}`
+      return `/compare/${encodeURI(page.range).replaceAll('#', '%23')}`
     case 'branch':
-      return `/branch/${page.branch}`
+      return `/branch/${encodeURI(page.branch).replaceAll('#', '%23')}`
     case 'worktree':
       return '/worktree'
     case 'commit':
