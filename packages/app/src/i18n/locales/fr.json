@@ -330,7 +330,9 @@
     "updatingGrouping": "Mise à jour du regroupement…",
     "submittingGrouping": "Envoi du regroupement…",
     "requestFailed": "La requête a échoué",
-    "stopped": "arrêté"
+    "stopped": "arrêté",
+    "askAboutSelection": "Demander à l'IA",
+    "removeQuote": "Retirer"
   },
   "settings": {
     "layout": "Disposition du diff",

@@ -330,7 +330,9 @@
     "updatingGrouping": "正在更新分組…",
     "submittingGrouping": "正在送出分組…",
     "requestFailed": "請求失敗",
-    "stopped": "已停止"
+    "stopped": "已停止",
+    "askAboutSelection": "詢問 AI",
+    "removeQuote": "移除"
   },
   "settings": {
     "layout": "Diff 版面",

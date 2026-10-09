@@ -39,6 +39,16 @@ export const Conversation: Story = {
   args: { store: createMockDiffsStore({ chatMessages: conversation }) },
 }
 
+export const WithQuotes: Story = {
+  args: {
+    store: createMockDiffsStore({ chatMessages: conversation }),
+    quotes: [
+      { label: 'app/auth/session.ts:12-18', code: '+const token = localStorage.getItem(\'token\')' },
+      { label: 'app/auth/store.ts:40 (old)', code: '-let token: string | undefined' },
+    ],
+  },
+}
+
 export const Streaming: Story = {
   args: {
     store: createMockDiffsStore({

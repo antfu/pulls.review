@@ -330,7 +330,9 @@
     "updatingGrouping": "正在更新分组…",
     "submittingGrouping": "正在提交分组…",
     "requestFailed": "请求失败",
-    "stopped": "已停止"
+    "stopped": "已停止",
+    "askAboutSelection": "询问 AI",
+    "removeQuote": "移除"
   },
   "settings": {
     "layout": "Diff 布局",

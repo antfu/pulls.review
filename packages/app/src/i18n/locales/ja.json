@@ -330,7 +330,9 @@
     "updatingGrouping": "グループ分けを更新中…",
     "submittingGrouping": "グループ分けを送信中…",
     "requestFailed": "リクエストに失敗しました",
-    "stopped": "停止"
+    "stopped": "停止",
+    "askAboutSelection": "AI に質問",
+    "removeQuote": "削除"
   },
   "settings": {
     "layout": "diff レイアウト",

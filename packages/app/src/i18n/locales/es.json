@@ -330,7 +330,9 @@
     "updatingGrouping": "Actualizando agrupación…",
     "submittingGrouping": "Enviando agrupación…",
     "requestFailed": "La solicitud falló",
-    "stopped": "detenido"
+    "stopped": "detenido",
+    "askAboutSelection": "Preguntar a la IA",
+    "removeQuote": "Quitar"
   },
   "settings": {
     "layout": "Disposición del diff",

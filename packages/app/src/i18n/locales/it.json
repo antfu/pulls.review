@@ -330,7 +330,9 @@
     "updatingGrouping": "Aggiornamento del raggruppamento…",
     "submittingGrouping": "Invio del raggruppamento…",
     "requestFailed": "Richiesta fallita",
-    "stopped": "fermato"
+    "stopped": "fermato",
+    "askAboutSelection": "Chiedi all'IA",
+    "removeQuote": "Rimuovi"
   },
   "settings": {
     "layout": "Layout del diff",
