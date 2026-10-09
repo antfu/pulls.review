@@ -1,4 +1,3 @@
-import type { RouteComponent, RouteLocation, RouteRecordRaw } from 'vue-router'
 import type { LocalRpc } from './connection'
 import { LOCAL_RPC } from '@pulls.review/core/local-rpc'
 import * as v from 'valibot'
@@ -52,15 +51,4 @@ export async function targetFor(page: LocalPage, rpc: LocalRpc): Promise<string>
     case 'commit':
       return page.sha
   }
-}
-
-/** Each local page as a route; the page component receives it as the `page` prop. */
-export function localRoutes(component: () => Promise<RouteComponent>): RouteRecordRaw[] {
-  const param = (route: RouteLocation, name: string) => String(route.params[name])
-  return [
-    { path: '/compare/:range(.+)', component, props: route => ({ page: { kind: 'compare', range: param(route, 'range') } satisfies LocalPage }) },
-    { path: '/branch/:branch(.+)', component, props: route => ({ page: { kind: 'branch', branch: param(route, 'branch') } satisfies LocalPage }) },
-    { path: '/worktree', component, props: { page: { kind: 'worktree' } satisfies LocalPage } },
-    { path: '/commit/:sha', component, props: route => ({ page: { kind: 'commit', sha: param(route, 'sha') } satisfies LocalPage }) },
-  ]
 }

@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import type { RoutableRef } from '../../../../source-routes'
+import type { RoutableRef } from '../../source-routes'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyState.vue'
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
 import { createGithubSource } from '@pulls.review/core/github'
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { useAppContext } from '../../../../app-context'
-import DiffsPage from '../../../../components/diff/DiffsPage.vue'
-import { useCommitView } from '../../../../composables/useCommitView'
-import { useDocumentTitle } from '../../../../composables/useDocumentTitle'
-import { resolveStoredTokenMeta } from '../../../../composables/useGithubTokenMeta'
-import { createDiffsStore } from '../../../../stores/diffs-store'
+import { useAppContext } from '../../app-context'
+import DiffsPage from '../../components/diff/DiffsPage.vue'
+import { useCommitView } from '../../composables/useCommitView'
+import { useDocumentTitle } from '../../composables/useDocumentTitle'
+import { resolveStoredTokenMeta } from '../../composables/useGithubTokenMeta'
+import { createDiffsStore } from '../../stores/diffs-store'
 
 const props = defineProps<{ sourceRef: RoutableRef }>()
 
@@ -22,7 +22,7 @@ const { cache, credentials, llm } = useAppContext()
 const ref = props.sourceRef
 
 // `?from=<login>` deep-links a shared analysis (see plans/07); read once, never rewritten.
-const from = typeof route.query.from === 'string' ? route.query.from : undefined
+const from = Array.isArray(route.query.from) && route.query.from.length === 1 ? route.query.from[0] ?? undefined : undefined
 
 const parent = createDiffsStore(createGithubSource(ref, credentials, { tokenMeta: resolveStoredTokenMeta }), { cache, llm, from })
 const { store, commitNav, selected } = useCommitView(

@@ -5,7 +5,8 @@ import { createStorage } from 'unstorage'
 import memoryDriver from 'unstorage/drivers/memory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createMemoryHistory } from 'vue-router'
+import { createFixedResolver, experimental_createRouter, MatcherPatternPathStatic, normalizeRouteRecord } from 'vue-router/experimental'
 import { createDiffsStore } from '../stores/diffs-store'
 import { useCommitView } from './useCommitView'
 
@@ -39,7 +40,12 @@ async function setup(path: string, commits: DiffsPayload['commits'] = COMMITS) {
       return () => h('div')
     },
   })
-  const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/diff', component: Page }] })
+  const router = experimental_createRouter({
+    history: createMemoryHistory(),
+    resolver: createFixedResolver([
+      normalizeRouteRecord({ name: 'diff', path: new MatcherPatternPathStatic('/diff'), components: { default: Page } }),
+    ]),
+  })
   await router.push(path)
   mount(Page, { global: { plugins: [router] } })
   await vi.waitFor(() => expect(view.store.value.diff).toBeDefined())
@@ -82,5 +88,27 @@ describe('useCommitView', () => {
 
     router.back()
     await vi.waitFor(() => expect(view.store.value.diff?.title).toBe('parent'))
+  })
+
+  it('keeps other query values and the file hash when selecting and clearing a commit', async () => {
+    const { view, router } = await setup('/diff?from=landing&filter=a&filter=b#file')
+
+    view.commitNav.value!.select('aaa')
+    await vi.waitFor(() => expect(router.currentRoute.value.fullPath).toBe('/diff?from=landing&filter=a&filter=b&commit=aaa#file'))
+    await vi.waitFor(() => expect(view.store.value.diff?.title).toBe('commit aaa'))
+
+    view.commitNav.value!.select()
+    await vi.waitFor(() => expect(router.currentRoute.value.fullPath).toBe('/diff?from=landing&filter=a&filter=b#file'))
+    await vi.waitFor(() => expect(view.store.value.diff?.title).toBe('parent'))
+  })
+
+  it('shows the whole diff when the commit query has multiple values or no value', async () => {
+    const { view, router } = await setup('/diff?commit=aaa&commit=bbb')
+    expect(view.store.value.diff?.title).toBe('parent')
+    expect(view.selected.value).toBeUndefined()
+
+    await router.push('/diff?commit')
+    expect(view.store.value.diff?.title).toBe('parent')
+    expect(view.selected.value).toBeUndefined()
   })
 })

@@ -23,7 +23,10 @@ export function useCommitView(parent: DiffsStore, sourceFor: (sha: string) => Di
   const route = useRoute()
   const router = useRouter()
 
-  const selected = computed(() => typeof route.query.commit === 'string' ? route.query.commit : undefined)
+  const selected = computed(() => {
+    const commits = route.query.commit
+    return commits?.length === 1 && typeof commits[0] === 'string' ? commits[0] : undefined
+  })
 
   // Each commit store lives in its own scope so swapping commits disposes the previous one.
   const commitStore = shallowRef<DiffsStore>()
@@ -52,7 +55,7 @@ export function useCommitView(parent: DiffsStore, sourceFor: (sha: string) => Di
   })
 
   function select(sha?: string) {
-    router.push({ query: { ...route.query, commit: sha } })
+    router.push({ path: route.path, query: { ...route.query, commit: sha ? [sha] : undefined }, hash: route.hash })
   }
 
   return { store, commitNav, selected }

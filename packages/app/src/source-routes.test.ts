@@ -1,9 +1,11 @@
 import type { RoutableRef } from './source-routes'
 import { describe, expect, it } from 'vitest'
-import { createMemoryHistory, createRouter } from 'vue-router'
-import { parentForRef, refFromRoute, routeForRef, routeFromGithubUrl, routes } from './source-routes'
+import { createMemoryHistory } from 'vue-router'
+import { resolver } from 'vue-router/auto-resolver'
+import { experimental_createRouter as createRouter } from 'vue-router/experimental'
+import { parentForRef, refFromRoute, routeForRef, routeFromGithubUrl } from './source-routes'
 
-const router = createRouter({ history: createMemoryHistory(), routes: routes(async () => ({})) })
+const router = createRouter({ history: createMemoryHistory(), resolver })
 
 describe('source routes', () => {
   it.each<RoutableRef>([
@@ -17,7 +19,19 @@ describe('source routes', () => {
   })
 
   it('does not take a non-numeric segment for a pull request', () => {
-    expect(router.resolve('/gh/antfu/diffs/main').name).toBeUndefined()
+    expect(router.resolve('/gh/antfu/diffs/main').matched).toEqual([])
+  })
+
+  it('builds a compare URL from rich params', () => {
+    const route = router.resolve({
+      name: 'github-compare',
+      params: { owner: 'antfu', repo: 'diffs', range: { base: 'main', head: 'feat/topic' } },
+    })
+    expect(refFromRoute(route)).toEqual({ kind: 'github-compare', owner: 'antfu', repo: 'diffs', base: 'main', head: 'feat/topic' })
+  })
+
+  it.each(['/branch/main', '/compare/main...head', '/worktree', '/gh/antfu/diffs/compare/main', '/gh/antfu/diffs/compare/...head'])('does not match %s in the website', (path) => {
+    expect(router.resolve(path).matched).toEqual([])
   })
 
   it('gives a paste no route and no parent', () => {
