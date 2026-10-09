@@ -9,7 +9,7 @@ export function isLlmProvider(value: string): value is LlmProvider {
 export type KeyedLlmProvider = Exclude<LlmProvider, 'local-agent'>
 
 /** The agent CLIs the `pulls.review` server can run analysis through (`plans/11-local-agents.md`). */
-export const LOCAL_AGENT_NAMES = ['claude', 'opencode', 'pi'] as const
+export const LOCAL_AGENT_NAMES = ['claude', 'opencode', 'pi', 'codex'] as const
 export type LocalAgentName = typeof LOCAL_AGENT_NAMES[number]
 
 export function isLocalAgentName(value: string): value is LocalAgentName {

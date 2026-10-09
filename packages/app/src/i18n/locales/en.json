@@ -216,7 +216,8 @@
     "navTabs": "Show groups as tabs",
     "navSidebar": "Show groups as sidebar",
     "uncategorized": "Uncategorized",
-    "uncategorizedSummary": "Files not covered by the current analysis."
+    "uncategorizedSummary": "Files not covered by the current analysis.",
+    "resize": "Drag to resize, double-click to reset"
   },
   "note": {
     "critical": "Review carefully"
@@ -336,6 +337,10 @@
     },
     "cached": "Cached pull requests",
     "autoRefresh": "Auto refresh when new commits are found",
+    "navigation": "Navigation",
+    "smoothScroll": "Animate scrolling when jumping to a group or file",
+    "autoFetchFullFile": "Smartly fix broken syntax highlighting",
+    "autoFetchFullFileHint": "Detects syntax errors in partial content and fetches the full version.",
     "language": "Language",
     "token": {
       "label": "GitHub Personal Access Token",
@@ -381,7 +386,7 @@
       "agentNeedsCli": "Local agents run in the pulls.review CLI: start it in a repository with `npx pulls.review` and pick one there.",
       "agentDetecting": "Looking for agent CLIs…",
       "agentNone": "No agent CLI found on this machine.",
-      "agentHint": "A coding agent installed on this machine, signed in with its own account: {claude}, {opencode}, or {pi}. It reads the patch and the repository, never writes.",
+      "agentHint": "A coding agent installed on this machine, signed in with its own account: {claude}, {codex}, {opencode}, or {pi}. It reads the patch and the repository, never writes.",
       "agentPick": "Pick an agent…"
     },
     "models": {
@@ -398,12 +403,21 @@
   "rules": {
     "allFiles": "All files",
     "code": { "label": "Code", "summary": "Source changes." },
-    "other": { "label": "Other", "summary": "Other changes that don't fit an existing category." },
+    "other": {
+      "label": "Other",
+      "summary": "Other changes that don't fit an existing category."
+    },
     "docs": { "label": "Docs", "summary": "Documentation updates." },
     "tests": { "label": "Tests", "summary": "Test coverage for the change." },
     "config": { "label": "Config", "summary": "Configuration changes." },
-    "deps": { "label": "Dependencies", "summary": "Dependency version changes." },
-    "generated": { "label": "Generated", "summary": "Generated or build output changes." }
+    "deps": {
+      "label": "Dependencies",
+      "summary": "Dependency version changes."
+    },
+    "generated": {
+      "label": "Generated",
+      "summary": "Generated or build output changes."
+    }
   },
   "errors": {
     "tokenRequired": "A GitHub token is required to write to this pull request.",

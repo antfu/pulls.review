@@ -216,7 +216,8 @@
     "navTabs": "以标签页显示分组",
     "navSidebar": "以侧边栏显示分组",
     "uncategorized": "未分类",
-    "uncategorizedSummary": "当前分析未覆盖的文件。"
+    "uncategorizedSummary": "当前分析未覆盖的文件。",
+    "resize": "拖动调整宽度，双击恢复默认"
   },
   "note": {
     "critical": "请仔细审查"
@@ -335,6 +336,10 @@
     },
     "cached": "已缓存的 pull request",
     "autoRefresh": "发现新提交时自动刷新",
+    "navigation": "导航",
+    "smoothScroll": "跳转到分组或文件时使用滚动动画",
+    "autoFetchFullFile": "智能修复错误的语法高亮",
+    "autoFetchFullFileHint": "检测部分内容中的语法错误并获取完整版本。",
     "language": "语言",
     "token": {
       "label": "GitHub Personal Access Token",
@@ -380,7 +385,7 @@
       "agentNeedsCli": "本地代理在 pulls.review CLI 中运行：在仓库中执行 `npx pulls.review`，然后在那里选择。",
       "agentDetecting": "正在查找代理 CLI…",
       "agentNone": "在此机器上未找到代理 CLI。",
-      "agentHint": "安装在此机器上并以自己的账号登录的编码代理：{claude} 或 {opencode}。它只读取补丁和仓库，不会写入。",
+      "agentHint": "安装在此机器上并以自己的账号登录的编码代理：{claude}, {codex} 或 {opencode}。它只读取补丁和仓库，不会写入。",
       "agentPick": "选择代理…"
     },
     "models": {

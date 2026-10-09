@@ -1,0 +1,3 @@
+{"type": "thread.started", "thread_id": "sess-codex-1"}
+{"type": "item.completed", "item": {"type": "agent_message", "id": "item_2", "text": "Grouped together.\n```json\n{\"overallSummary\": \"Adds the thing.\", \"groups\": [{\"key\": \"thing\", \"label\": \"Thing\", \"category\": \"core\", \"summary\": \"Implementation and test.\", \"filePaths\": [\"a.ts\", \"b.test.ts\"]}]}\n```"}}
+{"type": "turn.completed", "usage": {"input_tokens": 10, "cached_input_tokens": 0, "output_tokens": 5}}

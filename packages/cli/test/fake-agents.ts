@@ -15,7 +15,7 @@ export interface FakeCall { args: string[], stdin: string, cwd: string }
  */
 export function installFakeAgents() {
   const dir = mkdtempSync(join(tmpdir(), 'pulls-review-fake-agent-'))
-  for (const name of ['claude', 'opencode', 'pi']) {
+  for (const name of ['claude', 'opencode', 'pi', 'codex']) {
     writeFileSync(join(dir, name), `#!/bin/sh\nexec "${process.execPath}" "${script}" "$@"\n`)
     chmodSync(join(dir, name), 0o755)
   }

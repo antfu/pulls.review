@@ -5,6 +5,10 @@ where the two disagree, the packages' `src/` and test suites win, and the docs g
 
 ## Rules that apply everywhere
 
+- When making UI or using components, always check if components from
+  `@antfu/design` can be reused, before making new components or creating
+  inline DOM elements.
+
 - **MUST**, **MUST NOT**, **SHOULD** and **MAY** use RFC 2119 meanings. They mark
   real invariants - layer boundaries, wire contracts, output shapes - not house style.
 - Vue SFCs **MUST NOT** have a `<style>` block, scoped or not. Style elements with

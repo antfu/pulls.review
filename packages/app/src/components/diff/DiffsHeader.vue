@@ -9,6 +9,7 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { parentForRef } from '../../source-routes'
 import { showGroupSidebar } from '../../state/group-nav'
+import { scrollBehavior } from '../../state/smooth-scroll'
 import GithubAvatar from '../GithubAvatar.vue'
 import NavControls from '../NavControls.vue'
 import DiffAnalyzeButton from './DiffAnalyzeButton.vue'
@@ -55,7 +56,7 @@ const parent = computed(() => parentForRef(meta.value.ref))
 const reviews = computed(() => props.store.reviews)
 
 function scrollToGroup(key: string) {
-  (props.document ?? document).getElementById(`group-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  (props.document ?? document).getElementById(`group-${key}`)?.scrollIntoView({ behavior: scrollBehavior.value, block: 'start' })
 }
 </script>
 

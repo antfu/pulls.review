@@ -6,8 +6,10 @@ import type { ResolvedNote } from './group-utils'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
-import { FileDiff as PierreFileDiff, processFile, VirtualizedFileDiff } from '@pierre/diffs'
+import { FileDiff as PierreFileDiff, VirtualizedFileDiff } from '@pierre/diffs'
+import { useIntersectionObserver } from '@vueuse/core'
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
+import { autoFetchFullFile } from '../../state/auto-fetch-full-file'
 import { isDark as globalIsDark, isDarkKey } from '../../state/dark'
 import { syntaxTheme } from '../../state/syntax-theme'
 import { wrapLines } from '../../state/wrap-lines'
@@ -17,6 +19,7 @@ import CriticalMark from './CriticalMark.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffStats from './DiffStats.vue'
 import { fileCollapseKey } from './file-collapse'
+import { buildFileDiff, needsFullFileToHighlight } from './file-diff-input'
 import FileStatus from './FileStatus.vue'
 import { fileIsCritical } from './group-utils'
 import { isNoisyFile } from './noisy-files'
@@ -50,25 +53,6 @@ const collapsed = computed({
   set: value => collapseState.set(props.file.sha, value),
 })
 let instance: PierreFileDiff | undefined
-
-function buildUnifiedDiffText(file: FileChange): string {
-  const oldPath = file.previousPath ?? file.path
-  const newPath = file.path
-  const lines = [`diff --git a/${oldPath} b/${newPath}`]
-  if (file.status === 'added')
-    lines.push('new file mode 100644')
-  else if (file.status === 'removed')
-    lines.push('deleted file mode 100644')
-  else if (file.status === 'renamed')
-    lines.push(`rename from ${oldPath}`, `rename to ${newPath}`)
-  else if (file.status === 'copied')
-    lines.push(`copy from ${oldPath}`, `copy to ${newPath}`)
-  lines.push(`--- ${file.status === 'added' ? '/dev/null' : `a/${oldPath}`}`)
-  lines.push(`+++ ${file.status === 'removed' ? '/dev/null' : `b/${newPath}`}`)
-  for (const hunk of file.hunks)
-    lines.push(hunk.header, hunk.patch)
-  return lines.join('\n')
-}
 
 // Full file content, fetched on demand through the store (see `loadFullFile`) -
 // `undefined` means "not fetched" for a side that *could* exist, distinct from a side
@@ -137,13 +121,24 @@ async function onExpandClick(event: Event) {
 const fileDiff = computed(() => {
   if (collapsed.value || props.file.isBinary)
     return
-  const oldPath = props.file.previousPath ?? props.file.path
-  return processFile(buildUnifiedDiffText(props.file), fullFileLoaded.value
-    ? {
-        oldFile: fullOldContent.value !== undefined ? { name: oldPath, contents: fullOldContent.value } : undefined,
-        newFile: fullNewContent.value !== undefined ? { name: props.file.path, contents: fullNewContent.value } : undefined,
-      }
+  return buildFileDiff(props.file, fullFileLoaded.value
+    ? { old: fullOldContent.value, new: fullNewContent.value }
     : undefined)
+})
+
+// Loads the full file once the diff nears the viewport: a patch alone can't give correct
+// highlighting (see `needsFullFileToHighlight`). Loads are cached per sha and path.
+const nearViewport = ref(false)
+const { stop: stopFullFilePreload } = useIntersectionObserver(containerRef, ([entry]) => {
+  nearViewport.value = !!entry?.isIntersecting
+}, { rootMargin: '600px 0px' })
+
+watch([nearViewport, autoFetchFullFile], ([near, enabled]) => {
+  if (!near || !enabled)
+    return
+  stopFullFilePreload()
+  if (canLoadFullFile.value && needsFullFileToHighlight(props.file))
+    loadFullFile()
 })
 
 // Container width, tracked for `effectiveLayout` below - a `ResizeObserver` rather than

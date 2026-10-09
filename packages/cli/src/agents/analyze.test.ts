@@ -9,7 +9,7 @@ import { installFakeAgents } from '../../test/fake-agents'
 import { runAgentAnalysis } from './analyze'
 import { runAgentChat } from './chat'
 import { claude } from './claude'
-import { detectAgents } from './index'
+import { agents, detectAgents } from './index'
 import { opencode } from './opencode'
 import { pi } from './pi'
 
@@ -48,7 +48,73 @@ describe('detectAgents', () => {
       { name: 'claude', label: 'Claude Code', version: '0.0.0-fake', models: expect.arrayContaining([{ id: 'sonnet', name: 'Sonnet (latest)' }]) },
       { name: 'opencode', label: 'OpenCode', version: '0.0.0-fake', models: [] },
       { name: 'pi', label: 'Pi', version: '0.0.0-fake', models: [] },
+      { name: 'codex', label: 'Codex', version: '0.0.0-fake', models: [] },
     ])
+  })
+})
+
+describe('codex', () => {
+  it('analyzes with a read-only sandbox and streams command progress and the grouping', async () => {
+    fake.replay('codex-analysis.jsonl')
+    await runAgentAnalysis({ ...options(), cli: agents.codex, model: 'my-model' })
+    const [call] = fake.calls()
+    expect(call!.args).toEqual(['exec', '--json', '--sandbox', 'read-only', '-c', 'approval_policy="never"', '--skip-git-repo-check', '--model', 'my-model', '-'])
+    expect(call!.stdin).toContain('<schema>')
+    expect(call!.stdin).toContain('---MANIFEST---')
+    expect(realpathSync(call!.cwd)).toBe(realpathSync(dir))
+    expect(result()).toMatchObject({ model: 'codex/my-model', groups: [{ key: 'thing', filePaths: ['a.ts', 'b.test.ts'] }] })
+    expect(events.filter(event => event.kind === 'progress').map(event => event.progress)).toContainEqual({ step: 1, kind: 'reading', paths: ['cat b.test.ts'] })
+    const transcript = events.findLast(event => event.kind === 'messages')!.messages
+    expect(transcript.map(message => message.role)).toEqual(['system', 'user', 'assistant', 'toolResult', 'assistant'])
+    expect(events.at(-1)).toEqual({ kind: 'end', stopReason: 'done', agent: { agent: 'codex', id: 'sess-codex-1', model: 'my-model' } })
+  })
+
+  it('resumes the same thread to correct missing paths', async () => {
+    fake.replay('codex-analysis-missing.jsonl', 'codex-analysis.jsonl')
+    await runAgentAnalysis({ ...options(), cli: agents.codex })
+    expect(fake.calls()[1]!.args).toEqual(['exec', '--json', '--sandbox', 'read-only', '-c', 'approval_policy="never"', '--skip-git-repo-check', 'resume', 'sess-codex-1', '-'])
+    expect(fake.calls()[1]!.stdin).toContain('Missing paths: b.test.ts')
+    expect(result()?.groups[0]?.filePaths).toEqual(['a.ts', 'b.test.ts'])
+  })
+
+  it('continues chat and applies a requested regrouping', async () => {
+    const session = { messages: [], chatStartIndex: 0, agent: { agent: 'codex' as const, id: 'sess-codex-1' } }
+    fake.replay('codex-chat-answer.jsonl', 'codex-chat-regroup.jsonl')
+    await runAgentChat({ ...options(), cli: agents.codex, session, text: 'why?' })
+    expect(kinds()).not.toContain('result')
+    expect(events.findLast(event => event.kind === 'messages')!.messages.at(-1)).toMatchObject({ role: 'assistant', content: [{ type: 'text', text: 'Because the implementation and test change together.' }] })
+    events = []
+    await runAgentChat({ ...options(), cli: agents.codex, session, text: 'group together' })
+    expect(fake.calls()[1]!.stdin).toContain('<chat>')
+    expect(result()?.groups[0]?.filePaths).toEqual(['a.ts', 'b.test.ts'])
+    expect(events.findLast(event => event.kind === 'messages')!.messages.at(-1)).toMatchObject({ role: 'toolResult', toolName: 'update_grouping', isError: false })
+  })
+
+  it('reports failed turns even when the process exits successfully', async () => {
+    fake.replay('codex-error.jsonl')
+    await expect(runAgentAnalysis({ ...options(), cli: agents.codex })).rejects.toThrow('Authentication failed')
+  })
+
+  it('reports a lost session from JSONL', async () => {
+    fake.replay('codex-session-lost.jsonl')
+    fake.exitWith(1)
+    const session = { messages: [], chatStartIndex: 0, agent: { agent: 'codex' as const, id: 'sess-codex-1' } }
+    await expect(runAgentChat({ ...options(), cli: agents.codex, session, text: 'why?' })).rejects.toMatchObject({ code: AGENT_SESSION_LOST })
+  })
+
+  it('stops Codex when aborted', async () => {
+    fake.replay('codex-analysis.jsonl')
+    process.env.FAKE_AGENT_SLEEP = '5000'
+    const controller = new AbortController()
+    const run = runAgentAnalysis({ ...options(), cli: agents.codex, signal: controller.signal })
+    await new Promise(resolve => setTimeout(resolve, 200))
+    controller.abort()
+    await expect(run).rejects.toThrow('Aborted')
+    delete process.env.FAKE_AGENT_SLEEP
+  })
+
+  it('is registered as a local agent', () => {
+    expect(agents).toHaveProperty('codex.name', 'codex')
   })
 })
 

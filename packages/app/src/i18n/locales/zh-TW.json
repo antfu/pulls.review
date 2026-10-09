@@ -216,7 +216,8 @@
     "navTabs": "以分頁顯示群組",
     "navSidebar": "以側邊欄顯示群組",
     "uncategorized": "未分類",
-    "uncategorizedSummary": "目前分析未涵蓋的檔案。"
+    "uncategorizedSummary": "目前分析未涵蓋的檔案。",
+    "resize": "拖曳調整寬度，按兩下恢復預設"
   },
   "note": {
     "critical": "請仔細審查"
@@ -335,6 +336,10 @@
     },
     "cached": "已快取的 pull request",
     "autoRefresh": "發現新提交時自動重新整理",
+    "navigation": "導覽",
+    "smoothScroll": "跳至群組或檔案時使用捲動動畫",
+    "autoFetchFullFile": "智慧修正錯誤的語法醒目",
+    "autoFetchFullFileHint": "偵測部分內容中的語法錯誤並取得完整版本。",
     "language": "語言",
     "token": {
       "label": "GitHub Personal Access Token",
@@ -380,7 +385,7 @@
       "agentNeedsCli": "本機代理在 pulls.review CLI 中執行：在儲存庫中執行 `npx pulls.review`，然後在那裡選擇。",
       "agentDetecting": "正在尋找代理 CLI…",
       "agentNone": "在此機器上找不到代理 CLI。",
-      "agentHint": "安裝在此機器上並以自己的帳號登入的編碼代理：{claude} 或 {opencode}。它只讀取補丁和儲存庫，不會寫入。",
+      "agentHint": "安裝在此機器上並以自己的帳號登入的編碼代理：{claude}, {codex} 或 {opencode}。它只讀取補丁和儲存庫，不會寫入。",
       "agentPick": "選擇代理…"
     },
     "models": {

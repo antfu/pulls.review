@@ -216,7 +216,8 @@
     "navTabs": "グループをタブで表示",
     "navSidebar": "グループをサイドバーで表示",
     "uncategorized": "未分類",
-    "uncategorizedSummary": "現在の分析に含まれていないファイル。"
+    "uncategorizedSummary": "現在の分析に含まれていないファイル。",
+    "resize": "ドラッグで幅を調整、ダブルクリックでリセット"
   },
   "note": {
     "critical": "慎重にレビュー"
@@ -335,6 +336,10 @@
     },
     "cached": "キャッシュされた pull request",
     "autoRefresh": "新しいコミットが見つかったら自動更新",
+    "navigation": "ナビゲーション",
+    "smoothScroll": "グループやファイルへ移動するときにスクロールをアニメーションする",
+    "autoFetchFullFile": "構文の強調表示の不具合を賢く修正する",
+    "autoFetchFullFileHint": "部分的な内容の構文エラーを検出し、完全な内容を取得します。",
     "language": "言語",
     "token": {
       "label": "GitHub 個人アクセストークン",
@@ -380,7 +385,7 @@
       "agentNeedsCli": "ローカルエージェントは pulls.review CLI で動作します。リポジトリ内で `npx pulls.review` を起動し、そこで選択してください。",
       "agentDetecting": "エージェント CLI を検索中…",
       "agentNone": "このマシンにエージェント CLI が見つかりません。",
-      "agentHint": "このマシンにインストールされ、自身のアカウントでサインイン済みのコーディングエージェント（{claude} または {opencode}）。パッチとリポジトリを読むだけで、書き込みはしません。",
+      "agentHint": "このマシンにインストールされ、自身のアカウントでサインイン済みのコーディングエージェント（{claude}, {codex} または {opencode}）。パッチとリポジトリを読むだけで、書き込みはしません。",
       "agentPick": "エージェントを選択…"
     },
     "models": {

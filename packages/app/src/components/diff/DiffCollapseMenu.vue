@@ -2,8 +2,9 @@
 import type { FileChange } from '@pulls.review/core/types'
 import type { DiffsStore } from '../../stores/types'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
-import { onClickOutside } from '@vueuse/core'
-import { inject, ref, useTemplateRef } from 'vue'
+import OverlayDropdownItem from '@antfu/design/components/Overlay/OverlayDropdownItem.vue'
+import { DropdownMenuContent, DropdownMenuRoot, DropdownMenuTrigger } from 'reka-ui'
+import { computed, inject, ref, useTemplateRef } from 'vue'
 import { fileCollapseKey } from './file-collapse'
 import { reviewStatus } from './review-status'
 
@@ -13,10 +14,18 @@ const props = defineProps<{
 
 const collapseState = inject(fileCollapseKey)!
 
-// In-flow rather than portalled, for the same shadow-root reason as `LanguageMenu`.
+// Keep the menu in the themed shadow tree, but constrain it to its scroll container.
 const open = ref(false)
 const root = useTemplateRef<HTMLDivElement>('root')
-onClickOutside(root, () => open.value = false)
+const collisionBoundary = computed(() => {
+  const boundaries: Element[] = []
+  for (let parent = root.value?.parentElement; parent; parent = parent.parentElement) {
+    const { overflowX, overflowY } = getComputedStyle(parent)
+    if (/auto|scroll|hidden|clip/.test(`${overflowX} ${overflowY}`))
+      boundaries.push(parent)
+  }
+  return boundaries
+})
 
 const actions = [
   { label: 'file.expandAll', icon: 'i-ph:arrows-out-line-vertical-duotone', collapse: false, applies: () => true },
@@ -35,31 +44,32 @@ function run(action: typeof actions[number]) {
 
 <template>
   <div ref="root" class="relative">
-    <ActionIconButton
-      icon="i-ph:caret-up-down-duotone"
-      :label="$t('file.collapseMenu')"
-      :tooltip="$t('file.collapseMenu')"
-      :active="open"
-      :aria-expanded="open"
-      aria-haspopup="menu"
-      @click="open = !open"
-    />
-    <div
-      v-if="open"
-      role="menu"
-      class="absolute right-0 top-full z-dropdown mt-1 min-w-48 flex flex-col overflow-hidden border border-base rounded-lg bg-base p-1 shadow-lg"
-    >
-      <button
-        v-for="action in actions"
-        :key="action.label"
-        type="button"
-        role="menuitem"
-        class="flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm color-base outline-none transition focus-visible:bg-hover hover:bg-hover"
-        @click="run(action)"
+    <DropdownMenuRoot v-model:open="open" :modal="false">
+      <DropdownMenuTrigger as-child>
+        <ActionIconButton
+          icon="i-ph:caret-up-down-duotone"
+          :label="$t('file.collapseMenu')"
+          :tooltip="$t('file.collapseMenu')"
+          :active="open"
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        :side-offset="4"
+        :collision-boundary="collisionBoundary"
+        :collision-padding="8"
+        class="z-dropdown min-w-48 flex flex-col overflow-auto border border-base rounded-lg bg-base p-1 shadow-lg outline-none"
+        :style="{ maxWidth: 'var(--reka-dropdown-menu-content-available-width)', maxHeight: 'var(--reka-dropdown-menu-content-available-height)' }"
       >
-        <span :class="action.icon" class="shrink-0 op-fade" aria-hidden="true" />
-        <span class="min-w-0 flex-1 whitespace-nowrap">{{ $t(action.label) }}</span>
-      </button>
-    </div>
+        <OverlayDropdownItem
+          v-for="action in actions"
+          :key="action.label"
+          :icon="action.icon"
+          @select="run(action)"
+        >
+          {{ $t(action.label) }}
+        </OverlayDropdownItem>
+      </DropdownMenuContent>
+    </DropdownMenuRoot>
   </div>
 </template>

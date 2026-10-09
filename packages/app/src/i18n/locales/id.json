@@ -216,7 +216,8 @@
     "navTabs": "Tampilkan grup sebagai tab",
     "navSidebar": "Tampilkan grup sebagai bilah samping",
     "uncategorized": "Tanpa kategori",
-    "uncategorizedSummary": "Berkas yang tidak tercakup oleh analisis saat ini."
+    "uncategorizedSummary": "Berkas yang tidak tercakup oleh analisis saat ini.",
+    "resize": "Seret untuk mengubah ukuran, klik dua kali untuk mengatur ulang"
   },
   "note": {
     "critical": "Tinjau dengan cermat"
@@ -335,6 +336,10 @@
     },
     "cached": "Pull request di cache",
     "autoRefresh": "Muat ulang otomatis saat ada commit baru",
+    "navigation": "Navigasi",
+    "smoothScroll": "Animasikan gulir saat melompat ke grup atau file",
+    "autoFetchFullFile": "Perbaiki penyorotan sintaks yang salah secara cerdas",
+    "autoFetchFullFileHint": "Mendeteksi kesalahan sintaks dalam konten parsial dan mengambil versi lengkapnya.",
     "language": "Bahasa",
     "token": {
       "label": "GitHub Personal Access Token",
@@ -380,7 +385,7 @@
       "agentNeedsCli": "Agen lokal berjalan di CLI pulls.review: jalankan di sebuah repositori dengan `npx pulls.review` dan pilih di sana.",
       "agentDetecting": "Mencari CLI agen…",
       "agentNone": "Tidak ada CLI agen ditemukan di mesin ini.",
-      "agentHint": "Agen pengkodean yang terpasang di mesin ini, masuk dengan akunnya sendiri: {claude} atau {opencode}. Ia membaca patch dan repositori, tidak pernah menulis.",
+      "agentHint": "Agen pengkodean yang terpasang di mesin ini, masuk dengan akunnya sendiri: {claude}, {codex} atau {opencode}. Ia membaca patch dan repositori, tidak pernah menulis.",
       "agentPick": "Pilih agen…"
     },
     "models": {

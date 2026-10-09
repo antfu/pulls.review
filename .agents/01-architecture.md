@@ -38,7 +38,7 @@ A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
   only the app context: the cache is an RPC driver over
   `<git-common-dir>/pulls-review`, the GitHub token comes from the server, and
   the `local-agent` LLM provider runs analysis and chat on the server through an
-  agent CLI on the machine (`claude`, `opencode`, `pi`; `plans/11-local-agents.md`).
+  agent CLI on the machine (`claude`, `opencode`, `pi`, `codex`; `plans/11-local-agents.md`).
   It MUST NOT take over the Actions entry point, and the public site MUST NOT
   bundle the devframe client.
 
@@ -375,6 +375,11 @@ land later without a rewrite:
   and a sticky left sidebar tree (`DiffGroupSidebar`, subgroups nested under
   their parent). The sidebar only applies at `lg` and up; narrower viewports
   always get the tabs. Persisted like the diff layout (`state/group-nav.ts`).
+- At `lg` and up the sidebar and each group's aside (title, summary, file tree)
+  are drag-resizable (`composables/useDragResize.ts`); a double-click on the
+  handle restores the default. One aside width is shared by every group, so
+  their diff columns line up. Both widths persist (`state/group-nav.ts`,
+  `state/group-aside.ts`).
 - Large PRs are a first-class case, not an edge case: file lists and diff
   content MUST be virtualized (`@tanstack/vue-virtual`).
 - Every component in `app/components/` gets a Storybook story, backed by a

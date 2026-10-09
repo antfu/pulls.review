@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, watch } from 'vue'
+import { isDark as defaultIsDark, isDarkKey } from '../state/dark'
 
 // A minimal in-house replacement for `@antfu/design`'s `OverlayModal`: that one's
 // `reka-ui` `DialogPortal` always teleports to `document.body`, which - inside the
@@ -25,6 +26,9 @@ const emit = defineEmits<{
 // object itself, not a stringified target - the real `document` also isn't a
 // selector, so that case falls back to `'body'`.
 const teleportTarget = computed(() => props.document instanceof ShadowRoot ? props.document : 'body')
+
+// Teleport leaves the embed's themed ancestor, but keeps its Vue injections.
+const isDark = inject(isDarkKey, defaultIsDark)
 
 function close() {
   emit('update:open', false)
@@ -59,39 +63,42 @@ const paddingClass = computed(() => {
 
 <template>
   <Teleport :to="teleportTarget">
-    <div v-if="open" class="fixed inset-0 z-modal flex items-center justify-center p-4">
-      <div class="fixed inset-0 z-modal-backdrop bg-[#ddd]/40 backdrop-blur-sm dark:bg-black/40" @click="close" />
-      <div
-        role="dialog"
-        aria-modal="true"
-        :aria-label="title"
-        class="relative z-modal-content max-h-full max-w-3xl w-full flex flex-col overflow-hidden border border-base rounded-lg bg-base shadow-xl outline-none"
-      >
-        <header
-          v-if="title || description || $slots.header" class="flex shrink-0 items-center justify-between gap-2 border-b border-base px-4 py-2"
-        >
-          <div class="min-w-0">
-            <h2 v-if="title" class="color-base font-medium">
-              {{ title }}
-            </h2>
-            <p v-if="description" class="text-sm op-fade">
-              {{ description }}
-            </p>
-            <slot name="header" />
-          </div>
-          <button type="button" class="btn-icon h-7 w-7 shrink-0" :aria-label="$t('common.close')" @click="close">
-            <span class="i-ph:x" aria-hidden="true" />
-          </button>
-        </header>
+    <!-- Keep the theme scope boxless: .dark also sets a page background. -->
+    <div v-if="open" class="contents" :class="{ dark: isDark }">
+      <div class="fixed inset-0 z-modal flex items-center justify-center p-4 color-base">
+        <div class="fixed inset-0 z-modal-backdrop bg-[#ddd]/40 backdrop-blur-sm dark:bg-black/40" @click="close" />
         <div
-          class="flex-1 overflow-auto"
-          :class="[paddingClass, bodyClass]"
+          role="dialog"
+          aria-modal="true"
+          :aria-label="title"
+          class="relative z-modal-content max-h-full max-w-3xl w-full flex flex-col overflow-hidden border border-base rounded-lg bg-base color-base shadow-xl outline-none"
         >
-          <slot />
+          <header
+            v-if="title || description || $slots.header" class="flex shrink-0 items-center justify-between gap-2 border-b border-base px-4 py-2"
+          >
+            <div class="min-w-0">
+              <h2 v-if="title" class="color-base font-medium">
+                {{ title }}
+              </h2>
+              <p v-if="description" class="text-sm op-fade">
+                {{ description }}
+              </p>
+              <slot name="header" />
+            </div>
+            <button type="button" class="btn-icon h-7 w-7 shrink-0" :aria-label="$t('common.close')" @click="close">
+              <span class="i-ph:x" aria-hidden="true" />
+            </button>
+          </header>
+          <div
+            class="flex-1 overflow-auto"
+            :class="[paddingClass, bodyClass]"
+          >
+            <slot />
+          </div>
+          <footer v-if="$slots.footer" class="flex shrink-0 justify-end gap-2 border-t border-base px-2 py-2">
+            <slot name="footer" />
+          </footer>
         </div>
-        <footer v-if="$slots.footer" class="flex shrink-0 justify-end gap-2 border-t border-base px-2 py-2">
-          <slot name="footer" />
-        </footer>
       </div>
     </div>
   </Teleport>

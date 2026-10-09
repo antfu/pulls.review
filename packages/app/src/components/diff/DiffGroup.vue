@@ -7,9 +7,12 @@ import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { Markdown } from '@comark/vue'
 import { computed, nextTick, ref } from 'vue'
 import { scrollToFile } from '../../composables/scrollToFile'
+import { useDragResize } from '../../composables/useDragResize'
 import { useFitText } from '../../composables/useFitText'
 import { fileListLayout } from '../../state/file-list'
+import { GROUP_ASIDE_MAX_RATIO, GROUP_ASIDE_MIN_WIDTH, groupAsideWidth } from '../../state/group-aside'
 import { showGroupSidebar } from '../../state/group-nav'
+import { scrollBehavior } from '../../state/smooth-scroll'
 import CriticalMark from './CriticalMark.vue'
 import DiffGroup from './DiffGroup.vue'
 import DiffGroupNav from './DiffGroupNav.vue'
@@ -70,15 +73,36 @@ function setChildEl(key: string, instance: ComponentPublicInstance | null) {
     childEls.delete(key)
 }
 function scrollToChild(key: string) {
-  childEls.get(key)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  childEls.get(key)?.scrollIntoView({ behavior: scrollBehavior.value, block: 'start' })
 }
 
 function navigateToParent() {
   if (props.parentKey)
-    document.getElementById(`group-${props.parentKey}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    document.getElementById(`group-${props.parentKey}`)?.scrollIntoView({ behavior: scrollBehavior.value, block: 'start' })
 }
 
 const progress = computed(() => totalFiles.value === 0 ? 1 : reviewedCount.value / totalFiles.value)
+
+// At `lg` the aside and the diffs sit in a two-column grid. Once the user drags the
+// divider, the aside column takes that width - still capped, so the diffs keep the
+// rest when the window narrows later; until then it's the default 1:4 split.
+const rowStyle = computed(() => groupAsideWidth.value
+  ? { '--group-aside-cols': `min(${groupAsideWidth.value}px, ${GROUP_ASIDE_MAX_RATIO * 100}%) minmax(0, 1fr)` }
+  : undefined)
+
+const rowEl = ref<HTMLElement>()
+const asideEl = ref<HTMLElement>()
+const { resizing: resizingAside, onPointerDown: onResizeDown } = useDragResize({
+  target: () => asideEl.value,
+  width: groupAsideWidth,
+  min: GROUP_ASIDE_MIN_WIDTH,
+  // Same bound as the `%` in `rowStyle`, which resolves against the row's content box.
+  max: () => {
+    const row = rowEl.value!
+    const { paddingLeft, paddingRight } = getComputedStyle(row)
+    return (row.clientWidth - Number.parseFloat(paddingLeft) - Number.parseFloat(paddingRight)) * GROUP_ASIDE_MAX_RATIO
+  },
+})
 
 const fileDiffRefs = new Map<string, InstanceType<typeof FileDiff>>()
 function setFileDiffRef(sha: string, el: InstanceType<typeof FileDiff> | null) {
@@ -149,10 +173,15 @@ function navigateToFile(sha: string) {
       </template>
     </header>
 
-    <div v-if="!isChapter || (!collapsed && group.files.length)" class="flex flex-col gap-4 p-3 lg:grid lg:grid-cols-[1fr_4fr]">
+    <div
+      v-if="!isChapter || (!collapsed && group.files.length)"
+      ref="rowEl"
+      class="flex flex-col gap-4 p-3 lg:grid lg:grid-cols-[var(--group-aside-cols,1fr_4fr)]"
+      :style="rowStyle"
+    >
       <!-- --diffs-header-height is the page's real, measured sticky DiffsHeader height
            (set on the DiffsPage root), so the aside sticks just below it, not under it. -->
-      <aside class="top-[calc(var(--diffs-header-height)+10px)] min-w-70 flex shrink-0 flex-col gap-3 lg:sticky lg:max-h-[calc(100vh-var(--diffs-header-height)-20px)] lg:self-start">
+      <aside ref="asideEl" class="top-[calc(var(--diffs-header-height)+10px)] min-w-70 flex shrink-0 flex-col gap-3 lg:sticky lg:max-h-[calc(100vh-var(--diffs-header-height)-20px)] lg:self-start">
         <header v-if="!isChapter" class="w-full flex flex-col bg-base">
           <button
             v-if="parentLabel"
@@ -219,7 +248,24 @@ function navigateToFile(sha: string) {
         </template>
       </aside>
 
-      <div class="min-w-0 flex flex-col">
+      <div class="relative min-w-0 flex flex-col">
+        <!-- Fills the grid gap left of the diffs, the full row height (the aside itself only
+             sticks). Dragging resizes every group's aside at once; a double-click resets. -->
+        <div
+          v-if="!collapsed"
+          role="separator"
+          aria-orientation="vertical"
+          :aria-label="$t('group.resize')"
+          :title="$t('group.resize')"
+          class="group/resize absolute inset-y-0 right-full hidden w-4 cursor-col-resize touch-none justify-center lg:flex"
+          @pointerdown="onResizeDown"
+          @dblclick="groupAsideWidth = null"
+        >
+          <div
+            class="w-px transition-colors"
+            :class="resizingAside ? 'bg-primary-500' : 'group-hover/resize:bg-primary-500'"
+          />
+        </div>
         <template v-if="!collapsed">
           <template v-for="file of group.files" :key="file.sha">
             <!-- Non-sticky anchor for scroll-spy (DiffsPage) and jump-to-file: the file header is sticky, so its own rect stays put once stuck. -->
