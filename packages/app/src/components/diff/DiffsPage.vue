@@ -6,6 +6,7 @@ import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyS
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
 import FormCheckbox from '@antfu/design/components/Form/FormCheckbox.vue'
 import { Markdown } from '@comark/vue'
+import mermaid from '@comark/vue/plugins/mermaid'
 import { Virtualizer } from '@pierre/diffs'
 import { useElementBounding, useElementSize, useEventListener } from '@vueuse/core'
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, reactive, ref, useId, useTemplateRef, watch } from 'vue'
@@ -32,6 +33,15 @@ const props = defineProps<{
 const ChatWidget = import.meta.env.PR_LLM
   ? defineAsyncComponent(() => import('../chat/ChatWidget.vue'))
   : undefined
+
+// Compiled out of the embed: its single IIFE would inline the whole diagram renderer
+// (see `vite.config.embed.ts`), and github.com already renders the description itself.
+const descriptionMarkdown = import.meta.env.PR_EMBED
+  ? {}
+  : {
+      plugins: [mermaid()],
+      components: { mermaid: defineAsyncComponent(() => import('../MarkdownMermaid.vue')) },
+    }
 
 const diff = computed(() => props.store?.diff)
 const grouped = computed(() => props.store?.grouped)
@@ -279,7 +289,7 @@ function refreshFromBanner() {
               >
                 <div ref="descriptionBody">
                   <Suspense>
-                    <Markdown :value="diff.description" class="description-markdown min-w-0" />
+                    <Markdown :value="diff.description" v-bind="descriptionMarkdown" class="description-markdown min-w-0" />
                   </Suspense>
                 </div>
               </div>

@@ -45,6 +45,7 @@
     "@vue/test-utils": "catalog:testing",
     "@vueuse/core": "catalog:frontend",
     "animejs": "catalog:frontend",
+    "beautiful-mermaid": "catalog:frontend",
     "colorjs.io": "catalog:frontend",
     "devframe": "catalog:frontend",
     "fake-indexeddb": "catalog:testing",
