@@ -15,7 +15,8 @@ const FORBIDDEN_MODULES = /\/node_modules\/(?:@earendil-works\/pi-[^/]+|@ai-sdk\
 
 /**
  * Separate build target from `vite.config.ts`: a single self-contained IIFE bundle
- * defining the `<pulls-review-embed-panel>` custom element, for the userscript to `@require`.
+ * defining the `<pulls-review-embed-panel>` custom element and exposing `PullsReviewEmbed.mountEmbedPanel()`,
+ * for the userscript to `@require`.
  * See `src/embed/main.ts`. No `unocss/vite` plugin - its CSS is a pre-generated,
  * shadow-root-safe file instead (`build:embed:css`, see scripts/build-embed-css.ts).
  *
@@ -65,8 +66,12 @@ export default defineConfig({
     emptyOutDir: false,
     rollupOptions: {
       input: fileURLToPath(new URL('./src/embed/main.ts', import.meta.url)),
+      // Vite drops entry exports outside library mode; keep `mountEmbedPanel`.
+      preserveEntrySignatures: 'exports-only',
       output: {
         format: 'iife',
+        // Exposes `mountEmbedPanel` to the userscript, which runs in the same scope as its `@require`s.
+        name: 'PullsReviewEmbed',
         entryFileNames: 'diffs-embed.js',
         inlineDynamicImports: true,
       },
