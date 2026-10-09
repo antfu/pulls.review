@@ -33,6 +33,7 @@ export const GENERATED_PATTERNS = [
   '**/go.sum',
   '**/dist/**',
   '**/*.lock',
+  '**/drizzle/meta/**',
 ]
 
 /** Fallback for text files no pattern matches. */
