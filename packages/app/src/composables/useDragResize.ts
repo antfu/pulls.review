@@ -9,20 +9,23 @@ export interface DragResizeOptions {
   min: number
   /** Read once, when a drag starts. */
   max: () => number
+  /** The target's edge the handle sits on; dragging away from the target widens it. */
+  edge?: 'left' | 'right'
 }
 
 /**
- * Drag-to-resize through a handle on the target's right edge: bind `onPointerDown` to
- * the handle. `resizing` stays true for the length of a drag.
+ * Drag-to-resize through a handle on the target's `edge` (right by default): bind
+ * `onPointerDown` to the handle. `resizing` stays true for the length of a drag.
  */
-export function useDragResize({ target, width, min, max }: DragResizeOptions) {
+export function useDragResize({ target, width, min, max, edge = 'right' }: DragResizeOptions) {
+  const direction = edge === 'right' ? 1 : -1
   const resizing = ref(false)
   let startX = 0
   let startWidth = 0
   let maxWidth = 0
 
   function onPointerMove(event: PointerEvent) {
-    width.value = Math.round(Math.min(Math.max(startWidth + event.clientX - startX, min), maxWidth))
+    width.value = Math.round(Math.min(Math.max(startWidth + (event.clientX - startX) * direction, min), maxWidth))
   }
   function onPointerUp(event: PointerEvent) {
     const handle = event.currentTarget as HTMLElement
