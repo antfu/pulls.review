@@ -44,9 +44,13 @@ export const PullRequestMetaSchema = v.object({
 })
 export type PullRequestMeta = v.InferOutput<typeof PullRequestMetaSchema>
 
+const AuthorSchema = v.object({ name: v.string(), avatarUrl: v.optional(v.string()) })
+
 export const CommitSchema = v.object({
   sha: v.string(),
   message: v.string(), // full message; consumers pick the subject line themselves
+  author: v.optional(AuthorSchema),
+  date: v.optional(v.string()),
 })
 export type Commit = v.InferOutput<typeof CommitSchema>
 
@@ -65,7 +69,7 @@ export const DiffsPayloadSchema = v.object({
   title: v.string(), // "Pasted diff" default for paste, no PR title available
   /** Short identifier shown after the title and linked to `url`, e.g. `#123`. */
   label: v.optional(v.string()),
-  author: v.optional(v.object({ name: v.string(), avatarUrl: v.optional(v.string()) })),
+  author: v.optional(AuthorSchema),
   description: v.optional(v.string()), // raw markdown body; absent for paste
   url: v.optional(v.string()), // permalink to source, absent for local/paste
   // base/head are only meaningful when the source actually has them (github

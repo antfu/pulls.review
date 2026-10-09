@@ -37,7 +37,7 @@ describe('github compare source', () => {
       title: 'main...feat/x',
       base: { sha: 'base', ref: 'main' },
       head: { sha: 'c2', ref: 'feat/x' },
-      commits: [{ sha: 'c1' }, { sha: 'c2' }],
+      commits: [{ sha: 'c1', author: { name: 'dev', avatarUrl: 'https://avatars/dev' }, date: '2026-01-01T00:00:00Z' }, { sha: 'c2' }],
     })
     expect(diff.files[0]).toMatchObject({ path: 'src/a.ts', sha: 'c2:src/a.ts', hunks: [{ header: '@@ -1 +1 @@' }] })
     expect(await source.fingerprint!()).toBe('c3')

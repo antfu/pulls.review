@@ -121,6 +121,14 @@
     "reviewedOf": "/ {total} проверено",
     "openInSite": "Открыть в pulls.review"
   },
+  "commits": {
+    "count": "{n} коммит | {n} коммитов",
+    "position": "Коммит {index} из {total}",
+    "all": "Все изменения",
+    "older": "Предыдущий коммит",
+    "newer": "Следующий коммит",
+    "back": "Назад ко всем изменениям"
+  },
   "embed": {
     "reviewChanges": "Ревью изменений",
     "updateUserscript": "Обновить userscript"

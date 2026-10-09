@@ -90,7 +90,8 @@ describe('local source', () => {
     const second = commit('feat: change a\n\nbecause')
 
     const diff = await createLocalSource({ cwd: repo, target: 'HEAD' }).fetch()
-    expect(diff).toMatchObject({ title: 'feat: change a', label: 'HEAD', base: { sha: root }, head: { sha: second }, commits: [{ sha: second, message: 'feat: change a\n\nbecause' }] })
+    expect(diff).toMatchObject({ title: 'feat: change a', label: 'HEAD', base: { sha: root }, head: { sha: second }, commits: [{ sha: second, message: 'feat: change a\n\nbecause', author: { name: 'Dev' } }] })
+    expect(diff.commits?.[0]?.date).toMatch(/^\d{4}-\d{2}-\d{2}T/)
 
     const initial = await createLocalSource({ cwd: repo, target: root }).fetch()
     expect(initial.files.map(f => [f.path, f.status])).toEqual([['a.ts', 'added']])

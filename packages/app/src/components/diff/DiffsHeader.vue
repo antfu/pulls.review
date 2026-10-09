@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { GroupSource } from '@pulls.review/core/types'
+import type { CommitNav } from '../../composables/useCommitView'
 import type { DiffsStore } from '../../stores/types'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import ActionToggleGroup from '@antfu/design/components/Action/ActionToggleGroup.vue'
@@ -14,6 +15,7 @@ import GithubAvatar from '../GithubAvatar.vue'
 import NavControls from '../NavControls.vue'
 import DiffAnalyzeButton from './DiffAnalyzeButton.vue'
 import DiffCollapseMenu from './DiffCollapseMenu.vue'
+import DiffCommitSelector from './DiffCommitSelector.vue'
 import DiffGroupNav from './DiffGroupNav.vue'
 import DiffGroupNavToggle from './DiffGroupNavToggle.vue'
 import DiffPrMeta from './DiffPrMeta.vue'
@@ -29,6 +31,8 @@ const props = defineProps<{
   scrollY: number
   hidden?: boolean
   descriptionVisible?: boolean
+  /** Present when the diff has several commits; `selected` means one of them is being read on its own. */
+  commitNav?: CommitNav
 }>()
 
 defineEmits<{ selectDescription: [] }>()
@@ -67,7 +71,14 @@ function scrollToGroup(key: string) {
   >
     <div class="mxa max-w-500 w-full">
       <div class="flex flex-wrap items-center gap-2">
-        <component :is="isEmbedded ? 'div' : RouterLink" to="/" class="flex">
+        <ActionIconButton
+          v-if="commitNav?.selected"
+          icon="i-ph:arrow-left"
+          :label="$t('commits.back')" :tooltip="$t('commits.back')"
+          class="text-sm"
+          @click="commitNav.select()"
+        />
+        <component :is="isEmbedded ? 'div' : RouterLink" v-else to="/" class="flex">
           <PrStatusIcon v-if="meta.pullRequest?.state" :state="meta.pullRequest.state" />
           <div v-else class="i-ph-house-line-duotone" />
         </component>
@@ -124,6 +135,7 @@ function scrollToGroup(key: string) {
           ←
           <span class="border border-base rounded bg-code px-2 py-0.5 text-xs font-mono">{{ meta.head.ref }}</span>
         </span>
+        <DiffCommitSelector v-if="commitNav" :nav="commitNav" />
         <span v-if="aiResult?.sharedBy && store.analyzeMode !== 'rule-based'" class="flex items-center gap-1.5 border border-base rounded px2" :title="aiResult.model">
           <template v-if="aiResult.sharedBy === ACTIONS_BOT_LOGIN">
             {{ $t('pr.sharedAnalysis') }}

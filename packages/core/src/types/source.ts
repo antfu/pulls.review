@@ -2,6 +2,7 @@ import type { ReviewData, ReviewDraftTarget, ReviewVerdict } from './comment-thr
 import type { DiffsPayload } from './diff'
 import type { SharedAnalysis, SharedAnalysisComment } from './shared-analysis'
 import * as v from 'valibot'
+import { parseTarget } from '../local/target'
 
 /** Identifies one diff, whatever produced it. Persisted on `DiffsPayload.ref`. */
 export const SourceRefSchema = v.variant('kind', [
@@ -29,6 +30,18 @@ export function serializeRef(ref: SourceRef): string {
     case 'local':
       // Both parts are free text (paths, `a...b`): escaped so no two refs normalize to one storage key.
       return `local:${encodeURIComponent(ref.repo)}@${encodeURIComponent(ref.target)}`
+  }
+}
+
+/** A single commit is reached from the diff it belongs to, so it stays out of the recent list. */
+export function isListed(ref: SourceRef): boolean {
+  switch (ref.kind) {
+    case 'github-commit':
+      return false
+    case 'local':
+      return parseTarget(ref.target).kind !== 'commit'
+    default:
+      return true
   }
 }
 

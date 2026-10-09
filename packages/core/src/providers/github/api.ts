@@ -1,3 +1,4 @@
+import type { Commit } from '../../types/diff'
 import type { GithubClient } from './client'
 import { GithubApiError } from './client'
 
@@ -25,9 +26,23 @@ export interface GithubPullRequestFileJson {
   patch?: string
 }
 
-export interface GithubPullRequestCommitJson {
+/** The commit shape shared by the PR commits, compare and single-commit endpoints. */
+export interface GithubCommitJson {
   sha: string
-  commit: { message: string }
+  commit: { message: string, author: { name?: string, date?: string } | null }
+  /** `null` when the author's email is not linked to a GitHub account. */
+  author: { login: string, avatar_url: string } | null
+}
+
+export function toCommit({ sha, commit, author }: GithubCommitJson): Commit {
+  return {
+    sha,
+    message: commit.message,
+    author: author
+      ? { name: author.login, avatarUrl: author.avatar_url }
+      : commit.author?.name ? { name: commit.author.name } : undefined,
+    date: commit.author?.date,
+  }
 }
 
 export async function fetchPullRequest(client: GithubClient, owner: string, repo: string, number: string): Promise<GithubPullRequestJson> {
@@ -43,14 +58,12 @@ export function fetchPullRequestFiles(client: GithubClient, owner: string, repo:
  * Oldest first; GitHub caps this endpoint at 250 commits. It carries no per-commit
  * file lists - those cost one request per commit, so they are deliberately not fetched.
  */
-export function fetchPullRequestCommits(client: GithubClient, owner: string, repo: string, number: string): Promise<GithubPullRequestCommitJson[]> {
+export function fetchPullRequestCommits(client: GithubClient, owner: string, repo: string, number: string): Promise<GithubCommitJson[]> {
   return client.paginate(`/repos/${owner}/${repo}/pulls/${number}/commits`)
 }
 
-interface GithubCommitJson extends GithubPullRequestCommitJson {
+interface GithubLinkedCommitJson extends GithubCommitJson {
   html_url: string
-  commit: { message: string, author: { name?: string, date?: string } | null }
-  author: { login: string, avatar_url: string } | null
   parents: { sha: string }[]
 }
 
@@ -62,12 +75,12 @@ export interface GithubDiffEntryJson extends Omit<GithubPullRequestFileJson, 'sh
 export interface GithubCompareJson {
   html_url: string
   merge_base_commit: { sha: string }
-  commits: GithubCommitJson[]
+  commits: GithubLinkedCommitJson[]
   /** Capped by GitHub at 300 entries. */
   files?: GithubDiffEntryJson[]
 }
 
-export interface GithubSingleCommitJson extends GithubCommitJson {
+export interface GithubSingleCommitJson extends GithubLinkedCommitJson {
   files?: GithubDiffEntryJson[]
 }
 

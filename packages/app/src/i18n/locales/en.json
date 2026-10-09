@@ -121,6 +121,14 @@
     "reviewedOf": "/ {total} reviewed",
     "openInSite": "Open in pulls.review"
   },
+  "commits": {
+    "count": "{n} commit | {n} commits",
+    "position": "Commit {index} of {total}",
+    "all": "All changes",
+    "older": "Older commit",
+    "newer": "Newer commit",
+    "back": "Back to all changes"
+  },
   "embed": {
     "reviewChanges": "Review Changes",
     "updateUserscript": "Update userscript"

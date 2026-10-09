@@ -45,10 +45,17 @@ describe('normalizePullRequest', () => {
     expect(diff.files[0]!.hunks).toHaveLength(1)
   })
 
-  it('keeps each commit\'s sha and full message', async () => {
-    const commits = [{ sha: 'c1', commit: { message: 'feat: add x\n\nbody' } }]
+  it('keeps each commit\'s sha, full message, author and date', async () => {
+    const commits = [
+      { sha: 'c1', commit: { message: 'feat: add x\n\nbody', author: { name: 'Dev', date: '2026-01-01T00:00:00Z' } }, author: { login: 'dev', avatar_url: 'https://avatars/dev' } },
+      // An author whose email is not linked to a GitHub account keeps the git name, without an avatar.
+      { sha: 'c2', commit: { message: 'fix: y', author: { name: 'Someone', date: '2026-01-02T00:00:00Z' } }, author: null },
+    ]
     const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, [], commits, noFallbacks)
-    expect(diff.commits).toEqual([{ sha: 'c1', message: 'feat: add x\n\nbody' }])
+    expect(diff.commits).toEqual([
+      { sha: 'c1', message: 'feat: add x\n\nbody', author: { name: 'dev', avatarUrl: 'https://avatars/dev' }, date: '2026-01-01T00:00:00Z' },
+      { sha: 'c2', message: 'fix: y', author: { name: 'Someone' }, date: '2026-01-02T00:00:00Z' },
+    ])
   })
 
   it('marks a renamed file with previousPath', async () => {

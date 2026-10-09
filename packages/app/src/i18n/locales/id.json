@@ -121,6 +121,14 @@
     "reviewedOf": "/ {total} ditinjau",
     "openInSite": "Buka di pulls.review"
   },
+  "commits": {
+    "count": "{n} commit | {n} commit",
+    "position": "Commit {index} dari {total}",
+    "all": "Semua perubahan",
+    "older": "Commit lebih lama",
+    "newer": "Commit lebih baru",
+    "back": "Kembali ke semua perubahan"
+  },
   "embed": {
     "reviewChanges": "Tinjau Perubahan",
     "updateUserscript": "Perbarui userscript"

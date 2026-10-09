@@ -5,14 +5,15 @@ import type { DiffsPayload } from '../types/diff'
 import type { ReviewMarks } from './review-marks'
 import type { LlmSession, PersistedGroupSource, PrCacheBody, PrCacheEntry, PrCacheMeta } from './schema'
 import * as v from 'valibot'
+import { isListed } from '../types/source'
 import { PrCacheBodySchema, PrCacheMetaSchema } from './schema'
 
 const META_PREFIX = 'pr-meta:'
 const BODY_PREFIX = 'pr-body:'
 /** Entries from before the meta/body split: never readable again, so eviction drops them. */
 const LEGACY_PREFIX = 'pr:'
-export const DEFAULT_MAX_BUDGET_BYTES = 50 * 1024 * 1024
-export const DEFAULT_MAX_ENTRY_COUNT = 50
+export const DEFAULT_MAX_BUDGET_BYTES = 200 * 1024 * 1024
+export const DEFAULT_MAX_ENTRY_COUNT = 200
 
 export interface CacheBudget {
   maxBytes?: number
@@ -225,7 +226,7 @@ export function createDiffCache(storage: Storage, reviewMarks: ReviewMarks, budg
       await enforceBudget()
     },
     async listRecent(limit) {
-      return (await listMetas()).sort((a, b) => b.lastViewedAt - a.lastViewedAt).slice(0, limit)
+      return (await listMetas()).filter(meta => isListed(meta.ref)).sort((a, b) => b.lastViewedAt - a.lastViewedAt).slice(0, limit)
     },
     async listMatching(match) {
       const metas = (await listMetas()).filter(match)

@@ -100,6 +100,14 @@ analysis strategy later never touches the view layer:
     picks the right one for any GitHub ref, served at
     `/gh/{owner}/{repo}/compare/{base}...{head}` and
     `/gh/{owner}/{repo}/commit/{sha}` by the same page as a PR.
+  - Every payload with history carries `commits` (oldest first, with author
+    and date). A diff with more than one commit can be read commit by commit:
+    `?commit=<sha>` on the diff's own route (PR, compare, local range) opens
+    that commit as a second store from the same page
+    (`app/composables/useCommitView.ts`), so the parent diff and its commit
+    list stay mounted while `DiffsPage` swaps what it renders. Selecting a
+    commit pushes a history entry; "back" is the same route without the query.
+    This is the only view state kept in the URL.
   - `paste` (`createPasteSource`) — accepts raw unified-diff/patch text (pasted, or an uploaded
     `.diff`/`.patch` file, e.g. GitHub's `.diff` endpoint or `git diff >
     diff.patch` output) via the shared `app/patch-parser/`. Fed to the
@@ -276,7 +284,9 @@ flat key-value, so there's no native "object store" split):
   to one key run one at a time inside `DiffCache`, so overlapping
   read-modify-writes never drop each other's changes. Entries from before the
   split (`pr:*`) are deleted on the next eviction pass. App-managed LRU eviction
-  (size/count budget), not left to browser eviction heuristics. For `github`,
+  (200 entries / 200 MB), not left to browser eviction heuristics. Single
+  commits are cached like any diff but left out of the recent list
+  (`isListed(ref)`): they are reached through the diff they belong to. For `github`,
   staleness is detected by comparing cached vs. live `headSha` and surfaced as
   a non-intrusive refresh banner, unless the user opted into auto-refresh
   (banner checkbox or Settings) — the app MUST NOT re-run a paid LLM analysis

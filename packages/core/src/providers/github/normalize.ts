@@ -1,7 +1,8 @@
 import type { DiffHunk, DiffsPayload, FileChange, FileChangeStatus, PullRequestState } from '../../types/diff'
-import type { GithubPullRequestCommitJson, GithubPullRequestFileJson, GithubPullRequestJson } from './api'
+import type { GithubCommitJson, GithubPullRequestFileJson, GithubPullRequestJson } from './api'
 import { createTwoFilesPatch } from 'diff'
 import { parseHunks, parsePatch } from '../../patch-parser'
+import { toCommit } from './api'
 
 const STATUS_MAP: Record<string, FileChangeStatus> = {
   added: 'added',
@@ -122,7 +123,7 @@ export async function normalizePullRequest(
   number: string,
   pr: GithubPullRequestJson,
   files: GithubPullRequestFileJson[],
-  commits: GithubPullRequestCommitJson[],
+  commits: GithubCommitJson[],
   fallbacks: PatchFallbacks,
 ): Promise<DiffsPayload> {
   return {
@@ -139,7 +140,7 @@ export async function normalizePullRequest(
     pullRequest: {
       state: resolveState(pr),
     },
-    commits: commits.map(({ sha, commit }) => ({ sha, message: commit.message })),
+    commits: commits.map(toCommit),
     files: await normalizeFiles(files, { base: pr.base.sha, head: pr.head.sha }, fallbacks),
   }
 }

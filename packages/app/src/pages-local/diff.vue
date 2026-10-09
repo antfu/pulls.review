@@ -6,6 +6,7 @@ import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.v
 import { inject, onMounted } from 'vue'
 import { useAppContext } from '../app-context'
 import DiffsPage from '../components/diff/DiffsPage.vue'
+import { useCommitView } from '../composables/useCommitView'
 import { useDocumentTitle } from '../composables/useDocumentTitle'
 import { localRpcKey } from '../local/local-rpc-key'
 import { routeForPage, targetFor } from '../local/pages'
@@ -19,16 +20,18 @@ const rpc = inject(localRpcKey)!
 const { cache, llm } = useAppContext()
 
 // Read once: another page is another path, which remounts this one.
-const store = createDiffsStore(createRpcSource(rpc, targetFor(props.page, rpc)), { cache, llm })
+const parent = createDiffsStore(createRpcSource(rpc, targetFor(props.page, rpc)), { cache, llm })
+const { store, commitNav, selected } = useCommitView(parent, sha => createRpcSource(rpc, Promise.resolve(sha)), { cache, llm })
 
-useDocumentTitle(() => store.diff?.title ?? routeForPage(props.page))
+useDocumentTitle(() => store.value.diff?.title ?? routeForPage(props.page))
 
-onMounted(() => store.load())
+onMounted(() => parent.load())
 </script>
 
 <template>
   <main>
-    <DiffsPage :store="store">
+    <!-- Keyed by commit: another diff starts with fresh collapse state and virtualizer. -->
+    <DiffsPage :key="selected ?? ''" :store="store" :commit-nav="commitNav">
       <template #loading>
         <FeedbackLoading :text="$t('local.loading')" />
       </template>

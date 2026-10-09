@@ -3,7 +3,7 @@ import type { Credentials, DiffSource } from '../../types/source'
 import type { GithubDiffEntryJson } from './api'
 import type { GithubClient } from './client'
 import { serializeRef } from '../../types/source'
-import { fetchCommit, fetchCompare, fetchDiffText, fetchFileContentAtRef, fetchRefSha } from './api'
+import { fetchCommit, fetchCompare, fetchDiffText, fetchFileContentAtRef, fetchRefSha, toCommit } from './api'
 import { createGithubClient } from './client'
 import { normalizeFiles } from './normalize'
 
@@ -36,7 +36,7 @@ export function createGithubCompareSource({ owner, repo, base, head }: { owner: 
         url: compare.html_url,
         base: { sha: baseSha, ref: base },
         head: { sha: headSha, ref: head },
-        commits: compare.commits.map(({ sha, commit }) => ({ sha, message: commit.message })),
+        commits: compare.commits.map(toCommit),
         files: await normalizeFiles(withSha(compare.files, headSha), { base: baseSha, head: headSha }, fallbacks(client, owner, repo, diffPath)),
       }
     },
@@ -56,19 +56,18 @@ export function createGithubCommitSource({ owner, repo, sha }: { owner: string, 
       const commit = await fetchCommit(client, owner, repo, sha)
       const [subject = '', ...body] = commit.commit.message.split('\n')
       const parent = commit.parents[0]?.sha
+      const { author, date } = toCommit(commit)
       return {
         ref: { kind: 'github-commit', owner, repo, sha },
         title: subject,
         label: commit.sha.slice(0, 7),
         description: body.join('\n').trim(),
         url: commit.html_url,
-        author: commit.author
-          ? { name: commit.author.login, avatarUrl: commit.author.avatar_url }
-          : commit.commit.author?.name ? { name: commit.commit.author.name } : undefined,
-        createdAt: commit.commit.author?.date,
+        author,
+        createdAt: date,
         base: parent ? { sha: parent, ref: parent.slice(0, 7) } : undefined,
         head: { sha: commit.sha, ref: commit.sha.slice(0, 7) },
-        commits: [{ sha: commit.sha, message: commit.commit.message }],
+        commits: [toCommit(commit)],
         files: await normalizeFiles(withSha(commit.files, commit.sha), { base: parent, head: commit.sha }, fallbacks(client, owner, repo, `/repos/${owner}/${repo}/commits/${commit.sha}`)),
       }
     },

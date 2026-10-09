@@ -121,6 +121,14 @@
     "reviewedOf": "/ {total} レビュー済み",
     "openInSite": "pulls.review で開く"
   },
+  "commits": {
+    "count": "{n} 件のコミット | {n} 件のコミット",
+    "position": "コミット {index} / {total}",
+    "all": "すべての変更",
+    "older": "前のコミット",
+    "newer": "次のコミット",
+    "back": "すべての変更に戻る"
+  },
   "embed": {
     "reviewChanges": "変更をレビュー",
     "updateUserscript": "ユーザースクリプトを更新"

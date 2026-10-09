@@ -121,6 +121,14 @@
     "reviewedOf": "/ {total} 리뷰 완료",
     "openInSite": "pulls.review에서 열기"
   },
+  "commits": {
+    "count": "커밋 {n}개 | 커밋 {n}개",
+    "position": "커밋 {index} / {total}",
+    "all": "모든 변경 사항",
+    "older": "이전 커밋",
+    "newer": "다음 커밋",
+    "back": "모든 변경 사항으로 돌아가기"
+  },
   "embed": {
     "reviewChanges": "변경 사항 리뷰",
     "updateUserscript": "유저스크립트 업데이트"

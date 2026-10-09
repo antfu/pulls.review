@@ -50,7 +50,8 @@ management product.
 - Sources beyond GitHub: pasted/uploaded raw patches (built early, since
   it's essentially free once a patch parser exists), GitHub compare ranges and
   single commits (built), and a `local` source for a git working tree, commit
-  or range (`plans/04-local-provider.md`).
+  or range (`plans/04-local-provider.md`). Any diff with several commits can
+  also be read one commit at a time (built).
 - A userscript that embeds pulls.review as a sidepanel directly inside GitHub's own
   PR page, next to the real comment thread — reviewing with pulls.review's grouping
   without leaving github.com.

@@ -34,10 +34,10 @@ async function emptyTree(root: string): Promise<string> {
 
 /** `base..head`, oldest first; `%x00`/`%x1e` keep multi-line messages intact. */
 async function commitsBetween(root: string, range: string[]): Promise<Commit[]> {
-  const log = await git(root, ['log', '--reverse', '--format=%H%x00%B%x1e', ...range, '--'])
+  const log = await git(root, ['log', '--reverse', '--format=%H%x00%an%x00%aI%x00%B%x1e', ...range, '--'])
   return log.split('\x1E').map(entry => entry.trim()).filter(Boolean).map((entry) => {
-    const [sha = '', message = ''] = entry.split('\0')
-    return { sha, message: message.trim() }
+    const [sha = '', name = '', date = '', message = ''] = entry.split('\0')
+    return { sha, message: message.trim(), author: { name }, date }
   })
 }
 

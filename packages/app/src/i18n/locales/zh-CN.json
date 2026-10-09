@@ -121,6 +121,14 @@
     "reviewedOf": "/ {total} 已审阅",
     "openInSite": "在 pulls.review 中打开"
   },
+  "commits": {
+    "count": "{n} 个提交 | {n} 个提交",
+    "position": "第 {index} / {total} 个提交",
+    "all": "所有更改",
+    "older": "上一个提交",
+    "newer": "下一个提交",
+    "back": "返回所有更改"
+  },
   "embed": {
     "reviewChanges": "审查变更",
     "updateUserscript": "更新用户脚本"

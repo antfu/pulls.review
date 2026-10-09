@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CommitNav } from '../../composables/useCommitView'
 import type { DiffsStore } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyState.vue'
@@ -24,6 +25,7 @@ import SharedAnalysisBanner from './SharedAnalysisBanner.vue'
 const props = defineProps<{
   document?: Document | ShadowRoot
   store?: DiffsStore
+  commitNav?: CommitNav
 }>()
 
 // Compile-time: with LLM support off `store.llm` is never set, so the widget is dead code.
@@ -224,6 +226,7 @@ function refreshFromBanner() {
           :scroll-y="scrollY"
           :hidden="headerHidden"
           :description-visible="descriptionVisible"
+          :commit-nav="commitNav"
           @select-description="selectDescription"
         />
 

@@ -121,6 +121,14 @@
     "reviewedOf": "/ {total} revisionati",
     "openInSite": "Apri in pulls.review"
   },
+  "commits": {
+    "count": "{n} commit | {n} commit",
+    "position": "Commit {index} di {total}",
+    "all": "Tutte le modifiche",
+    "older": "Commit precedente",
+    "newer": "Commit successivo",
+    "back": "Torna a tutte le modifiche"
+  },
   "embed": {
     "reviewChanges": "Revisiona le modifiche",
     "updateUserscript": "Aggiorna lo userscript"

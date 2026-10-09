@@ -211,6 +211,20 @@ describe('diff cache', () => {
     expect((await cache.listRecent(2)).map(meta => meta.key)).toEqual(['new', 'mid'])
   })
 
+  it('listRecent leaves out single commits, which are reached through their parent diff', async () => {
+    const { cache } = cacheWith()
+    const commit = makeEntry('commit', 'sha-c', 3000)
+    commit.diff.ref = { kind: 'github-commit', owner: 'o', repo: 'r', sha: 'sha-c' }
+    const local = makeEntry('local', 'sha-l', 2500)
+    local.diff.ref = { kind: 'local', repo: '/repo', target: 'HEAD' }
+    await cache.put(commit)
+    await cache.put(local)
+    await cache.put(makeEntry('pr', 'sha-pr', 2000))
+    await cache.put(makeEntry('range', 'sha-range', 1000))
+
+    expect((await cache.listRecent(2)).map(meta => meta.key)).toEqual(['pr', 'range'])
+  })
+
   it('listMatching returns only the entries whose metadata matches', async () => {
     const { cache } = cacheWith()
     await cache.put(makeEntry('a', 'sha-1', 1000))
