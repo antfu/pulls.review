@@ -27,3 +27,7 @@ export const PartiallyReviewed: Story = {
 export const SingleGroup: Story = {
   args: { groups: groups.slice(0, 1) },
 }
+
+export const WithDescription: Story = {
+  args: { hasDescription: true, descriptionVisible: true },
+}

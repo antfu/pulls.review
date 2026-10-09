@@ -12,10 +12,13 @@ const props = defineProps<{
   groups: ResolvedGroupWithChildren[]
   groupsVisable: string[]
   reviewed: Set<string>
+  hasDescription?: boolean
+  descriptionVisible?: boolean
 }>()
 
 defineEmits<{
   select: [key: string]
+  selectDescription: []
 }>()
 
 const collapsed = ref(new Set<string>())
@@ -40,6 +43,17 @@ const rows = computed(() => props.groups.flatMap(group => [
 
 <template>
   <nav class="flex flex-col gap-0.5 text-sm">
+    <button
+      v-if="hasDescription"
+      type="button"
+      class="mt-1 flex items-center gap-1.5 rounded px-2 py-1 text-left color-base transition-colors"
+      :class="descriptionVisible ? 'bg-active' : 'op-fade hover:op-100 hover:bg-hover'"
+      :aria-current="descriptionVisible ? 'location' : undefined"
+      @click="$emit('selectDescription')"
+    >
+      <span class="i-ph:text-align-left" aria-hidden="true" />
+      {{ $t('pr.description') }}
+    </button>
     <div
       v-for="{ group, depth } in rows"
       :key="group.key"

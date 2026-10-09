@@ -27,11 +27,10 @@ const props = defineProps<{
   groupsVisable: string[]
   scrollY: number
   hidden?: boolean
-  descriptionId: string
   descriptionVisible?: boolean
 }>()
 
-const emit = defineEmits<{ openDescription: [] }>()
+defineEmits<{ selectDescription: [] }>()
 
 const { t } = useI18n()
 
@@ -57,11 +56,6 @@ const reviews = computed(() => props.store.reviews)
 
 function scrollToGroup(key: string) {
   (props.document ?? document).getElementById(`group-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
-
-function scrollToDescription() {
-  emit('openDescription')
-  ;(props.document ?? document).getElementById(props.descriptionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 </script>
 
@@ -143,28 +137,18 @@ function scrollToDescription() {
         <DiffShareButton v-if="canShareResult" :store="store" :document="document" />
         <DiffPrMeta v-if="showGroupSidebar" class="ml-auto" :store="store" :document="document" />
       </div>
-      <div v-if="!showGroupSidebar || hasDescription" class="flex items-center gap-2 pt-2 text-sm">
+      <div v-if="!showGroupSidebar" class="flex items-center gap-2 pt-2 text-sm">
         <DiffGroupNav
           class="flex-auto"
-          :groups="showGroupSidebar ? [] : groups"
+          :groups="groups"
           :groups-visable="groupsVisable"
           :reviewed="store.reviewed"
+          :has-description="hasDescription"
+          :description-visible="descriptionVisible"
           @select="scrollToGroup"
+          @select-description="$emit('selectDescription')"
         >
-          <template #before>
-            <button
-              v-if="hasDescription"
-              type="button"
-              class="flex items-center self-stretch gap-1.5 border border-b-2 border-base rounded-t px-2 py-0.5 text-sm transition-all hover:bg-active"
-              :class="descriptionVisible ? 'border-b-current shadow translate-y--1px' : 'op-fade hover:op-100'"
-              :aria-current="descriptionVisible ? 'location' : undefined"
-              @click="scrollToDescription"
-            >
-              <span class="i-ph:text-align-left" aria-hidden="true" />
-              {{ $t('pr.description') }}
-            </button>
-          </template>
-          <DiffPrMeta v-if="!showGroupSidebar" class="ml-auto self-end pt-2" :store="store" :document="document" />
+          <DiffPrMeta class="ml-auto self-end pt-2" :store="store" :document="document" />
         </DiffGroupNav>
       </div>
     </div>

@@ -9,9 +9,9 @@ import { resolveGroups } from './group-utils'
 // Fixture: `docs` with subgroups `docs/featureA` and `docs/featureB`, plus flat groups.
 const groups = resolveGroups(nestedGroups.grouped.groups as DiffGroup[], nestedGroups.diff.files as FileChange[])
 
-function mountSidebar(groupsVisable: string[] = []) {
+function mountSidebar(groupsVisable: string[] = [], hasDescription = false) {
   return mount(DiffGroupSidebar, {
-    props: { groups, groupsVisable, reviewed: new Set<string>() },
+    props: { groups, groupsVisable, reviewed: new Set<string>(), hasDescription },
     global: { plugins: [i18n] },
   })
 }
@@ -35,5 +35,12 @@ describe('diffGroupSidebar', () => {
     const child = groups[0]!.children[0]!
     await wrapper.findAll('button').find(button => button.text().includes(child.label))!.trigger('click')
     expect(wrapper.emitted('select')).toEqual([[child.key]])
+  })
+  it('lists the description first and emits its selection', async () => {
+    const wrapper = mountSidebar([], true)
+    const first = wrapper.find('button')
+    expect(first.text()).toBe('Description')
+    await first.trigger('click')
+    expect(wrapper.emitted('selectDescription')).toHaveLength(1)
   })
 })

@@ -142,6 +142,11 @@ function scrollToGroup(key: string) {
   (props.document ?? document).getElementById(`group-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
+function selectDescription() {
+  descriptionOpen.value = true
+  ;(props.document ?? document).getElementById(descriptionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
 const styles = computed(() => {
   return {
     '--diffs-header-height': headerHeight.value ? `${headerOffset.value}px` : undefined,
@@ -201,9 +206,8 @@ function refreshFromBanner() {
           :groups-visable="groupsVisable"
           :scroll-y="scrollY"
           :hidden="headerHidden"
-          :description-id="descriptionId"
           :description-visible="descriptionVisible"
-          @open-description="descriptionOpen = true"
+          @select-description="selectDescription"
         />
 
         <!-- The sidebar sits at the viewport's left edge, outside the max-width column, so it doesn't narrow the diffs on wide screens. -->
@@ -215,7 +219,10 @@ function refreshFromBanner() {
                 :groups="groups"
                 :groups-visable="groupsVisable"
                 :reviewed="store!.reviewed"
+                :has-description="!!diff.description?.trim()"
+                :description-visible="descriptionVisible"
                 @select="scrollToGroup"
+                @select-description="selectDescription"
               />
             </div>
           </aside>

@@ -24,3 +24,7 @@ export const SubgroupVisible: Story = {
 export const PartiallyReviewed: Story = {
   args: { reviewed: new Set(groups[0]!.children[0]!.files.map(file => file.sha)) },
 }
+
+export const WithDescription: Story = {
+  args: { hasDescription: true, descriptionVisible: true },
+}

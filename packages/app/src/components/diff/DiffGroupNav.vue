@@ -7,10 +7,13 @@ const props = defineProps<{
   groups: ResolvedGroupWithChildren[]
   groupsVisable: string[]
   reviewed: Set<string>
+  hasDescription?: boolean
+  descriptionVisible?: boolean
 }>()
 
 const emit = defineEmits<{
   select: [key: string]
+  selectDescription: []
 }>()
 
 const expandedKey = ref<string>()
@@ -34,7 +37,17 @@ function onSelectSubgroup(key: string) {
 <template>
   <div class="min-w-0 flex flex-1 flex-col gap-1.5">
     <div class="flex flex-wrap items-center gap-1.5">
-      <slot name="before" />
+      <button
+        v-if="hasDescription"
+        type="button"
+        class="flex items-center self-stretch gap-1.5 border border-b-2 border-base rounded-t px-2 py-0.5 text-sm transition-all hover:bg-active"
+        :class="descriptionVisible ? 'border-b-current shadow translate-y--1px' : 'op-fade hover:op-100'"
+        :aria-current="descriptionVisible ? 'location' : undefined"
+        @click="emit('selectDescription')"
+      >
+        <span class="i-ph:text-align-left" aria-hidden="true" />
+        {{ $t('pr.description') }}
+      </button>
       <DiffGroupNavItem
         v-for="group in groups"
         :key="group.key"
