@@ -27,6 +27,8 @@ describe('defaultRules', () => {
     ['vite.config.ts', 'config'],
     ['dist/bundle.js', 'generated'],
     ['schema.generated.ts', 'generated'],
+    ['server/apps/api/drizzle/meta/0031_snapshot.json', 'generated'],
+    ['server/apps/api/drizzle/meta/_journal.json', 'generated'],
     ['src/index.ts', 'code'],
   ])('files %s under the %s rule', (path, expected) => {
     expect(ruleKey(path)).toBe(expected)
