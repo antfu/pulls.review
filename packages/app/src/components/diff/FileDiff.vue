@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DiffLineAnnotation, FileDiffOptions, SelectedLineRange } from '@pierre/diffs'
+import type { DiffLineAnnotation, FileDiffLoadedFiles, FileDiffOptions, SelectedLineRange } from '@pierre/diffs'
 import type { CommentThread, DiffSide, FileChange, ReviewDraftTarget } from '@pulls.review/core/types'
 import type { DiffsStore } from '../../stores/types'
 import type { ResolvedNote } from './group-utils'
@@ -8,7 +8,7 @@ import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.v
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
 import { FileDiff as PierreFileDiff, VirtualizedFileDiff } from '@pierre/diffs'
 import { useIntersectionObserver } from '@vueuse/core'
-import { computed, inject, nextTick, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
 import { autoFetchFullFile } from '../../state/auto-fetch-full-file'
 import { isDark as globalIsDark, isDarkKey } from '../../state/dark'
 import { syntaxTheme } from '../../state/syntax-theme'
@@ -64,9 +64,9 @@ const fullFileError = ref<Error>()
 const fullFileLoaded = computed(() => fullOldContent.value !== undefined || fullNewContent.value !== undefined)
 const canLoadFullFile = computed(() => !!props.store.fileContent && !props.file.isBinary && !fullFileLoaded.value)
 
-async function loadFullFile() {
+async function fetchFullFile() {
   const { fileContent } = props.store
-  if (!fileContent || isLoadingFullFile.value || fullFileLoaded.value)
+  if (!fileContent || fullFileLoaded.value)
     return
 
   isLoadingFullFile.value = true
@@ -84,38 +84,29 @@ async function loadFullFile() {
   }
 }
 
-// Pierre can only expand "N unmodified lines" when it has the full file contents, which a
-// bare patch lacks - so the first click on one of its expand controls fetches the file, then
-// replays that click's expansion on the re-rendered diff (pierre keeps no state for it).
-interface PendingExpand { index: number, direction: 'up' | 'down' | 'both' }
-
-function readExpandTarget(event: Event): PendingExpand | undefined {
-  for (const node of event.composedPath()) {
-    if (!(node instanceof HTMLElement))
-      continue
-    if (!node.hasAttribute('data-expand-button') && !node.hasAttribute('data-unmodified-lines'))
-      continue
-    const index = Number(node.getAttribute('data-expand-index'))
-    if (Number.isNaN(index))
-      return
-    const direction = node.hasAttribute('data-expand-up')
-      ? 'up'
-      : node.hasAttribute('data-expand-down') ? 'down' : 'both'
-    return { index, direction: node.hasAttribute('data-expand-all-button') || (event as MouseEvent).shiftKey ? 'both' : direction }
-  }
+let fullFileLoad: Promise<void> | undefined
+function loadFullFile() {
+  return fullFileLoad ??= fetchFullFile().finally(() => {
+    fullFileLoad = undefined
+  })
 }
 
-async function onExpandClick(event: Event) {
-  if (!canLoadFullFile.value)
-    return
-  const target = readExpandTarget(event)
-  if (!target)
-    return
+// Pierre only renders the "N unmodified lines" expand controls on a bare patch when it has
+// a loader for the full file, which it calls on the first click. The load goes through
+// `loadFullFile` so the re-rendered complete diff, not pierre's own hydration, is what
+// ends up on screen - the expansion pierre recorded for that click carries over to it.
+async function loadDiffFiles(): Promise<FileDiffLoadedFiles> {
   await loadFullFile()
-  if (!fullFileLoaded.value)
-    return
-  await nextTick()
-  instance?.expandHunk(target.index, target.direction, target.direction === 'both' ? Number.POSITIVE_INFINITY : undefined)
+  if (fullFileError.value)
+    throw fullFileError.value
+  const oldContents = fullOldContent.value
+  const newContents = fullNewContent.value
+  if (oldContents === undefined || newContents === undefined)
+    throw new Error(`Full contents unavailable for ${props.file.path}`)
+  return {
+    oldFile: { name: props.file.previousPath ?? props.file.path, contents: oldContents },
+    newFile: { name: props.file.path, contents: newContents },
+  }
 }
 
 const fileDiff = computed(() => {
@@ -275,6 +266,7 @@ const pierreOptions = computed((): FileDiffOptions<undefined, undefined> => ({
   themeType: isDark.value ? 'dark' : 'light',
   disableErrorHandling: false,
   disableFileHeader: true,
+  ...(props.store.fileContent ? { loadDiffFiles } : {}),
   // The library's built-in hover "+" gutter button and drag line-selection -
   // the click hands us the hovered line or selected range to anchor a draft on.
   ...(canComment.value
@@ -297,9 +289,7 @@ function mount() {
   if (!containerRef.value || props.file.isBinary || collapsed.value || !fileDiff.value)
     return
 
-  const shadowRoot = ensurePierreDiffsShadowRoot(containerRef.value)
-  // Idempotent: the same listener function is only ever registered once per shadow root.
-  shadowRoot.addEventListener('click', onExpandClick)
+  ensurePierreDiffsShadowRoot(containerRef.value)
   // `disableFileHeader`: we render our own header (filename, status, +/-, reviewed
   // checkbox) above the diff body, so pierre's own file-header row would be redundant.
   // `themeType`: defaults to `'system'` (OS-level `prefers-color-scheme`) otherwise,
