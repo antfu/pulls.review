@@ -52,6 +52,41 @@ export const LoadFullFile: Story = {
   },
 }
 
+const longFileLines = Array.from({ length: 60 }, (_, index) => `const line${index + 1} = ${index + 1}`)
+
+/** A hunk in the middle of a file: the "N unmodified lines" controls show without loading the file first. */
+export const ExpandUnmodified: Story = {
+  args: {
+    file: {
+      path: 'src/long.ts',
+      status: 'modified',
+      additions: 1,
+      deletions: 1,
+      isBinary: false,
+      sha: 'sha-long',
+      hunks: [{
+        header: '@@ -27,7 +27,7 @@',
+        oldStart: 27,
+        oldLines: 7,
+        newStart: 27,
+        newLines: 7,
+        patch: [
+          ...longFileLines.slice(26, 29).map(line => ` ${line}`),
+          `-${longFileLines[29]}`,
+          '+const line30 = 300',
+          ...longFileLines.slice(30, 33).map(line => ` ${line}`),
+        ].join('\n'),
+      }],
+    },
+    store: createMockDiffsStore({
+      fileContent: {
+        old: longFileLines.join('\n'),
+        new: longFileLines.with(29, 'const line30 = 300').join('\n'),
+      },
+    }),
+  },
+}
+
 /** A patch too large to keep: counts only, with "load full file" to see it. */
 export const Truncated: Story = {
   args: {
