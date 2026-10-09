@@ -1,6 +1,6 @@
 import type { SourceRef } from '@pulls.review/core/types'
-import type { RouteComponent, RouteLocation, RouteRecordRaw } from 'vue-router'
-import { parseGithubUrl, splitRange } from '@pulls.review/core/github'
+import type { RouteLocationNormalized } from 'vue-router'
+import { parseGithubUrl } from '@pulls.review/core/github'
 
 /**
  * The one place that maps diff refs to app routes and back. Components link through
@@ -9,18 +9,6 @@ import { parseGithubUrl, splitRange } from '@pulls.review/core/github'
 
 /** Every ref kind with a page of its own in this build. */
 export type RoutableRef = Extract<SourceRef, { kind: 'github-pr' | 'github-compare' | 'github-commit' }>
-
-/** One route per routable ref kind, named after the kind so a route reads back into its ref. */
-export function routes(component: () => Promise<RouteComponent>): RouteRecordRaw[] {
-  // The page receives its ref as the `sourceRef` prop rather than reading the route.
-  const props = (route: RouteLocation) => ({ sourceRef: refFromRoute(route) })
-  return [
-    { name: 'github-pr', path: '/gh/:owner/:repo/:number(\\d+)', component, props },
-    // A range is `base...head`; either side may be a branch with slashes.
-    { name: 'github-compare', path: '/gh/:owner/:repo/compare/:range(.+\\.\\.\\..+)', component, props },
-    { name: 'github-commit', path: '/gh/:owner/:repo/commit/:sha', component, props },
-  ]
-}
 
 export function routeForRef(ref: RoutableRef): string
 export function routeForRef(ref: SourceRef): string | undefined
@@ -41,19 +29,14 @@ export function routeForRef(ref: SourceRef): string | undefined {
   }
 }
 
-export function refFromRoute(route: Pick<RouteLocation, 'name' | 'params'>): RoutableRef | undefined {
-  const param = (name: string) => String(route.params[name])
-  const owner = param('owner')
-  const repo = param('repo')
+export function refFromRoute(route: RouteLocationNormalized): RoutableRef | undefined {
   switch (route.name) {
     case 'github-pr':
-      return { kind: 'github-pr', owner, repo, number: param('number') }
-    case 'github-compare': {
-      const range = splitRange(param('range'))
-      return range && { kind: 'github-compare', owner, repo, ...range }
-    }
+      return { kind: 'github-pr', owner: route.params.owner, repo: route.params.repo, number: route.params.number }
+    case 'github-compare':
+      return { kind: 'github-compare', owner: route.params.owner, repo: route.params.repo, ...route.params.range }
     case 'github-commit':
-      return { kind: 'github-commit', owner, repo, sha: param('sha') }
+      return { kind: 'github-commit', owner: route.params.owner, repo: route.params.repo, sha: route.params.sha }
   }
 }
 

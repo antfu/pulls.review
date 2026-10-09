@@ -367,7 +367,10 @@ land later without a rewrite:
   is the only scroll nav there.
 - Routed pages live in `app/pages-web/` (the site: landing, `/upload`,
   `/gh/...`) and `app/pages-local/` (only registered by the `PR_LOCAL` build:
-  the ref picker and the local review page).
+  the ref picker and local review wrappers). The Vue Router Vite plugin generates
+  a fixed experimental resolver for each build. Shared diff views live outside the
+  scanned page folders. `params/` defines typed parameter parsers; the web and local
+  generated route declarations are both included in the app TypeScript config.
 - A generated userscript (`scripts/build-userscript.ts`) mounts
   `<pulls-review-embed-panel>` (`app/embed/`, a Vue custom element built as
   one IIFE with `PR_EMBED` on and `PR_LLM` off) into `github.com` pull request

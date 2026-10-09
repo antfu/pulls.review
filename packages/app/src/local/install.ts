@@ -1,5 +1,4 @@
 import type { App } from 'vue'
-import type { Router } from 'vue-router'
 import { createCacheRepositories } from '@pulls.review/core/cache'
 import { createStorage } from 'unstorage'
 import { createApp } from 'vue'
@@ -11,7 +10,6 @@ import { createAgentLlmRunner, createLocalAgents } from './agent-runner'
 import { connectLocal } from './connection'
 import { localRpcKey } from './local-rpc-key'
 import LocalAuthGate from './LocalAuthGate.vue'
-import { localRoutes } from './pages'
 import { createRpcCredentials, createRpcDriver } from './rpc-backends'
 
 /** Until the server trusts this tab, every RPC call fails: ask for the terminal's code first. */
@@ -35,7 +33,7 @@ async function ensureTrusted(client: Awaited<ReturnType<typeof connectLocal>>['c
  * can run the analysis, `/` picks refs and `/compare`, `/branch`, `/worktree` and
  * `/commit` review them.
  */
-export async function installLocal(app: App, router: Router): Promise<void> {
+export async function installLocal(app: App): Promise<void> {
   const { client, rpc } = await connectLocal()
   await ensureTrusted(client)
 
@@ -46,10 +44,4 @@ export async function installLocal(app: App, router: Router): Promise<void> {
   })
   app.provide(localRpcKey, rpc)
   app.provide(localAgentsKey, createLocalAgents(rpc))
-
-  for (const route of localRoutes(() => import('../pages-local/diff.vue')))
-    router.addRoute(route)
-  // The ref picker replaces the site's landing page.
-  router.removeRoute('home')
-  router.addRoute({ path: '/', component: () => import('../pages-local/index.vue') })
 }

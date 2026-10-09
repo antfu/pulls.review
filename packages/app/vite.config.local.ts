@@ -4,7 +4,7 @@ import Vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
 import { LOCAL_HUB_BASE_PATH } from '../core/src/local-rpc'
-import { alias, features } from './vite.config.shared'
+import { alias, features, fileRouter } from './vite.config.shared'
 
 /**
  * One bundle serves at `/` standalone and at the hub's mount path, so its base is
@@ -24,10 +24,11 @@ function runtimeBase(): Plugin {
  * The `pulls.review` CLI's SPA (Plan 09): the site with `PR_LOCAL` on, served by its
  * devframe server. Built into the CLI package, next to its server.
  */
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   base: './',
   plugins: [
     runtimeBase(),
+    fileRouter(true, command === 'serve'),
     Vue(),
     UnoCSS(),
   ],
@@ -39,4 +40,4 @@ export default defineConfig({
     outDir: fileURLToPath(new URL('../cli/dist/client', import.meta.url)),
     emptyOutDir: true,
   },
-})
+}))

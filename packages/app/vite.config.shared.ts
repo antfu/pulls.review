@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url'
+import VueRouter from 'vue-router/vite'
 
 /** `@pulls.review/core/*` resolves to its source entries so the app needs no core build step. */
 export const coreAlias = [
@@ -31,4 +32,18 @@ export function features(flags: { llm: boolean, embed: boolean, local?: boolean 
     'import.meta.env.PR_EMBED': JSON.stringify(flags.embed),
     'import.meta.env.PR_LOCAL': JSON.stringify(flags.local ?? false),
   }
+}
+
+/** Both builds select their complete route tree before the app starts. */
+export function fileRouter(local = false, watch = true) {
+  const path = (value: string) => fileURLToPath(new URL(value, import.meta.url))
+  return VueRouter({
+    root: path('../..'),
+    watch,
+    routesFolder: local
+      ? [{ src: path('src/pages-web'), exclude: [path('src/pages-web/index.vue')] }, path('src/pages-local')]
+      : path('src/pages-web'),
+    dts: path(local ? 'typed-router.local.d.ts' : 'typed-router.d.ts'),
+    experimental: { paramParsers: { dir: path('src/params') } },
+  })
 }

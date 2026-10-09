@@ -20,10 +20,10 @@ export interface CommitNav {
  * list) stays mounted while the page swaps what it renders.
  */
 export function useCommitView(parent: DiffsStore, sourceFor: (sha: string) => DiffSource, options: DiffsStoreOptions) {
-  const route = useRoute()
+  const route = useRoute<'github-pr' | 'github-commit' | 'github-compare' | 'local-branch' | 'local-commit' | 'local-compare' | 'local-worktree'>()
   const router = useRouter()
 
-  const selected = computed(() => typeof route.query.commit === 'string' ? route.query.commit : undefined)
+  const selected = computed<string | undefined>(() => route.params.commit)
 
   // Each commit store lives in its own scope so swapping commits disposes the previous one.
   const commitStore = shallowRef<DiffsStore>()
@@ -52,7 +52,8 @@ export function useCommitView(parent: DiffsStore, sourceFor: (sha: string) => Di
   })
 
   function select(sha?: string) {
-    router.push({ query: { ...route.query, commit: sha } })
+    // An undefined parsed param does not remove the existing query value.
+    router.push(router.resolve({ params: { commit: sha }, query: { commit: [] } }, route).fullPath)
   }
 
   return { store, commitNav, selected }

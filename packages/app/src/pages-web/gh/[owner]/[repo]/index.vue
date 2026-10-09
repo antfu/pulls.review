@@ -7,8 +7,8 @@ import { useDocumentTitle } from '../../../../composables/useDocumentTitle'
 import { createPullRequestListStore } from '../../../../stores/pull-request-list-store'
 
 const route = useRoute()
-const owner = route.params.owner as string
-const repo = route.params.repo as string
+const owner = route.params.owner
+const repo = route.params.repo
 
 const store = createPullRequestListStore({ owner, repo }, useAppContext())
 
