@@ -39,6 +39,13 @@ export const Conversation: Story = {
   args: { store: createMockDiffsStore({ chatMessages: conversation }) },
 }
 
+/** The widget docks as the last column of its parent flex row; the filler stands in for the diffs. */
+export const Docked: Story = {
+  args: { docked: true, store: createMockDiffsStore({ chatMessages: conversation }) },
+  parameters: { layout: 'fullscreen' },
+  decorators: [() => ({ template: '<div style="display: flex"><div style="flex: auto; min-width: 0; height: 200vh; padding: 1rem">Diffs</div><story /></div>' })],
+}
+
 export const Streaming: Story = {
   args: {
     store: createMockDiffsStore({

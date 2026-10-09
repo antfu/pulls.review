@@ -2,13 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
 import { useDragResize } from './useDragResize'
 
-function setup(renderedWidth: number) {
+function setup(renderedWidth: number, edge?: 'left' | 'right') {
   const target = document.createElement('div')
   target.getBoundingClientRect = () => ({ width: renderedWidth }) as DOMRect
   const handle = document.createElement('div')
   handle.setPointerCapture = () => {}
   const width = ref<number | null>(null)
-  const { resizing, onPointerDown } = useDragResize({ target: () => target, width, min: 200, max: () => 600 })
+  const { resizing, onPointerDown } = useDragResize({ target: () => target, width, min: 200, max: () => 600, edge })
   handle.addEventListener('pointerdown', event => onPointerDown(event as PointerEvent))
   const fire = (type: string, clientX: number) => handle.dispatchEvent(new PointerEvent(type, { clientX, pointerId: 1 }))
   return { width, resizing, fire }
@@ -23,6 +23,15 @@ describe('useDragResize', () => {
     expect(width.value).toBe(350)
     fire('pointerup', 150)
     expect(resizing.value).toBe(false)
+  })
+
+  it('widens toward the left from a left-edge handle', () => {
+    const { width, fire } = setup(300, 'left')
+    fire('pointerdown', 100)
+    fire('pointermove', 60)
+    expect(width.value).toBe(340)
+    fire('pointermove', 130)
+    expect(width.value).toBe(270)
   })
 
   it('clamps to min and max', () => {

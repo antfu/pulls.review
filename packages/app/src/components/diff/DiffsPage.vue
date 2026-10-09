@@ -11,6 +11,7 @@ import { useElementBounding, useElementSize, useEventListener } from '@vueuse/co
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, provide, reactive, ref, useId, useTemplateRef, watch } from 'vue'
 import { useDragResize } from '../../composables/useDragResize'
 import { autoRefresh } from '../../state/auto-refresh'
+import { CHAT_PANEL_DOCK_MIN_WIDTH } from '../../state/chat-panel'
 import { GROUP_SIDEBAR_MAX_RATIO, GROUP_SIDEBAR_MIN_WIDTH, groupSidebarWidth, isWide, showGroupSidebar } from '../../state/group-nav'
 import { scrollBehavior } from '../../state/smooth-scroll'
 import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
@@ -158,6 +159,9 @@ const sidebarStyle = computed(() => groupSidebarWidth.value
   : undefined)
 const sidebarRowEl = useTemplateRef<HTMLElement>('sidebarRow')
 const sidebarEl = useTemplateRef<HTMLElement>('sidebar')
+// Measured on the row rather than the viewport: inside the embed the page is a drawer.
+const { width: sidebarRowWidth } = useElementSize(sidebarRowEl)
+const chatDocked = computed(() => sidebarRowWidth.value >= CHAT_PANEL_DOCK_MIN_WIDTH)
 const { resizing: resizingSidebar, onPointerDown: onSidebarResizeDown } = useDragResize({
   target: () => sidebarEl.value,
   width: groupSidebarWidth,
@@ -329,9 +333,10 @@ function refreshFromBanner() {
               {{ $t('pr.endOfDiff') }}
             </div>
           </div>
-        </div>
 
-        <ChatWidget v-if="ChatWidget && store?.llm && store.aiResult" :store="store" />
+          <!-- Last in the row so it docks at the right edge; when it floats instead it's out of the flow. -->
+          <ChatWidget v-if="ChatWidget && store?.llm && store.aiResult" :store="store" :docked="chatDocked" />
+        </div>
       </template>
       <template v-else>
         <div class="mxa max-w-500 w-full px-4 py-12">
