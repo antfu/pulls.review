@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { DiffsStore } from '../../stores/types'
+import type { ChatQuote } from './chat-quotes'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import { useResizeObserver } from '@vueuse/core'
-import { computed, ref, useTemplateRef } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { withQuotes } from './chat-quotes'
 import ChatMessage from './ChatMessage.vue'
 
 const props = defineProps<{
@@ -12,7 +14,10 @@ const props = defineProps<{
 
 const chat = computed(() => props.store.llm!.chat)
 const open = defineModel<boolean>('open', { default: false })
+/** Diff lines to send along with the next message (see `chat-quotes.ts`). */
+const quotes = defineModel<ChatQuote[]>('quotes', { default: () => [] })
 const input = ref('')
+const inputEl = useTemplateRef<HTMLTextAreaElement>('inputEl')
 const busy = computed(() => chat.value.isStreaming || props.store.llm!.isAnalyzing)
 const lastIndex = computed(() => chat.value.messages.length - 1)
 const lastIsError = computed(() => {
@@ -44,11 +49,19 @@ useResizeObserver(contentEl, () => {
     listEl.value.scrollTop = listEl.value.scrollHeight
 })
 
-async function submit() {
-  const text = input.value
-  if (!text.trim() || busy.value)
+watch(() => quotes.value.length, async (count, previous) => {
+  if (count <= previous)
     return
+  await nextTick()
+  inputEl.value?.focus()
+})
+
+async function submit() {
+  if (!input.value.trim() || busy.value)
+    return
+  const text = withQuotes(input.value, quotes.value)
   input.value = ''
+  quotes.value = []
   stuckToBottom.value = true
   await chat.value.send(text)
 }
@@ -110,8 +123,27 @@ function onKeydown(event: KeyboardEvent) {
           {{ chat.error.message }}
         </p>
 
-        <div class="flex items-end gap-2 border-t border-base p-2">
+        <ul v-if="quotes.length" class="max-h-24 flex flex-col gap-1 overflow-y-auto border-t border-base px-2 pt-2">
+          <li
+            v-for="quote in quotes"
+            :key="quote.label"
+            class="flex items-center gap-1.5 border border-base rounded bg-raised py-0.5 pl-2 pr-0.5 text-xs"
+          >
+            <span class="i-ph:code-duotone shrink-0 op-mute" aria-hidden="true" />
+            <span class="min-w-0 flex-auto truncate font-mono" :title="quote.label">{{ quote.label }}</span>
+            <ActionIconButton
+              compact
+              icon="i-ph:x"
+              :label="$t('chat.removeQuote')"
+              :tooltip="$t('chat.removeQuote')"
+              @click="quotes = quotes.filter(other => other !== quote)"
+            />
+          </li>
+        </ul>
+
+        <div class="flex items-end gap-2 p-2" :class="quotes.length ? '' : 'border-t border-base'">
           <textarea
+            ref="inputEl"
             v-model="input"
             rows="2"
             :placeholder="$t('chat.placeholder')"

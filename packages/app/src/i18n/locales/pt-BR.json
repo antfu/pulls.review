@@ -330,7 +330,9 @@
     "updatingGrouping": "Atualizando agrupamento…",
     "submittingGrouping": "Enviando agrupamento…",
     "requestFailed": "A solicitação falhou",
-    "stopped": "parado"
+    "stopped": "parado",
+    "askAboutSelection": "Perguntar à IA",
+    "removeQuote": "Remover"
   },
   "settings": {
     "layout": "Layout do diff",

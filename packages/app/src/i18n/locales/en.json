@@ -331,7 +331,9 @@
     "updatingGrouping": "Updating grouping…",
     "submittingGrouping": "Submitting grouping…",
     "requestFailed": "Request failed",
-    "stopped": "stopped"
+    "stopped": "stopped",
+    "askAboutSelection": "Ask AI",
+    "removeQuote": "Remove"
   },
   "settings": {
     "layout": "Diff layout",

@@ -330,7 +330,9 @@
     "updatingGrouping": "그룹 업데이트 중…",
     "submittingGrouping": "그룹 제출 중…",
     "requestFailed": "요청 실패",
-    "stopped": "중지됨"
+    "stopped": "중지됨",
+    "askAboutSelection": "AI에게 질문",
+    "removeQuote": "제거"
   },
   "settings": {
     "layout": "Diff 레이아웃",

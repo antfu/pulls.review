@@ -330,7 +330,9 @@
     "updatingGrouping": "Memperbarui pengelompokan…",
     "submittingGrouping": "Mengirim pengelompokan…",
     "requestFailed": "Permintaan gagal",
-    "stopped": "dihentikan"
+    "stopped": "dihentikan",
+    "askAboutSelection": "Tanya AI",
+    "removeQuote": "Hapus"
   },
   "settings": {
     "layout": "Tata letak diff",

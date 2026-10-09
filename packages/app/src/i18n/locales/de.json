@@ -330,7 +330,9 @@
     "updatingGrouping": "Gruppierung wird aktualisiert…",
     "submittingGrouping": "Gruppierung wird gesendet…",
     "requestFailed": "Anfrage fehlgeschlagen",
-    "stopped": "gestoppt"
+    "stopped": "gestoppt",
+    "askAboutSelection": "KI fragen",
+    "removeQuote": "Entfernen"
   },
   "settings": {
     "layout": "Diff-Layout",

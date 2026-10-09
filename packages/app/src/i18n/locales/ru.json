@@ -330,7 +330,9 @@
     "updatingGrouping": "Обновление группировки…",
     "submittingGrouping": "Отправка группировки…",
     "requestFailed": "Запрос не удался",
-    "stopped": "остановлено"
+    "stopped": "остановлено",
+    "askAboutSelection": "Спросить ИИ",
+    "removeQuote": "Убрать"
   },
   "settings": {
     "layout": "Вид diff",

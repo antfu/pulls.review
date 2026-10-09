@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CommitNav } from '../../composables/useCommitView'
 import type { DiffsStore } from '../../stores/types'
+import type { ChatDraft } from '../chat/chat-quotes'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyState.vue'
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
@@ -13,6 +14,7 @@ import { useDragResize } from '../../composables/useDragResize'
 import { autoRefresh } from '../../state/auto-refresh'
 import { GROUP_SIDEBAR_MAX_RATIO, GROUP_SIDEBAR_MIN_WIDTH, groupSidebarWidth, isWide, showGroupSidebar } from '../../state/group-nav'
 import { scrollBehavior } from '../../state/smooth-scroll'
+import { chatDraftKey } from '../chat/chat-quotes'
 import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffGroup from './DiffGroup.vue'
@@ -47,6 +49,8 @@ const groups = computed(() => props.store?.groups ?? [])
 const virtualizer = new Virtualizer()
 provide(diffVirtualizerKey, virtualizer)
 provide(fileCollapseKey, reactive(new Map<string, boolean>()))
+const chatDraft = reactive<ChatDraft>({ open: false, quotes: [] })
+provide(chatDraftKey, chatDraft)
 const rootEl = useTemplateRef<HTMLElement>('root')
 onMounted(() => {
   virtualizer.setup(props.document && !(props.document instanceof Document) ? rootEl.value! : document)
@@ -331,7 +335,12 @@ function refreshFromBanner() {
           </div>
         </div>
 
-        <ChatWidget v-if="ChatWidget && store?.llm && store.aiResult" :store="store" />
+        <ChatWidget
+          v-if="ChatWidget && store?.llm && store.aiResult"
+          v-model:open="chatDraft.open"
+          v-model:quotes="chatDraft.quotes"
+          :store="store"
+        />
       </template>
       <template v-else>
         <div class="mxa max-w-500 w-full px-4 py-12">
