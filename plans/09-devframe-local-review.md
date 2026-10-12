@@ -67,10 +67,10 @@ is the user's own process on the user's own machine.
 this in #49). The GitHub Actions entry point stays `@pulls.review/actions`
 and MUST NOT depend on devframe. Releases require explicit approval.
 
-| Command                                                   | Does                                                                                  |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `pulls.review [target] [--worktree] [--port] [--no-open]` | Serves reviews of the repo at `cwd`, opening the page for `target` (see Pages above). |
-| `pulls.review build [target] --out-dir <dir> [--analyze]` | Writes a static, read-only snapshot of one target.                                    |
+| Command                                                                    | Does                                                                                                                                        |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pulls.review [target] [--worktree] [--from <login>] [--port] [--no-open]` | Serves reviews of the repo at `cwd`, opening the page for `target` (see Pages above); `--from` adds `?from=<login>` to a pull request page. |
+| `pulls.review build [target] --out-dir <dir> [--analyze]`                  | Writes a static, read-only snapshot of one target.                                                                                          |
 
 - **Hub mount.** The package also exports the definition for a hub through
   `createPluginFromDevframe`. The devframe id is `pulls.review`, so hubs mount

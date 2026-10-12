@@ -230,8 +230,10 @@ repos read one. Contract:
 - Loading writes the result into the cached diff under its own `source` with
   `sharedBy: login`, so the view credits it and never offers to re-share it.
   Discovery is one best-effort `GET` of the first 100 comments, run only when
-  the store has no AI result. `?from=` on the site loads that user directly
-  unless it would replace a locally generated result (then it's offered).
+  the store has no AI result. `?from=` on the site - which the CLI's
+  `--from <login>` adds to a pull request page - loads that user directly,
+  replacing an older shared result, unless it would replace a locally
+  generated result (then it's offered).
 - A shared result whose `headSha` differs from the loaded diff is offered
   labelled outdated, not hidden. Likewise one whose `locale` differs from the
   UI language is offered labelled with that language (results from before the
