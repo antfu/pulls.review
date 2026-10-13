@@ -96,7 +96,7 @@ catalogs:
     vue: ^3.5.43
     vue-afloat: ^0.2.0
     vue-i18n: ^11.4.13
-    vue-router: ^4.6.4
+    vue-router: ^5.4.0
     zod: ^4.6.5
   icons:
     '@iconify-json/carbon': ^1.2.28

@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import type { LocalPage } from '../local/pages'
+import type { LocalPage } from '../../local/pages'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyState.vue'
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
 import { inject, onMounted } from 'vue'
-import { useAppContext } from '../app-context'
-import DiffsPage from '../components/diff/DiffsPage.vue'
-import { useCommitView } from '../composables/useCommitView'
-import { useDocumentTitle } from '../composables/useDocumentTitle'
-import { localRpcKey } from '../local/local-rpc-key'
-import { routeForPage, targetFor } from '../local/pages'
-import { createRpcSource } from '../local/rpc-backends'
-import { createDiffsStore } from '../stores/diffs-store'
+import { useAppContext } from '../../app-context'
+import { useCommitView } from '../../composables/useCommitView'
+import { useDocumentTitle } from '../../composables/useDocumentTitle'
+import { localRpcKey } from '../../local/local-rpc-key'
+import { routeForPage, targetFor } from '../../local/pages'
+import { createRpcSource } from '../../local/rpc-backends'
+import { createDiffsStore } from '../../stores/diffs-store'
+import DiffsPage from './DiffsPage.vue'
 
 const props = defineProps<{ page: LocalPage }>()
 
-// Only `installLocal` registers this page, after providing the RPC client.
+// Local startup provides the RPC client before the router installs.
 const rpc = inject(localRpcKey)!
 const { cache, llm } = useAppContext()
 
