@@ -57,6 +57,15 @@ const canShareResult = computed(() => props.store.shared && props.store.llm && a
 
 const parent = computed(() => parentForRef(meta.value.ref))
 
+// Only a GitHub account comes with an avatar - a commit author unlinked to one is a bare git name with no profile.
+const authorUrl = computed(() => {
+  const author = meta.value.author
+  if (!author?.avatarUrl)
+    return undefined
+  const bot = author.name.match(/^(.+)\[bot\]$/)?.[1]
+  return bot ? `https://github.com/apps/${bot}` : `https://github.com/${author.name}`
+})
+
 const reviews = computed(() => props.store.reviews)
 
 function scrollToGroup(key: string) {
@@ -128,7 +137,8 @@ function scrollToGroup(key: string) {
         <span v-if="meta.author" class="flex items-center gap-1.5">
           <span class="op-fade">{{ $t('pr.by') }}</span>
           <GithubAvatar :login="meta.author.name" :avatar-url="meta.author.avatarUrl" :size="16" />
-          <span class="op-fade">{{ meta.author.name }}</span>
+          <a v-if="authorUrl" :href="authorUrl" target="_blank" rel="noopener" class="op-fade hover:underline">{{ meta.author.name }}</a>
+          <span v-else class="op-fade">{{ meta.author.name }}</span>
         </span>
         <span v-if="meta.base && meta.head && !isEmbedded" class="flex items-center gap-1 font-mono">
           <span class="border border-base rounded bg-code px-2 py-0.5 text-xs font-mono">{{ meta.base.ref }}</span>
