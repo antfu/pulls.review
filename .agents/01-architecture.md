@@ -179,6 +179,11 @@ analysis strategy later never touches the view layer:
     result replaces the session; a refetch keeps it (the transcript still
     reads the live diff). Results cached without one show `Re-analyze to
     enable chat`.
+  - Asking about selected lines is a UI concern only: a line selection in a
+    file's diff becomes a quote (`components/chat/chat-quotes.ts`, a labelled
+    unified-diff excerpt) that the chat widget holds until the next message
+    and prepends to its text. The runner and the transcript only ever see a
+    plain user message.
   - `web-llm` — TODO, stub only. Fully in-browser model inference, no network
     call at analyze time.
   - LLM-sourced groups MAY nest one level (root group -> children, e.g.

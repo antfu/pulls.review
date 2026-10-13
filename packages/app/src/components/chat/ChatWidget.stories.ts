@@ -39,6 +39,16 @@ export const Conversation: Story = {
   args: { store: createMockDiffsStore({ chatMessages: conversation }) },
 }
 
+export const WithQuotes: Story = {
+  args: {
+    store: createMockDiffsStore({ chatMessages: conversation }),
+    quotes: [
+      { label: 'app/auth/session.ts:12-18', code: '+const token = localStorage.getItem(\'token\')' },
+      { label: 'app/auth/store.ts:40 (old)', code: '-let token: string | undefined' },
+    ],
+  },
+}
+
 /** The widget docks as the last column of its parent flex row; the filler stands in for the diffs. */
 export const Docked: Story = {
   args: { docked: true, store: createMockDiffsStore({ chatMessages: conversation }) },

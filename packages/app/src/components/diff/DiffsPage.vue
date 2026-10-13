@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CommitNav } from '../../composables/useCommitView'
 import type { DiffsStore } from '../../stores/types'
+import type { ChatDraft } from '../chat/chat-quotes'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyState.vue'
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
@@ -15,6 +16,7 @@ import { autoRefresh } from '../../state/auto-refresh'
 import { CHAT_PANEL_DOCK_MIN_WIDTH } from '../../state/chat-panel'
 import { GROUP_SIDEBAR_MAX_RATIO, GROUP_SIDEBAR_MIN_WIDTH, groupSidebarWidth, isWide, showGroupSidebar } from '../../state/group-nav'
 import { scrollBehavior } from '../../state/smooth-scroll'
+import { chatDraftKey } from '../chat/chat-quotes'
 import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffGroup from './DiffGroup.vue'
@@ -58,6 +60,8 @@ const groups = computed(() => props.store?.groups ?? [])
 const virtualizer = new Virtualizer()
 provide(diffVirtualizerKey, virtualizer)
 provide(fileCollapseKey, reactive(new Map<string, boolean>()))
+const chatDraft = reactive<ChatDraft>({ open: false, quotes: [] })
+provide(chatDraftKey, chatDraft)
 const rootEl = useTemplateRef<HTMLElement>('root')
 onMounted(() => {
   virtualizer.setup(props.document && !(props.document instanceof Document) ? rootEl.value! : document)
@@ -345,7 +349,13 @@ function refreshFromBanner() {
           </div>
 
           <!-- Last in the row so it docks at the right edge; when it floats instead it's out of the flow. -->
-          <ChatWidget v-if="ChatWidget && store?.llm && store.aiResult" :store="store" :docked="chatDocked" />
+          <ChatWidget
+            v-if="ChatWidget && store?.llm && store.aiResult"
+            v-model:open="chatDraft.open"
+            v-model:quotes="chatDraft.quotes"
+            :store="store"
+            :docked="chatDocked"
+          />
         </div>
       </template>
       <template v-else>
