@@ -113,3 +113,33 @@ describe('automatic full-file fetching', () => {
     expect(load).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('collapsing on review', () => {
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
+
+  async function markReviewedWithMarkerAt(top: number) {
+    const marker = document.createElement('div')
+    marker.dataset.fileStart = file.sha
+    marker.getBoundingClientRect = () => ({ top }) as DOMRect
+    marker.scrollIntoView = vi.fn()
+    document.body.append(marker)
+    const store = createMockDiffsStore({})
+    wrapper = mount(FileDiff, { props: { store, file }, global: { plugins: [i18n] }, attachTo: document.body })
+    await nextTick()
+    await store.setReviewed([file.sha], true)
+    await flushPromises()
+    return marker
+  }
+
+  it('pins a file scrolled past its start back to the top', async () => {
+    const marker = await markReviewedWithMarkerAt(-2000)
+    expect(marker.scrollIntoView).toHaveBeenCalledWith({ behavior: 'instant', block: 'start' })
+  })
+
+  it('leaves the scroll alone when the file starts in view', async () => {
+    const marker = await markReviewedWithMarkerAt(300)
+    expect(marker.scrollIntoView).not.toHaveBeenCalled()
+  })
+})
