@@ -3,10 +3,14 @@
 Loads the built `<pulls-review-embed-panel>` custom element directly (no GitHub page, no
 userscript manager) for quick manual testing of the embed build.
 
+From the repository root, run:
+
 ```bash
-pnpm run build:embed      # writes public/embed/diffs-embed.js
-pnpm run playground:embedded   # vite dev, opened at /playgrounds/embedded/
+pnpm --filter @pulls.review/app run play:embed
 ```
+
+This command builds `public/embed/diffs-embed.js`, starts Vite, and opens `/playgrounds/embed/`.
+After changes to the embed source, run the command again to rebuild the bundle.
 
 The custom element takes no attributes - it reads `location.pathname` and
 `document.documentElement.dataset.colorMode` itself, the same as it does on a real

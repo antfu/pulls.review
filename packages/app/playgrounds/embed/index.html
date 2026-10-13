@@ -107,7 +107,8 @@
       Stands in for the userscript's `@require`: point this at wherever `diffs-embed.js`
       is actually being served. `pnpm run build:embed` writes it to public/embed/,
       which `pnpm dev`'s main Vite server also serves verbatim at this same path - so
-      running `pnpm run playground:embedded` after a build just works.
+      running `pnpm --filter @pulls.review/app run play:embed` from the repository
+      root builds the bundle and opens this playground.
     -->
     <script src="/embed/diffs-embed.js"></script>
     <script>
