@@ -8,7 +8,7 @@ import { i18n } from '../i18n'
 import { settingsModalOpen } from '../state/settingsModal'
 import { useEmbedDark } from './dark'
 import EmbedPrView from './EmbedPrView.vue'
-import { hijackReviewLinks, injectGithubPageStyles, keepToggleTab, setPanelOpenWidth, SITE_ORIGIN, syncToggleTab } from './githubIntegration'
+import { hijackReviewLinks, injectGithubPageStyles, keepToggleTab, setPanelOpenWidth, SITE_ORIGIN, syncToggleTab, watchLocation } from './githubIntegration'
 import { USERSCRIPT_URL, useUserscriptUpdate } from './userscript-update'
 
 const WIDTH_STORAGE_KEY = 'diffs-embed:drawer-width'
@@ -52,12 +52,12 @@ const hasSharedResult = computed(() => {
   return !!store?.shared?.candidates.length || !!store?.aiResult?.sharedBy
 })
 
-// GitHub is a Turbo (Hotwire) SPA - navigating between PRs (or to/from one) doesn't
-// reload the page (and so doesn't remount this custom element), so re-derive the
-// current PR on every Turbo navigation too. `:key="prKey"` below gives `EmbedPrView` a
-// fresh instance (and fresh data fetch) per PR, same as a routed page's fresh mount.
-function syncPr() {
-  pr.value = parsePr(location.pathname)
+// GitHub is an SPA - navigating between PRs (or to/from one) doesn't reload the page
+// (and so doesn't remount this custom element), so re-derive the current PR on every
+// navigation. `:key="prKey"` below gives `EmbedPrView` a fresh instance (and fresh
+// data fetch) per PR, same as a routed page's fresh mount; leaving the PR closes the drawer.
+function syncPr(pathname: string) {
+  pr.value = parsePr(pathname)
   if (pr.value)
     injectGithubPageStyles()
   else
@@ -118,21 +118,18 @@ function onResizeDown(event: PointerEvent) {
 // scroll target, AppModal's Teleport target) should read this, not the bare global.
 const document = computed(() => (rootRef.value?.getRootNode() ?? window.document) as Document | ShadowRoot)
 
+let stopWatchingLocation: (() => void) | undefined
 let stopHijackingLinks: (() => void) | undefined
 let stopKeepingTab: (() => void) | undefined
 onMounted(() => {
-  // Turbo's own navigation event always fires on the real top-level document,
-  // regardless of where this custom element is mounted - not the shadow root.
-  window.document.addEventListener('turbo:load', syncPr)
-  window.addEventListener('popstate', syncPr)
+  stopWatchingLocation = watchLocation(syncPr)
   stopHijackingLinks = hijackReviewLinks({ pr: () => pr.value, onOpen: openFromLink, launchLabel: () => t('pr.openInSite') })
   stopKeepingTab = keepToggleTab(syncTab)
   if (pr.value)
     injectGithubPageStyles()
 })
 onBeforeUnmount(() => {
-  window.document.removeEventListener('turbo:load', syncPr)
-  window.removeEventListener('popstate', syncPr)
+  stopWatchingLocation?.()
   stopHijackingLinks?.()
   stopKeepingTab?.()
   setPanelOpenWidth(undefined)

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { hijackReviewLinks, keepToggleTab, PANEL_OPEN_CLASS, parseReviewLink, setPanelOpenWidth, syncToggleTab } from './githubIntegration'
+import { hijackReviewLinks, keepToggleTab, PANEL_OPEN_CLASS, parseReviewLink, setPanelOpenWidth, syncToggleTab, watchLocation } from './githubIntegration'
 
 const pr = { owner: 'antfu', repo: 'pulls.review', number: '38' }
 
@@ -73,6 +73,50 @@ describe('keepToggleTab', () => {
     document.body.append(document.createElement('div'))
     await settle()
     expect(document.getElementById('diffs-toggle-tab')).toBe(button)
+    stop()
+  })
+})
+
+describe('watchLocation', () => {
+  const settle = () => new Promise(resolve => setTimeout(resolve, 0))
+
+  /** React Router style: `pushState`, then render - no navigation event of any kind. */
+  function navigate(path: string) {
+    history.pushState(null, '', path)
+    document.body.append(document.createElement('div'))
+  }
+
+  it('reports each new pathname once, as the page re-renders after pushState', async () => {
+    history.replaceState(null, '', '/antfu/pulls.review/pull/38')
+    const onChange = vi.fn()
+    const stop = watchLocation(onChange)
+
+    navigate('/antfu/pulls.review/pull/39')
+    await settle()
+    expect(onChange).toHaveBeenCalledExactlyOnceWith('/antfu/pulls.review/pull/39')
+
+    document.body.append(document.createElement('div'))
+    await settle()
+    expect(onChange).toHaveBeenCalledOnce()
+
+    navigate('/antfu/pulls.review/pulls')
+    await settle()
+    expect(onChange).toHaveBeenLastCalledWith('/antfu/pulls.review/pulls')
+
+    stop()
+    navigate('/antfu/pulls.review/pull/40')
+    await settle()
+    expect(onChange).toHaveBeenCalledTimes(2)
+  })
+
+  it('reports back/forward navigation immediately', () => {
+    history.replaceState(null, '', '/antfu/pulls.review/pull/38')
+    const onChange = vi.fn()
+    const stop = watchLocation(onChange)
+
+    history.replaceState(null, '', '/antfu/pulls.review')
+    window.dispatchEvent(new PopStateEvent('popstate'))
+    expect(onChange).toHaveBeenCalledExactlyOnceWith('/antfu/pulls.review')
     stop()
   })
 })

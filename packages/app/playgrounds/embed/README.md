@@ -14,7 +14,9 @@ GitHub page (see `app/embed/EmbedApp.ce.vue`). So this page mounts it exactly li
 userscript does, and:
 
 - The owner/repo/PR# inputs + "Navigate" button push a matching `/owner/repo/pull/n`
-  path via `history.pushState` and fire a `turbo:load` event - what the component
-  actually listens for to detect a PR change on GitHub's own Turbo SPA navigation.
+  path via `history.pushState` and re-render part of the page - like GitHub's own
+  React pages do, with no navigation event. The component notices the path change
+  from the DOM mutation and remounts the PR view; "Leave PR" pushes the `/pulls` list
+  path, which closes the drawer.
 - "Toggle host dark mode" flips `dataset.colorMode` and remounts (dark mode is seeded
   once, at mount, matching real usage - GitHub's theme doesn't change mid-session).
