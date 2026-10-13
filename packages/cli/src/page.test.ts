@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { browserPath, pageFor } from './page'
+import { browserPath, pageFor, sharedAnalysisQuery } from './page'
 
 let repo: string
 
@@ -65,5 +65,32 @@ describe('pageFor', () => {
 
   it('rejects a revision that would read as an option', async () => {
     await expect(pageFor(repo, '--all', false)).rejects.toThrow(/Invalid revision/)
+  })
+})
+
+describe('sharedAnalysisQuery', () => {
+  it('adds nothing without --from', () => {
+    expect(sharedAnalysisQuery('antfu/diffs#12', undefined)).toBe('')
+    expect(sharedAnalysisQuery(undefined, undefined)).toBe('')
+  })
+
+  it('deep-links a pull request to a user\'s shared analysis, as the site\'s ?from= does', async () => {
+    const page = browserPath(await pageFor(repo, 'https://github.com/antfu/diffs/pull/12', false)) + sharedAnalysisQuery('https://github.com/antfu/diffs/pull/12', 'github-actions[bot]')
+    const opened = new URL(page, 'http://localhost:3000')
+    expect(opened.pathname).toBe('/gh/antfu/diffs/12')
+    expect(opened.searchParams.get('from')).toBe('github-actions[bot]')
+  })
+
+  it.each([
+    ['a compare', 'https://github.com/antfu/diffs/compare/main...feat'],
+    ['a repo', 'https://github.com/antfu/diffs'],
+    ['a local branch', 'main'],
+    ['no target', undefined],
+  ])('rejects --from on %s, which carries no shared analyses', (_, arg) => {
+    expect(() => sharedAnalysisQuery(arg, 'octocat')).toThrow(/only applies to a GitHub pull request/)
+  })
+
+  it('rejects an empty login', () => {
+    expect(() => sharedAnalysisQuery('antfu/diffs#12', '')).toThrow(/needs a GitHub login/)
   })
 })

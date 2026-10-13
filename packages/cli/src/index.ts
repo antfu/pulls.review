@@ -5,7 +5,7 @@ import { parseArgs } from 'node:util'
 import { createDevServer } from 'devframe/adapters/dev'
 import { H3 } from 'h3'
 import devframe from './devframe'
-import { browserPath, pageFor } from './page'
+import { browserPath, pageFor, sharedAnalysisQuery } from './page'
 
 const HELP = `Usage: pulls.review [target] [options]
 
@@ -29,9 +29,11 @@ AI analysis uses a key from Settings, or a coding agent installed here (Claude
 Code, OpenCode, Pi) when "Local agent" is the provider in Settings.
 
 Options:
-  --worktree     open the uncommitted changes against HEAD
-  --port <port>  port to listen on
-  --no-open      do not open the browser
+  --worktree      open the uncommitted changes against HEAD
+  --from <login>  with a GitHub pull request, load the AI analysis <login> shared
+                  on it (the site's ?from=<login>), its latest version every time
+  --port <port>   port to listen on
+  --no-open       do not open the browser
   -h, --help
 
 To analyze a GitHub pull request from CI, use @pulls.review/actions.
@@ -57,6 +59,7 @@ async function main() {
   const { values: flags, positionals } = parseArgs({
     options: {
       'worktree': { type: 'boolean' },
+      'from': { type: 'string' },
       'port': { type: 'string' },
       'no-open': { type: 'boolean' },
       'help': { type: 'boolean', short: 'h' },
@@ -67,7 +70,7 @@ async function main() {
     process.stdout.write(HELP)
     return
   }
-  const page = browserPath(await pageFor(process.cwd(), positionals[0], !!flags.worktree))
+  const page = browserPath(await pageFor(process.cwd(), positionals[0], !!flags.worktree)) + sharedAnalysisQuery(positionals[0], flags.from)
   await createDevServer(devframe, {
     app: createAppWithRefRoutes(),
     port: flags.port ? Number(flags.port) : undefined,
