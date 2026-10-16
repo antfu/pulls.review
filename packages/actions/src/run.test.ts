@@ -37,6 +37,7 @@ const pullRoutes = {
   'GET /repos/o/r/pulls/1': { title: 'T', body: '', user: { login: 'dev' }, base: { ref: 'main', sha: 'base' }, head: { ref: 'f', sha: 'head456' }, created_at: '', updated_at: '', html_url: 'https://github.com/o/r/pull/1', state: 'open', draft: false, merged: false },
   'GET /repos/o/r/pulls/1/files': [{ sha: 'a', filename: 'a.ts', status: 'modified', additions: 1, deletions: 0, patch: '@@ -1 +1 @@\n-a\n+b' }],
   'GET /repos/o/r/pulls/1/commits': [],
+  'GET /repos/o/r/compare/base...head456': { merge_base_commit: { sha: 'base' } },
 }
 
 afterEach(() => {

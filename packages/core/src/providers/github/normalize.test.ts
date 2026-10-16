@@ -30,7 +30,7 @@ describe('normalizePullRequest', () => {
         patch: '@@ -1,2 +1,2 @@\n context\n-old\n+new',
       },
     ]
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], noFallbacks)
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, 'base123', files, [], noFallbacks)
 
     expect(diff).toMatchObject({
       ref: { kind: 'github-pr', owner: 'owner', repo: 'repo', number: '1' },
@@ -51,7 +51,7 @@ describe('normalizePullRequest', () => {
       // An author whose email is not linked to a GitHub account keeps the git name, without an avatar.
       { sha: 'c2', commit: { message: 'fix: y', author: { name: 'Someone', date: '2026-01-02T00:00:00Z' } }, author: null },
     ]
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, [], commits, noFallbacks)
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, 'base123', [], commits, noFallbacks)
     expect(diff.commits).toEqual([
       { sha: 'c1', message: 'feat: add x\n\nbody', author: { name: 'dev', avatarUrl: 'https://avatars/dev' }, date: '2026-01-01T00:00:00Z' },
       { sha: 'c2', message: 'fix: y', author: { name: 'Someone' }, date: '2026-01-02T00:00:00Z' },
@@ -70,7 +70,7 @@ describe('normalizePullRequest', () => {
         patch: undefined,
       },
     ]
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], noFallbacks)
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, 'base123', files, [], noFallbacks)
     expect(diff.files[0]).toMatchObject({ status: 'renamed', previousPath: 'src/old-name.ts', path: 'src/new-name.ts' })
   })
 
@@ -92,7 +92,7 @@ describe('normalizePullRequest', () => {
       + '-old\n'
       + '+new\n'
     const loadFallback = vi.fn(async () => fallbackText)
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], { ...noFallbacks, loadDiffText: loadFallback })
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, 'base123', files, [], { ...noFallbacks, loadDiffText: loadFallback })
 
     expect(loadFallback).toHaveBeenCalledOnce()
     expect(diff.files[0]).toMatchObject({ path: 'src/huge.ts', sha: 'ghi789', isBinary: false, additions: 500, deletions: 10 })
@@ -112,7 +112,7 @@ describe('normalizePullRequest', () => {
     const fallbackText = 'diff --git a/assets/logo.png b/assets/logo.png\n'
       + 'index aaa..jkl012 100644\n'
       + 'Binary files a/assets/logo.png and b/assets/logo.png differ\n'
-    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], { ...noFallbacks, loadDiffText: async () => fallbackText })
+    const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, 'base123', files, [], { ...noFallbacks, loadDiffText: async () => fallbackText })
 
     expect(diff.files[0]).toMatchObject({ path: 'assets/logo.png', isBinary: true })
   })
@@ -125,7 +125,7 @@ describe('normalizePullRequest', () => {
         { filename: 'src/huge.ts', status: 'modified', additions: 1, deletions: 1, sha: 'ghi789' },
       ]
       const loadFileContent = vi.fn(async (_path: string, ref: string) => ref === 'base123' ? 'a\nold\nc\n' : 'a\nnew\nc\n')
-      const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], { ...tooLarge, loadFileContent })
+      const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, 'base123', files, [], { ...tooLarge, loadFileContent })
 
       expect(diff.files[0]).toMatchObject({ path: 'src/huge.ts', isBinary: false, additions: 1, deletions: 1 })
       expect(diff.files[0]!.hunks).toHaveLength(1)
@@ -138,7 +138,7 @@ describe('normalizePullRequest', () => {
         { filename: 'added.ts', status: 'added', additions: 2, deletions: 0, sha: 'a1' },
       ]
       const loadFileContent = vi.fn(async (path: string) => path === 'old.ts' ? 'x\n' : path === 'new.ts' ? 'y\n' : 'l1\nl2\n')
-      const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], { ...tooLarge, loadFileContent })
+      const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, 'base123', files, [], { ...tooLarge, loadFileContent })
 
       expect(loadFileContent).toHaveBeenCalledWith('old.ts', 'base123')
       expect(loadFileContent).not.toHaveBeenCalledWith('added.ts', 'base123')
@@ -150,7 +150,7 @@ describe('normalizePullRequest', () => {
         { filename: 'logo.png', status: 'modified', additions: 0, deletions: 0, sha: 'p1' },
       ]
       const loadFileContent = vi.fn(async () => 'binary')
-      const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], { ...tooLarge, loadFileContent })
+      const diff = await normalizePullRequest('owner', 'repo', '1', PR_JSON, 'base123', files, [], { ...tooLarge, loadFileContent })
 
       expect(diff.files[0]).toMatchObject({ isBinary: true, hunks: [] })
       expect(loadFileContent).not.toHaveBeenCalled()
@@ -163,7 +163,7 @@ describe('normalizePullRequest', () => {
     [{ state: 'closed' as const, draft: false, merged: false }, 'closed'],
     [{ state: 'closed' as const, draft: false, merged: true }, 'merged'],
   ])('resolves pullRequest.state from %o to %s', async (overrides, expected) => {
-    const diff = await normalizePullRequest('owner', 'repo', '1', { ...PR_JSON, ...overrides }, [], [], noFallbacks)
+    const diff = await normalizePullRequest('owner', 'repo', '1', { ...PR_JSON, ...overrides }, 'base123', [], [], noFallbacks)
     expect(diff.pullRequest?.state).toBe(expected)
   })
 
@@ -177,7 +177,7 @@ describe('normalizePullRequest', () => {
       'diff --git a/b.ts b/b.ts\nindex 0..b1 100644\n--- a/b.ts\n+++ b/b.ts\n@@ -0,0 +1,1 @@\n+b\n',
     ].join('')
     const loadFallback = vi.fn(async () => fallbackText)
-    await normalizePullRequest('owner', 'repo', '1', PR_JSON, files, [], { ...noFallbacks, loadDiffText: loadFallback })
+    await normalizePullRequest('owner', 'repo', '1', PR_JSON, 'base123', files, [], { ...noFallbacks, loadDiffText: loadFallback })
     expect(loadFallback).toHaveBeenCalledOnce()
   })
 })

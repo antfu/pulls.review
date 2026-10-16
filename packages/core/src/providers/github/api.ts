@@ -94,6 +94,12 @@ export async function fetchCompare(client: GithubClient, owner: string, repo: st
   return (await client.request(`/repos/${owner}/${repo}/compare/${encodeRef(base)}...${encodeRef(head)}`)).json()
 }
 
+/** Where `head` forked from `base`. Page 2 of a compare has no files, so the response stays small. */
+export async function fetchMergeBase(client: GithubClient, owner: string, repo: string, base: string, head: string): Promise<string> {
+  const compare: GithubCompareJson = await (await client.request(`/repos/${owner}/${repo}/compare/${encodeRef(base)}...${encodeRef(head)}?per_page=1&page=2`)).json()
+  return compare.merge_base_commit.sha
+}
+
 export async function fetchCommit(client: GithubClient, owner: string, repo: string, sha: string): Promise<GithubSingleCommitJson> {
   return (await client.request(`/repos/${owner}/${repo}/commits/${encodeRef(sha)}`)).json()
 }

@@ -122,6 +122,8 @@ export async function normalizePullRequest(
   repo: string,
   number: string,
   pr: GithubPullRequestJson,
+  /** Where the PR forked from its base branch: the old side of its files listing. */
+  mergeBase: string,
   files: GithubPullRequestFileJson[],
   commits: GithubCommitJson[],
   fallbacks: PatchFallbacks,
@@ -133,7 +135,7 @@ export async function normalizePullRequest(
     author: pr.user ? { name: pr.user.login, avatarUrl: pr.user.avatar_url } : undefined,
     description: pr.body ?? '',
     url: pr.html_url,
-    base: { sha: pr.base.sha, ref: pr.base.ref },
+    base: { sha: mergeBase, ref: pr.base.ref },
     head: { sha: pr.head.sha, ref: pr.head.ref },
     createdAt: pr.created_at,
     updatedAt: pr.updated_at,
@@ -141,6 +143,6 @@ export async function normalizePullRequest(
       state: resolveState(pr),
     },
     commits: commits.map(toCommit),
-    files: await normalizeFiles(files, { base: pr.base.sha, head: pr.head.sha }, fallbacks),
+    files: await normalizeFiles(files, { base: mergeBase, head: pr.head.sha }, fallbacks),
   }
 }

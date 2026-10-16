@@ -1,7 +1,7 @@
 import type { Credentials, DiffSource, SourceRef } from '../../types/source'
 import type { GithubTokenMeta } from './token-meta'
 import { serializeRef } from '../../types/source'
-import { fetchDiffText, fetchFileContentAtRef, fetchPullRequest, fetchPullRequestCommits, fetchPullRequestFiles } from './api'
+import { fetchDiffText, fetchFileContentAtRef, fetchMergeBase, fetchPullRequest, fetchPullRequestCommits, fetchPullRequestFiles } from './api'
 import { createGithubClient } from './client'
 import { normalizePullRequest } from './normalize'
 import { createGithubCommitSource, createGithubCompareSource } from './refs'
@@ -28,12 +28,15 @@ export function createGithubPullRequestSource({ owner, repo, number }: { owner: 
   return {
     key: async () => key,
     async fetch() {
-      const [pr, files, commits] = await Promise.all([
-        fetchPullRequest(client, owner, repo, number),
+      const pullRequest = fetchPullRequest(client, owner, repo, number)
+      const [pr, mergeBase, files, commits] = await Promise.all([
+        pullRequest,
+        // The PR patch is against the merge base, not `base.sha` (the base branch tip).
+        pullRequest.then(pr => fetchMergeBase(client, owner, repo, pr.base.sha, pr.head.sha)),
         fetchPullRequestFiles(client, owner, repo, number),
         fetchPullRequestCommits(client, owner, repo, number),
       ])
-      return normalizePullRequest(owner, repo, number, pr, files, commits, {
+      return normalizePullRequest(owner, repo, number, pr, mergeBase, files, commits, {
         loadDiffText: () => fetchDiffText(client, `/repos/${owner}/${repo}/pulls/${number}`),
         loadFileContent: (path, ref) => fetchFileContentAtRef(client, owner, repo, path, ref),
       })
