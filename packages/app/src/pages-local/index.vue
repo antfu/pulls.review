@@ -19,7 +19,7 @@ import { routeFromGithubUrl } from '../source-routes'
 /** Branches listed; the rest stay reachable by typing them. */
 const BRANCH_LIMIT = 10
 
-// Only `installLocal` registers this page, after providing the RPC client.
+// Local startup provides the RPC client before the router installs.
 const rpc = inject(localRpcKey)!
 const router = useRouter()
 const { t } = useI18n()

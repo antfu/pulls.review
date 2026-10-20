@@ -15,7 +15,18 @@
     "isolatedModules": true,
     "skipLibCheck": true
   },
+  "vueCompilerOptions": {
+    "plugins": [
+      "vue-router/volar/sfc-route-blocks",
+      {
+        "name": "vue-router/volar/sfc-typed-router",
+        "options": { "rootDir": "../.." }
+      }
+    ]
+  },
   "include": [
+    "./typed-router.d.ts",
+    "./typed-router.local.d.ts",
     "src/**/*.ts",
     "src/**/*.vue",
     "scripts/**/*.ts",
@@ -23,6 +34,7 @@
     "vite.config.embed.ts",
     "vite.config.local.ts",
     "vitest.config.ts",
+    "vitest.local.config.ts",
     "uno.config.ts"
   ]
 }

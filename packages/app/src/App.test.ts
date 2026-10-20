@@ -1,7 +1,8 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createMemoryHistory, RouterView } from 'vue-router'
+import { createFixedResolver, experimental_createRouter as createRouter, MatcherPatternPathDynamic, normalizeRouteRecord } from 'vue-router/experimental'
 import App from './App.vue'
 
 describe('app', () => {
@@ -13,9 +14,16 @@ describe('app', () => {
         return () => h('div')
       },
     })
-    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/gh/:owner/:repo/:number', component: Page }] })
+    const router = createRouter({
+      history: createMemoryHistory(),
+      resolver: createFixedResolver([normalizeRouteRecord({
+        name: 'page',
+        path: new MatcherPatternPathDynamic(/^\/gh\/([^/]+)\/([^/]+)\/([^/]+)\/?$/, { owner: [], repo: [], number: [] }, ['/gh/', 1, '/', 1, '/', 1]),
+        components: { default: Page },
+      })]),
+    })
     await router.push('/gh/a/b/1')
-    mount(App, { global: { plugins: [router] } })
+    mount(App, { global: { plugins: [router], components: { RouterView } } })
     await router.isReady()
 
     await router.push('/gh/a/b/2')
