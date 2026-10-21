@@ -372,6 +372,9 @@ overrides:
   vite: ^8.3.4
   workbox-build: 7.4.0
 
+patchedDependencies:
+  '@pierre/theming@1.0.1': b637b12d1b610d540e603691dc25baca0a304ef92a253ce1ce772fadc3c1fda0
+
 importers:
 
   .:
@@ -482,7 +485,7 @@ importers:
         version: 1.6.0(@shikijs/themes@4.5.0)
       '@pierre/theming':
         specifier: catalog:frontend
-        version: 1.0.1(@pierre/theme@2.0.0)(@shikijs/themes@4.5.0)(shiki@4.5.0)
+        version: 1.0.1(patch_hash=b637b12d1b610d540e603691dc25baca0a304ef92a253ce1ce772fadc3c1fda0)(@pierre/theme@2.0.0)(@shikijs/themes@4.5.0)(shiki@4.5.0)
       '@shikijs/engine-javascript':
         specifier: catalog:frontend
         version: 4.5.0
@@ -6576,7 +6579,7 @@ snapshots:
     dependencies:
       '@pierre/highlights': 0.1.3
       '@pierre/theme': 2.0.0
-      '@pierre/theming': 1.0.1(@pierre/theme@2.0.0)(@shikijs/themes@4.5.0)(shiki@4.5.0)
+      '@pierre/theming': 1.0.1(patch_hash=b637b12d1b610d540e603691dc25baca0a304ef92a253ce1ce772fadc3c1fda0)(@pierre/theme@2.0.0)(@shikijs/themes@4.5.0)(shiki@4.5.0)
       diff: 9.0.0
       hast-util-to-html: 9.0.5
       lru_map: 0.4.1
@@ -6588,7 +6591,7 @@ snapshots:
 
   '@pierre/theme@2.0.0': {}
 
-  '@pierre/theming@1.0.1(@pierre/theme@2.0.0)(@shikijs/themes@4.5.0)(shiki@4.5.0)':
+  '@pierre/theming@1.0.1(patch_hash=b637b12d1b610d540e603691dc25baca0a304ef92a253ce1ce772fadc3c1fda0)(@pierre/theme@2.0.0)(@shikijs/themes@4.5.0)(shiki@4.5.0)':
     optionalDependencies:
       '@pierre/theme': 2.0.0
       '@shikijs/themes': 4.5.0
