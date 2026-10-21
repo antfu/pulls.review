@@ -310,10 +310,10 @@ const pierreOptions = computed((): FileDiffOptions<undefined, undefined> => ({
 function mount() {
   // Recreated on every render rather than reused + `setOptions()`: switching `diffStyle`
   // (unified/split) on an existing instance left stale, un-columned DOM behind. `cleanUp()`
-  // would otherwise `.remove()` our own template-owned container from the DOM entirely
-  // (its default assumption is that it created the container itself) - the third
-  // `isContainerManaged: true` constructor arg opts out of that.
+  // would otherwise remove our template-owned container. The owner-render callback
+  // marks it as managed by Vue and handles render requests from highlighting/selection.
   instance?.cleanUp()
+  instance = undefined
   selectedRange.value = undefined
 
   if (!containerRef.value || props.file.isBinary || collapsed.value || !fileDiff.value)
@@ -325,10 +325,16 @@ function mount() {
   // `themeType`: defaults to `'system'` (OS-level `prefers-color-scheme`) otherwise,
   // ignoring our own dark-mode toggle entirely - pin it to the app's actual state.
   instance = virtualizer
-    ? new VirtualizedFileDiff(pierreOptions.value, virtualizer, undefined, undefined, true)
-    : new PierreFileDiff(pierreOptions.value, undefined, true)
+    ? new VirtualizedFileDiff(pierreOptions.value, virtualizer, undefined, undefined, render)
+    : new PierreFileDiff(pierreOptions.value, undefined, render)
 
-  instance.render({
+  render()
+}
+
+function render() {
+  if (!containerRef.value || !fileDiff.value)
+    return
+  instance?.render({
     fileDiff: fileDiff.value,
     fileContainer: containerRef.value,
     lineAnnotations: lineAnnotations.value.map(annotation => ({ ...annotation })),

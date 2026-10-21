@@ -1,0 +1,43 @@
+diff --git a/dist/modules/createThemeResolver.js b/dist/modules/createThemeResolver.js
+--- a/dist/modules/createThemeResolver.js
++++ b/dist/modules/createThemeResolver.js
+@@ -18,7 +18,7 @@
+ 		this.name = "UnresolvedThemeError";
+ 	}
+ };
+-function createThemeResolver() {
++function createThemeResolver({ fallbackLoader, normalizeTheme } = {}) {
+ 	const loaders = /* @__PURE__ */ new Map();
+ 	const resolved = /* @__PURE__ */ new Map();
+ 	const inflight = /* @__PURE__ */ new Map();
+@@ -40,11 +40,12 @@
+ 		if (cached !== void 0) return Promise.resolve(cached);
+ 		const existing = inflight.get(name);
+ 		if (existing !== void 0) return existing;
+-		const loader = loaders.get(name);
++		const loader = loaders.get(name) ?? (fallbackLoader == null ? void 0 : () => fallbackLoader(name));
+ 		if (loader === void 0) return Promise.reject(new UnregisteredThemeError(name));
+ 		const generation = cacheGeneration;
+ 		const promise = loader().then((result) => {
+-			const theme = unwrapDefault(result);
++			const raw = unwrapDefault(result);
++			const theme = normalizeTheme == null ? raw : normalizeTheme(raw, name);
+ 			if (generation === cacheGeneration) resolved.set(name, theme);
+ 			if (inflight.get(name) === promise) inflight.delete(name);
+ 			return theme;
+diff --git a/dist/modules/createThemeResolver.d.ts b/dist/modules/createThemeResolver.d.ts
+--- a/dist/modules/createThemeResolver.d.ts
++++ b/dist/modules/createThemeResolver.d.ts
+@@ -29,7 +29,10 @@
+ declare class UnresolvedThemeError extends Error {
+   constructor(name: string);
+ }
+-declare function createThemeResolver<TTheme extends ThemeLike = ThemeLike>(): ThemeResolver<TTheme>;
++declare function createThemeResolver<TTheme extends ThemeLike = ThemeLike>(options?: {
++  fallbackLoader?: (name: string) => ReturnType<ThemeLoader<TTheme>>;
++  normalizeTheme?: (theme: TTheme, name: string) => TTheme;
++}): ThemeResolver<TTheme>;
+ //#endregion
+ export { DuplicateThemeError, ThemeLoader, ThemeResolver, UnregisteredThemeError, UnresolvedThemeError, createThemeResolver };
+ //# sourceMappingURL=createThemeResolver.d.ts.map
+\ No newline at end of file

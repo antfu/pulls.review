@@ -19,6 +19,10 @@ shellEmulator: true
 packages:
   - packages/*
 
+# diffs 1.6 passes resolver options that theming 1.0.1 does not implement yet.
+patchedDependencies:
+  '@pierre/theming@1.0.1': patches/@pierre__theming@1.0.1.patch
+
 overrides:
   # Force a single @unocss/core across the tree (e.g. @antfu/design's own nested
   # copy) - a duplicate at a different version is a structural TS type mismatch
