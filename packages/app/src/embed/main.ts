@@ -32,6 +32,16 @@ customElements.define('pulls-review-embed-panel', defineEmbedPanel())
 // Backward compatibility, remove this later
 customElements.define('diffs-embed-panel', defineEmbedPanel())
 
+// Defining a custom element in a Firefox content-script sandbox (Violentmonkey "content"
+// mode), as above and in pierre's `diffs-container`, leaves sandbox-own `Element`, `Node`
+// and `EventTarget` that page nodes aren't instances of, breaking `instanceof` checks in
+// Vue, VueUse and pierre. Deleting them restores the window's.
+const probe = document.createElement('div')
+for (const name of ['Element', 'Node', 'EventTarget'] as const) {
+  if (!(probe instanceof globalThis[name]))
+    delete (globalThis as Record<string, unknown>)[name]
+}
+
 /**
  * Mounts the panel into an open shadow root on a plain `<div>`, without the custom
  * element. Firefox userscript managers that inject into the content-script sandbox
