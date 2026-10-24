@@ -64,7 +64,11 @@ const chatDraft = reactive<ChatDraft>({ open: false, quotes: [] })
 provide(chatDraftKey, chatDraft)
 const rootEl = useTemplateRef<HTMLElement>('root')
 onMounted(() => {
-  virtualizer.setup(props.document && !(props.document instanceof Document) ? rootEl.value! : document)
+  // Read from the DOM, not `props.document`: the embed derives its shadow root from a
+  // template ref that is only set after this mounts, so the prop is still the window's
+  // document here, and a window-mode virtualizer never sees the drawer scroll.
+  const root = rootEl.value!
+  virtualizer.setup(root.getRootNode() instanceof ShadowRoot ? root : document)
 })
 onBeforeUnmount(() => virtualizer.cleanUp())
 
