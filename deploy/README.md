@@ -23,7 +23,8 @@ For the initial GitHub App, open
 Diffwise (or a unique App name if that name is taken), then save the returned
 GitHub values into `/opt/diffwise/.env`. Keep the already generated session and
 configuration secrets. Recreate the app with `docker compose up -d`, then open
-<https://diffwise.shyim.de/api/github/install> to choose repositories.
+<https://diffwise.shyim.de/repositories>. Sign in and choose **Connect repositories**,
+then open a repository’s **Scan settings** to opt into automatic analysis.
 
 GitHub sign-in stays unavailable until those credentials are configured. Public
 repository browsing and uploaded diffs work before registration. The GitHub App

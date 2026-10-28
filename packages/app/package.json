@@ -22,7 +22,8 @@
     "@pulls.review/core": "workspace:^",
     "@pulls.review/server": "workspace:^",
     "better-auth": "catalog:server",
-    "nuxt": "catalog:build"
+    "nuxt": "catalog:build",
+    "ofetch": "catalog:frontend"
   },
   "devDependencies": {
     "@antfu/design": "catalog:frontend",

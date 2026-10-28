@@ -299,6 +299,9 @@ catalogs:
     nostics:
       specifier: ^1.3.0
       version: 1.3.0
+    ofetch:
+      specifier: ^1.5.1
+      version: 1.5.1
     picomatch:
       specifier: ^4.0.7
       version: 4.0.7
@@ -455,6 +458,9 @@ importers:
       nuxt:
         specifier: catalog:build
         version: 4.6.3(4638712283399cb022773a54a5e16a83)
+      ofetch:
+        specifier: catalog:frontend
+        version: 1.5.1
     devDependencies:
       '@antfu/design':
         specifier: catalog:frontend

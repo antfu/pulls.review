@@ -180,3 +180,59 @@ describe('resolveAutomation', () => {
     expect(resolved?.source).toEqual({ type: 'organization', owner: 'octo' })
   })
 })
+
+describe('scan setup safeguards', () => {
+  it('rejects enabled scans without a usable provider key', async () => {
+    const repo = repository()
+    const response = await handleAutomationConfig(await authedRequest('https://pulls.shyim.de/api/automation/repos/octo/repo', {
+      method: 'PUT',
+      body: JSON.stringify({ enabled: true }),
+    }), env(), { repository: repo, fetchFn: adminFetch() })
+    expect(response?.status).toBe(422)
+    expect(repo.put).not.toHaveBeenCalled()
+  })
+
+  it('allows an explicit pause without a key, even when organization scans are enabled', async () => {
+    const repo = repository({ 'org:octo': orgConfig })
+    const response = await handleAutomationConfig(await authedRequest('https://pulls.shyim.de/api/automation/repos/octo/repo', {
+      method: 'PUT',
+      body: JSON.stringify({ enabled: false }),
+    }), env(), { repository: repo, fetchFn: adminFetch() })
+    expect(response?.status).toBe(200)
+    expect(repo.put).toHaveBeenCalledWith(expect.objectContaining({ enabled: false, llm: expect.objectContaining({ anthropicApiKey: '' }) }), expect.any(Number))
+  })
+
+  it('returns organization defaults without exposing or copying their secrets', async () => {
+    const repo = repository({ 'org:octo': orgConfig })
+    const response = await handleAutomationConfig(await authedRequest('https://pulls.shyim.de/api/automation/repos/octo/repo'), env(), { repository: repo, fetchFn: adminFetch() })
+    const body = await response?.json()
+    expect(body).toMatchObject({ config: null, inherited: { enabled: true, llm: { hasAnthropicKey: true } } })
+    expect(JSON.stringify(body)).not.toContain('sk-repo')
+    const write = await handleAutomationConfig(await authedRequest('https://pulls.shyim.de/api/automation/repos/octo/repo', {
+      method: 'PUT',
+      body: JSON.stringify({ enabled: true, llm: { provider: 'anthropic' } }),
+    }), env(), { repository: repo, fetchFn: adminFetch() })
+    expect(write?.status).toBe(422)
+    expect(repo.put).not.toHaveBeenCalled()
+  })
+
+  it('reports organization-wide usage when repository scans inherit that budget', async () => {
+    const repo = repository({ 'org:octo': { ...orgConfig, monthlyBudgetRuns: 10 } })
+    repo.getUsage = vi.fn(async () => 7)
+    const response = await handleAutomationConfig(await authedRequest('https://pulls.shyim.de/api/automation/repos/octo/repo/jobs'), env(), { repository: repo, fetchFn: adminFetch() })
+    expect(await response?.json()).toMatchObject({ usage: { runs: 7, budget: 10 } })
+    expect(repo.getUsage).toHaveBeenCalledWith(orgConfig.scope, expect.any(String))
+  })
+
+  it('rejects cross-origin changes before authorizing or writing', async () => {
+    const repo = repository()
+    const fetchFn = adminFetch()
+    const response = await handleAutomationConfig(await authedRequest('https://pulls.shyim.de/api/automation/repos/octo/repo', {
+      method: 'DELETE',
+      headers: { Origin: 'https://other.example' },
+    }), env(), { repository: repo, fetchFn })
+    expect(response?.status).toBe(403)
+    expect(repo.delete).not.toHaveBeenCalled()
+    expect(fetchFn).not.toHaveBeenCalled()
+  })
+})

@@ -41,6 +41,9 @@ function jobIcon(status: string): string {
       <span class="text-xs" :class="ops.config?.enabled ? 'text-green-600' : 'op60'">
         {{ ops.config?.enabled ? $t('automation.enabled') : $t('automation.disabled') }}
       </span>
+      <RouterLink :to="`/repositories/${owner}/${repo}`" class="ml-auto text-sm color-accent-teal hover:underline">
+        {{ $t('repos.scanSettings') }}
+      </RouterLink>
       <span class="text-xs op60">
         {{ ops.usage.budget === null ? $t('automation.usageUnlimited', { runs: ops.usage.runs }) : $t('automation.usage', { runs: ops.usage.runs, budget: ops.usage.budget }) }}
       </span>

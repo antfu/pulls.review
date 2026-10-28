@@ -9,7 +9,6 @@ import { readSession } from './auth'
 import { cookieHeader, parseCookies } from './cookies'
 import { createAppJwt, isGithubAppConfigured } from './github-app'
 import { escapeHtml, json } from './http'
-import { listInstallations, syncInstallationRecord } from './installations'
 import { authenticateGitHubUser, loadUserConfig } from './user-config'
 
 const GITHUB_API_BASE = 'https://api.github.com'
@@ -22,7 +21,8 @@ function randomToken(): string {
 /** Public, secret-free backend capabilities for the SPA (`GET /api/config`). */
 export function publicConfig(env: Env) {
   return {
-    githubAppSlug: env.GITHUB_APP_SLUG ?? null,
+    githubAppSlug: env.GITHUB_APP_SLUG || null,
+    oauth: Boolean(env.AUTH),
     installations: isGithubAppConfigured(env),
     webhook: Boolean(env.GITHUB_WEBHOOK_SECRET),
     serverLlm: isServerLlmConfigured(env),
@@ -170,16 +170,11 @@ async function handleInstallRoutes(request: Request, env: Env, url: URL): Promis
     return new Response(null, { status: 302, headers: { Location: `https://github.com/apps/${env.GITHUB_APP_SLUG}/installations/new` } })
   }
   if (url.pathname === '/api/github/setup' && request.method === 'GET') {
-    const installationId = Number(url.searchParams.get('installation_id'))
-    if (installationId)
-      await syncInstallationRecord(env, { id: installationId })
-    return new Response(null, { status: 302, headers: { Location: '/?installed=1' } })
+    // Installation callbacks are navigation hints, not proof of ownership.
+    // GitHub webhooks and user-scoped API reads supply the verified inventory.
+    return new Response(null, { status: 302, headers: { Location: '/repositories?connected=1' } })
   }
-  if (url.pathname === '/api/github/installations' && request.method === 'GET') {
-    if (!await readSession(request, env))
-      return json({ error: 'unauthorized' }, 401)
-    return json(await listInstallations(env))
-  }
+
   return null
 }
 

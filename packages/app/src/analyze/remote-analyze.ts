@@ -167,7 +167,7 @@ export async function fetchAutomationOps(
   if (!isRecord(jobsBody) || !Array.isArray(jobsBody.jobs) || !isRecord(jobsBody.usage))
     return undefined
   return {
-    config: isRecord(configBody) ? parseAutomationConfig(configBody.config) : null,
+    config: isRecord(configBody) ? parseAutomationConfig(configBody.config ?? configBody.inherited) : null,
     usage: {
       month: typeof jobsBody.usage.month === 'string' ? jobsBody.usage.month : '',
       runs: typeof jobsBody.usage.runs === 'number' ? jobsBody.usage.runs : 0,

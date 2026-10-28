@@ -68,6 +68,30 @@ Repository automation is opt-in. Installing the App or configuring a host model
 key does not enable paid webhook analysis. Manual runs use the signed-in user's
 configured key, or require repository write permission to use the host key.
 
+## Connect repositories and enable scans
+
+Open `/repositories`, sign in with GitHub, and choose **Connect repositories**.
+GitHub handles account selection, repository access, and organization approval.
+The return page reloads the repositories visible to both the App and the user;
+an installation callback alone does not establish access.
+
+Choose **Scan settings** for a repository you administer. Select a provider,
+model and API key, set a monthly run limit, enable scans, then save. New or
+updated pull requests trigger the existing webhook runner. The settings page
+shows recent runs and failures; refreshing history preserves unsaved edits.
+Installing the App does not scan existing pull requests automatically.
+
+Repository keys are encrypted and write-only. Leaving the key field blank
+preserves a saved key. Organization defaults apply when no repository override
+exists. A repository override needs its own key; an explicit disabled override
+pauses scans even when the organization enables them. Returning to organization
+defaults removes that override. Inherited usage reflects the organization's
+shared budget. A run limit is not a currency spending cap.
+
+The host must configure the App credentials and webhook secret before automatic
+scans can run. Suspended installations and archived repositories are shown in
+the setup flow. See [deployment setup](../../deploy/README.md) for registration.
+
 ## Background jobs
 
 A transaction deduplicates webhook deliveries/active heads, reserves the monthly

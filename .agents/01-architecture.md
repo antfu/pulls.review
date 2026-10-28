@@ -343,6 +343,23 @@ land later without a rewrite:
   interactive server-side pi runner (the webhook analyzer already runs the
   pi loop in the server; chat still runs in the browser).
 
+## Repository connections and scan settings
+
+`server/src/github-connections.ts` reads installations and repositories through
+GitHub's user-access-token endpoints. This lists the intersection of App and
+user access, never the host's global installation inventory. The installation
+setup callback redirects to `/repositories`; webhook events remain the trusted
+source for inventory updates. The repository-status endpoint checks user access
+before looking up its installation with App credentials.
+
+`app/src/components/repositories/` owns cancellable connection discovery and the
+scan-settings draft. Repository settings require GitHub admin access. The API
+returns explicit and inherited configurations separately, with secret-presence
+flags instead of keys. Writes preserve omitted repository keys and never copy
+organization secrets into an override. A disabled override pauses inherited
+scans; removing it restores organization defaults. Recent-run usage follows the
+active configuration scope, so an inherited budget is organization-wide.
+
 ## UI conventions
 
 - Every user-facing string goes through vue-i18n (`app/i18n/`): `$t()` in
@@ -361,8 +378,9 @@ land later without a rewrite:
 - Settings (GitHub account, model keys) and loading a pasted/uploaded diff
   are both modals/panels (`SettingsModal.vue`/`LoadDiffModal.vue` wrapping
   pure `*Panel.vue` content), triggered from `AppHeader.vue` — never routed
-  pages. `AppHeader` itself only renders on the landing pages
-  (`pages-web/index.vue`). The reading views stay header-free: their own sticky `DiffsHeader`
+  pages. Repository automation has its own `/repositories` directory and
+  `/repositories/:owner/:repo` settings page. `AppHeader` renders on these
+  workspace pages and the landing page. The reading views stay header-free: their own sticky `DiffsHeader`
   is the only scroll nav there.
 - Routed pages live in `app/pages-web/` (the site: landing, `/upload`,
   `/gh/...`).

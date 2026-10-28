@@ -32,6 +32,10 @@ const isEmbedded = import.meta.env.PR_EMBED
       <span class="i-ph:tray-duotone" aria-hidden="true" />
       <span class="hidden md:inline">{{ $t('inbox.title') }}</span>
     </RouterLink>
+    <RouterLink v-if="!isEmbedded" to="/repositories" class="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm transition hover:bg-hover" :title="$t('repos.title')">
+      <span class="i-octicon:repo-16" aria-hidden="true" />
+      <span class="hidden md:inline">{{ $t('repos.title') }}</span>
+    </RouterLink>
     <LanguageMenu />
     <ActionIconButton icon="i-ph:gear-duotone" :label="$t('common.settings')" :tooltip="$t('common.settings')" @click="openSettings()" />
     <DarkToggle v-if="!isEmbedded" />

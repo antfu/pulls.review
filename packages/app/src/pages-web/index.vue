@@ -106,6 +106,9 @@ useDocumentTitle(() => t('landing.documentTitle'), ' - ')
       <section class="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:gap-16">
         <div class="flex flex-col gap-8">
           <LandingHero />
+          <ActionButton href="/repositories" variant="primary" icon="i-ph:git-branch-duotone" class="self-start">
+            {{ $t('repos.connect') }}
+          </ActionButton>
           <p class="max-w-md text-sm leading-relaxed op-fade">
             {{ $t('landing.tagline') }}
           </p>

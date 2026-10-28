@@ -3,6 +3,7 @@ import { handleAnalysisFeedback } from './analysis-feedback'
 import { handleAnalysisJobStatus } from './analysis-jobs'
 import { handleAnalysisResults, handleAnalysisStatusBatch } from './analysis-results'
 import { handleAutomationConfig } from './automation-config'
+import { handleGithubConnections, handleRepositoryConnection } from './github-connections'
 import { handleGithubRoutes } from './github-routes'
 import { handleUserConfig } from './user-config'
 import { handleWebhook } from './webhook'
@@ -16,6 +17,8 @@ const handlers = [
   handleAutomationConfig,
   handleAnalysisFeedback,
   handleWebhook,
+  handleGithubConnections,
+  handleRepositoryConnection,
   handleGithubRoutes,
 ]
 

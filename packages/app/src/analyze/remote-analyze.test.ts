@@ -97,6 +97,16 @@ describe('fetchAutomationOps', () => {
     })
   })
 
+  it('shows inherited automation unless an explicit repository override disables it', async () => {
+    for (const config of [null, { enabled: false }]) {
+      const fetchFn = vi.fn(async (input: unknown) => Response.json(String(input).endsWith('/jobs')
+        ? { jobs: [], usage: { runs: 7, budget: 10 } }
+        : { config, inherited: { enabled: true } }))
+      const result = await fetchAutomationOps({ owner: 'octo', repo: 'repo' }, fetchFn)
+      expect(result?.config?.enabled).toBe(config === null)
+    }
+  })
+
   it('returns undefined for non-admins so the panel stays hidden', async () => {
     const fetchFn = vi.fn(async () => new Response(JSON.stringify({ error: 'admin_required' }), { status: 403 }))
     await expect(fetchAutomationOps({ owner: 'octo', repo: 'repo' }, fetchFn as never)).resolves.toBeUndefined()

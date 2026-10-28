@@ -3,6 +3,7 @@ import type { Locale } from '@pulls.review/core/locales'
 import type { AnalysisJobsRepository } from './analysis-jobs'
 import type { Database } from './db/client'
 import type { AnalysisConfigSource, Env } from './env'
+import { resolveModel } from '@pulls.review/core/analyze'
 import { isLocale } from '@pulls.review/core/locales'
 import { defaultUserConfig, sanitizeLlmSettings } from '@pulls.review/core/user-config'
 import { sql } from 'drizzle-orm'
@@ -311,7 +312,7 @@ async function putAutomationConfig(
     return json({ error: patch }, 400, headers)
   const { monthlyBudgetRuns, excludePaths } = patch
 
-  const stored = await repository.put({
+  const config: StoredAutomationConfig = {
     scope,
     enabled: typeof payload.enabled === 'boolean' ? payload.enabled : existing?.enabled ?? false,
     includeDrafts: typeof payload.includeDrafts === 'boolean' ? payload.includeDrafts : existing?.includeDrafts ?? false,
@@ -321,7 +322,11 @@ async function putAutomationConfig(
     locale: isLocale(payload.locale) ? payload.locale : existing?.locale ?? 'en',
     llm: mergedLlm(existing?.llm ?? defaultUserConfig().settings.llm, payload.llm),
     updatedAt: now,
-  }, now)
+  }
+  const model = resolveModel(config.llm)
+  if (config.enabled && (!model?.apiKey.trim() || !model.model.id.trim()))
+    return json({ error: 'model_required', message: 'Choose a model and add a provider key before enabling automatic scans.' }, 422, headers)
+  const stored = await repository.put(config, now)
   return json({ config: publicConfig(stored) }, 200, headers)
 }
 
@@ -343,14 +348,20 @@ async function automationJobsView(
   headers: Headers,
 ): Promise<Response> {
   const month = automationMonth((deps.now ?? Date.now)())
-  const config = await repository.get(scope)
-  const runs = config ? await repository.getUsage(scope, month) : 0
+  const config = await repository.get(scope) ?? await repository.get({ type: 'organization', owner: scope.owner })
+  const runs = config ? await repository.getUsage(config.scope, month) : 0
   const jobsRepo = analysisJobsRepository(env, deps.jobs)
   const jobs = jobsRepo ? await jobsRepo.listForRepo(scope.owner, scope.repo, 20) : []
   return json({
     usage: { month, runs, budget: config?.monthlyBudgetRuns ?? null },
     jobs: jobs.map(publicJob),
   }, 200, headers)
+}
+
+async function readAutomationConfig(repository: AutomationConfigRepository, scope: AutomationScope, headers: Headers) {
+  const config = await repository.get(scope)
+  const inherited = scope.type === 'repository' ? await repository.get({ type: 'organization', owner: scope.owner }) : null
+  return json({ config: config ? publicConfig(config) : null, inherited: inherited ? publicConfig(inherited) : null }, 200, headers)
 }
 
 /**
@@ -366,6 +377,8 @@ export async function handleAutomationConfig(
   const url = new URL(request.url)
   if (!url.pathname.startsWith('/api/automation/'))
     return null
+  if (request.method !== 'GET' && request.headers.has('origin') && request.headers.get('origin') !== url.origin)
+    return json({ error: 'invalid_origin' }, 403)
   const route = parseRoute(url)
   if (!route)
     return json({ error: 'invalid automation scope' }, 400)
@@ -384,10 +397,8 @@ export async function handleAutomationConfig(
   const repository = automationConfigRepository(env, deps.repository)!
   if (jobsView && scope.type === 'repository')
     return automationJobsView(env, repository, scope, deps, auth.headers)
-  if (request.method === 'GET') {
-    const config = await repository.get(scope)
-    return json({ config: config ? publicConfig(config) : null }, 200, auth.headers)
-  }
+  if (request.method === 'GET')
+    return readAutomationConfig(repository, scope, auth.headers)
   if (request.method === 'DELETE') {
     await repository.delete(scope)
     return json({ ok: true }, 200, auth.headers)
