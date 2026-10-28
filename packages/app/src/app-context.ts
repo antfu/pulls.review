@@ -4,8 +4,8 @@ import type { App, InjectionKey } from 'vue'
 import type { LlmRunner } from './analyze/llm-runner'
 import { inject } from 'vue'
 import { browserLlmRunner } from './analyze/browser-llm-runner'
+import { getOauthApiBase } from './auth/github-oauth'
 import { createBrowserCache } from './cache/browser-cache'
-import { settings } from './state/settings'
 
 /**
  * Backends one app instance runs on (the SPA, the GitHub embed). Pages and
@@ -21,9 +21,18 @@ export interface AppContext {
 
 export const appContextKey: InjectionKey<AppContext> = Symbol('app-context')
 
-/** Read on every request, so a token saved in Settings applies without rebuilding a store. */
+/**
+ * Browser GitHub credentials are anonymous by default. Signed in via the
+ * GitHub App, calls go through the Worker's same-origin `/api/github` proxy,
+ * which injects the OAuth token server-side; no GitHub token enters the page.
+ */
 export const settingsCredentials: Credentials = {
-  githubToken: async () => settings.value.githubToken || undefined,
+  async githubToken() {
+    return undefined
+  },
+  async githubApiBase() {
+    return getOauthApiBase()
+  },
 }
 
 export function installAppContext(app: App, context: AppContext = { cache: createBrowserCache(), credentials: settingsCredentials, llm: browserLlmRunner }): void {

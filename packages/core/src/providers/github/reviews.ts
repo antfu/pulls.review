@@ -23,7 +23,7 @@ export function createGithubReviewsApi(client: GithubClient, { owner, repo, numb
         pending ? fetchReviewCommentsForReview(client, owner, repo, number, pending.id) : Promise.resolve([]),
         // Resolution lives in GraphQL only, which needs a token - degrade to
         // "resolution unknown" silently for anonymous viewers or on failure.
-        await client.token() ? fetchThreadResolutions(client, owner, repo, number).catch(() => undefined) : Promise.resolve(undefined),
+        await client.authenticated() ? fetchThreadResolutions(client, owner, repo, number).catch(() => undefined) : Promise.resolve(undefined),
       ])
       return normalizeReviewData({ comments, reviews, pendingComments, resolutions })
     },

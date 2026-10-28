@@ -20,8 +20,10 @@ export interface GithubRequestOptions {
 
 /** Every GitHub REST and GraphQL call goes through one of these, bound to the viewer's token. */
 export interface GithubClient {
-  /** The token requests are sent with; `undefined` means anonymous. */
+  /** The token requests are sent with; `undefined` means anonymous, or proxied (the server injects it). */
   token: () => Promise<string | undefined>
+  /** Whether requests act as a signed-in user: a local token, or a proxy base that injects one server-side. */
+  authenticated: () => Promise<boolean>
   /** `path` is relative to the API root (`/repos/...`). Throws `GithubApiError` on a non-ok response. */
   request: (path: string, options?: GithubRequestOptions) => Promise<Response>
   /** Follows `per_page=100` pages until a short one comes back. */
@@ -32,9 +34,10 @@ export interface GithubClient {
 /** Without credentials every request is anonymous. The token is read per request, never captured. */
 export function createGithubClient(credentials?: Credentials): GithubClient {
   const token = async () => credentials?.githubToken()
+  const apiBase = async () => (await credentials?.githubApiBase?.()) ?? GITHUB_API_BASE
 
   async function request(path: string, options: GithubRequestOptions = {}): Promise<Response> {
-    const auth = await token()
+    const [auth, base] = await Promise.all([token(), apiBase()])
     const headers: Record<string, string> = {
       'Accept': options.accept ?? 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
@@ -43,7 +46,7 @@ export function createGithubClient(credentials?: Credentials): GithubClient {
       headers.Authorization = `Bearer ${auth}`
     if (options.body !== undefined)
       headers['Content-Type'] = 'application/json'
-    const url = `${GITHUB_API_BASE}${path}`
+    const url = `${base}${path}`
     const res = await fetch(url, {
       method: options.method ?? 'GET',
       headers,
@@ -64,6 +67,7 @@ export function createGithubClient(credentials?: Credentials): GithubClient {
 
   return {
     token,
+    authenticated: async () => Boolean(await token()) || (await apiBase()) !== GITHUB_API_BASE,
     request,
     async paginate<T>(path: string) {
       const items: T[] = []

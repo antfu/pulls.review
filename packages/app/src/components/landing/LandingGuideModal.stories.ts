@@ -16,11 +16,3 @@ export const Userscript: Story = {
 export const Bookmarklet: Story = {
   args: { guide: 'bookmarklet' },
 }
-
-export const Actions: Story = {
-  args: { guide: 'actions' },
-}
-
-export const Cli: Story = {
-  args: { guide: 'cli' },
-}

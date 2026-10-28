@@ -24,13 +24,10 @@ function customModel(id: string, api: Api, provider: string, baseUrl: string): M
 /**
  * Resolves the model to call: only the explicitly selected provider is used,
  * even when several tokens are configured. `undefined` means the selected
- * provider has no token - or is a local agent, which is never called directly.
+ * provider has no token.
  */
 export function resolveModel(llm: LlmSettings): ResolvedModel | undefined {
   switch (llm.provider) {
-    case 'local-agent':
-      return undefined
-
     case 'gateway':
       return llm.gatewayToken
         ? { model: customModel(llm.gatewayModel, 'anthropic-messages', 'vercel-ai-gateway', 'https://ai-gateway.vercel.sh'), apiKey: llm.gatewayToken }

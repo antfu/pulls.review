@@ -176,7 +176,7 @@ export function createMockDiffsStore(input: {
   fileContent?: { old?: string, new?: string }
   /** Defaults to a live source, as most stories render a GitHub PR. */
   canRefresh?: boolean
-  auth?: 'github-token'
+  auth?: 'github-auth'
 }): DiffsStore {
   const llmEnabled = input.llm ?? true
   const { fileContent } = input

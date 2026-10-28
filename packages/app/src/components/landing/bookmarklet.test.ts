@@ -18,20 +18,20 @@ describe('bookmarklet', () => {
   })
 
   it.each([
-    ['https://github.com/antfu/pulls.review/pull/45', 'https://pulls.review/gh/antfu/pulls.review/45'],
-    ['https://github.com/antfu/pulls.review/pull/45/files', 'https://pulls.review/gh/antfu/pulls.review/45'],
-    ['https://github.com/antfu/pulls.review/commit/a04a61d', 'https://pulls.review/gh/antfu/pulls.review/commit/a04a61d'],
-    ['https://github.com/antfu/pulls.review/compare/main...feat/x', 'https://pulls.review/gh/antfu/pulls.review/compare/main...feat/x'],
-    ['https://github.com/antfu/pulls.review/pulls', 'https://pulls.review/gh/antfu/pulls.review'],
+    ['https://github.com/antfu/pulls.review/pull/45', 'https://diffwise.shyim.de/gh/antfu/pulls.review/45'],
+    ['https://github.com/antfu/pulls.review/pull/45/files', 'https://diffwise.shyim.de/gh/antfu/pulls.review/45'],
+    ['https://github.com/antfu/pulls.review/commit/a04a61d', 'https://diffwise.shyim.de/gh/antfu/pulls.review/commit/a04a61d'],
+    ['https://github.com/antfu/pulls.review/compare/main...feat/x', 'https://diffwise.shyim.de/gh/antfu/pulls.review/compare/main...feat/x'],
+    ['https://github.com/antfu/pulls.review/pulls', 'https://diffwise.shyim.de/gh/antfu/pulls.review'],
   ])('opens %s on pulls.review', (from, to) => {
     expect(run(from)).toEqual({ href: to, alerted: false })
   })
 
   it.each([
-    ['https://pulls.review/gh/antfu/pulls.review/45', 'https://github.com/antfu/pulls.review/pull/45'],
-    ['https://pulls.review/gh/antfu/pulls.review/commit/a04a61d', 'https://github.com/antfu/pulls.review/commit/a04a61d'],
-    ['https://pulls.review/gh/antfu/pulls.review/compare/main...feat/x', 'https://github.com/antfu/pulls.review/compare/main...feat/x'],
-    ['https://pulls.review/gh/antfu/pulls.review', 'https://github.com/antfu/pulls.review/pulls'],
+    ['https://diffwise.shyim.de/gh/antfu/pulls.review/45', 'https://github.com/antfu/pulls.review/pull/45'],
+    ['https://diffwise.shyim.de/gh/antfu/pulls.review/commit/a04a61d', 'https://github.com/antfu/pulls.review/commit/a04a61d'],
+    ['https://diffwise.shyim.de/gh/antfu/pulls.review/compare/main...feat/x', 'https://github.com/antfu/pulls.review/compare/main...feat/x'],
+    ['https://diffwise.shyim.de/gh/antfu/pulls.review', 'https://github.com/antfu/pulls.review/pulls'],
   ])('opens %s on github.com', (from, to) => {
     expect(run(from)).toEqual({ href: to, alerted: false })
   })
@@ -39,7 +39,7 @@ describe('bookmarklet', () => {
   it.each([
     'https://github.com/antfu/pulls.review',
     'https://github.com/antfu/pulls.review/compare/main',
-    'https://pulls.review/',
+    'https://diffwise.shyim.de/',
     'https://example.com/antfu/pulls.review/pull/45',
   ])('alerts on %s', (url) => {
     expect(run(url)).toEqual({ href: undefined, alerted: true })

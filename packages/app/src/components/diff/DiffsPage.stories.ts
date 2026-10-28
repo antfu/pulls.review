@@ -135,7 +135,7 @@ export const GithubLoadError: Story = {
   args: {
     store: createMockDiffsStore({
       error: new Error('GitHub API request failed: 401 Bad credentials'),
-      auth: 'github-token',
+      auth: 'github-auth',
     }),
   },
 }

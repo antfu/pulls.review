@@ -2,7 +2,6 @@ import type { ReviewData, ReviewDraftTarget, ReviewVerdict } from './comment-thr
 import type { DiffsPayload } from './diff'
 import type { SharedAnalysis, SharedAnalysisComment } from './shared-analysis'
 import * as v from 'valibot'
-import { parseTarget } from '../local/target'
 
 /** Identifies one diff, whatever produced it. Persisted on `DiffsPayload.ref`. */
 export const SourceRefSchema = v.variant('kind', [
@@ -11,8 +10,6 @@ export const SourceRefSchema = v.variant('kind', [
   v.object({ kind: v.literal('github-compare'), owner: v.string(), repo: v.string(), base: v.string(), head: v.string() }),
   v.object({ kind: v.literal('github-commit'), owner: v.string(), repo: v.string(), sha: v.string() }),
   v.object({ kind: v.literal('paste'), hash: v.string() }),
-  /** A local repository (its root path) at a target in git revision syntax; `''` is the working tree. */
-  v.object({ kind: v.literal('local'), repo: v.string(), target: v.string() }),
 ])
 export type SourceRef = v.InferOutput<typeof SourceRefSchema>
 
@@ -27,9 +24,6 @@ export function serializeRef(ref: SourceRef): string {
       return `github:${ref.owner}/${ref.repo}@${ref.sha}`
     case 'paste':
       return `paste:${ref.hash}`
-    case 'local':
-      // Both parts are free text (paths, `a...b`): escaped so no two refs normalize to one storage key.
-      return `local:${encodeURIComponent(ref.repo)}@${encodeURIComponent(ref.target)}`
   }
 }
 
@@ -38,8 +32,6 @@ export function isListed(ref: SourceRef): boolean {
   switch (ref.kind) {
     case 'github-commit':
       return false
-    case 'local':
-      return parseTarget(ref.target).kind !== 'commit'
     default:
       return true
   }
@@ -48,6 +40,13 @@ export function isListed(ref: SourceRef): boolean {
 /** Secrets a source may need, read on every use so a token saved later applies at once. */
 export interface Credentials {
   githubToken: () => Promise<string | undefined>
+  /**
+   * Base URL GitHub API calls go to instead of `https://api.github.com`: the
+   * hosted app's same-origin Worker proxy (`/api/github`), which injects the
+   * OAuth token server-side. When set, `githubToken` may stay `undefined`:
+   * the browser never holds the token.
+   */
+  githubApiBase?: () => Promise<string | undefined>
 }
 
 export function staticCredentials(githubToken?: string): Credentials {
@@ -71,7 +70,7 @@ export interface DiffSource {
   reviews?: ReviewsApi
   sharing?: SharingApi
   /** The credential a failed load can be retried with, so the view can offer to enter it. */
-  auth?: 'github-token'
+  auth?: 'github-auth'
 }
 
 export interface Viewer {

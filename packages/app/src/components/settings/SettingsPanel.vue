@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { LlmSettings } from '@pulls.review/core/analyze'
 import type { ModelOption } from '@pulls.review/core/llm'
-import type { StoredGithubTokenMeta } from '../../composables/useGithubTokenMeta'
+import type { GithubOauthSession } from '../../auth/github-oauth'
 import type { SettingsTab } from '../../state/settingsModal'
 import { resolveModel } from '@pulls.review/core/analyze'
 import { TabsContent, TabsIndicator, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
@@ -9,17 +9,16 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AutoFetchFullFileSettingsSection from './AutoFetchFullFileSettingsSection.vue'
 import AutoRefreshSettingsSection from './AutoRefreshSettingsSection.vue'
-import GithubTokenSettings from './GithubTokenSettings.vue'
+import GithubAccountSettings from './GithubAccountSettings.vue'
 import LayoutSettingsSection from './LayoutSettingsSection.vue'
 import LlmSettingsSection from './LlmSettingsSection.vue'
 import NavigationSettingsSection from './NavigationSettingsSection.vue'
 import SyntaxThemeSettingsSection from './SyntaxThemeSettingsSection.vue'
 
 const props = defineProps<{
-  githubTokenSet: boolean
-  githubTokenMeta: StoredGithubTokenMeta | null
-  githubTokenBusy?: boolean
-  githubTokenError?: string
+  githubAccount: GithubOauthSession | null
+  githubAccountBusy?: boolean
+  githubOauthAvailable: boolean
   llmSettings: LlmSettings
   models: ModelOption[] | null
   modelsLoading?: boolean
@@ -27,8 +26,8 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-  /** Save a new GitHub token (validated by the container); `''` removes it. */
-  'saveGithubToken': [token: string]
+  'signInGithub': []
+  'signOutGithub': []
   'update:llmSettings': [value: LlmSettings]
 }>()
 
@@ -36,14 +35,14 @@ const tab = defineModel<SettingsTab>('tab', { default: 'appearance' })
 
 const { t } = useI18n()
 
-/** The AI tab is "set up" with a key for the selected provider, or a local agent chosen. */
-const llmSetup = computed(() => resolveModel(props.llmSettings) !== undefined || (props.llmSettings.provider === 'local-agent' && !!props.llmSettings.agent))
+/** The AI tab is "set up" once the selected provider has a usable key. */
+const llmSetup = computed(() => resolveModel(props.llmSettings) !== undefined)
 
 // Reka's own tabs rather than `LayoutTabs`: the GitHub and AI tabs carry a dot while unset.
 const tabs = computed(() => [
   { value: 'appearance', label: t('settings.tabs.appearance'), icon: 'i-ph:paint-brush-duotone' },
   { value: 'behavior', label: t('settings.tabs.behavior'), icon: 'i-ph:sliders-duotone' },
-  { value: 'github', label: t('settings.tabs.github'), icon: 'i-ph:github-logo-duotone', attention: !props.githubTokenSet },
+  { value: 'github', label: t('settings.tabs.github'), icon: 'i-ph:github-logo-duotone', attention: props.githubOauthAvailable && !props.githubAccount },
   { value: 'ai', label: t('settings.tabs.ai'), icon: 'i-ph:sparkle-duotone', attention: !llmSetup.value },
 ] satisfies { value: SettingsTab, label: string, icon: string, attention?: boolean }[])
 </script>
@@ -83,12 +82,12 @@ const tabs = computed(() => [
     </TabsContent>
 
     <TabsContent value="github" class="flex flex-col gap-4 p4 outline-none data-[state=inactive]:hidden">
-      <GithubTokenSettings
-        :token-set="githubTokenSet"
-        :meta="githubTokenMeta"
-        :busy="githubTokenBusy"
-        :error="githubTokenError"
-        @save="$emit('saveGithubToken', $event)"
+      <GithubAccountSettings
+        :account="githubAccount"
+        :busy="githubAccountBusy"
+        :oauth-available="githubOauthAvailable"
+        @sign-in="$emit('signInGithub')"
+        @sign-out="$emit('signOutGithub')"
       />
     </TabsContent>
 

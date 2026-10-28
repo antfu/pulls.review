@@ -1,11 +1,10 @@
 import type { MockedFunction } from 'vitest'
 import { createCacheRepositories } from '@pulls.review/core/cache'
-import { createGithubPullRequestSource } from '@pulls.review/core/github'
+import { createGithubPullRequestSource, fetchGithubTokenMeta } from '@pulls.review/core/github'
 import { staticCredentials } from '@pulls.review/core/types'
 import { createStorage } from 'unstorage'
 import memoryDriver from 'unstorage/drivers/memory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { resolveStoredTokenMeta } from '../composables/useGithubTokenMeta'
 import { createReviewsStore } from './reviews-store'
 import { createWriteAccess } from './write-access'
 
@@ -47,7 +46,7 @@ function stubFetch(routes: Route[]): MockedFunction<typeof fetch> {
 }
 
 function makeStore(token?: string) {
-  const source = createGithubPullRequestSource({ owner: 'owner', repo: 'repo', number: '1' }, staticCredentials(token), { tokenMeta: resolveStoredTokenMeta })
+  const source = createGithubPullRequestSource({ owner: 'owner', repo: 'repo', number: '1' }, staticCredentials(token), { tokenMeta: fetchGithubTokenMeta })
   return createReviewsStore(source.reviews!, {
     cache: createCacheRepositories(createStorage({ driver: memoryDriver() })),
     access: createWriteAccess(source.viewer!),
@@ -121,7 +120,7 @@ describe('write gating', () => {
     ).rejects.toThrow('Resource not accessible')
 
     expect(store.canWrite).toBe(false)
-    expect(store.writeBlockedReason).toContain('Pull requests: Read and write')
+    expect(store.writeBlockedReason).toContain('write access to pull requests')
   })
 })
 

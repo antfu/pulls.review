@@ -30,19 +30,22 @@ management product.
 3. **Performance** — large PRs (hundreds of files, huge individual files)
    should stay fast via virtualization, not degrade the way GitHub's own UI
    does.
-4. **Zero backend** — everything (fetching, caching, analysis) runs in the
-   visitor's browser, or in the user's own CI through the `pulls.review`
-   CLI. Auth is a self-supplied GitHub token; LLM access is a self-supplied
-   key or gateway token. Nothing is proxied through a server we run.
+4. **Hosted GitHub App backend** — this fork runs on Nuxt on Node in Docker with a
+   real GitHub App: OAuth sign-in with the token held server-side, encrypted
+   per-user config, and optional server-side pi analysis whose results are
+   stored in SQLite. There is no pasted PAT and no standalone CLI. Anonymous
+   public reads and in-browser analysis with the user's own key remain.
 
 ## Longer-term direction (see `01-architecture.md` for what's deferred vs. built)
 
 - LLM-powered analysis (richer summaries) as an opt-in alongside the
   always-available rule-based fallback, plus a fully in-browser (`web-llm`)
   option requiring no API key at all.
-- Analyzing every PR once from a workflow (built): the `pulls.review` CLI and
-  its GitHub Action post the same shared-analysis comment a reviewer can, so
-  the site and the embed show the result without anyone spending a key.
+- Automated server-side analysis for installed repositories (in progress):
+  durable SQLite job tracking with webhook/manual triggers first, then opt-in
+  per-repository automation with repo/org keys and budgets, a cross-repo
+  review inbox, richer repository context, and feedback-driven evaluation.
+  Results live in the backend, never as bot comments.
 - Reviewing PRs interactively from within pulls.review (built): inline review
   comment threads, replies, and GitHub-style review submission
   (approve/request changes/comment), degrading to read-only when the token
@@ -65,9 +68,8 @@ management product.
 
 ## Explicit non-goals
 
-- Being a general git hosting/PR management product (no merging, no checks
-  or status reporting, no issue tracking). The CLI posts a comment the site
-  reads; it does not gate anything.
-- A dashboard or account system. pulls.review is deep-links (plus a per-repo
-  open-PR list to reach them) and local (per-browser) history, not a hosted
-  product with accounts.
+- Being a general git hosting/PR management product: no merging, no merge
+  queues, no auto-approval, no issue tracking. An optional neutral Check Run
+  may link to a stored analysis later, but it does not gate merges.
+- A general account dashboard. A focused review inbox over PRs the signed-in
+  user can already read is in scope; project management is not.

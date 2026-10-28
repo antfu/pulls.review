@@ -10,60 +10,59 @@ plans (and any future work) MUST follow.
 
 ## Layout
 
-A pnpm workspace of three packages (`plans/08-core-and-cli.md`):
-
-- `packages/app` — the SPA and the github.com embed (Vite + Vue). Paths
-  below written as `app/…` live in `packages/app/src/`.
-- `packages/core` (`@pulls.review/core`) — everything runtime-agnostic,
-  exposed as subpaths rather than one barrel: `/types`, `/patch-parser`,
-  `/github`, `/paste`, `/cache` (persistence repositories), `/analyze` (rule-based/none adapters, LLM settings and
-  model resolution), `/llm` (the agent runtime and SDKs), `/diagnostics`,
-  `/locales`. Built with tsdown; the app resolves `@pulls.review/core/*` to
-  source through a Vite alias. Core MUST load
-  under plain Node: no Settings, vue-i18n, `localStorage`, `document`, or
-  Vite-only syntax (`import.meta.glob`, `import.meta.env`) inside it.
-  Callers pass model settings and locale in, inject group text, word the
-  structured progress events, and translate nostics diagnostics by code.
-- `packages/actions` (`@pulls.review/actions`) — the GitHub Actions CLI: fetch,
-  analyze, upsert the shared-analysis comment; what the root `action.yml`
-  composite action runs.
-- `packages/cli` (`pulls.review`, the unscoped name) — the standalone CLI:
-  `pulls.review [target]` serves local git reviews through devframe
-  (`plans/09-devframe-local-review.md`, on Plan 04's `local` source) at `/`
-  standalone and `/__pulls.review/` in a hub. The server holds no target: pages
-  (`/`, `/branch/<name>`, `/compare/<A...B>`, `/worktree`, `/commit/<sha>`,
-  and the site's own `/gh/...` pages) name their own, and the argument (a git
-  revision, `owner/repo#1` or a github.com URL) only picks which one opens.
-  Its SPA is the app's `PR_LOCAL` build (`vite.config.local.ts`), which swaps
-  only the app context: the cache is an RPC driver over
-  `<git-common-dir>/pulls-review`, the GitHub token comes from the server, and
-  the `local-agent` LLM provider runs analysis and chat on the server through an
-  agent CLI on the machine (`claude`, `opencode`, `pi`, `codex`; `plans/11-local-agents.md`).
-  It MUST NOT take over the Actions entry point, and the public site MUST NOT
-  bundle the devframe client.
+- `packages/app` — Nuxt application with client rendering (`ssr: false`). The
+  frontend remains under `src/`; `server/` contains Nitro HTTP routes and startup.
+  Nuxt owns routing and app initialization. The GitHub userscript/embed remains
+  a separate Vite build into `public/embed`.
+- `packages/server` — framework-independent GitHub App services, Drizzle SQLite
+  repositories, SQL migrations and a durable analysis runner. HTTP services use
+  Web Request/Response; only the Nuxt boundary knows Nitro events.
+- `packages/core` — runtime-independent fetching, parsing, caching and analysis.
+  Core MUST load under plain Node, without browser globals, Vue, or Vite syntax.
+  Callers inject credentials, settings, locale and storage.
 
 ## Invariants
 
-- Nothing is proxied through a server we run. There is no backend — no server
-  routes, no OAuth client-secret exchange, no edge functions. Auth is a
-  user-supplied GitHub token (optional for public repos); LLM access is a
-  user-supplied key or gateway token, or - in the CLI only - an agent CLI the
-  user already signed into, run by the user's own `pulls.review` process. This rules out anything that needs a
-  server to keep a secret. The site does everything in the browser; the CLI
-  does the same work in the user's own CI with the user's own secrets.
-- The app MUST build as a static SPA and deploy as static files, on Vercel.
-  `vercel.json` carries a catch-all rewrite to `/index.html` so the dynamic
-  routes under `/gh/...` work on direct navigation/refresh, not
-  just client-side routing after landing on `/`.
-- Every composable, component and utility is imported explicitly — no
-  auto-import plugin.
-- Unit tests (Vitest) SHOULD be co-located with the source file they test
-  (`foo.ts` + `foo.test.ts`) wherever possible. This applies to every pure
-  module — `patch-parser`, analyze adapters, cache modules, provider
-  normalizers — not just a "utils" subset. A top-level `tests/` directory is
-  reserved for higher-level integration tests (multiple modules wired
-  together, e.g. provider + adapter + cache end-to-end), not a dumping
-  ground for what should be co-located unit tests.
+- Server secrets remain server-side. The frontend calls the same-origin
+  `/api/github/*` proxy, which injects OAuth credentials. Better Auth stores
+  encrypted OAuth tokens and revocable sessions in SQLite. HttpOnly cookies hold
+  an opaque session credential. Provider-token endpoints and public profile edits
+  are disabled; GitHub identity comes from the OAuth provider. Tokens MUST NOT be
+  exposed as public runtime config. Anonymous
+  public reads and in-browser analysis remain supported.
+- User settings and repository/organization model keys are AES-GCM encrypted in
+  SQLite. Preserve the key derivation and secrets when importing SQLite. Config
+  updates use optimistic concurrency with a conditional database write.
+- GitHub verifies access before private results, jobs, status or feedback are
+  exposed. Webhooks retain raw-body HMAC verification. `PUBLIC_ORIGIN` supplies
+  the external HTTPS origin behind the proxy; forwarded hosts are not trusted.
+- Installation inventory has one source of truth in `github_installation` and
+  `github_repository`. Deletion retires the installation and its repositories.
+- `analysis_job` and `analysis_attempt` are the durable queue. Creation,
+  deduplication, supersession of queued older heads and budget reservation are
+  transactional. Claims use leases; stale owners MUST NOT store results. Results
+  and successful attempts commit together. Jobs contain provenance, never keys.
+- Repository automation MUST be opt-in. A disabled repository overrides the
+  organization default. Manual runs use the triggering user's key; host-key
+  manual runs require repository write permission. Monthly budgets count newly
+  created automated jobs, not duplicate webhook deliveries.
+- Analysis reads instructions from the PR base ref and records model/prompt
+  versions. Excluded changes skip the model. Neutral GitHub Check Runs are
+  best-effort; analysis results live in SQLite, not bot comments. Feedback does
+  not silently change prompts; prompt/model changes require evaluation evidence.
+- Docker runs one Nuxt process and one runner initially. SQLite uses a local
+  persistent volume, WAL, short transactions and bounded lock waits. Network
+  calls MUST NOT run inside database transactions. Multiple hosts cannot share
+  this database file. Backups use a consistent online snapshot including WAL.
+- Direct frontend links resolve through Nuxt; unknown `/api/*` returns an API
+  404 rather than the SPA. The embed keeps its standalone IIFE and shadow CSS.
+- Imports are explicit. Vue SFCs use template UnoCSS utilities, without style
+  blocks. Check `@antfu/design` before introducing UI components.
+- Vitest tests stay colocated with source; backend integration tests use real
+  SQLite for concurrency, migrations, job recovery and constraints.
+
+Operational setup, import, backups and cutover:
+[`packages/server/README.md`](../packages/server/README.md).
 
 ## Data flow: DiffSource -> Analyze adapter -> Cache -> View
 
@@ -87,7 +86,7 @@ analysis strategy later never touches the view layer:
   `app/source-routes.ts` - the only module that maps refs to routes and back -
   so no component checks a ref's `kind` or spells out a `/gh/...` path. A
   pasted github.com URL or `owner/repo#1` is read by core's `parseGithubUrl`
-  (`core/github`), shared by the site's URL box and the CLI's argument. `Credentials.githubToken()` is read
+  (`core/github`), shared by the site's URL box. `Credentials.githubToken()` is read
   per request, so a token saved later applies without rebuilding a store.
   Implementations (`core/providers/`):
   - `github-pr` (`createGithubPullRequestSource`) — GitHub REST API (PR
@@ -102,7 +101,7 @@ analysis strategy later never touches the view layer:
     `/gh/{owner}/{repo}/commit/{sha}` by the same page as a PR.
   - Every payload with history carries `commits` (oldest first, with author
     and date). A diff with more than one commit can be read commit by commit:
-    `?commit=<sha>` on the diff's own route (PR, compare, local range) opens
+    `?commit=<sha>` on the diff's own route (PR, compare) opens
     that commit as a second store from the same page
     (`app/composables/useCommitView.ts`), so the parent diff and its commit
     list stay mounted while `DiffsPage` swaps what it renders. Selecting a
@@ -114,18 +113,12 @@ analysis strategy later never touches the view layer:
     `/upload` route (no param) via a fixed `sessionStorage` key, not a URL —
     deliberately not shareable as a link, since it has no live source to
     refetch even if it were content-hash-addressed.
-  - `local` (`createLocalSource`, `plans/04-local-provider.md`) — a working
-    tree, commit or range of a git repo, by running `git` with pinned diff
-    flags and reusing the same `patch-parser` `paste` already uses. It lives in
-    the Node-only `core/local` subpath, which the browser bundle MUST NOT import.
-    A patch over 512 KB keeps its counts as `FileChange.truncated`. Plan 09
-    serves it to the browser.
 - **`app/patch-parser/`** parses unified-diff / git-extended-diff text (the
   format shared by GitHub's `.diff` endpoint, `git diff` output, and plain
   `diff -u`) into canonical `FileChange[]`. It is provider-agnostic
   infrastructure, not itself a provider: `github`'s normalizer falls back to
   it only for files whose `patch` GitHub's JSON API omitted (very large
-  diffs); `paste` uses it as its only parsing path; `local` will too.
+  diffs); `paste` uses it as its only parsing path.
 - **`AnalyzeAdapter`** (`app/analyze/`) turns a `DiffsPayload` into a
   `GroupedResult`: grouped files plus optional summaries, optional
   `fileNotes` (`path`, `text`) and `lineNotes` (`path`, `side`, `line`,
@@ -144,11 +137,12 @@ analysis strategy later never touches the view layer:
     or OpenAI-compatible — only the selected one is ever called). Core's
     `runLlmAnalysis(diff, resolved, locale)` knows nothing of Settings; the
     app binds it to `settings.value` in `app/analyze/browser-llm-runner.ts`, the
-    site's `LlmRunner`. The runner (`app/analyze/llm-runner.ts`: `isSetup`,
+    site's `LlmRunner` (which on the hosted site also requires GitHub sign-in).
+    The runner (`app/analyze/llm-runner.ts`: `isSetup`,
     `analyze`, `chat`) sits on the app context next to `cache` and `credentials`,
     and is the only thing `stores/llm-store.ts` and `composables/useLlmChat.ts`
-    call to run a model; the `PR_LOCAL` build's runner sends the `local-agent`
-    provider to the server instead (`plans/11-local-agents.md`). The prompt
+    call to run a model; a future server-side pi runner implements the same
+    contract. The prompt
     carries a file manifest, the commit subject lines when there is more than
     one commit, and the full diffs when they are small; the model pulls
     diffs on demand with `read_diffs` and finishes with `submit_grouping`,
@@ -171,7 +165,7 @@ analysis strategy later never touches the view layer:
     `vite.config.embed.ts` fails the build if an LLM SDK slips in anyway.
     `store.llm` is `undefined` iff the flag is off.
   - Follow-up chat reuses the analysis transcript: `llmSession` (`messages`
-    + `chatStartIndex`, plus `agent` when a local agent CLI holds the
+    + `chatStartIndex`, plus `agent` when an external agent runtime holds the
     conversation) is persisted alongside the result in the cached diff
     entry, and the runner's `chat` continues it per message - the browser one
     builds a fresh pi `Agent` (`read_diffs` plus `update_grouping`, which
@@ -235,8 +229,7 @@ repos read one. Contract:
 - Loading writes the result into the cached diff under its own `source` with
   `sharedBy: login`, so the view credits it and never offers to re-share it.
   Discovery is one best-effort `GET` of the first 100 comments, run only when
-  the store has no AI result. `?from=` on the site - which the CLI's
-  `--from <login>` adds to a pull request page - loads that user directly,
+  the store has no AI result. `?from=` on the site loads that user directly,
   replacing an older shared result, unless it would replace a locally
   generated result (then it's offered).
 - A shared result whose `headSha` differs from the loaded diff is offered
@@ -346,9 +339,9 @@ land later without a rewrite:
 - Any cross-repo/history dashboard (the per-repo open-PR list at
   `/gh/owner/repo` is a navigation aid into the deep-links, not that) or
   social/OG link previews (no backend to render them).
-- The `pulls.review` devframe CLI (`plans/09-devframe-local-review.md`):
-  local review served by the user's own process, a static snapshot, or a
-  devframe hub dock. Depends on the `local` source; not built yet.
+- Reviewing unpushed local git changes beyond the paste/upload flow, and an
+  interactive server-side pi runner (the webhook analyzer already runs the
+  pi loop in the server; chat still runs in the browser).
 
 ## UI conventions
 
@@ -365,16 +358,14 @@ land later without a rewrite:
   and switched from the `LanguageMenu` icon in `NavControls`. Model-facing
   text (prompts, tool errors) and diagnostics that embed URLs/status codes
   stay English.
-- Settings (GitHub PAT, later model keys) and loading a pasted/uploaded diff
+- Settings (GitHub account, model keys) and loading a pasted/uploaded diff
   are both modals/panels (`SettingsModal.vue`/`LoadDiffModal.vue` wrapping
   pure `*Panel.vue` content), triggered from `AppHeader.vue` — never routed
   pages. `AppHeader` itself only renders on the landing pages
-  (`pages-web/index.vue`, and `pages-local/index.vue` in the `PR_LOCAL`
-  build). The reading views stay header-free: their own sticky `DiffsHeader`
+  (`pages-web/index.vue`). The reading views stay header-free: their own sticky `DiffsHeader`
   is the only scroll nav there.
 - Routed pages live in `app/pages-web/` (the site: landing, `/upload`,
-  `/gh/...`) and `app/pages-local/` (only registered by the `PR_LOCAL` build:
-  the ref picker and the local review page).
+  `/gh/...`).
 - A generated userscript (`scripts/build-userscript.ts`) mounts
   `<pulls-review-embed-panel>` (`app/embed/`, a Vue custom element built as
   one IIFE with `PR_EMBED` on and `PR_LLM` off) into `github.com` pull request

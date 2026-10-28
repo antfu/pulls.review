@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useGithubTokenMeta } from '../../composables/useGithubTokenMeta'
+import { useGithubAccount } from '../../composables/useGithubAccount'
 import { useLlmModels } from '../../composables/useLlmModels'
 import { settings } from '../../state/settings'
 import { settingsModalTab } from '../../state/settingsModal'
@@ -15,7 +15,7 @@ const emit = defineEmits<{
   'update:open': [open: boolean]
 }>()
 
-const githubToken = useGithubTokenMeta()
+const githubAccount = useGithubAccount()
 const llmModels = useLlmModels()
 </script>
 
@@ -30,15 +30,15 @@ const llmModels = useLlmModels()
   >
     <SettingsPanel
       v-model:tab="settingsModalTab"
-      :github-token-set="!!settings.githubToken"
-      :github-token-meta="githubToken.meta.value"
-      :github-token-busy="githubToken.busy.value"
-      :github-token-error="githubToken.error.value"
+      :github-account="githubAccount.account.value"
+      :github-account-busy="githubAccount.busy.value"
+      :github-oauth-available="githubAccount.oauthAvailable"
       :llm-settings="settings.llm"
       :models="llmModels.models.value"
       :models-loading="llmModels.loading.value"
       :models-error="llmModels.error.value"
-      @save-github-token="githubToken.saveToken($event)"
+      @sign-in-github="githubAccount.signIn()"
+      @sign-out-github="void githubAccount.signOut()"
       @update:llm-settings="settings = { ...settings, llm: $event }"
     />
   </AppModal>

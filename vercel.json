@@ -1,8 +1,0 @@
-{
-  "framework": "vite",
-  "buildCommand": "pnpm -F @pulls.review/app run build",
-  "outputDirectory": "packages/app/dist",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}

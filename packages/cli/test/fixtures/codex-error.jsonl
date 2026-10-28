@@ -1,3 +1,0 @@
-{"type": "thread.started", "thread_id": "sess-codex-1"}
-{"type": "error", "message": "Authentication failed"}
-{"type": "turn.failed", "error": {"message": "Authentication failed"}}

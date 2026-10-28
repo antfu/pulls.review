@@ -48,7 +48,7 @@ async function functionLineStyle(diff: FileDiffMetadata) {
 
 async function keywordStyle() {
   const highlighter = await getSharedHighlighter({ themes: [theme], langs: ['typescript'] })
-  const [[token]] = highlighter.codeToTokens('function f() {}', { lang: 'typescript', theme }).tokens
+  const token = highlighter.codeToTokens('function f() {}', { lang: 'typescript', theme }).tokens[0]![0]!
   return `color:${token!.color}`
 }
 

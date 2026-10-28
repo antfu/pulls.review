@@ -6,7 +6,6 @@ import { createGithubPullRequestSource } from '@pulls.review/core/github'
 import { onMounted } from 'vue'
 import { useAppContext } from '../app-context'
 import DiffsPage from '../components/diff/DiffsPage.vue'
-import { resolveStoredTokenMeta } from '../composables/useGithubTokenMeta'
 import { createDiffsStore } from '../stores/diffs-store'
 
 // Mirrors `pages-web/gh/[owner]/[repo]/diff.vue`'s wiring, from plain props instead of
@@ -23,7 +22,7 @@ const props = defineProps<{
 }>()
 
 const { cache, credentials } = useAppContext()
-const store = createDiffsStore(createGithubPullRequestSource(props, credentials, { tokenMeta: resolveStoredTokenMeta }), { cache })
+const store = createDiffsStore(createGithubPullRequestSource(props, credentials), { cache })
 
 // The drawer reads shared-analysis state off it (dot on the toggles, `?from=` links).
 defineExpose({ store })

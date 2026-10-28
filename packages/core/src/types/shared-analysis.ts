@@ -8,6 +8,12 @@ export const SharedAnalysisSchema = v.object({
 })
 export type SharedAnalysis = v.InferOutput<typeof SharedAnalysisSchema>
 
+/** Validate an untrusted shared-analysis payload; `undefined` when malformed. */
+export function parseSharedAnalysis(value: unknown): SharedAnalysis | undefined {
+  const parsed = v.safeParse(SharedAnalysisSchema, value)
+  return parsed.success ? parsed.output : undefined
+}
+
 /** One user's shared analysis, as found on the diff's comments. */
 export interface SharedAnalysisComment {
   id: number

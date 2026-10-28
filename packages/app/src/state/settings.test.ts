@@ -9,7 +9,6 @@ async function loadSettings() {
 
 function seedPreProviderSettings(llm: Record<string, string>) {
   localStorage.setItem('diffs:settings', JSON.stringify({
-    githubToken: '',
     llm: {
       gatewayToken: '',
       gatewayModel: 'anthropic/claude-sonnet-5',
@@ -51,9 +50,26 @@ describe('settings provider migration', () => {
     expect(settings.value.llm.provider).toBe('openai-compatible')
   })
 
+  it('drops a stored GitHub PAT from settings and local storage', async () => {
+    localStorage.setItem('diffs:settings', JSON.stringify({
+      githubToken: 'ghp_secret',
+      llm: { anthropicApiKey: 'sk-ant-x' },
+    }))
+    const settings = await loadSettings()
+    expect(settings.value).not.toHaveProperty('githubToken')
+    expect(localStorage.getItem('diffs:settings')).not.toContain('ghp_secret')
+  })
+
+  it('migrates a removed provider selection to the credential-derived one', async () => {
+    localStorage.setItem('diffs:settings', JSON.stringify({
+      llm: { provider: 'openai-codex', anthropicApiKey: 'sk-ant-x', codexAccessToken: 'cx' },
+    }))
+    const settings = await loadSettings()
+    expect(settings.value.llm.provider).toBe('anthropic')
+  })
+
   it('keeps an explicitly stored provider untouched', async () => {
     localStorage.setItem('diffs:settings', JSON.stringify({
-      githubToken: '',
       llm: { provider: 'anthropic', gatewayToken: 'vck_x' },
     }))
     const settings = await loadSettings()

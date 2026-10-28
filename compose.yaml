@@ -1,0 +1,12 @@
+services:
+  app:
+    build: .
+    ports:
+      - '127.0.0.1:3000:3000'
+    env_file: .env
+    volumes:
+      - data:/data
+    restart: unless-stopped
+    stop_grace_period: 30s
+volumes:
+  data:

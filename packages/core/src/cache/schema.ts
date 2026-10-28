@@ -24,7 +24,7 @@ const LlmSessionSchema = v.object({
   agent: v.optional(AgentSessionRefSchema),
 })
 
-/** `agent` names the local agent CLI session the chat continues in (`plans/11-local-agents.md`). */
+/** `agent` names the external agent session the chat continues in, when one ran the analysis. */
 export interface LlmSession { messages: AgentMessage[], chatStartIndex: number, agent?: v.InferOutput<typeof AgentSessionRefSchema> }
 
 /**

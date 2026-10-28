@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
+import { RouterLink } from 'vue-router'
+import { githubOauthSession, isGithubOauthAvailable } from '../auth/github-oauth'
 import { openSettings, settingsModalOpen } from '../state/settingsModal'
 import DarkToggle from './DarkToggle.vue'
 import LanguageMenu from './LanguageMenu.vue'
@@ -21,6 +23,15 @@ const isEmbedded = import.meta.env.PR_EMBED
 <template>
   <div class="flex shrink-0 items-center gap-1">
     <slot />
+    <RouterLink
+      v-if="!isEmbedded && isGithubOauthAvailable() && githubOauthSession"
+      to="/inbox"
+      class="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm transition hover:bg-hover"
+      :title="$t('inbox.title')"
+    >
+      <span class="i-ph:tray-duotone" aria-hidden="true" />
+      <span class="hidden md:inline">{{ $t('inbox.title') }}</span>
+    </RouterLink>
     <LanguageMenu />
     <ActionIconButton icon="i-ph:gear-duotone" :label="$t('common.settings')" :tooltip="$t('common.settings')" @click="openSettings()" />
     <DarkToggle v-if="!isEmbedded" />

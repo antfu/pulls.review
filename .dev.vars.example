@@ -1,0 +1,20 @@
+# Copy to `.dev.vars` for local `wrangler dev` (gitignored).
+# Production: same names via `wrangler secret put <NAME>`. See `packages/worker/README.md`.
+
+# GitHub App user OAuth (sign-in) — from the App's settings page
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+# openssl rand -hex 32
+SESSION_SECRET=
+
+# GitHub App server-to-server (installations + webhooks)
+GITHUB_APP_ID=
+GITHUB_APP_SLUG=
+GITHUB_WEBHOOK_SECRET=
+# PKCS#8 PEM, paste the downloaded .pem (literal \n escapes also work)
+GITHUB_APP_PRIVATE_KEY=
+
+# Server-side analysis model key (one of these; same names as @pulls.review/actions)
+AI_GATEWAY_API_KEY=
+ANTHROPIC_API_KEY=
+OPENAI_API_KEY=

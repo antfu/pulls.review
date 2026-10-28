@@ -3,6 +3,8 @@ node_modules
 *.log
 dist
 .env
+.dev.vars
+.wrangler/
 .idea/
 packages/app/public/assets/fonts
 packages/app/public/embed
@@ -12,3 +14,9 @@ packages/app/src/embed/.generated
 .agents/skills
 .fx/skills
 .goose/skills
+.junie/skills
+
+.nuxt/
+.output/
+data/
+*.sqlite*

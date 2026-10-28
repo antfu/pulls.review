@@ -36,6 +36,23 @@ describe('createGithubClient', () => {
     ])
   })
 
+  it('routes through a proxy base without a local token and reports authenticated', async () => {
+    const fetchMock = vi.fn(async (_url: string, _init: RequestInit) => json({}))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const client = createGithubClient({
+      githubToken: async () => undefined,
+      githubApiBase: async () => 'https://pulls.review/api/github',
+    })
+    await client.request('/user')
+
+    expect(fetchMock.mock.calls[0]![0]).toBe('https://pulls.review/api/github/user')
+    expect(new Headers(fetchMock.mock.calls[0]![1].headers).has('Authorization')).toBe(false)
+    expect(await client.authenticated()).toBe(true)
+    expect(await createGithubClient().authenticated()).toBe(false)
+    expect(await createGithubClient(staticCredentials('tok')).authenticated()).toBe(true)
+  })
+
   it('surfaces GitHub\'s own error message with the status', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => json({ message: 'Resource not accessible' }, 403)))
 

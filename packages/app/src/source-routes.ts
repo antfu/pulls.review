@@ -35,9 +35,6 @@ export function routeForRef(ref: SourceRef): string | undefined {
     case 'paste':
       // Deliberately unroutable: a paste has no live source to reopen from a link.
       return undefined
-    case 'local':
-      // Only the local server can open it (plans/09).
-      return undefined
   }
 }
 
@@ -63,7 +60,7 @@ export function repoRoute(owner: string, repo: string): string {
 
 /** Where a diff sits, e.g. its repo's PR list - `undefined` for a ref with no parent view. */
 export function parentForRef(ref: SourceRef): { route: string, label: string } | undefined {
-  return ref.kind === 'paste' || ref.kind === 'local'
+  return ref.kind === 'paste'
     ? undefined
     : { route: repoRoute(ref.owner, ref.repo), label: `${ref.owner}/${ref.repo}` }
 }

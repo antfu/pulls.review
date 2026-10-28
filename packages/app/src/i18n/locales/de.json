@@ -47,47 +47,28 @@
     "uploadDescription": "Lade ein Unified Diff hoch oder füge es ein, oder ziehe eine {diff}- / {patch}-Datei irgendwo auf diese Seite.",
     "uploadButton": "Diff hochladen",
     "embedTitle": "Eingebettet auf github.com nutzen",
-    "embedDescription": "Mit installiertem {tampermonkey} oder {violentmonkey} erscheint auf jeder Pull-Request-Seite ein pulls.review-Panel.",
+    "embedDescription": "Mit installiertem {tampermonkey} oder {violentmonkey} erscheint auf jeder Pull-Request-Seite ein Diffwise-Panel.",
     "installUserscript": "Userscript installieren",
-    "bookmarkletTitle": "Zwischen github.com und pulls.review wechseln",
-    "bookmarkletDescription": "Keine Erweiterungen erlaubt? Zieh dieses Bookmarklet in deine Lesezeichenleiste, um den aktuellen Pull Request auf pulls.review zu öffnen, und zurück.",
+    "bookmarkletTitle": "Zwischen github.com und Diffwise wechseln",
+    "bookmarkletDescription": "Keine Erweiterungen erlaubt? Zieh dieses Bookmarklet in deine Lesezeichenleiste, um den aktuellen Pull Request auf Diffwise zu öffnen, und zurück.",
     "bookmarkletDrag": "In die Lesezeichenleiste ziehen",
-    "actionsTitle": "Automatische Analyse mit GitHub Actions einrichten",
-    "actionsDescription": "Jeden Pull Request einmal in der CI analysieren und das Ergebnis als PR-Kommentar posten, damit nicht jeder Reviewer einen eigenen Modell-Key braucht.",
-    "cliTitle": "Lokale Git-Änderungen mit der CLI prüfen",
-    "cliDescription": "Prüfe Working Tree, einen Commit oder einen Branch vor dem Push, gruppiert und zusammengefasst wie ein PR.",
     "viewGuide": "Anleitung ansehen"
   },
   "guide": {
     "userscript": {
-      "title": "pulls.review eingebettet auf github.com nutzen",
-      "intro": "Das Userscript fügt Pull-Request-Seiten auf github.com direkt eine pulls.review-Seitenleiste mit gruppierten Dateien und Zusammenfassungen hinzu, sodass du keinen Tab wechseln musst.",
+      "title": "Diffwise eingebettet auf github.com nutzen",
+      "intro": "Das Userscript fügt Pull-Request-Seiten auf github.com direkt eine Diffwise-Seitenleiste mit gruppierten Dateien und Zusammenfassungen hinzu, sodass du keinen Tab wechseln musst.",
       "manager": "Installiere einen Userscript-Manager: {tampermonkey} oder {violentmonkey}.",
-      "install": "Installiere das pulls.review-Userscript. Dein Manager fragt nach einer Bestätigung.",
+      "install": "Installiere das Diffwise-Userscript. Dein Manager fragt nach einer Bestätigung.",
       "open": "Öffne einen beliebigen Pull Request auf github.com und klicke auf den Tab {tab} neben \"Files changed\".",
-      "ai": "github.com blockiert die Anfragen, die die KI-Analyse braucht. Die Seitenleiste zeigt daher als PR-Kommentar geteilte Analysen. Öffne den PR auf pulls.review, um eine neue zu starten."
+      "ai": "github.com blockiert die Anfragen, die die KI-Analyse braucht. Die Seitenleiste zeigt daher als PR-Kommentar geteilte Analysen. Öffne den PR auf Diffwise, um eine neue zu starten."
     },
     "bookmarklet": {
-      "title": "Zwischen github.com und pulls.review wechseln",
+      "title": "Zwischen github.com und Diffwise wechseln",
       "intro": "Ein Bookmarklet ist ein Lesezeichen, das ein kleines Skript ausführt. Es funktioniert in jedem Browser ohne Erweiterung und öffnet die aktuelle Seite auf der jeweils anderen Website.",
       "bar": "Blende deine Lesezeichenleiste ein, zum Beispiel mit {shortcut}.",
       "drag": "Zieh diesen Button in die Lesezeichenleiste:",
-      "use": "Klicke auf einer Pull-Request-, Commit- oder Compare-Seite auf github.com auf das Lesezeichen, um sie auf pulls.review zu öffnen. Klicke erneut, um zurückzukehren."
-    },
-    "actions": {
-      "title": "Automatische Analyse mit GitHub Actions",
-      "intro": "Lass die CI jeden Pull Request einmal analysieren, sobald er geöffnet oder aktualisiert wird. Alle, die den PR öffnen, hier oder in der Seitenleiste auf github.com, sehen sofort dieselbe gruppierte Zusammenfassung. Niemand braucht einen eigenen Modell-Key, und auch Pull Requests aus Forks bekommen sie.",
-      "secret": "Lege deinen Modell-Key als Repository-Secret an, zum Beispiel {name}.",
-      "workflow": "Füge diesen Workflow zum Repository hinzu:",
-      "result": "Öffne oder aktualisiere einen Pull Request, um es auszuprobieren. Die Analyse kommt als Kommentar, und erneute Läufe auf einem unveränderten PR überspringen den Modellaufruf.",
-      "options": "Der {provider} wird aus dem Key abgeleitet. Setze {provider}, {model} oder {locale}, um das zu überschreiben. Alle Optionen stehen in der {readme}."
-    },
-    "cli": {
-      "title": "Lokale Git-Änderungen mit der CLI prüfen",
-      "intro": "Prüfe deine eigene Änderung, bevor es andere tun. Die CLI öffnet deinen Branch, einen Commit oder deine nicht committete Arbeit in pulls.review. So siehst du gruppiert und zusammengefasst, wie sich die Änderung liest, bevor du pushst oder einen PR öffnest.",
-      "branch": "Führe das in einem Git-Repository aus, um deinen aktuellen Branch gegen den Standard-Branch zu prüfen:",
-      "target": "Oder wähle, was du prüfen willst:",
-      "browser": "Sie öffnet {url} im Browser und zeigt deine lokalen Änderungen an. Bestätige den Tab mit dem Einmalcode aus deinem Terminal. Dort kannst du auch andere Branches oder Commits zum Vergleichen auswählen."
+      "use": "Klicke auf einer Pull-Request-, Commit- oder Compare-Seite auf github.com auf das Lesezeichen, um sie auf Diffwise zu öffnen. Klicke erneut, um zurückzukehren."
     }
   },
   "load": {
@@ -116,9 +97,11 @@
     "ai": "KI",
     "by": "von",
     "sharedBy": "Geteilte KI-Analyse von",
+    "feedbackUseful": "Hilfreiche Analyse",
+    "feedbackNotUseful": "Nicht hilfreich",
     "sharedAnalysis": "Geteilte Analyse",
     "reviewedOf": "/ {total} reviewt",
-    "openInSite": "In pulls.review öffnen"
+    "openInSite": "In Diffwise öffnen"
   },
   "commits": {
     "count": "{n} Commit | {n} Commits",
@@ -131,6 +114,24 @@
   "embed": {
     "reviewChanges": "Änderungen reviewen",
     "updateUserscript": "Userscript aktualisieren"
+  },
+  "automation": {
+    "title": "Automatisierung",
+    "enabled": "Aktiviert",
+    "disabled": "Deaktiviert",
+    "usage": "{runs}/{budget} Läufe diesen Monat",
+    "usageUnlimited": "{runs} Läufe diesen Monat",
+    "empty": "Noch keine Server-Analysen."
+  },
+  "inbox": {
+    "title": "Review-Posteingang",
+    "needsReview": "Wartet auf mein Review",
+    "assigned": "Mir zugewiesen",
+    "authored": "Von mir erstellt",
+    "mentioned": "Erwähnungen",
+    "signIn": "Mit GitHub anmelden, um deinen Review-Posteingang zu sehen.",
+    "empty": "Nichts wartet. Schön ruhig.",
+    "loadFailed": "Posteingang konnte nicht geladen werden"
   },
   "pulls": {
     "loading": "Pull Requests werden geladen…",
@@ -149,6 +150,11 @@
     "groups": "{n} Gruppe | {n} Gruppen",
     "viewedHint": "In diesem Browser angesehen",
     "aiAvailable": "KI-Analyse verfügbar",
+    "analysisRunning": "KI-Analyse läuft",
+    "analysisReady": "KI-Analyse bereit",
+    "analysisStale": "KI-Analyse evtl. veraltet",
+    "analysisFailed": "KI-Analyse fehlgeschlagen",
+    "analysisCritical": "{n} kritisch | {n} kritisch",
     "sort": {
       "label": "Sortieren",
       "recently-updated": "Zuletzt aktualisiert",
@@ -176,6 +182,9 @@
     "failedTitle": "KI-Analyse fehlgeschlagen: {message}",
     "reanalyze": "Erneut analysieren",
     "withAi": "Mit KI analysieren",
+    "remote": "Auf dem Server analysieren",
+    "remoteTitle": "Analyse auf dem Server mit deinem synchronisierten API-Schlüssel ausführen; das Ergebnis wird auf dieser Site gespeichert",
+    "remoteQueued": "Auf Server eingereiht",
     "statusTitle": "KI-Analyse",
     "starting": "Startet…",
     "thinking": "Denke nach… (Schritt {step})",
@@ -354,18 +363,13 @@
     "autoFetchFullFileHint": "Erkennt Syntaxfehler in Teilinhalten und lädt die vollständige Version.",
     "language": "Sprache",
     "token": {
-      "label": "GitHub Personal Access Token",
-      "optional": "Optional für öffentliche Repositories; erforderlich für private Repositories oder zum Reviewen.",
-      "scopes": "Reviews benötigen den Scope {repo} (klassisches Token) oder {fineGrained} (feingranulares Token)",
-      "storedLocally": "Nur in diesem Browser gespeichert.",
-      "generate": "Eines auf GitHub erstellen →",
-      "fineGrained": "Feingranulares Token (keine klassischen Scopes)",
-      "updated": "Aktualisiert",
-      "expires": "Läuft ab",
-      "neverExpires": "Läuft nie ab",
-      "change": "Token ändern",
-      "checking": "Token wird geprüft…",
-      "couldNotVerify": "Dieses Token konnte nicht überprüft werden."
+      "label": "GitHub",
+      "checking": "Anmeldung wird geprüft…",
+      "signIn": "Mit GitHub anmelden",
+      "signInHint": "Autorisieren Sie die Diffwise GitHub App für private Repos und Reviews. GitHub-Anfragen laufen über diese Website; kein GitHub-Token wird in Ihrem Browser gespeichert.",
+      "signOut": "Abmelden",
+      "viaApp": "GitHub App",
+      "embedAnonymous": "Diese eingebettete Ansicht lädt öffentliche Repositories anonym. Öffnen Sie diffwise.shyim.de und melden Sie sich mit GitHub an, um private Repositories und Reviews zu nutzen."
     },
     "tabs": {
       "appearance": "Darstellung",
@@ -393,12 +397,8 @@
       "embedUnavailable": "KI-Funktionen sind im eingebetteten Modus nicht verfügbar",
       "embedReason": "Die strikte CSP von github.com blockiert die Anfragen, die KI-Funktionen hier benötigen. {link}, um sie zu nutzen.",
       "goToWebsite": "Zur Website",
-      "agent": "Agent",
-      "agentNeedsCli": "Lokale Agenten laufen in der pulls.review-CLI: starte sie in einem Repository mit `npx pulls.review` und wähle dort einen aus.",
-      "agentDetecting": "Suche nach Agent-CLIs…",
-      "agentNone": "Keine Agent-CLI auf diesem Rechner gefunden.",
-      "agentHint": "Ein auf diesem Rechner installierter Coding-Agent mit eigenem Konto: {claude}, {codex}, {opencode} oder {pi}. Er liest den Patch und das Repository, schreibt nie.",
-      "agentPick": "Agent wählen…"
+      "cloudDescription": "Konfigurieren Sie einen Modellanbieter für KI-generierte Zusammenfassungen. Einstellungen werden verschlüsselt hinter Ihrer GitHub-Anmeldung gespeichert und in diesem Browser zwischengespeichert.",
+      "signInRequiredHint": "Melden Sie sich mit GitHub an, bevor Sie einen Anbieterschlüssel hinzufügen. Ihre KI-Einstellungen werden dann verschlüsselt mit Ihrem Konto synchronisiert."
     },
     "models": {
       "placeholder": "Modell-ID",
@@ -407,8 +407,7 @@
       "noMatch": "Kein passendes Modell",
       "useCustom": "„{id}“ verwenden",
       "free": "Kostenlos",
-      "priceTitle": "Eingabe {input}/M · Ausgabe {output}/M Tokens",
-      "agentDefault": "Standard des Agenten"
+      "priceTitle": "Eingabe {input}/M · Ausgabe {output}/M Tokens"
     }
   },
   "rules": {
@@ -422,34 +421,10 @@
     "generated": { "label": "Generiert", "summary": "Änderungen an generierten oder Build-Dateien." }
   },
   "errors": {
-    "tokenRequired": "Zum Schreiben in diesen Pull Request ist ein GitHub-Token erforderlich.",
     "diffNotLoaded": "Das Diff ist noch nicht fertig geladen.",
-    "noViewer": "Der GitHub-Benutzer dieses Tokens konnte nicht ermittelt werden.",
+    "noViewer": "Der angemeldete GitHub-Benutzer konnte nicht ermittelt werden.",
     "tokenRejected": "GitHub hat dieses Token abgelehnt (401). Prüfe, ob es vollständig eingefügt wurde und nicht widerrufen ist.",
-    "tooLarge": "Die Analyse ist zu groß, um als Kommentar geteilt zu werden ({n} Zeichen)."
-  },
-  "local": {
-    "loading": "Lokale Änderungen werden geladen…",
-    "loadFailed": "Diese Änderungen konnten nicht geladen werden",
-    "auth": {
-      "title": "Code aus dem Terminal eingeben",
-      "hint": "pulls.review hat im Terminal, in dem es läuft, einen 6-stelligen Code ausgegeben.",
-      "invalid": "Dieser Code hat nicht funktioniert. Prüfe das Terminal und versuche es erneut.",
-      "submit": "Weiter"
-    },
-    "picker": {
-      "tagline": "Reviewe lokale Branches, Bereiche und nicht committete Änderungen wie einen Pull Request: gruppiert, zusammengefasst, ein Bereich nach dem anderen.",
-      "title": "Lokale Änderungen reviewen",
-      "base": "Basis",
-      "head": "Head",
-      "compare": "Vergleichen",
-      "shortcuts": "Schnellzugriff",
-      "worktree": "Nicht committete Änderungen",
-      "recentCommits": "Letzte Commits",
-      "branches": "Branches",
-      "against": "gegen {base}",
-      "current": "Ausgecheckt",
-      "github": "Oder ein GitHub-Pull-Request, -Vergleich oder -Commit"
-    }
+    "tooLarge": "Die Analyse ist zu groß, um als Kommentar geteilt zu werden ({n} Zeichen).",
+    "signInRequired": "Melden Sie sich mit GitHub an, um in diesen Pull Request zu schreiben."
   }
 }

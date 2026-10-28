@@ -17,7 +17,7 @@ jobs:
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
-          node-version: lts/*
+          node-version: 26.12.1
           cache: pnpm
 
       - name: Install
@@ -33,7 +33,7 @@ jobs:
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
-          node-version: lts/*
+          node-version: 26.12.1
           cache: pnpm
 
       - name: Install
@@ -44,3 +44,19 @@ jobs:
 
       - name: Typecheck
         run: pnpm run typecheck
+
+  test-and-container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26.12.1
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -F @pulls.review/app exec nuxt prepare
+      - run: pnpm test
+      - run: node scripts/test-migration.mjs
+      - run: docker build -t pulls-review:test .
+      - run: node scripts/smoke-docker.mjs pulls-review:test

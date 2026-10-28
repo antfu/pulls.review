@@ -140,7 +140,7 @@
         history.pushState(null, '', path)
         currentPathEl.textContent = path
         const reviewLink = document.getElementById('review-link')
-        reviewLink.href = `https://pulls.review/gh/${owner}/${repo}/${number}?from=github-actions[bot]`
+        reviewLink.href = `https://pulls-review.shyim.workers.dev/gh/${owner}/${repo}/${number}?from=github-actions[bot]`
         reviewLink.textContent = reviewLink.href
       }
 

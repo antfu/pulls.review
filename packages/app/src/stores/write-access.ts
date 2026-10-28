@@ -3,7 +3,7 @@ import { Diagnostic } from 'nostics'
 import { computed, ref } from 'vue'
 import { t } from '../i18n'
 
-export const WRITE_BLOCKED_MESSAGE = 'This token cannot write to this repository. It needs the "repo" scope (classic token) or "Pull requests: Read and write" permission (fine-grained token).'
+export const WRITE_BLOCKED_MESSAGE = 'This GitHub account cannot write to this repository. It needs write access to pull requests.'
 
 /**
  * Whether the viewer may write back to the source, shared by every sub-store that
@@ -24,7 +24,7 @@ export function createWriteAccess(viewer: () => Promise<Viewer | undefined>) {
     if (!current.value)
       await resolve()
     if (!current.value)
-      throw new Error(t('errors.tokenRequired'))
+      throw new Error(t('errors.signInRequired'))
     try {
       return await action()
     }

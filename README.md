@@ -1,69 +1,49 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./packages/app/public/og-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="./packages/app/public/og.png">
-  <img alt="pulls.review Open Graph image" src="./packages/app/public/og.png">
-</picture>
-
-# [pulls.review](https://pulls.review)
+# [Diffwise](https://diffwise.shyim.de)
 
 > [!WARNING]
 > Heavily work in progress.
 
 Pull request review made simple. Groups changed files, summarizes what matters, and reviews them one scope at a time.
 
+Diffwise is a self-hosted fork of [pulls.review](https://github.com/antfu/pulls.review), using Nuxt, Better Auth, and SQLite. Production deployment is documented in [deploy/README.md](./deploy/README.md).
+
 ## Use on Website
 
-To use pulls.review on the website, simply visit [pulls.review](https://pulls.review) and follow the instructions to connect your GitHub account and start reviewing pull requests directly in your browser.
+To use Diffwise on the website, simply visit [diffwise.shyim.de](https://diffwise.shyim.de) and follow the instructions to connect your GitHub account and start reviewing pull requests directly in your browser.
 
 ## Use in GitHub
 
-You can optionally install userscript to enhance the GitHub interface with pulls.review features.
+You can optionally install userscript to enhance the GitHub interface with Diffwise features.
 
-Go to [pulls.review](https://pulls.review/) and scroll down to the GitHub section to install the userscript.
+Go to [diffwise.shyim.de](https://diffwise.shyim.de/) and scroll down to the GitHub section to install the userscript.
 
-## Analyze pull requests from CI (Experimental)
+## Automatic analysis with the GitHub App
 
-Instead of each reviewer spending their own model key, let a workflow analyze every pull request once and post the result as a PR comment. pulls.review picks the comment up automatically for everyone who opens the PR there. Re-runs on an unchanged PR skip the model call.
+Install the Diffwise GitHub App and enable analysis for selected repositories.
+The Nuxt backend stores results in SQLite and serves them in the PR view.
+Provider keys are encrypted; background jobs survive container restarts.
+See [self-hosting and migration instructions](./packages/server/README.md).
 
-```yaml
-# .github/workflows/pulls-review.yml
-name: pulls.review
-on:
-  # The analysis only reads the diff through the API and never checks out PR code,
-  # so `pull_request_target` is safe here and lets fork PRs get a comment too.
-  pull_request_target:
-    types: [opened, synchronize, reopened]
-
-permissions:
-  pull-requests: write
-
-jobs:
-  analyze:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: antfu/pulls.review@main
-        with:
-          api-key: ${{ secrets.VERCEL_AI_GATEWAY_API_KEY }}
-```
-
-`provider` is inferred from the key you pass (`gateway` for a Vercel AI Gateway token, `anthropic`, or `openai-compatible` with `base-url`); set it explicitly, along with `model` and `locale`, when you want to.
-
-The action is a thin wrapper around the `@pulls.review/actions` CLI, which works anywhere a GitHub token and a model key are in the environment:
+## Self-host with Docker
 
 ```sh
-GITHUB_TOKEN=... ANTHROPIC_API_KEY=... npx @pulls.review/actions owner/repo#123
+cp .env.example .env
+# Configure the GitHub App secrets and your public HTTPS origin.
+docker compose up -d --build
 ```
 
-Every variable also has a `PULLS_REVIEW_*` form that takes precedence (`PULLS_REVIEW_GITHUB_TOKEN`, `PULLS_REVIEW_PROVIDER`, `PULLS_REVIEW_API_KEY`, `PULLS_REVIEW_MODEL`, `PULLS_REVIEW_BASE_URL`, `PULLS_REVIEW_LOCALE`); `npx @pulls.review/actions --help` lists everything.
+SQLite lives in a persistent Docker volume. Put port 3000 behind an HTTPS reverse
+proxy. Back up the volume with the included online backup command; keep encryption
+secrets separately. Production cutover from Cloudflare requires the documented
+D1/KV import and queue-drain procedure.
 
 ## Packages
 
-| Package                                       | What it is                                                                                      |
-| --------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| [`packages/app`](./packages/app)              | The site at [pulls.review](https://pulls.review) and the github.com embed.                      |
-| [`@pulls.review/core`](./packages/core)       | Fetching, parsing, grouping and summarizing diffs - runs in the browser and in Node.            |
-| [`@pulls.review/actions`](./packages/actions) | The CLI the GitHub Action runs.                                                                 |
-| [`pulls.review`](./packages/cli)              | The standalone CLI for reviewing local git changes. Not implemented yet - the name is reserved. |
+| Package                                 | What it is                                                                           |
+| --------------------------------------- | ------------------------------------------------------------------------------------ |
+| [`packages/app`](./packages/app)        | The site at [diffwise.shyim.de](https://diffwise.shyim.de) and the github.com embed. |
+| [`packages/server`](./packages/server)  | GitHub App services, Drizzle/SQLite persistence and durable analysis jobs.           |
+| [`@pulls.review/core`](./packages/core) | Fetching, parsing, grouping and summarizing diffs - runs in the browser and in Node. |
 
 ## Credits
 

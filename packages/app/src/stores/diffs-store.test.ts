@@ -257,9 +257,9 @@ describe('createDiffsStore over any source', () => {
   })
 
   it('can refresh only a source with a fingerprint, and names the credential the source asks for', () => {
-    const live = createDiffsStore({ ...fakeSource({ sha: 'a' }), auth: 'github-token' }, { cache, llm })
+    const live = createDiffsStore({ ...fakeSource({ sha: 'a' }), auth: 'github-auth' }, { cache, llm })
     const paste = createDiffsStore(createPasteSource(PATCH_TEXT), { cache, llm })
-    expect([live.canRefresh, live.auth]).toEqual([true, 'github-token'])
+    expect([live.canRefresh, live.auth]).toEqual([true, 'github-auth'])
     expect([paste.canRefresh, paste.auth]).toEqual([false, undefined])
   })
 

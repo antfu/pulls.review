@@ -2,7 +2,7 @@ import { diagnostics } from '../../diagnostics'
 import { staticCredentials } from '../../types/source'
 import { createGithubClient, GithubApiError } from './client'
 
-/** Who a PAT authenticates as, plus what the token itself can do and until when. */
+/** Who a GitHub token authenticates as, plus what it can do and until when. */
 export interface GithubTokenMeta {
   login: string
   avatarUrl: string
@@ -25,7 +25,7 @@ function parseExpiration(header: string | null): number | null {
 }
 
 /**
- * Validates a PAT by fetching the user it authenticates as. Throws on an
+ * Validates a GitHub token by fetching the user it authenticates as. Throws on an
  * invalid token (401) or network failure - callers treat success as "token
  * works".
  */

@@ -47,47 +47,28 @@
     "uploadDescription": "上传或粘贴 unified diff，或将 {diff} / {patch} 文件拖放到本页任意位置。",
     "uploadButton": "上传 diff",
     "embedTitle": "嵌入到 github.com 中使用",
-    "embedDescription": "安装 {tampermonkey} 或 {violentmonkey} 后，每个 pull request 页面都会出现 pulls.review 侧边栏。",
+    "embedDescription": "安装 {tampermonkey} 或 {violentmonkey} 后，每个 pull request 页面都会出现 Diffwise 侧边栏。",
     "installUserscript": "安装用户脚本",
-    "bookmarkletTitle": "在 github.com 与 pulls.review 之间切换",
-    "bookmarkletDescription": "无法安装扩展？将此书签小工具拖到书签栏，即可在 pulls.review 中打开当前的拉取请求，并随时切换回来。",
+    "bookmarkletTitle": "在 github.com 与 Diffwise 之间切换",
+    "bookmarkletDescription": "无法安装扩展？将此书签小工具拖到书签栏，即可在 Diffwise 中打开当前的拉取请求，并随时切换回来。",
     "bookmarkletDrag": "拖到书签栏",
-    "actionsTitle": "通过 GitHub Actions 设置自动分析",
-    "actionsDescription": "在 CI 中对每个拉取请求分析一次，并将结果作为 PR 评论发布，审阅者无需各自准备模型密钥。",
-    "cliTitle": "通过 CLI 用于本地 git 改动",
-    "cliDescription": "在推送之前，像审阅 PR 一样分组并总结你的工作区、某个提交或某个分支。",
     "viewGuide": "查看指南"
   },
   "guide": {
     "userscript": {
-      "title": "将 pulls.review 嵌入到 github.com 中使用",
-      "intro": "用户脚本会直接在 github.com 的拉取请求页面中添加 pulls.review 面板，展示分组后的文件和摘要，无需切换标签页。",
+      "title": "将 Diffwise 嵌入到 github.com 中使用",
+      "intro": "用户脚本会直接在 github.com 的拉取请求页面中添加 Diffwise 面板，展示分组后的文件和摘要，无需切换标签页。",
       "manager": "安装用户脚本管理器：{tampermonkey} 或 {violentmonkey}。",
-      "install": "安装 pulls.review 用户脚本，管理器会请你确认。",
+      "install": "安装 Diffwise 用户脚本，管理器会请你确认。",
       "open": "在 github.com 上打开任意拉取请求，点击 \"Files changed\" 旁的 {tab} 标签。",
-      "ai": "github.com 会拦截 AI 分析所需的请求，因此面板只显示以 PR 评论形式分享的分析。如需重新分析，请在 pulls.review 上打开该 PR。"
+      "ai": "github.com 会拦截 AI 分析所需的请求，因此面板只显示以 PR 评论形式分享的分析。如需重新分析，请在 Diffwise 上打开该 PR。"
     },
     "bookmarklet": {
-      "title": "在 github.com 与 pulls.review 之间切换",
+      "title": "在 github.com 与 Diffwise 之间切换",
       "intro": "书签小工具是一个运行小段脚本的书签。它适用于任何浏览器，无需安装扩展，可在另一个站点中打开当前页面。",
       "bar": "显示书签栏，例如按 {shortcut}。",
       "drag": "将此按钮拖到书签栏：",
-      "use": "在 github.com 的拉取请求、提交或比较页面上点击该书签，即可在 pulls.review 中打开。再次点击即可返回。"
-    },
-    "actions": {
-      "title": "通过 GitHub Actions 自动分析",
-      "intro": "让 CI 在拉取请求创建或更新时分析一次。任何人打开该 PR，无论在这里还是在 github.com 的面板中，都能立即看到同一份分组摘要。无需每人准备模型密钥，来自 fork 的拉取请求也同样适用。",
-      "secret": "将模型密钥添加为仓库 secret，例如 {name}。",
-      "workflow": "将此 workflow 添加到仓库：",
-      "result": "创建或更新一个拉取请求即可体验。分析会以评论形式发布，PR 未变化时重新运行会跳过模型调用。",
-      "options": "{provider} 会根据密钥推断。可设置 {provider}、{model} 或 {locale} 进行覆盖。全部选项见 {readme}。"
-    },
-    "cli": {
-      "title": "通过 CLI 审阅本地 git 改动",
-      "intro": "在别人之前先审阅自己的改动。CLI 会在 pulls.review 中打开你的分支、某个提交或尚未提交的改动，让你在推送或创建 PR 之前，就看到改动分组和总结后的样子。",
-      "branch": "在 git 仓库中运行以下命令，将当前分支与默认分支进行对比审阅：",
-      "target": "或者选择要审阅的内容：",
-      "browser": "它会在浏览器中打开 {url}，可视化展示你的本地改动。请用终端中显示的一次性验证码确认该标签页。你还可以在页面中选择其他分支或提交进行对比。"
+      "use": "在 github.com 的拉取请求、提交或比较页面上点击该书签，即可在 Diffwise 中打开。再次点击即可返回。"
     }
   },
   "load": {
@@ -116,9 +97,11 @@
     "ai": "AI",
     "by": "作者",
     "sharedBy": "正在查看由以下用户分享的 AI 分析",
+    "feedbackUseful": "分析有帮助",
+    "feedbackNotUseful": "没有帮助",
     "sharedAnalysis": "正在查看共享的分析",
     "reviewedOf": "/ {total} 已审阅",
-    "openInSite": "在 pulls.review 中打开"
+    "openInSite": "在 Diffwise 中打开"
   },
   "commits": {
     "count": "{n} 个提交 | {n} 个提交",
@@ -131,6 +114,24 @@
   "embed": {
     "reviewChanges": "审查变更",
     "updateUserscript": "更新用户脚本"
+  },
+  "automation": {
+    "title": "自动化",
+    "enabled": "已启用",
+    "disabled": "已禁用",
+    "usage": "本月 {runs}/{budget} 次运行",
+    "usageUnlimited": "本月 {runs} 次运行",
+    "empty": "尚无服务器分析。"
+  },
+  "inbox": {
+    "title": "评审收件箱",
+    "needsReview": "等待我的评审",
+    "assigned": "分配给我",
+    "authored": "由我创建",
+    "mentioned": "提及我的",
+    "signIn": "使用 GitHub 登录以查看你的评审收件箱。",
+    "empty": "暂无待处理事项。",
+    "loadFailed": "无法加载你的收件箱"
   },
   "pulls": {
     "loading": "正在加载 pull request…",
@@ -149,6 +150,11 @@
     "groups": "{n} 个分组",
     "viewedHint": "已在此浏览器中查看",
     "aiAvailable": "有 AI 分析",
+    "analysisRunning": "AI 分析中",
+    "analysisReady": "AI 分析已就绪",
+    "analysisStale": "AI 分析可能已过期",
+    "analysisFailed": "AI 分析失败",
+    "analysisCritical": "{n} 个关键 | {n} 个关键",
     "sort": {
       "label": "排序",
       "recently-updated": "最近更新",
@@ -176,6 +182,9 @@
     "failedTitle": "AI 分析失败：{message}",
     "reanalyze": "重新分析",
     "withAi": "使用 AI 分析",
+    "remote": "在服务器上分析",
+    "remoteTitle": "使用你同步的 API 密钥在服务器上运行分析；结果会保存在本站",
+    "remoteQueued": "已在服务器排队",
     "statusTitle": "AI 分析",
     "starting": "正在启动…",
     "thinking": "思考中…（第 {step} 步）",
@@ -354,18 +363,13 @@
     "autoFetchFullFileHint": "检测部分内容中的语法错误并获取完整版本。",
     "language": "语言",
     "token": {
-      "label": "GitHub Personal Access Token",
-      "optional": "公开仓库可选；私有仓库或提交审查时必需。",
-      "scopes": "审查需要 {repo} scope（classic token）或 {fineGrained}（fine-grained token）",
-      "storedLocally": "仅存储在此浏览器中。",
-      "generate": "在 GitHub 上生成 →",
-      "fineGrained": "fine-grained token（无 classic scope）",
-      "updated": "更新于",
-      "expires": "过期于",
-      "neverExpires": "永不过期",
-      "change": "更换 token",
-      "checking": "正在检查 token…",
-      "couldNotVerify": "无法验证此 token。"
+      "label": "GitHub",
+      "checking": "正在检查登录状态…",
+      "signIn": "使用 GitHub 登录",
+      "signInHint": "授权 Diffwise GitHub App 访问私有仓库并发表评审。GitHub 请求会经过本站；你的浏览器中不会存储 GitHub 令牌。",
+      "signOut": "退出登录",
+      "viaApp": "GitHub App",
+      "embedAnonymous": "此嵌入视图以匿名方式加载公开仓库。打开 diffwise.shyim.de 并使用 GitHub 登录，以访问私有仓库和评审。"
     },
     "tabs": {
       "appearance": "外观",
@@ -393,12 +397,8 @@
       "embedUnavailable": "嵌入模式下不可用 AI 功能",
       "embedReason": "github.com 严格的 CSP 会阻止 AI 功能所需的请求。{link} 即可使用。",
       "goToWebsite": "前往网站",
-      "agent": "代理",
-      "agentNeedsCli": "本地代理在 pulls.review CLI 中运行：在仓库中执行 `npx pulls.review`，然后在那里选择。",
-      "agentDetecting": "正在查找代理 CLI…",
-      "agentNone": "在此机器上未找到代理 CLI。",
-      "agentHint": "安装在此机器上并以自己的账号登录的编码代理：{claude}, {codex}, {opencode} 或 {pi}。它只读取补丁和仓库，不会写入。",
-      "agentPick": "选择代理…"
+      "cloudDescription": "配置模型提供商以启用 AI 生成的摘要。设置会加密存储在你的 GitHub 登录之后，并缓存在此浏览器中。",
+      "signInRequiredHint": "添加提供商密钥前请使用 GitHub 登录。你的 AI 设置随后会加密同步到你的账户。"
     },
     "models": {
       "placeholder": "模型 id",
@@ -407,8 +407,7 @@
       "noMatch": "没有匹配的模型",
       "useCustom": "使用“{id}”",
       "free": "免费",
-      "priceTitle": "输入 {input}/M · 输出 {output}/M tokens",
-      "agentDefault": "代理默认"
+      "priceTitle": "输入 {input}/M · 输出 {output}/M tokens"
     }
   },
   "rules": {
@@ -422,34 +421,10 @@
     "generated": { "label": "生成文件", "summary": "生成或构建产物的变更。" }
   },
   "errors": {
-    "tokenRequired": "写入此 pull request 需要 GitHub token。",
     "diffNotLoaded": "diff 尚未加载完成。",
-    "noViewer": "无法确定此 token 对应的 GitHub 用户。",
+    "noViewer": "无法确定已登录的 GitHub 用户。",
     "tokenRejected": "GitHub 拒绝了此 token（401）。请检查是否完整粘贴且未被撤销。",
-    "tooLarge": "分析内容过大，无法作为评论分享（{n} 个字符）。"
-  },
-  "local": {
-    "loading": "正在加载本地更改…",
-    "loadFailed": "无法加载这些更改",
-    "auth": {
-      "title": "输入终端中显示的代码",
-      "hint": "pulls.review 已在其运行的终端中打印了一个 6 位代码。",
-      "invalid": "该代码无效。请检查终端后重试。",
-      "submit": "继续"
-    },
-    "picker": {
-      "tagline": "像审查 Pull Request 一样审查本地分支、范围和未提交的更改：分组、摘要、逐个范围查看。",
-      "title": "审查本地更改",
-      "base": "基准",
-      "head": "头部",
-      "compare": "比较",
-      "shortcuts": "快捷方式",
-      "worktree": "未提交的更改",
-      "recentCommits": "最近的提交",
-      "branches": "分支",
-      "against": "对比 {base}",
-      "current": "当前分支",
-      "github": "或打开 GitHub 的 Pull Request、比较或提交"
-    }
+    "tooLarge": "分析内容过大，无法作为评论分享（{n} 个字符）。",
+    "signInRequired": "请使用 GitHub 登录以在此拉取请求中写入。"
   }
 }

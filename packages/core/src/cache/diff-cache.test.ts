@@ -215,10 +215,7 @@ describe('diff cache', () => {
     const { cache } = cacheWith()
     const commit = makeEntry('commit', 'sha-c', 3000)
     commit.diff.ref = { kind: 'github-commit', owner: 'o', repo: 'r', sha: 'sha-c' }
-    const local = makeEntry('local', 'sha-l', 2500)
-    local.diff.ref = { kind: 'local', repo: '/repo', target: 'HEAD' }
     await cache.put(commit)
-    await cache.put(local)
     await cache.put(makeEntry('pr', 'sha-pr', 2000))
     await cache.put(makeEntry('range', 'sha-range', 1000))
 

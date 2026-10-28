@@ -138,6 +138,8 @@ export const GroupedResultSchema = v.object({
   generatedAt: v.string(),
   /** `provider/model-id` that produced an llm/web-llm result. */
   model: v.optional(v.string()),
+  /** Version of the analysis prompt that produced the result (see `PROMPT_VERSION`). */
+  promptVersion: v.optional(v.number()),
   /** Login of the user whose shared PR comment this result was loaded from (see plans/07). */
   sharedBy: v.optional(v.string()),
   /** BCP 47 tag of the language the summaries were written in; absent on rule-based results and on llm results from before the setting existed. */
@@ -158,7 +160,7 @@ export const AnalyzeProgressSchema = v.variant('kind', [
 ])
 export type AnalyzeProgress = v.InferOutput<typeof AnalyzeProgressSchema>
 
-/** A conversation held by a local agent CLI on the user's machine (`plans/11-local-agents.md`), valid only there. */
+/** A conversation held by an external agent runtime; only that runtime can continue it. */
 export const AgentSessionRefSchema = v.object({
   agent: v.string(),
   id: v.string(),

@@ -1,6 +1,7 @@
 import type { LlmChatInput, LlmRunner } from './llm-runner'
 import { resolveModel } from '@pulls.review/core/analyze'
 import { diagnostics } from '@pulls.review/core/diagnostics'
+import { githubOauthSession, isGithubOauthAvailable } from '../auth/github-oauth'
 import { settings } from '../state/settings'
 
 export const NOT_COMPILED_MESSAGE = 'llm adapter is not compiled into this build (PR_LLM is off)'
@@ -44,7 +45,7 @@ async function chat({ diff, session, text, signal, onMessages, onGroupingUpdate 
 
 /** Runs core's pi loop in this browser, with the model and language from Settings. */
 export const browserLlmRunner: LlmRunner = {
-  isSetup: () => import.meta.env.PR_LLM && resolveModel(settings.value.llm) !== undefined,
+  isSetup: () => import.meta.env.PR_LLM && (!isGithubOauthAvailable() || Boolean(githubOauthSession.value)) && resolveModel(settings.value.llm) !== undefined,
   async analyze(diff, options) {
     if (!import.meta.env.PR_LLM)
       throw new Error(NOT_COMPILED_MESSAGE)

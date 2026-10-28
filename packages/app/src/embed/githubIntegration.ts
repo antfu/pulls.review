@@ -5,7 +5,7 @@
 // open (see `dark.ts` on why its classes are otherwise off limits); everything else
 // stays on `document.body` and elements inside it.
 
-export const SITE_ORIGIN = 'https://pulls.review'
+export const SITE_ORIGIN = 'https://diffwise.shyim.de'
 export const PANEL_OPEN_CLASS = 'diffs-panel-open'
 
 const STYLE_ID = 'diffs-embed-page-style'
@@ -156,7 +156,7 @@ export interface ReviewLink extends EmbedPr {
   from?: string
 }
 
-/** `https://pulls.review/gh/{owner}/{repo}/{number}[?from=login]`, or `undefined` for any other URL. */
+/** `https://diffwise.shyim.de/gh/{owner}/{repo}/{number}[?from=login]`, or `undefined` for any other URL. */
 export function parseReviewLink(href: string): ReviewLink | undefined {
   const url = new URL(href, SITE_ORIGIN)
   if (url.origin !== SITE_ORIGIN)

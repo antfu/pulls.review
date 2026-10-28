@@ -4,7 +4,7 @@ import type { CommitNav } from '../../composables/useCommitView'
 import type { DiffsStore } from '../../stores/types'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import ActionToggleGroup from '@antfu/design/components/Action/ActionToggleGroup.vue'
-import { ACTIONS_BOT_LOGIN } from '@pulls.review/core/github'
+import { SERVER_ANALYSIS_BOT_LOGINS } from '@pulls.review/core/github'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -13,6 +13,7 @@ import { showGroupSidebar } from '../../state/group-nav'
 import { scrollBehavior } from '../../state/smooth-scroll'
 import GithubAvatar from '../GithubAvatar.vue'
 import NavControls from '../NavControls.vue'
+import AnalysisFeedbackButtons from './AnalysisFeedbackButtons.vue'
 import DiffAnalyzeButton from './DiffAnalyzeButton.vue'
 import DiffCollapseMenu from './DiffCollapseMenu.vue'
 import DiffCommitSelector from './DiffCommitSelector.vue'
@@ -48,6 +49,12 @@ const groups = computed(() => props.store.groups)
 const isEmbedded = import.meta.env.PR_EMBED
 
 const aiResult = computed(() => props.store.aiResult)
+const serverFeedbackTarget = computed(() => {
+  const ref = props.store.diff?.ref
+  return ref?.kind === 'github-pr' && aiResult.value?.sharedBy && SERVER_ANALYSIS_BOT_LOGINS.includes(aiResult.value.sharedBy)
+    ? { owner: ref.owner, repo: ref.repo, number: Number(ref.number) }
+    : undefined
+})
 const analyzeOptions = computed(() => [
   { value: 'rule-based', label: t('pr.rules') },
   { value: aiResult.value?.source ?? 'llm', label: t('pr.ai'), icon: 'i-ph-sparkle-duotone' },
@@ -147,7 +154,7 @@ function scrollToGroup(key: string) {
         </span>
         <DiffCommitSelector v-if="commitNav" :nav="commitNav" />
         <span v-if="aiResult?.sharedBy && store.analyzeMode !== 'rule-based'" class="flex items-center gap-1.5 border border-base rounded px2" :title="aiResult.model">
-          <template v-if="aiResult.sharedBy === ACTIONS_BOT_LOGIN">
+          <template v-if="SERVER_ANALYSIS_BOT_LOGINS.includes(aiResult.sharedBy)">
             {{ $t('pr.sharedAnalysis') }}
           </template>
           <template v-else>
@@ -156,6 +163,7 @@ function scrollToGroup(key: string) {
             {{ aiResult.sharedBy }}
           </template>
         </span>
+        <AnalysisFeedbackButtons v-if="serverFeedbackTarget" :owner="serverFeedbackTarget.owner" :repo="serverFeedbackTarget.repo" :number="serverFeedbackTarget.number" />
         <DiffAnalyzeButton v-if="store.llm" :store="store" :document="document" />
         <DiffShareButton v-if="canShareResult" :store="store" :document="document" />
         <DiffPrMeta v-if="showGroupSidebar" class="ml-auto" :store="store" :document="document" />

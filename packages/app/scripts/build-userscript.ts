@@ -1,15 +1,7 @@
-// Stamps `userscript/diffs-github.user.js` (the checked-in template) with a
-// build-specific version and a cache-busted `@require` URL, writing the result to
-// `public/pulls-review-github.user.js` (gitignored, like `public/embed/` - see
-// scripts/build-embed-css.ts) so Vite's publicDir copy serves it at
-// https://pulls.review/pulls-review-github.user.js. `@updateURL`/`@downloadURL` in the
-// template already point userscript managers at that same URL for auto-updates.
-//
-// The same source is also written to the legacy `public/diffs-github.user.js` path
-// (the script's name before the site's rename to pulls.review), so userscript
-// managers that installed it from that URL keep receiving updates rather than going
-// stale. Drop this once telemetry/support requests show nobody's still on it.
+// Build both userscript filenames so existing installs keep receiving updates.
 import { execSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
+import { readdirSync, readFileSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import { join } from 'node:path'
 import process from 'node:process'
@@ -26,7 +18,22 @@ export function formatDate(date: Date): string {
 }
 
 export function getSha(): string {
-  return execSync('git rev-parse --short HEAD', { cwd: fileURLToPath(new URL('..', import.meta.url)) }).toString().trim()
+  if (process.env.BUILD_REVISION)
+    return process.env.BUILD_REVISION
+  try {
+    return execSync('git rev-parse --short HEAD', { cwd: fileURLToPath(new URL('..', import.meta.url)), stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim()
+  }
+  catch {
+    // Source archives and Docker contexts do not contain .git. Hash source content
+    // so a changed embed still gets a new cache key without Git metadata.
+    const root = fileURLToPath(new URL('../src', import.meta.url))
+    const hash = createHash('sha256')
+    for (const file of readdirSync(root, { recursive: true, withFileTypes: true }).filter(file => file.isFile()).sort((a, b) => join(a.parentPath, a.name).localeCompare(join(b.parentPath, b.name)))) {
+      if (!file.parentPath.includes('.generated'))
+        hash.update(readFileSync(join(file.parentPath, file.name)))
+    }
+    return hash.digest('hex').slice(0, 12)
+  }
 }
 
 export async function buildUserscript() {
@@ -37,24 +44,24 @@ export async function buildUserscript() {
 
   const source = `
 // ==UserScript==
-// @name         pulls.review for GitHub Pull Requests
-// @namespace    https://pulls.review
+// @name         Diffwise for GitHub Pull Requests
+// @namespace    https://diffwise.shyim.de
 // @version      ${version}
-// @description  Adds a pulls.review-powered review drawer to GitHub pull request pages
+// @description  Adds a Diffwise review drawer to GitHub pull request pages
 // @author       antfu
 // @match        https://github.com/*
 // @icon         https://github.com/favicon.ico
-// @require      https://pulls.review/embed/diffs-embed.js?${sha}
+// @require      https://diffwise.shyim.de/embed/diffs-embed.js?${sha}
 // @grant        none
 // @run-at       document-idle
-// @updateURL    https://pulls.review/pulls-review-github.user.js
-// @downloadURL  https://pulls.review/pulls-review-github.user.js
+// @updateURL    https://diffwise.shyim.de/pulls-review-github.user.js
+// @downloadURL  https://diffwise.shyim.de/pulls-review-github.user.js
 // @supportURL   https://github.com/antfu/pulls.review/issues
-// @homepageURL  https://pulls.review
+// @homepageURL  https://diffwise.shyim.de
 // ==/UserScript==
 
 ;(() => {
-  // Mount the pulls.review embed panel Web Component from pulls.review
+  // Mount the Diffwise embed panel Web Component
   if (!document.querySelector('pulls-review-embed-panel'))
     document.body.appendChild(document.createElement('pulls-review-embed-panel'))
 })()

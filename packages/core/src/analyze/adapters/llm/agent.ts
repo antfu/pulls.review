@@ -4,6 +4,7 @@ import type { Locale } from '../../../locales'
 import type { AnalyzeOptions } from '../../../types/analyze'
 import type { DiffsPayload } from '../../../types/diff'
 import type { ResolvedModel } from './model'
+import type { AnalysisPromptContext } from './prompt'
 import type { Analysis } from './schema'
 import { runAgentLoop } from '@earendil-works/pi-agent-core'
 import { serializeRef } from '../../../types/source'
@@ -29,6 +30,8 @@ function readPaths(args: unknown): string[] {
 export interface LlmAnalyzeOptions extends AnalyzeOptions {
   /** Called with the full transcript so far whenever a message starts, streams, or ends. */
   onTranscript?: (messages: AgentMessage[]) => void
+  /** Repository instructions and/or the previous analysis for incremental runs. */
+  context?: AnalysisPromptContext
 }
 
 export async function runAgent(diff: DiffsPayload, resolved: ResolvedModel, locale: Locale, options?: LlmAnalyzeOptions): Promise<{ analysis: Analysis, transcript: AgentMessage[] }> {
@@ -40,7 +43,7 @@ export async function runAgent(diff: DiffsPayload, resolved: ResolvedModel, loca
     messages: [{ role: 'system', content: AGENT_SYSTEM_PROMPT, timestamp: Date.now() }],
     tools: [createReadDiffsTool(diff, ledger), createSubmitGroupingTool(diff, ledger)],
   }
-  const prompt: AgentMessage = { role: 'user', content: buildAnalysisPrompt(diff, locale), timestamp: Date.now() }
+  const prompt: AgentMessage = { role: 'user', content: buildAnalysisPrompt(diff, locale, options?.context), timestamp: Date.now() }
 
   const config: AgentLoopConfig = {
     model: resolved.model,

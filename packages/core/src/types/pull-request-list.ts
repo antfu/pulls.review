@@ -40,6 +40,8 @@ export const PullRequestListItemSchema = v.object({
   additions: v.optional(v.number()),
   deletions: v.optional(v.number()),
   changedFiles: v.optional(v.number()),
+  /** Current head commit (GraphQL only); lets lists mark stored analyses stale. */
+  headSha: v.optional(v.string()),
 })
 export type PullRequestListItem = v.InferOutput<typeof PullRequestListItemSchema>
 

@@ -17,7 +17,7 @@ import { CHAT_PANEL_DOCK_MIN_WIDTH } from '../../state/chat-panel'
 import { GROUP_SIDEBAR_MAX_RATIO, GROUP_SIDEBAR_MIN_WIDTH, groupSidebarWidth, isWide, showGroupSidebar } from '../../state/group-nav'
 import { scrollBehavior } from '../../state/smooth-scroll'
 import { chatDraftKey } from '../chat/chat-quotes'
-import GithubTokenRecovery from '../settings/GithubTokenRecovery.vue'
+import GithubAuthRecovery from '../settings/GithubAuthRecovery.vue'
 import { diffVirtualizerKey } from './diff-virtualizer'
 import DiffGroup from './DiffGroup.vue'
 import DiffGroupSidebar from './DiffGroupSidebar.vue'
@@ -228,10 +228,9 @@ function refreshFromBanner() {
               </template>
             </FeedbackEmptyState>
           </slot>
-          <GithubTokenRecovery
-            v-if="store?.auth === 'github-token'"
+          <GithubAuthRecovery
+            v-if="store?.auth === 'github-auth'"
             class="mxa max-w-200 border border-base border-rounded p4"
-            @saved="store?.load()"
           />
         </div>
       </template>

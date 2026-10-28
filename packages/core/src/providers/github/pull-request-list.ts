@@ -12,7 +12,7 @@ const PAGE_SIZE = 100
  * the opaque `next` continuation (a page number for REST, a cursor for GraphQL).
  */
 export async function fetchOpenPullRequests(client: GithubClient, owner: string, repo: string, next?: string): Promise<PullRequestListPage> {
-  return await client.token()
+  return await client.authenticated()
     ? fetchViaGraphql(client, owner, repo, next)
     : fetchViaRest(client, owner, repo, next)
 }
@@ -107,6 +107,7 @@ interface GraphqlPullRequestNode {
   additions: number
   deletions: number
   changedFiles: number
+  headRefOid: string
 }
 
 interface OpenPullRequestsQueryData {
@@ -134,7 +135,7 @@ query OpenPullRequests($query: String!, $first: Int!, $cursor: String) {
         reviewDecision
         closingIssuesReferences { totalCount }
         commits(last: 1) { nodes { commit { statusCheckRollup { state } } } }
-        additions deletions changedFiles
+        additions deletions changedFiles headRefOid
       }
     }
   }
@@ -188,5 +189,6 @@ function normalizeGraphqlNode(node: GraphqlPullRequestNode): PullRequestListItem
     additions: node.additions,
     deletions: node.deletions,
     changedFiles: node.changedFiles,
+    headSha: node.headRefOid,
   }
 }

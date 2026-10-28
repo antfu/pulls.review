@@ -1,4 +1,5 @@
 import type { Locale } from '../../../locales'
+import type { GroupedResult } from '../../../types/analyze'
 import type { DiffsPayload, FileChange } from '../../../types/diff'
 import picomatch from 'picomatch'
 import { promptLanguageName } from '../../../locales'
@@ -25,6 +26,9 @@ export function renderFilesAsText(files: FileChange[]): string {
 }
 
 export const INLINE_DIFF_CHAR_LIMIT = 200_000
+
+/** Bump when the system prompt or analysis prompt shape changes; stamped on every result. */
+export const PROMPT_VERSION = 1
 
 const ROLE_SECTION = `<role>
 You organize a GitHub pull request's changed files into review groups, so a reviewer can read the PR feature by feature instead of file by file.
@@ -57,32 +61,6 @@ export const AGENT_SYSTEM_PROMPT = `${ROLE_SECTION}
 
 ${OUTPUT_SECTION}`
 
-export interface CliAgentPromptOptions {
-  /** Where the full patch was written for the agent to open. */
-  patchPath: string
-  /** Whether the agent runs inside the repository the diff is from, so it may open full files. */
-  repository: boolean
-}
-
-/**
- * The system prompt for a local agent CLI (`plans/11-local-agents.md`), which has its own
- * file tools instead of `read_diffs` and answers with JSON instead of calling `submit_grouping`.
- */
-export function buildCliAgentSystemPrompt({ patchPath, repository }: CliAgentPromptOptions): string {
-  const files = repository
-    ? `Open files in the repository when the hunks are not enough to tell what a change is for. Never modify anything.`
-    : `The patch is all there is: the repository is not checked out here.`
-  return `${ROLE_SECTION}
-
-<workflow>
-1. Read the manifest and form a grouping hypothesis from paths and hunk headers.
-2. The full patch is at ${patchPath}; read it (or parts of it) only where the hypothesis is uncertain, or where a change looks risky enough to deserve a note. ${files} Never read [generated] or [binary] paths.
-3. Finish by answering with the grouping as JSON matching the schema, and nothing else.
-</workflow>
-
-${OUTPUT_SECTION}`
-}
-
 export const CHAT_SYSTEM_SECTION = `<chat>
 The grouping has been submitted and the reviewer is now asking follow-up questions about this pull request.
 - Always reply in the same natural language as the user's latest message, whatever language the diffs, summaries and earlier messages are in. Keep code, paths and identifiers as they are.
@@ -92,13 +70,6 @@ The grouping has been submitted and the reviewer is now asking follow-up questio
 </chat>`
 
 /** The chat rules for a local agent CLI: the grouping update is a fenced JSON block, not a tool call. */
-export const CLI_AGENT_CHAT_SECTION = `<chat>
-The grouping has been submitted and the reviewer is now asking follow-up questions about this pull request.
-- Always reply in the same natural language as the user's latest message, whatever language the diffs, summaries and earlier messages are in. Keep code, paths and identifiers as they are.
-- Answer from the patch; read it again when you need a file you have not seen.
-- Only when the user asks to change the grouping, end your reply with one fenced \`\`\`json block holding the complete new grouping in the same schema as before; every manifest path must appear exactly once. Otherwise, include no JSON.
-- Be concise; use Markdown and reference files by path.
-</chat>`
 
 const STATUS_LETTERS: Record<FileChange['status'], string> = {
   added: 'A',
@@ -151,7 +122,31 @@ export function buildManifest(files: FileChange[]): string {
 }
 
 /** The first user message. Stays English whatever `locale` is; only the closing instruction names the output language. */
-export function buildAnalysisPrompt(diff: DiffsPayload, locale: Locale): string {
+/** Extra reviewer context a host can supply alongside the diff itself. */
+export interface AnalysisPromptContext {
+  /** Repository-authored review instructions (e.g. `AGENTS.md` at the base). */
+  instructions?: string
+  /** The previous stored analysis of this PR at an older head, for incremental runs. */
+  previous?: { headSha: string, result: GroupedResult }
+}
+
+const CONTEXT_CHAR_LIMIT = 16_000
+
+function renderPreviousAnalysis(previous: NonNullable<AnalysisPromptContext['previous']>): string {
+  const compact = {
+    overallSummary: previous.result.overallSummary,
+    groups: previous.result.groups.map(group => ({
+      key: group.key,
+      label: group.label,
+      critical: group.critical,
+      filePaths: group.filePaths,
+      children: group.children?.map(child => ({ key: child.key, label: child.label, critical: child.critical, filePaths: child.filePaths })),
+    })),
+  }
+  return JSON.stringify(compact).slice(0, CONTEXT_CHAR_LIMIT)
+}
+
+export function buildAnalysisPrompt(diff: DiffsPayload, locale: Locale, context?: AnalysisPromptContext): string {
   const parts = [`PR title: ${diff.title}`]
   if (diff.url)
     parts.push(`PR link: ${diff.url}`)
@@ -166,6 +161,10 @@ export function buildAnalysisPrompt(diff: DiffsPayload, locale: Locale): string 
   const diffsText = renderFilesAsText(diff.files)
   if (diffsText.length <= INLINE_DIFF_CHAR_LIMIT)
     parts.push(`---DIFFS--- (all diffs included; you may submit directly)\n${diffsText}`)
+  if (context?.instructions?.trim())
+    parts.push(`---REPOSITORY INSTRUCTIONS---\n${context.instructions.trim().slice(0, CONTEXT_CHAR_LIMIT)}`)
+  if (context?.previous)
+    parts.push(`---PREVIOUS ANALYSIS--- (at head ${context.previous.headSha.slice(0, 7)}; the PR has moved since - reuse this grouping where files are unchanged and focus on what changed)\n${renderPreviousAnalysis(context.previous)}`)
   parts.push(`Respond and categorize in ${promptLanguageName(locale)}.`)
   return parts.join('\n\n')
 }

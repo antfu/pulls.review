@@ -137,14 +137,14 @@ describe('setPanelOpenWidth', () => {
 
 describe('parseReviewLink', () => {
   it('reads the PR and the ?from= login, decoded', () => {
-    expect(parseReviewLink('https://pulls.review/gh/antfu/pulls.review/38?from=github-actions%5Bbot%5D'))
+    expect(parseReviewLink('https://diffwise.shyim.de/gh/antfu/pulls.review/38?from=github-actions%5Bbot%5D'))
       .toEqual({ ...pr, from: 'github-actions[bot]' })
-    expect(parseReviewLink('https://pulls.review/gh/antfu/pulls.review/38')).toEqual({ ...pr, from: undefined })
+    expect(parseReviewLink('https://diffwise.shyim.de/gh/antfu/pulls.review/38')).toEqual({ ...pr, from: undefined })
   })
 
   it('ignores other pages and origins', () => {
-    expect(parseReviewLink('https://pulls.review/gh/antfu/pulls.review')).toBeUndefined()
-    expect(parseReviewLink('https://pulls.review/')).toBeUndefined()
+    expect(parseReviewLink('https://diffwise.shyim.de/gh/antfu/pulls.review')).toBeUndefined()
+    expect(parseReviewLink('https://diffwise.shyim.de/')).toBeUndefined()
     expect(parseReviewLink('https://example.com/gh/antfu/pulls.review/38')).toBeUndefined()
   })
 })
@@ -173,8 +173,8 @@ describe('hijackReviewLinks', () => {
   const settle = () => new Promise(resolve => setTimeout(resolve, 0))
 
   it('opens same-PR links in the drawer and appends a new-tab icon, leaving other links alone', () => {
-    const same = link('https://pulls.review/gh/antfu/pulls.review/38?from=github-actions[bot]')
-    const other = link('https://pulls.review/gh/antfu/pulls.review/37?from=antfu')
+    const same = link('https://diffwise.shyim.de/gh/antfu/pulls.review/38?from=github-actions[bot]')
+    const other = link('https://diffwise.shyim.de/gh/antfu/pulls.review/37?from=antfu')
     document.body.append(same, other)
     const onOpen = vi.fn()
     const stop = hijackReviewLinks({ pr: () => pr, onOpen, launchLabel: () => 'Open in pulls.review' })
@@ -198,7 +198,7 @@ describe('hijackReviewLinks', () => {
     const onOpen = vi.fn()
     const stop = hijackReviewLinks({ pr: () => pr, onOpen, launchLabel: () => '' })
 
-    const late = link('https://pulls.review/gh/antfu/pulls.review/38?from=antfu')
+    const late = link('https://diffwise.shyim.de/gh/antfu/pulls.review/38?from=antfu')
     document.body.append(late)
     await settle()
     document.body.append(document.createElement('div'))
@@ -209,7 +209,7 @@ describe('hijackReviewLinks', () => {
     expect(onOpen).toHaveBeenCalledOnce()
 
     stop()
-    document.body.append(link('https://pulls.review/gh/antfu/pulls.review/38'))
+    document.body.append(link('https://diffwise.shyim.de/gh/antfu/pulls.review/38'))
     await settle()
     expect(document.querySelectorAll('.pulls-review-launch')).toHaveLength(1)
   })

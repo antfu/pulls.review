@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { MAX_TURNS, STEER_TURN } from './agent'
 import { runLlmAnalysis } from './index'
 import { resolveModel } from './model'
-import { AGENT_SYSTEM_PROMPT, buildAnalysisPrompt } from './prompt'
+import { AGENT_SYSTEM_PROMPT, buildAnalysisPrompt, PROMPT_VERSION } from './prompt'
 import { defaultLlmSettings } from './settings'
 
 const runtime = vi.hoisted(() => ({ streamFn: undefined as StreamFn | undefined }))
@@ -89,6 +89,7 @@ describe('runLlmAnalysis', () => {
     const { result, transcript } = await analyze(diff)
 
     expect(result.source).toBe('llm')
+    expect(result.promptVersion).toBe(PROMPT_VERSION)
     expect(result.overallSummary).toBe('Adds a feature.')
     expect(result.groups).toEqual([{ key: 'feature', label: 'Feature', category: 'core', filePaths: ['a.ts', 'b.ts'] }])
     expect(result.locale).toBe('en')
@@ -256,5 +257,38 @@ describe('reconcile', () => {
       fileNotes: undefined,
       children: [{ fileNotes: [{ path: 'b.ts', text: 'Covers the edge case.' }] }],
     })
+  })
+})
+
+describe('buildAnalysisPrompt context', () => {
+  it('includes repository instructions when provided', () => {
+    const prompt = buildAnalysisPrompt(diffWithFiles(file('a.ts')), 'en', { instructions: 'Always group migrations separately.' })
+    expect(prompt).toContain('---REPOSITORY INSTRUCTIONS---')
+    expect(prompt).toContain('Always group migrations separately.')
+  })
+
+  it('includes a compact previous analysis for incremental runs', () => {
+    const prompt = buildAnalysisPrompt(diffWithFiles(file('a.ts')), 'en', {
+      previous: {
+        headSha: 'abc1234567',
+        result: {
+          source: 'llm',
+          generatedAt: '2026-10-28T12:00:00.000Z',
+          schemaVersion: 1,
+          overallSummary: 'Earlier summary.',
+          groups: [{ key: 'feature', label: 'Feature', category: 'core', filePaths: ['a.ts'] }],
+        },
+      },
+    })
+    expect(prompt).toContain('---PREVIOUS ANALYSIS---')
+    expect(prompt).toContain('abc1234')
+    expect(prompt).toContain('Earlier summary.')
+    expect(prompt).toContain('feature')
+  })
+
+  it('omits context sections by default', () => {
+    const prompt = buildAnalysisPrompt(diffWithFiles(file('a.ts')), 'en')
+    expect(prompt).not.toContain('REPOSITORY INSTRUCTIONS')
+    expect(prompt).not.toContain('PREVIOUS ANALYSIS')
   })
 })

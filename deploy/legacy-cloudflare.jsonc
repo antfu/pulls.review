@@ -1,0 +1,53 @@
+// Historical configuration for export/rollback reference. Do not deploy this migrated tree with Wrangler.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pulls-review",
+  "compatibility_date": "2026-10-26",
+  "main": "packages/worker/src/index.ts",
+  "workers_dev": true,
+  // Production is the custom domain `pulls.shyim.de` (the `shyim.de` zone is on this
+  // Cloudflare account). The GitHub App's callback/webhook/setup URLs use this origin.
+  "routes": [{ "pattern": "pulls.shyim.de", "custom_domain": true }],
+  //
+  // Secrets (via `.dev.vars` locally, `wrangler secret put` in production):
+  //   GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, SESSION_SECRET     : user OAuth
+  //   GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY, GITHUB_WEBHOOK_SECRET: App server-to-server
+  //   AI_GATEWAY_API_KEY / ANTHROPIC_API_KEY / OPENAI_API_KEY     : server-side analysis
+  // Public vars may live here instead: GITHUB_APP_SLUG, PULLS_REVIEW_MODEL.
+  "assets": {
+    "directory": "./packages/app/dist",
+    "not_found_handling": "single-page-application",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "pulls-review",
+      "database_id": "34a2e2a6-4a48-4273-84a2-949f44e755b0",
+      "migrations_dir": "packages/worker/migrations"
+    }
+  ],
+  "kv_namespaces": [
+    { "binding": "INSTALLATIONS", "id": "44a4d2dce8ac40729089997dbc6cc0bb" }
+  ],
+  "queues": {
+    "producers": [
+      { "binding": "ANALYSIS_QUEUE", "queue": "pulls-review-analysis" }
+    ],
+    "consumers": [
+      { "queue": "pulls-review-analysis", "max_batch_size": 1, "max_retries": 2, "dead_letter_queue": "pulls-review-analysis-dlq" }
+    ]
+  },
+  "limits": {
+    // Server-side LLM analysis runs in the queue consumer; the default CPU
+    // budget is too small for large diffs (requires Workers Paid).
+    "cpu_ms": 300000
+  },
+  "observability": {
+    "enabled": true,
+    "traces": {
+      "enabled": true
+    }
+  }
+}

@@ -6,11 +6,11 @@ import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.v
 import { createGithubSource } from '@pulls.review/core/github'
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { withBackendAnalysisResults } from '../../../../analyze/remote-analyze'
 import { useAppContext } from '../../../../app-context'
 import DiffsPage from '../../../../components/diff/DiffsPage.vue'
 import { useCommitView } from '../../../../composables/useCommitView'
 import { useDocumentTitle } from '../../../../composables/useDocumentTitle'
-import { resolveStoredTokenMeta } from '../../../../composables/useGithubTokenMeta'
 import { createDiffsStore } from '../../../../stores/diffs-store'
 
 const props = defineProps<{ sourceRef: RoutableRef }>()
@@ -24,10 +24,14 @@ const ref = props.sourceRef
 // `?from=<login>` deep-links a shared analysis (see plans/07); read once, never rewritten.
 const from = typeof route.query.from === 'string' ? route.query.from : undefined
 
-const parent = createDiffsStore(createGithubSource(ref, credentials, { tokenMeta: resolveStoredTokenMeta }), { cache, llm, from })
+const githubSource = createGithubSource(ref, credentials)
+const source = ref.kind === 'github-pr'
+  ? withBackendAnalysisResults(githubSource, { owner: ref.owner, repo: ref.repo, number: Number(ref.number) })
+  : githubSource
+const parent = createDiffsStore(source, { cache, llm, from })
 const { store, commitNav, selected } = useCommitView(
   parent,
-  sha => createGithubSource({ kind: 'github-commit', owner: ref.owner, repo: ref.repo, sha }, credentials, { tokenMeta: resolveStoredTokenMeta }),
+  sha => createGithubSource({ kind: 'github-commit', owner: ref.owner, repo: ref.repo, sha }, credentials),
   { cache, llm },
 )
 

@@ -15,6 +15,6 @@ import { BOOKMARKLET } from './bookmarklet'
     :title="$t('landing.bookmarkletDrag')"
     @click.prevent
   >
-    pulls.review ⇄ GitHub
+    Diffwise ⇄ GitHub
   </ActionButton>
 </template>

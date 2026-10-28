@@ -6,7 +6,7 @@ import type { AgentSessionRef, DiffsPayload, GroupedResult } from '@pulls.review
 export interface LlmAnalyzeRun {
   result: GroupedResult
   transcript: AgentMessage[]
-  /** Set when a local agent CLI ran the analysis, so the chat can continue its session. */
+  /** Set when an external agent ran the analysis, so the chat can continue its session. */
   agent?: AgentSessionRef
 }
 
@@ -23,12 +23,12 @@ export interface LlmChatInput {
 }
 
 /**
- * Where a model runs: in this browser with a key from Settings (the site), or on the
- * `pulls.review` server through a local agent CLI (`plans/11-local-agents.md`). One per
- * app context; `createLlmStore` and `useLlmChat` only talk to this.
+ * Where a model runs. Today that is this browser with the signed-in user's
+ * synced Settings; a server-side agent runner can implement the same contract.
+ * One per app context; `createLlmStore` and `useLlmChat` only talk to this.
  */
 export interface LlmRunner {
-  /** Reactive: reads Settings (and, for the server, what it found). */
+  /** Reactive: reads Settings (and sign-in state on the hosted site). */
   isSetup: () => boolean
   analyze: (diff: DiffsPayload, options: LlmAnalyzeOptions) => Promise<LlmAnalyzeRun>
   /** Resolves to the whole transcript after the reply; an error reply is a message with `stopReason: 'error'`, not a rejection. */

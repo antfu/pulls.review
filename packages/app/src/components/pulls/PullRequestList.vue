@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ComponentPublicInstance } from 'vue'
+import type { PrAnalysisStatus } from '../../analyze/remote-analyze'
 import type { PullRequestListStore } from '../../stores/pull-request-list-store'
 import type { PullRequestSort } from './pull-request-list-query'
 import { useWindowVirtualizer } from '@tanstack/vue-virtual'
@@ -12,6 +13,7 @@ const props = defineProps<{
   store: PullRequestListStore
   query: string
   sort: PullRequestSort
+  statuses?: Map<number, PrAnalysisStatus>
 }>()
 
 const rows = computed(() => sortPullRequests(filterPullRequests(props.store.items, props.query), props.sort))
@@ -51,7 +53,7 @@ watch(() => virtualRows.value.at(-1)?.index, (last) => {
       class="absolute left-0 top-0 w-full"
       :style="{ transform: `translateY(${row.start - virtualizer.options.scrollMargin}px)` }"
     >
-      <PullRequestRow :owner="store.owner" :repo="store.repo" :pr="rows[row.index]!" :viewed="store.viewed.get(rows[row.index]!.number)" />
+      <PullRequestRow :owner="store.owner" :repo="store.repo" :pr="rows[row.index]!" :viewed="store.viewed.get(rows[row.index]!.number)" :analysis-status="statuses?.get(rows[row.index]!.number)" />
     </div>
   </div>
 </template>

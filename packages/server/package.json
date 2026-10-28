@@ -1,0 +1,29 @@
+{
+  "name": "@pulls.review/server",
+  "type": "module",
+  "version": "0.3.4",
+  "private": true,
+  "description": "SQLite persistence and GitHub App services for the Nuxt application.",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:migrate": "node ../../scripts/database.mjs migrate"
+  },
+  "dependencies": {
+    "@better-auth/drizzle-adapter": "catalog:server",
+    "@pulls.review/core": "workspace:^",
+    "better-auth": "catalog:server",
+    "better-sqlite3": "catalog:server",
+    "cookie-es": "catalog:server",
+    "drizzle-orm": "catalog:server"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "catalog:dev",
+    "jiti": "catalog:dev",
+    "typescript": "catalog:dev",
+    "vitest": "catalog:testing"
+  }
+}

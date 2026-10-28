@@ -21,7 +21,7 @@ describe('renderSharedAnalysisComment', () => {
     const body = renderSharedAnalysisComment(pr, 'antfu', analysis)
 
     expect(body.split('\n')[0]).toBe('<!-- pulls.review data -->')
-    expect(body).toContain('https://pulls.review/gh/vuejs/core/12349?from=antfu')
+    expect(body).toContain('https://pulls.shyim.de/gh/vuejs/core/12349?from=antfu')
     expect(body).toContain('analyzed by `anthropic/claude-sonnet-4`')
     expect(body).toContain('2026-09-28 12:34 UTC')
     expect(body).toContain('head abc1234')

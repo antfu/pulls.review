@@ -2,7 +2,7 @@ import type { CacheRepositories } from '@pulls.review/core/cache'
 import type { DiffsPayload, GroupedResult, SharingApi } from '@pulls.review/core/types'
 import type { DiffsStoreShared, SharedAnalysisCandidate } from './types'
 import type { WriteAccess } from './write-access'
-import { ACTIONS_BOT_LOGIN } from '@pulls.review/core/github'
+import { SERVER_ANALYSIS_BOT_LOGINS } from '@pulls.review/core/github'
 import { reactive, ref } from 'vue'
 import { t } from '../i18n'
 import { localizeError } from '../i18n/core-messages'
@@ -41,7 +41,7 @@ export function createSharedAnalysisStore(api: SharingApi, opts: SharedAnalysisS
 
   /**
    * Scans the PR's comments for shared analyses. Without `from`, only when the
-   * store holds no AI result yet (one request, best-effort); a `github-actions[bot]`
+   * store holds no AI result yet (one request, best-effort); a server bot
    * result loads directly. With `from`, always: that user's result loads directly
    * unless it would replace a locally generated one.
    */
@@ -73,8 +73,8 @@ export function createSharedAnalysisStore(api: SharingApi, opts: SharedAnalysisS
       stale: comment.analysis.headSha !== headSha,
     })
 
-    // Without `from`, the repo's CI analysis stands in for one the viewer has not generated.
-    const target = found.find(comment => comment.login === (from ?? ACTIONS_BOT_LOGIN))
+    // Without `from`, a server-generated (App bot / CI) analysis stands in for one the viewer has not generated.
+    const target = found.find(comment => from ? comment.login === from : SERVER_ANALYSIS_BOT_LOGINS.includes(comment.login))
     if (target) {
       const hasLocalResult = current !== undefined && current.sharedBy === undefined
       if (hasLocalResult)

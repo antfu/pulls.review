@@ -2,7 +2,7 @@ import type { MaybeRefOrGetter } from 'vue'
 import { useTitle } from '@vueuse/core'
 import { toValue } from 'vue'
 
-const APP_NAME = 'pulls.review'
+const APP_NAME = 'Diffwise'
 
 /**
  * Drives the browser tab title off whatever the current route/page is showing - a PR

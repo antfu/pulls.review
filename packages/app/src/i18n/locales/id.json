@@ -47,47 +47,28 @@
     "uploadDescription": "Unggah atau tempel unified diff, atau seret berkas {diff} / {patch} ke mana saja di halaman ini.",
     "uploadButton": "Unggah diff",
     "embedTitle": "Gunakan tertanam di github.com",
-    "embedDescription": "Dengan {tampermonkey} atau {violentmonkey} terpasang, panel pulls.review muncul di setiap halaman pull request.",
+    "embedDescription": "Dengan {tampermonkey} atau {violentmonkey} terpasang, panel Diffwise muncul di setiap halaman pull request.",
     "installUserscript": "Pasang userscript",
-    "bookmarkletTitle": "Berpindah antara github.com dan pulls.review",
-    "bookmarkletDescription": "Tidak bisa memasang ekstensi? Seret bookmarklet ini ke bilah bookmark untuk membuka pull request saat ini di pulls.review, dan kembali.",
+    "bookmarkletTitle": "Berpindah antara github.com dan Diffwise",
+    "bookmarkletDescription": "Tidak bisa memasang ekstensi? Seret bookmarklet ini ke bilah bookmark untuk membuka pull request saat ini di Diffwise, dan kembali.",
     "bookmarkletDrag": "Seret saya ke bilah bookmark",
-    "actionsTitle": "Siapkan analisis otomatis dengan GitHub Actions",
-    "actionsDescription": "Analisis setiap pull request sekali di CI dan kirim hasilnya sebagai komentar PR, jadi setiap reviewer tidak perlu kunci model sendiri.",
-    "cliTitle": "Jalankan pada perubahan git lokal dengan CLI",
-    "cliDescription": "Tinjau working tree, sebuah commit, atau branch sebelum push, dikelompokkan dan diringkas seperti PR.",
     "viewGuide": "Lihat panduan"
   },
   "guide": {
     "userscript": {
-      "title": "Gunakan pulls.review tertanam di github.com",
-      "intro": "Userscript menambahkan panel pulls.review langsung ke halaman pull request di github.com, lengkap dengan file yang dikelompokkan dan ringkasan, sehingga Anda tidak perlu berpindah tab.",
+      "title": "Gunakan Diffwise tertanam di github.com",
+      "intro": "Userscript menambahkan panel Diffwise langsung ke halaman pull request di github.com, lengkap dengan file yang dikelompokkan dan ringkasan, sehingga Anda tidak perlu berpindah tab.",
       "manager": "Pasang pengelola userscript: {tampermonkey} atau {violentmonkey}.",
-      "install": "Pasang userscript pulls.review. Pengelola Anda akan meminta konfirmasi.",
+      "install": "Pasang userscript Diffwise. Pengelola Anda akan meminta konfirmasi.",
       "open": "Buka pull request apa pun di github.com lalu klik tab {tab} di samping \"Files changed\".",
-      "ai": "github.com memblokir permintaan yang dibutuhkan analisis AI, jadi panel menampilkan analisis yang dibagikan sebagai komentar PR. Buka PR di pulls.review untuk menjalankan analisis baru."
+      "ai": "github.com memblokir permintaan yang dibutuhkan analisis AI, jadi panel menampilkan analisis yang dibagikan sebagai komentar PR. Buka PR di Diffwise untuk menjalankan analisis baru."
     },
     "bookmarklet": {
-      "title": "Berpindah antara github.com dan pulls.review",
+      "title": "Berpindah antara github.com dan Diffwise",
       "intro": "Bookmarklet adalah bookmark yang menjalankan skrip kecil. Bookmarklet bekerja di browser apa pun tanpa perlu memasang ekstensi, dan membuka halaman saat ini di situs lainnya.",
       "bar": "Tampilkan bilah bookmark, misalnya dengan {shortcut}.",
       "drag": "Seret tombol ini ke bilah bookmark:",
-      "use": "Di halaman pull request, commit, atau compare di github.com, klik bookmark untuk membukanya di pulls.review. Klik lagi untuk kembali."
-    },
-    "actions": {
-      "title": "Analisis otomatis dengan GitHub Actions",
-      "intro": "Biarkan CI menganalisis setiap pull request sekali, begitu dibuka atau diperbarui. Semua yang membuka PR, di sini atau di panel github.com, langsung melihat ringkasan yang sama. Tidak ada yang perlu kunci model sendiri, dan pull request dari fork juga mendapatkannya.",
-      "secret": "Tambahkan kunci model Anda sebagai secret repositori, misalnya {name}.",
-      "workflow": "Tambahkan workflow ini ke repositori:",
-      "result": "Buka atau perbarui pull request untuk mencobanya. Analisis muncul sebagai komentar, dan menjalankan ulang pada PR yang tidak berubah melewati panggilan model.",
-      "options": "{provider} disimpulkan dari kunci. Atur {provider}, {model}, atau {locale} untuk menggantinya. Lihat {readme} untuk semua opsi."
-    },
-    "cli": {
-      "title": "Tinjau perubahan git lokal dengan CLI",
-      "intro": "Tinjau perubahan Anda sendiri sebelum orang lain. CLI membuka branch Anda, sebuah commit, atau pekerjaan yang belum di-commit di pulls.review, sehingga Anda bisa melihat perubahan dalam bentuk kelompok dan ringkasan sebelum push atau membuka PR.",
-      "branch": "Di repositori git, jalankan ini untuk meninjau branch saat ini terhadap branch default:",
-      "target": "Atau pilih apa yang ingin ditinjau:",
-      "browser": "CLI membuka {url} di browser untuk menampilkan perubahan lokal Anda. Konfirmasi tab dengan kode sekali pakai yang tercetak di terminal. Di sana Anda juga bisa memilih branch atau commit lain untuk dibandingkan."
+      "use": "Di halaman pull request, commit, atau compare di github.com, klik bookmark untuk membukanya di Diffwise. Klik lagi untuk kembali."
     }
   },
   "load": {
@@ -116,9 +97,11 @@
     "ai": "AI",
     "by": "oleh",
     "sharedBy": "Melihat analisis AI yang dibagikan oleh",
+    "feedbackUseful": "Analisis berguna",
+    "feedbackNotUseful": "Tidak berguna",
     "sharedAnalysis": "Melihat analisis bersama",
     "reviewedOf": "/ {total} ditinjau",
-    "openInSite": "Buka di pulls.review"
+    "openInSite": "Buka di Diffwise"
   },
   "commits": {
     "count": "{n} commit | {n} commit",
@@ -131,6 +114,24 @@
   "embed": {
     "reviewChanges": "Tinjau Perubahan",
     "updateUserscript": "Perbarui userscript"
+  },
+  "automation": {
+    "title": "Otomatisasi",
+    "enabled": "Diaktifkan",
+    "disabled": "Dinonaktifkan",
+    "usage": "{runs}/{budget} eksekusi bulan ini",
+    "usageUnlimited": "{runs} eksekusi bulan ini",
+    "empty": "Belum ada analisis server."
+  },
+  "inbox": {
+    "title": "Kotak masuk ulasan",
+    "needsReview": "Menunggu ulasan saya",
+    "assigned": "Ditugaskan ke saya",
+    "authored": "Dibuat oleh saya",
+    "mentioned": "Disebutkan",
+    "signIn": "Masuk dengan GitHub untuk melihat kotak masuk ulasan Anda.",
+    "empty": "Tidak ada yang menunggu. Tenang sekali.",
+    "loadFailed": "Tidak dapat memuat kotak masuk Anda"
   },
   "pulls": {
     "loading": "Memuat pull request…",
@@ -149,6 +150,11 @@
     "groups": "{n} grup | {n} grup",
     "viewedHint": "Dilihat di browser ini",
     "aiAvailable": "Analisis AI tersedia",
+    "analysisRunning": "Analisis AI berjalan",
+    "analysisReady": "Analisis AI siap",
+    "analysisStale": "Analisis AI mungkin usang",
+    "analysisFailed": "Analisis AI gagal",
+    "analysisCritical": "{n} kritis | {n} kritis",
     "sort": {
       "label": "Urutkan",
       "recently-updated": "Baru diperbarui",
@@ -176,6 +182,9 @@
     "failedTitle": "Analisis AI gagal: {message}",
     "reanalyze": "Analisis ulang",
     "withAi": "Analisis dengan AI",
+    "remote": "Analisis di server",
+    "remoteTitle": "Jalankan analisis di server dengan kunci API tersinkron Anda; hasilnya disimpan di situs ini",
+    "remoteQueued": "Diantrekan di server",
     "statusTitle": "Analisis AI",
     "starting": "Memulai…",
     "thinking": "Berpikir… (langkah {step})",
@@ -354,18 +363,13 @@
     "autoFetchFullFileHint": "Mendeteksi kesalahan sintaks dalam konten parsial dan mengambil versi lengkapnya.",
     "language": "Bahasa",
     "token": {
-      "label": "GitHub Personal Access Token",
-      "optional": "Opsional untuk repositori publik; wajib untuk repositori privat atau untuk memberikan tinjauan.",
-      "scopes": "Tinjauan memerlukan scope {repo} (token klasik) atau {fineGrained} (token fine-grained)",
-      "storedLocally": "Hanya disimpan di browser ini.",
-      "generate": "Buat di GitHub →",
-      "fineGrained": "Token fine-grained (tanpa scope klasik)",
-      "updated": "Diperbarui",
-      "expires": "Berakhir",
-      "neverExpires": "Tidak pernah berakhir",
-      "change": "Ganti token",
-      "checking": "Memeriksa token…",
-      "couldNotVerify": "Token ini tidak dapat diverifikasi."
+      "label": "GitHub",
+      "checking": "Memeriksa status masuk…",
+      "signIn": "Masuk dengan GitHub",
+      "signInHint": "Izinkan GitHub App Diffwise mengakses repo privat dan memberi ulasan. Permintaan GitHub melewati situs ini; tidak ada token GitHub yang disimpan di browser Anda.",
+      "signOut": "Keluar",
+      "viaApp": "GitHub App",
+      "embedAnonymous": "Tampilan tertanam ini memuat repositori publik secara anonim. Buka diffwise.shyim.de dan masuk dengan GitHub untuk repositori privat dan ulasan."
     },
     "tabs": {
       "appearance": "Tampilan",
@@ -393,12 +397,8 @@
       "embedUnavailable": "Fitur AI tidak tersedia dalam mode tersemat",
       "embedReason": "CSP github.com yang ketat memblokir permintaan yang dibutuhkan fitur AI di sini. {link} untuk menggunakannya.",
       "goToWebsite": "Kunjungi situs web",
-      "agent": "Agen",
-      "agentNeedsCli": "Agen lokal berjalan di CLI pulls.review: jalankan di sebuah repositori dengan `npx pulls.review` dan pilih di sana.",
-      "agentDetecting": "Mencari CLI agen…",
-      "agentNone": "Tidak ada CLI agen ditemukan di mesin ini.",
-      "agentHint": "Agen pengkodean yang terpasang di mesin ini, masuk dengan akunnya sendiri: {claude}, {codex}, {opencode}, atau {pi}. Ia membaca patch dan repositori, tidak pernah menulis.",
-      "agentPick": "Pilih agen…"
+      "cloudDescription": "Konfigurasikan penyedia model untuk mengaktifkan ringkasan buatan AI. Pengaturan disimpan terenkripsi di balik login GitHub Anda dan di-cache di browser ini.",
+      "signInRequiredHint": "Masuk dengan GitHub sebelum menambahkan kunci penyedia. Pengaturan AI Anda kemudian akan tersinkron terenkripsi ke akun Anda."
     },
     "models": {
       "placeholder": "id model",
@@ -407,8 +407,7 @@
       "noMatch": "Tidak ada model yang cocok",
       "useCustom": "Gunakan “{id}”",
       "free": "Gratis",
-      "priceTitle": "Input {input}/M · Output {output}/M token",
-      "agentDefault": "Bawaan agen"
+      "priceTitle": "Input {input}/M · Output {output}/M token"
     }
   },
   "rules": {
@@ -422,34 +421,10 @@
     "generated": { "label": "Hasil generate", "summary": "Perubahan berkas hasil generate atau build." }
   },
   "errors": {
-    "tokenRequired": "Token GitHub diperlukan untuk menulis ke pull request ini.",
     "diffNotLoaded": "Diff belum selesai dimuat.",
-    "noViewer": "Pengguna GitHub untuk token ini tidak dapat ditentukan.",
+    "noViewer": "Tidak dapat menentukan pengguna GitHub yang masuk.",
     "tokenRejected": "GitHub menolak token ini (401). Pastikan token ditempel lengkap dan belum dicabut.",
-    "tooLarge": "Analisis terlalu besar untuk dibagikan sebagai komentar ({n} karakter)."
-  },
-  "local": {
-    "loading": "Memuat perubahan lokal…",
-    "loadFailed": "Tidak dapat memuat perubahan ini",
-    "auth": {
-      "title": "Masukkan kode dari terminal Anda",
-      "hint": "pulls.review menampilkan kode 6 digit di terminal tempat ia berjalan.",
-      "invalid": "Kode itu tidak berhasil. Periksa terminal dan coba lagi.",
-      "submit": "Lanjutkan"
-    },
-    "picker": {
-      "tagline": "Tinjau branch lokal, rentang, dan perubahan yang belum di-commit seperti pull request: dikelompokkan, diringkas, satu cakupan setiap kali.",
-      "title": "Tinjau perubahan lokal",
-      "base": "Basis",
-      "head": "Head",
-      "compare": "Bandingkan",
-      "shortcuts": "Pintasan",
-      "worktree": "Perubahan yang belum di-commit",
-      "recentCommits": "Commit terbaru",
-      "branches": "Branch",
-      "against": "terhadap {base}",
-      "current": "Branch saat ini",
-      "github": "Atau pull request, perbandingan, atau commit GitHub"
-    }
+    "tooLarge": "Analisis terlalu besar untuk dibagikan sebagai komentar ({n} karakter).",
+    "signInRequired": "Masuk dengan GitHub untuk menulis di pull request ini."
   }
 }

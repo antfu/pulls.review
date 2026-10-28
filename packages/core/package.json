@@ -6,7 +6,7 @@
   "author": "Anthony Fu <hi@antfu.me>",
   "license": "MIT",
   "funding": "https://github.com/sponsors/antfu",
-  "homepage": "https://pulls.review",
+  "homepage": "https://pulls.shyim.de",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/antfu/pulls.review.git",
@@ -22,11 +22,11 @@
     "./paste": "./dist/paste.js",
     "./analyze": "./dist/analyze.js",
     "./llm": "./dist/llm.js",
-    "./local": "./dist/local.js",
-    "./local-rpc": "./dist/local-rpc.js",
     "./diagnostics": "./dist/diagnostics.js",
     "./env": "./dist/env.js",
-    "./locales": "./dist/locales.js"
+    "./locales": "./dist/locales.js",
+    "./user-config": "./dist/user-config.js",
+    "./eval": "./dist/eval.js"
   },
   "files": [
     "dist"

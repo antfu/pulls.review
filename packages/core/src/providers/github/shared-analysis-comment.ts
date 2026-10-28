@@ -6,13 +6,19 @@ import { diagnostics } from '../../diagnostics'
 import { SharedAnalysisSchema } from '../../types/shared-analysis'
 
 /** Never `location.origin`: the comment is public, a preview host must not leak into it. */
-const SITE_ORIGIN = 'https://pulls.review'
+const SITE_ORIGIN = 'https://pulls.shyim.de'
 const MARKER = '<!-- pulls.review data -->'
 /** GitHub caps comment bodies at 65536 characters. */
 const MAX_BODY_LENGTH = 60_000
 
 /** The author GitHub shows for a workflow's `GITHUB_TOKEN` - the CLI's comments in CI. */
 export const ACTIONS_BOT_LOGIN = 'github-actions[bot]'
+
+/** The author the hosted GitHub App posts as (`<app-slug>[bot]`). */
+export const APP_BOT_LOGIN = 'pulls-review[bot]'
+
+/** Bot logins whose shared analysis is server-generated and may auto-load. */
+export const SERVER_ANALYSIS_BOT_LOGINS = [APP_BOT_LOGIN, ACTIONS_BOT_LOGIN]
 
 export interface PullRequestRef { owner: string, repo: string, number: string }
 

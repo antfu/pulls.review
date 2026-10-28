@@ -8,7 +8,7 @@
   "author": "Anthony Fu <hi@antfu.me>",
   "license": "MIT",
   "funding": "https://github.com/sponsors/antfu",
-  "homepage": "https://pulls.review",
+  "homepage": "https://diffwise.shyim.de",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/antfu/pulls.review.git"
@@ -24,7 +24,9 @@
     "release": "bumpp -r",
     "prepare": "skills experimental_sync -y",
     "storybook": "pnpm -F @pulls.review/app run storybook",
-    "i18n:check": "x18n check"
+    "i18n:check": "x18n check",
+    "docker:build": "docker build -t pulls-review .",
+    "db:backup": "node scripts/database.mjs backup"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:dev",

@@ -12,7 +12,7 @@ import LandingHero from './LandingHero.vue'
   >
     <div class="flex flex-col gap-8">
       <div class="flex items-center gap-3">
-        <span class="text-xl font-medium font-mono">pulls.review</span>
+        <span class="text-xl font-medium font-mono">Diffwise</span>
       </div>
       <LandingHero style="font-size: 72px" />
       <p class="max-w-md text-xl leading-relaxed op-fade">

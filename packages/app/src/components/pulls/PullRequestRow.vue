@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ChecksStatus, PullRequestListItem, ReviewDecision } from '@pulls.review/core/types'
+import type { PrAnalysisStatus } from '../../analyze/remote-analyze'
 import type { ViewedPullRequest } from '../../stores/pull-request-list-store'
 import { labelStyle } from '@antfu/design/utils/color'
 import { computed } from 'vue'
@@ -17,6 +18,8 @@ const props = defineProps<{
   pr: PullRequestListItem
   /** Set when this browser already viewed the PR - what the cache holds for it. */
   viewed?: ViewedPullRequest
+  /** Server-stored analysis/job state from the backend batch endpoint. */
+  analysisStatus?: PrAnalysisStatus
 }>()
 
 const { locale } = useI18n()
@@ -25,6 +28,10 @@ const openedAgo = computed(() => formatTimeAgo(new Date(props.pr.createdAt), loc
 // The locally viewed diff is the one the reader will actually reopen; the API's
 // counts only fill in when a token exposed them and nothing is cached.
 const stats = computed(() => props.viewed ?? (props.pr.additions !== undefined ? { additions: props.pr.additions, deletions: props.pr.deletions } : undefined))
+
+const serverAnalysis = computed(() => props.analysisStatus?.analysis)
+const serverJobActive = computed(() => props.analysisStatus?.job?.status === 'queued' || props.analysisStatus?.job?.status === 'running')
+const serverAnalysisStale = computed(() => !!serverAnalysis.value && !!props.pr.headSha && serverAnalysis.value.headSha !== props.pr.headSha)
 
 // GitHub-style contrast-aware chip colors from the label's own hex, tuned per scheme.
 function labelChipStyle(color: string) {
@@ -106,6 +113,33 @@ const REVIEW_ICON: Record<ReviewDecision, string> = {
     <div class="flex shrink-0 flex-col items-end gap-2 pt-0.5 text-xs">
       <DiffStats v-if="stats" :additions="stats.additions" :deletions="stats.deletions" />
       <div class="flex items-center gap-2 op-fade">
+        <span
+          v-if="serverJobActive"
+          class="flex items-center gap-1"
+          role="img"
+          :aria-label="$t('pulls.analysisRunning')"
+          :title="$t('pulls.analysisRunning')"
+        >
+          <span class="i-ph:spinner-duotone animate-spin" aria-hidden="true" />
+        </span>
+        <span
+          v-else-if="serverAnalysis"
+          class="flex items-center gap-1"
+          role="img"
+          :aria-label="$t(serverAnalysisStale ? 'pulls.analysisStale' : 'pulls.analysisReady')"
+          :title="serverAnalysis.summary ?? $t(serverAnalysisStale ? 'pulls.analysisStale' : 'pulls.analysisReady')"
+        >
+          <span :class="serverAnalysisStale ? 'i-ph:clock-counter-clockwise-duotone text-amber-500' : 'i-ph:robot-duotone color-accent-teal'" aria-hidden="true" />
+          {{ $t('pulls.groups', serverAnalysis.groups) }}
+          <span v-if="serverAnalysis.criticalGroups" class="text-red-500" :title="$t('pulls.analysisCritical', serverAnalysis.criticalGroups)">•{{ serverAnalysis.criticalGroups }}</span>
+        </span>
+        <span
+          v-else-if="analysisStatus?.job?.status === 'failed'"
+          class="i-ph:robot-duotone text-red-500"
+          role="img"
+          :aria-label="$t('pulls.analysisFailed')"
+          :title="$t('pulls.analysisFailed')"
+        />
         <span
           v-if="viewed"
           class="flex items-center gap-1"

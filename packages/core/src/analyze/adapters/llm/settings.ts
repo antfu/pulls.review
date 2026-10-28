@@ -1,4 +1,4 @@
-export const LLM_PROVIDERS = ['gateway', 'anthropic', 'openai-compatible', 'local-agent'] as const
+export const LLM_PROVIDERS = ['gateway', 'anthropic', 'openai-compatible'] as const
 export type LlmProvider = typeof LLM_PROVIDERS[number]
 
 export function isLlmProvider(value: string): value is LlmProvider {
@@ -6,21 +6,12 @@ export function isLlmProvider(value: string): value is LlmProvider {
 }
 
 /** The providers called with a key, from the browser or CI. */
-export type KeyedLlmProvider = Exclude<LlmProvider, 'local-agent'>
-
-/** The agent CLIs the `pulls.review` server can run analysis through (`plans/11-local-agents.md`). */
-export const LOCAL_AGENT_NAMES = ['claude', 'opencode', 'pi', 'codex'] as const
-export type LocalAgentName = typeof LOCAL_AGENT_NAMES[number]
-
-export function isLocalAgentName(value: string): value is LocalAgentName {
-  return (LOCAL_AGENT_NAMES as readonly string[]).includes(value)
-}
+export type KeyedLlmProvider = LlmProvider
 
 /**
  * The `llm` analyze adapter's model access. `provider` picks which credentials
  * and model to use - only the selected provider is ever called, even when
- * several tokens are configured. `local-agent` needs no key: the `pulls.review`
- * server runs the chosen agent CLI, signed in on its own.
+ * several tokens are configured.
  */
 export interface LlmSettings {
   provider: LlmProvider
@@ -31,10 +22,6 @@ export interface LlmSettings {
   openaiApiKey: string
   openaiBaseUrl: string
   openaiModel: string
-  /** `''` until the user picks one. */
-  agent: LocalAgentName | ''
-  /** `''` = the agent's own default model. */
-  agentModel: string
 }
 
 export const defaultLlmSettings: LlmSettings = {
@@ -46,8 +33,6 @@ export const defaultLlmSettings: LlmSettings = {
   openaiApiKey: '',
   openaiBaseUrl: 'https://api.openai.com/v1',
   openaiModel: 'gpt-5.1',
-  agent: '',
-  agentModel: '',
 }
 
 /** Picks the provider from whichever credential is set, by priority (gateway > anthropic > openai-compatible). */

@@ -47,47 +47,28 @@
     "uploadDescription": "上傳或貼上 unified diff，或將 {diff} / {patch} 檔案拖放到本頁任意位置。",
     "uploadButton": "上傳 diff",
     "embedTitle": "嵌入到 github.com 中使用",
-    "embedDescription": "安裝 {tampermonkey} 或 {violentmonkey} 後，每個 pull request 頁面都會出現 pulls.review 側欄。",
+    "embedDescription": "安裝 {tampermonkey} 或 {violentmonkey} 後，每個 pull request 頁面都會出現 Diffwise 側欄。",
     "installUserscript": "安裝使用者腳本",
-    "bookmarkletTitle": "在 github.com 與 pulls.review 之間切換",
-    "bookmarkletDescription": "無法安裝擴充功能？將此書籤小工具拖曳到書籤列，即可在 pulls.review 開啟目前的 Pull Request，並隨時切換回來。",
+    "bookmarkletTitle": "在 github.com 與 Diffwise 之間切換",
+    "bookmarkletDescription": "無法安裝擴充功能？將此書籤小工具拖曳到書籤列，即可在 Diffwise 開啟目前的 Pull Request，並隨時切換回來。",
     "bookmarkletDrag": "拖曳到書籤列",
-    "actionsTitle": "透過 GitHub Actions 設定自動分析",
-    "actionsDescription": "在 CI 中對每個拉取請求分析一次，並將結果以 PR 留言發布，審閱者不需各自準備模型金鑰。",
-    "cliTitle": "透過 CLI 用於本機 git 變更",
-    "cliDescription": "在推送之前，像審閱 PR 一樣分組並摘要你的工作目錄、某個提交或某個分支。",
     "viewGuide": "查看指南"
   },
   "guide": {
     "userscript": {
-      "title": "將 pulls.review 嵌入到 github.com 中使用",
-      "intro": "使用者腳本會直接在 github.com 的拉取請求頁面中加入 pulls.review 面板，顯示分組後的檔案與摘要，不必切換分頁。",
+      "title": "將 Diffwise 嵌入到 github.com 中使用",
+      "intro": "使用者腳本會直接在 github.com 的拉取請求頁面中加入 Diffwise 面板，顯示分組後的檔案與摘要，不必切換分頁。",
       "manager": "安裝使用者腳本管理器：{tampermonkey} 或 {violentmonkey}。",
-      "install": "安裝 pulls.review 使用者腳本，管理器會請你確認。",
+      "install": "安裝 Diffwise 使用者腳本，管理器會請你確認。",
       "open": "在 github.com 上開啟任一拉取請求，點擊 \"Files changed\" 旁的 {tab} 分頁。",
-      "ai": "github.com 會阻擋 AI 分析所需的請求，因此面板只顯示以 PR 留言分享的分析。如需重新分析，請在 pulls.review 上開啟該 PR。"
+      "ai": "github.com 會阻擋 AI 分析所需的請求，因此面板只顯示以 PR 留言分享的分析。如需重新分析，請在 Diffwise 上開啟該 PR。"
     },
     "bookmarklet": {
-      "title": "在 github.com 與 pulls.review 之間切換",
+      "title": "在 github.com 與 Diffwise 之間切換",
       "intro": "書籤小工具是一個執行小段指令碼的書籤。它適用於任何瀏覽器，無需安裝擴充功能，可在另一個網站開啟目前的頁面。",
       "bar": "顯示書籤列，例如按 {shortcut}。",
       "drag": "將此按鈕拖曳到書籤列：",
-      "use": "在 github.com 的 Pull Request、提交或比較頁面上點擊該書籤，即可在 pulls.review 開啟。再次點擊即可返回。"
-    },
-    "actions": {
-      "title": "透過 GitHub Actions 自動分析",
-      "intro": "讓 CI 在拉取請求建立或更新時分析一次。任何人開啟該 PR，無論在這裡或在 github.com 的面板中，都能立即看到同一份分組摘要。不需每人準備模型金鑰，來自 fork 的拉取請求也同樣適用。",
-      "secret": "將模型金鑰新增為儲存庫 secret，例如 {name}。",
-      "workflow": "將此 workflow 加入儲存庫：",
-      "result": "建立或更新一個拉取請求即可體驗。分析會以留言形式發布，PR 未變動時重新執行會略過模型呼叫。",
-      "options": "{provider} 會依金鑰推斷。可設定 {provider}、{model} 或 {locale} 進行覆寫。所有選項請見 {readme}。"
-    },
-    "cli": {
-      "title": "透過 CLI 審閱本機 git 變更",
-      "intro": "在別人之前先審閱自己的變更。CLI 會在 pulls.review 中開啟你的分支、某個提交或尚未提交的變更，讓你在推送或建立 PR 之前，就看到變更分組與摘要後的樣子。",
-      "branch": "在 git 儲存庫中執行以下指令，將目前分支與預設分支進行比較審閱：",
-      "target": "或者選擇要審閱的內容：",
-      "browser": "它會在瀏覽器中開啟 {url}，以視覺化方式呈現你的本機變更。請用終端機中顯示的一次性驗證碼確認該分頁。你也可以在頁面中選擇其他分支或提交進行比較。"
+      "use": "在 github.com 的 Pull Request、提交或比較頁面上點擊該書籤，即可在 Diffwise 開啟。再次點擊即可返回。"
     }
   },
   "load": {
@@ -116,9 +97,11 @@
     "ai": "AI",
     "by": "作者",
     "sharedBy": "正在檢視由以下使用者分享的 AI 分析",
+    "feedbackUseful": "分析有幫助",
+    "feedbackNotUseful": "沒有幫助",
     "sharedAnalysis": "正在檢視共享的分析",
     "reviewedOf": "/ {total} 已審閱",
-    "openInSite": "在 pulls.review 中開啟"
+    "openInSite": "在 Diffwise 中開啟"
   },
   "commits": {
     "count": "{n} 個提交 | {n} 個提交",
@@ -131,6 +114,24 @@
   "embed": {
     "reviewChanges": "審查變更",
     "updateUserscript": "更新使用者腳本"
+  },
+  "automation": {
+    "title": "自動化",
+    "enabled": "已啟用",
+    "disabled": "已停用",
+    "usage": "本月 {runs}/{budget} 次執行",
+    "usageUnlimited": "本月 {runs} 次執行",
+    "empty": "尚無伺服器分析。"
+  },
+  "inbox": {
+    "title": "評審收件匣",
+    "needsReview": "等待我的評審",
+    "assigned": "指派給我",
+    "authored": "由我建立",
+    "mentioned": "提及我的",
+    "signIn": "使用 GitHub 登入以查看你的評審收件匣。",
+    "empty": "暫無待處理事項。",
+    "loadFailed": "無法載入你的收件匣"
   },
   "pulls": {
     "loading": "正在載入 pull request…",
@@ -149,6 +150,11 @@
     "groups": "{n} 個分組",
     "viewedHint": "已在此瀏覽器中查看",
     "aiAvailable": "有 AI 分析",
+    "analysisRunning": "AI 分析中",
+    "analysisReady": "AI 分析已就緒",
+    "analysisStale": "AI 分析可能已過期",
+    "analysisFailed": "AI 分析失敗",
+    "analysisCritical": "{n} 個關鍵 | {n} 個關鍵",
     "sort": {
       "label": "排序",
       "recently-updated": "最近更新",
@@ -176,6 +182,9 @@
     "failedTitle": "AI 分析失敗：{message}",
     "reanalyze": "重新分析",
     "withAi": "使用 AI 分析",
+    "remote": "在伺服器上分析",
+    "remoteTitle": "使用你同步的 API 金鑰在伺服器上執行分析；結果會保存在本站",
+    "remoteQueued": "已在伺服器排隊",
     "statusTitle": "AI 分析",
     "starting": "正在啟動…",
     "thinking": "思考中…（第 {step} 步）",
@@ -354,18 +363,13 @@
     "autoFetchFullFileHint": "偵測部分內容中的語法錯誤並取得完整版本。",
     "language": "語言",
     "token": {
-      "label": "GitHub Personal Access Token",
-      "optional": "公開儲存庫可省略；私有儲存庫或提交審查時必需。",
-      "scopes": "審查需要 {repo} scope（classic token）或 {fineGrained}（fine-grained token）",
-      "storedLocally": "僅儲存在此瀏覽器中。",
-      "generate": "在 GitHub 上產生 →",
-      "fineGrained": "fine-grained token（無 classic scope）",
-      "updated": "更新於",
-      "expires": "到期於",
-      "neverExpires": "永不到期",
-      "change": "更換 token",
-      "checking": "正在檢查 token…",
-      "couldNotVerify": "無法驗證此 token。"
+      "label": "GitHub",
+      "checking": "正在檢查登入狀態…",
+      "signIn": "使用 GitHub 登入",
+      "signInHint": "授權 Diffwise GitHub App 存取私有儲存庫並發表評論。GitHub 請求會經過本站；你的瀏覽器不會儲存 GitHub 權杖。",
+      "signOut": "登出",
+      "viaApp": "GitHub App",
+      "embedAnonymous": "此嵌入檢視會以匿名方式載入公開儲存庫。打開 diffwise.shyim.de 並使用 GitHub 登入，以存取私有儲存庫和評論。"
     },
     "tabs": {
       "appearance": "外觀",
@@ -393,12 +397,8 @@
       "embedUnavailable": "嵌入模式下無法使用 AI 功能",
       "embedReason": "github.com 嚴格的 CSP 會阻擋 AI 功能所需的請求。{link} 即可使用。",
       "goToWebsite": "前往網站",
-      "agent": "代理",
-      "agentNeedsCli": "本機代理在 pulls.review CLI 中執行：在儲存庫中執行 `npx pulls.review`，然後在那裡選擇。",
-      "agentDetecting": "正在尋找代理 CLI…",
-      "agentNone": "在此機器上找不到代理 CLI。",
-      "agentHint": "安裝在此機器上並以自己的帳號登入的編碼代理：{claude}, {codex}, {opencode} 或 {pi}。它只讀取補丁和儲存庫，不會寫入。",
-      "agentPick": "選擇代理…"
+      "cloudDescription": "設定模型提供者以啟用 AI 生成的摘要。設定會加密儲存在你的 GitHub 登入之後，並快取於此瀏覽器中。",
+      "signInRequiredHint": "新增提供者金鑰前請使用 GitHub 登入。你的 AI 設定隨後會加密同步至你的帳戶。"
     },
     "models": {
       "placeholder": "模型 id",
@@ -407,8 +407,7 @@
       "noMatch": "沒有符合的模型",
       "useCustom": "使用「{id}」",
       "free": "免費",
-      "priceTitle": "輸入 {input}/M · 輸出 {output}/M tokens",
-      "agentDefault": "代理預設"
+      "priceTitle": "輸入 {input}/M · 輸出 {output}/M tokens"
     }
   },
   "rules": {
@@ -422,34 +421,10 @@
     "generated": { "label": "產生檔案", "summary": "產生或建置產物的變更。" }
   },
   "errors": {
-    "tokenRequired": "寫入此 pull request 需要 GitHub token。",
     "diffNotLoaded": "diff 尚未載入完成。",
-    "noViewer": "無法判斷此 token 對應的 GitHub 使用者。",
+    "noViewer": "無法確定已登入的 GitHub 使用者。",
     "tokenRejected": "GitHub 拒絕了此 token（401）。請確認已完整貼上且未被撤銷。",
-    "tooLarge": "分析內容過大，無法以留言分享（{n} 個字元）。"
-  },
-  "local": {
-    "loading": "正在載入本機變更…",
-    "loadFailed": "無法載入這些變更",
-    "auth": {
-      "title": "輸入終端機中顯示的代碼",
-      "hint": "pulls.review 已在其執行的終端機中印出一組 6 位數代碼。",
-      "invalid": "此代碼無效。請檢查終端機後再試一次。",
-      "submit": "繼續"
-    },
-    "picker": {
-      "tagline": "像審查 Pull Request 一樣審查本機分支、範圍和未提交的變更：分組、摘要、逐一範圍檢視。",
-      "title": "審查本機變更",
-      "base": "基準",
-      "head": "頭部",
-      "compare": "比較",
-      "shortcuts": "捷徑",
-      "worktree": "未提交的變更",
-      "recentCommits": "最近的提交",
-      "branches": "分支",
-      "against": "對比 {base}",
-      "current": "目前分支",
-      "github": "或開啟 GitHub 的 Pull Request、比較或提交"
-    }
+    "tooLarge": "分析內容過大，無法以留言分享（{n} 個字元）。",
+    "signInRequired": "請使用 GitHub 登入以在此拉取請求中寫入。"
   }
 }

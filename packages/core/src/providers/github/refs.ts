@@ -42,7 +42,7 @@ export function createGithubCompareSource({ owner, repo, base, head }: { owner: 
     },
     fingerprint: () => fetchRefSha(client, owner, repo, head),
     loadFile: (path, sha) => fetchFileContentAtRef(client, owner, repo, path, sha),
-    auth: 'github-token',
+    auth: 'github-auth',
   }
 }
 
@@ -72,6 +72,6 @@ export function createGithubCommitSource({ owner, repo, sha }: { owner: string, 
       }
     },
     loadFile: (path, fileSha) => fetchFileContentAtRef(client, owner, repo, path, fileSha),
-    auth: 'github-token',
+    auth: 'github-auth',
   }
 }

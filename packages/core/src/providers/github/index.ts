@@ -46,11 +46,24 @@ export function createGithubPullRequestSource({ owner, repo, number }: { owner: 
     async viewer() {
       const token = await client.token()
       const meta = token ? await tokenMeta(token) : undefined
-      return meta && { login: meta.login, canWrite: scopesAllowWrite(meta.scopes) }
+      if (meta)
+        return { login: meta.login, canWrite: scopesAllowWrite(meta.scopes) }
+      // Proxied credentials hold no local token to look up: ask GitHub (through
+      // the proxy) who the server-injected token acts as. Write access is
+      // optimistic like a fine-grained PAT: the first refused write corrects it.
+      if (!token && await client.authenticated()) {
+        try {
+          const user = await (await client.request('/user')).json() as { login?: string }
+          if (user.login)
+            return { login: user.login, canWrite: true }
+        }
+        catch {}
+      }
+      return undefined
     },
     reviews: createGithubReviewsApi(client, { owner, repo, number }),
     sharing: createGithubSharingApi(client, { owner, repo, number }),
-    auth: 'github-token',
+    auth: 'github-auth',
   }
 }
 

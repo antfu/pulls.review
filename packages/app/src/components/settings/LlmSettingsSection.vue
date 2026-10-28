@@ -6,7 +6,8 @@ import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.v
 import ActionToggleGroup from '@antfu/design/components/Action/ActionToggleGroup.vue'
 import FormField from '@antfu/design/components/Form/FormField.vue'
 import FormTextInput from '@antfu/design/components/Form/FormTextInput.vue'
-import { computed, defineAsyncComponent, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { githubOauthSession, isGithubOauthAvailable, signInWithGithub } from '../../auth/github-oauth'
 import ModelPicker from './ModelPicker.vue'
 
 const props = defineProps<{
@@ -24,6 +25,8 @@ const emit = defineEmits<{
 // The GitHub-embedded build shows this form disabled: github.com's CSP blocks the
 // requests AI providers need. Keyed off the compile-time `PR_EMBED` flag, not a prop.
 const isEmbedded = import.meta.env.PR_EMBED
+const isHosted = isGithubOauthAvailable()
+const needsGithubLogin = computed(() => isHosted && githubOauthSession.value === null)
 
 interface ProviderConfig {
   tokenKey: 'gatewayToken' | 'anthropicApiKey' | 'openaiApiKey'
@@ -42,17 +45,12 @@ const providerOptions = [
   { value: 'gateway', label: 'AI Gateway', icon: 'i-simple-icons-vercel' },
   { value: 'anthropic', label: 'Anthropic', icon: 'i-simple-icons-claude' },
   { value: 'openai-compatible', label: 'OpenAI-compatible', icon: 'i-simple-icons-openai' },
-  { value: 'local-agent', label: 'Local agent', icon: 'i-ph:terminal-window-duotone' },
 ]
 
 /** The key-based providers' form; `undefined` for the local agent, which has an agent and a model instead. */
-const config = computed(() => props.llmSettings.provider === 'local-agent' ? undefined : providerConfigs[props.llmSettings.provider])
+const config = computed(() => providerConfigs[props.llmSettings.provider])
 const token = computed(() => config.value ? props.llmSettings[config.value.tokenKey] : '')
 const isOpenAi = computed(() => props.llmSettings.provider === 'openai-compatible')
-
-// The "Local agent" provider's form exists only in the `pulls.review` CLI's build; the site
-// and the embed show the provider with a note instead, and never bundle the form.
-const LocalAgentSettings = import.meta.env.PR_LOCAL ? defineAsyncComponent(() => import('./LocalAgentSettings.vue')) : undefined
 
 function update(patch: Partial<LlmSettings>) {
   emit('update:llmSettings', { ...props.llmSettings, ...patch })
@@ -112,117 +110,112 @@ const model = computed({
           {{ $t('settings.llm.title') }}
         </div>
         <p class="text-sm color-faint">
-          {{ $t('settings.llm.description') }}
+          {{ $t(isHosted ? 'settings.llm.cloudDescription' : 'settings.llm.description') }}
         </p>
       </div>
 
-      <FormField :label="$t('settings.llm.provider')">
-        <ActionToggleGroup
-          :model-value="llmSettings.provider"
-          :options="providerOptions"
-          @update:model-value="update({ provider: $event as LlmProvider })"
-        />
-      </FormField>
-
-      <template v-if="!config">
-        <LocalAgentSettings
-          v-if="LocalAgentSettings"
-          :llm-settings="llmSettings"
-          :models="models"
-          :models-loading="modelsLoading"
-          :models-error="modelsError"
-          @update:llm-settings="emit('update:llmSettings', $event)"
-        />
-        <FormField v-else :label="$t('settings.llm.agent')">
-          <p class="text-sm color-faint">
-            {{ $t('settings.llm.agentNeedsCli') }}
-          </p>
-        </FormField>
-      </template>
-
-      <template v-else-if="!token || editing">
-        <FormField v-if="isOpenAi" :label="$t('settings.llm.baseUrl')" :description="$t('settings.llm.baseUrlDescription')">
-          <FormTextInput
-            v-model="draftBaseUrl"
-            placeholder="https://api.openai.com/v1"
-          />
-        </FormField>
-
-        <FormField :label="$t('settings.llm.apiKey')">
-          <div class="flex items-center gap-2">
-            <FormTextInput
-              v-model="draftToken"
-              type="password"
-              icon="i-ph-key-duotone"
-              :placeholder="config?.placeholder"
-              class="flex-1"
-              @keyup.enter="draftToken && save()"
-            />
-            <ActionButton :disabled="!draftToken" @click="save">
-              {{ $t('common.save') }}
-            </ActionButton>
-            <ActionButton v-if="editing" variant="text" @click="cancel">
-              {{ $t('common.cancel') }}
-            </ActionButton>
-            <ActionButton v-if="editing" variant="text" @click="remove">
-              {{ $t('common.remove') }}
-            </ActionButton>
-          </div>
-          <template #description>
-            <i18n-t v-if="llmSettings.provider === 'gateway'" keypath="settings.llm.gatewayHint" scope="global">
-              <template #link>
-                <a href="https://vercel.com/docs/ai-gateway" target="_blank" rel="noopener" class="hover:underline">Vercel AI Gateway</a>
-              </template>
-            </i18n-t>
-            <i18n-t v-else-if="llmSettings.provider === 'anthropic'" keypath="settings.llm.anthropicHint" scope="global">
-              <template #link>
-                <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" class="hover:underline">{{ $t('settings.llm.anthropicLink') }}</a>
-              </template>
-            </i18n-t>
-            <template v-else>
-              {{ $t('settings.llm.openaiHint') }}
-            </template>
-            <br><a
-              v-if="config"
-              :href="config.createKey.url"
-              target="_blank"
-              rel="noopener"
-              class="text-primary hover:underline"
-            >{{ $t('settings.llm.createKey', { provider: config.createKey.vendor }) }}</a>
-          </template>
-        </FormField>
-      </template>
+      <div v-if="needsGithubLogin" class="flex flex-col gap-2">
+        <ActionButton icon="i-simple-icons-github" @click="signInWithGithub()">
+          {{ $t('settings.token.signIn') }}
+        </ActionButton>
+        <p class="text-sm color-faint">
+          {{ $t('settings.llm.signInRequiredHint') }}
+        </p>
+      </div>
 
       <template v-else>
-        <FormField :label="$t('settings.llm.apiKey')">
-          <div class="h-9 flex items-center gap-2 border border-base rounded bg-raised px-3 text-sm">
-            <span class="i-ph:check-circle-duotone shrink-0 color-active" aria-hidden="true" />
-            <span class="color-base">{{ $t('settings.llm.configured') }}</span>
-            <span class="font-mono op-mute">••••{{ token.slice(-4) }}</span>
-            <span v-if="isOpenAi" class="flex-1 truncate text-xs op-mute">{{ llmSettings.openaiBaseUrl }}</span>
-            <span v-else class="flex-1" />
-            <ActionIconButton
-              icon="i-ph:pencil-simple-duotone"
-              :label="$t('settings.llm.changeKey')"
-              :tooltip="$t('settings.llm.changeKey')"
-              compact
-              class="text-sm"
-              @click="editing = true"
-            />
-          </div>
+        <FormField :label="$t('settings.llm.provider')">
+          <ActionToggleGroup
+            :model-value="llmSettings.provider"
+            :options="providerOptions"
+            @update:model-value="update({ provider: $event as LlmProvider })"
+          />
         </FormField>
 
-        <FormField :label="$t('settings.llm.model')">
-          <ModelPicker
-            v-model="model"
-            :models="models"
-            :loading="modelsLoading"
-            :error="modelsError"
-          />
-          <template v-if="modelsError" #error>
-            {{ $t('settings.llm.modelListFailed', { error: modelsError }) }}
-          </template>
-        </FormField>
+        <template v-if="!token || editing">
+          <FormField v-if="isOpenAi" :label="$t('settings.llm.baseUrl')" :description="$t('settings.llm.baseUrlDescription')">
+            <FormTextInput
+              v-model="draftBaseUrl"
+              placeholder="https://api.openai.com/v1"
+            />
+          </FormField>
+
+          <FormField :label="$t('settings.llm.apiKey')">
+            <div class="flex items-center gap-2">
+              <FormTextInput
+                v-model="draftToken"
+                type="password"
+                icon="i-ph-key-duotone"
+                :placeholder="config?.placeholder"
+                class="flex-1"
+                @keyup.enter="draftToken && save()"
+              />
+              <ActionButton :disabled="!draftToken" @click="save">
+                {{ $t('common.save') }}
+              </ActionButton>
+              <ActionButton v-if="editing" variant="text" @click="cancel">
+                {{ $t('common.cancel') }}
+              </ActionButton>
+              <ActionButton v-if="editing" variant="text" @click="remove">
+                {{ $t('common.remove') }}
+              </ActionButton>
+            </div>
+            <template #description>
+              <i18n-t v-if="llmSettings.provider === 'gateway'" keypath="settings.llm.gatewayHint" scope="global">
+                <template #link>
+                  <a href="https://vercel.com/docs/ai-gateway" target="_blank" rel="noopener" class="hover:underline">Vercel AI Gateway</a>
+                </template>
+              </i18n-t>
+              <i18n-t v-else-if="llmSettings.provider === 'anthropic'" keypath="settings.llm.anthropicHint" scope="global">
+                <template #link>
+                  <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" class="hover:underline">{{ $t('settings.llm.anthropicLink') }}</a>
+                </template>
+              </i18n-t>
+              <template v-else>
+                {{ $t('settings.llm.openaiHint') }}
+              </template>
+              <br><a
+                v-if="config"
+                :href="config.createKey.url"
+                target="_blank"
+                rel="noopener"
+                class="text-primary hover:underline"
+              >{{ $t('settings.llm.createKey', { provider: config.createKey.vendor }) }}</a>
+            </template>
+          </FormField>
+        </template>
+
+        <template v-else>
+          <FormField :label="$t('settings.llm.apiKey')">
+            <div class="h-9 flex items-center gap-2 border border-base rounded bg-raised px-3 text-sm">
+              <span class="i-ph:check-circle-duotone shrink-0 color-active" aria-hidden="true" />
+              <span class="color-base">{{ $t('settings.llm.configured') }}</span>
+              <span class="font-mono op-mute">••••{{ token.slice(-4) }}</span>
+              <span v-if="isOpenAi" class="flex-1 truncate text-xs op-mute">{{ llmSettings.openaiBaseUrl }}</span>
+              <span v-else class="flex-1" />
+              <ActionIconButton
+                icon="i-ph:pencil-simple-duotone"
+                :label="$t('settings.llm.changeKey')"
+                :tooltip="$t('settings.llm.changeKey')"
+                compact
+                class="text-sm"
+                @click="editing = true"
+              />
+            </div>
+          </FormField>
+
+          <FormField :label="$t('settings.llm.model')">
+            <ModelPicker
+              v-model="model"
+              :models="models"
+              :loading="modelsLoading"
+              :error="modelsError"
+            />
+            <template v-if="modelsError" #error>
+              {{ $t('settings.llm.modelListFailed', { error: modelsError }) }}
+            </template>
+          </FormField>
+        </template>
       </template>
     </div>
 
@@ -236,7 +229,7 @@ const model = computed({
       </p>
       <i18n-t keypath="settings.llm.embedReason" tag="p" class="max-w-72 text-xs color-faint" scope="global">
         <template #link>
-          <a href="https://pulls.review" target="_blank" rel="noopener" class="color-base hover:underline">{{ $t('settings.llm.goToWebsite') }}</a>
+          <a href="https://diffwise.shyim.de" target="_blank" rel="noopener" class="color-base hover:underline">{{ $t('settings.llm.goToWebsite') }}</a>
         </template>
       </i18n-t>
     </div>

@@ -10,19 +10,17 @@ export default meta
 
 type Story = StoryObj<typeof SettingsPanel>
 
-const githubTokenMeta = {
+const githubAccount = {
+  id: 583231,
   login: 'octocat',
   avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4',
   name: 'The Octocat',
-  scopes: ['repo', 'read:org'],
-  expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 60,
-  setAt: Date.now() - 1000 * 60 * 60 * 24 * 3,
 }
 
-export const Empty: Story = {
+export const SignedOut: Story = {
   args: {
-    githubTokenSet: false,
-    githubTokenMeta: null,
+    githubAccount: null,
+    githubOauthAvailable: true,
     llmSettings: defaultLlmSettings,
     models: null,
   },
@@ -30,8 +28,8 @@ export const Empty: Story = {
 
 export const Configured: Story = {
   args: {
-    githubTokenSet: true,
-    githubTokenMeta,
+    githubAccount,
+    githubOauthAvailable: true,
     llmSettings: { ...defaultLlmSettings, gatewayToken: 'vck_exampletoken1234' },
     models: [
       { id: 'anthropic/claude-sonnet-5', name: 'Claude Sonnet 5', pricing: { input: 3, output: 15 } },
@@ -41,21 +39,10 @@ export const Configured: Story = {
   },
 }
 
-export const TokenResolving: Story = {
+export const ModelError: Story = {
   args: {
-    githubTokenSet: true,
-    githubTokenMeta: null,
-    githubTokenBusy: true,
-    llmSettings: defaultLlmSettings,
-    models: null,
-  },
-}
-
-export const Errors: Story = {
-  args: {
-    githubTokenSet: true,
-    githubTokenMeta: null,
-    githubTokenError: 'GitHub rejected this token (401). Check that it was pasted completely and has not been revoked.',
+    githubAccount,
+    githubOauthAvailable: true,
     llmSettings: { ...defaultLlmSettings, provider: 'anthropic', anthropicApiKey: 'sk-ant-example' },
     models: null,
     modelsError: 'Anthropic API request failed (401)',

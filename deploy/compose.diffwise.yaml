@@ -1,0 +1,28 @@
+name: diffwise
+services:
+  app:
+    image: ${DIFFWISE_IMAGE:-diffwise:latest}
+    env_file: .env
+    environment:
+      PUBLIC_ORIGIN: https://diffwise.shyim.de
+      DATABASE_PATH: /data/diffwise.sqlite
+    volumes:
+      - data:/data
+    networks:
+      - traefik
+    restart: unless-stopped
+    stop_grace_period: 30s
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: traefik_default
+      traefik.http.routers.diffwise.rule: Host(`diffwise.shyim.de`)
+      traefik.http.routers.diffwise.entrypoints: websecure
+      traefik.http.routers.diffwise.tls: 'true'
+      traefik.http.routers.diffwise.tls.certresolver: cloudflare
+      traefik.http.services.diffwise.loadbalancer.server.port: '3000'
+networks:
+  traefik:
+    external: true
+    name: traefik_default
+volumes:
+  data:

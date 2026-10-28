@@ -3,13 +3,12 @@ import type { GroupedResult } from '@pulls.review/core/types'
 import type { MockedFunction } from 'vitest'
 import type { LlmRunner } from '../analyze/llm-runner'
 import { computeEntrySizeBytes, createCacheRepositories } from '@pulls.review/core/cache'
-import { createGithubPullRequestSource, renderSharedAnalysisComment } from '@pulls.review/core/github'
+import { createGithubPullRequestSource, fetchGithubTokenMeta, renderSharedAnalysisComment } from '@pulls.review/core/github'
 import { staticCredentials } from '@pulls.review/core/types'
 import { createStorage } from 'unstorage'
 import memoryDriver from 'unstorage/drivers/memory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import fixture from '../../test/fixtures/synthetic/empty-group.json'
-import { resolveStoredTokenMeta } from '../composables/useGithubTokenMeta'
 import { createDiffsStore } from './diffs-store'
 
 let cache: CacheRepositories
@@ -36,7 +35,7 @@ async function seedCache(analyzedBy: PrCacheEntry['analyzedBy'], extra: Partial<
 }
 
 function storeFor({ token, from }: { token?: string, from?: string } = {}) {
-  return createDiffsStore(createGithubPullRequestSource(pr, staticCredentials(token), { tokenMeta: resolveStoredTokenMeta }), { cache, llm, from })
+  return createDiffsStore(createGithubPullRequestSource(pr, staticCredentials(token), { tokenMeta: fetchGithubTokenMeta }), { cache, llm, from })
 }
 
 interface Route {

@@ -7,6 +7,7 @@ import type { ResolvedModel } from './model'
 import type { Analysis } from './schema'
 import { normalizeGroupedResult } from '../../../types/analyze'
 import { runAgent } from './agent'
+import { PROMPT_VERSION } from './prompt'
 
 export const LLM_SCHEMA_VERSION = 1
 
@@ -59,7 +60,7 @@ export function toGroupedResult(diff: DiffsPayload, analysis: Analysis, model: s
     groups: reconcile(diff, analysis),
     schemaVersion: LLM_SCHEMA_VERSION,
   }
-  return { ...normalizeGroupedResult('llm', core, model), locale }
+  return { ...normalizeGroupedResult('llm', core, model), locale, promptVersion: PROMPT_VERSION }
 }
 
 export function modelStamp(resolved: ResolvedModel): string {

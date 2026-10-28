@@ -47,47 +47,28 @@
     "uploadDescription": "Envie ou cole um unified diff, ou solte um arquivo {diff} / {patch} em qualquer lugar desta página.",
     "uploadButton": "Enviar um diff",
     "embedTitle": "Use integrado ao github.com",
-    "embedDescription": "Com {tampermonkey} ou {violentmonkey} instalado, um painel do pulls.review aparece em cada página de pull request.",
+    "embedDescription": "Com {tampermonkey} ou {violentmonkey} instalado, um painel do Diffwise aparece em cada página de pull request.",
     "installUserscript": "Instalar userscript",
-    "bookmarkletTitle": "Alterne entre github.com e pulls.review",
-    "bookmarkletDescription": "Não pode instalar extensões? Arraste este bookmarklet para a barra de favoritos para abrir o pull request atual no pulls.review, e voltar.",
+    "bookmarkletTitle": "Alterne entre github.com e Diffwise",
+    "bookmarkletDescription": "Não pode instalar extensões? Arraste este bookmarklet para a barra de favoritos para abrir o pull request atual no Diffwise, e voltar.",
     "bookmarkletDrag": "Arraste-me para a barra de favoritos",
-    "actionsTitle": "Configure a análise automática com GitHub Actions",
-    "actionsDescription": "Analise cada pull request uma vez na CI e publique o resultado como comentário, para que cada revisor não precise da própria chave de modelo.",
-    "cliTitle": "Rode em mudanças locais do git com a CLI",
-    "cliDescription": "Revise sua árvore de trabalho, um commit ou uma branch antes do push, agrupados e resumidos como um PR.",
     "viewGuide": "Ver guia"
   },
   "guide": {
     "userscript": {
-      "title": "Use o pulls.review integrado ao github.com",
-      "intro": "O userscript adiciona um painel do pulls.review diretamente às páginas de pull request no github.com, com arquivos agrupados e resumos, para você não precisar trocar de aba.",
+      "title": "Use o Diffwise integrado ao github.com",
+      "intro": "O userscript adiciona um painel do Diffwise diretamente às páginas de pull request no github.com, com arquivos agrupados e resumos, para você não precisar trocar de aba.",
       "manager": "Instale um gerenciador de userscripts: {tampermonkey} ou {violentmonkey}.",
-      "install": "Instale o userscript do pulls.review. Seu gerenciador pede confirmação.",
+      "install": "Instale o userscript do Diffwise. Seu gerenciador pede confirmação.",
       "open": "Abra qualquer pull request no github.com e clique na aba {tab} ao lado de \"Files changed\".",
-      "ai": "O github.com bloqueia as requisições de que a análise por IA precisa, então o painel mostra análises compartilhadas como comentários do PR. Abra o PR no pulls.review para rodar uma nova."
+      "ai": "O github.com bloqueia as requisições de que a análise por IA precisa, então o painel mostra análises compartilhadas como comentários do PR. Abra o PR no Diffwise para rodar uma nova."
     },
     "bookmarklet": {
-      "title": "Alterne entre github.com e pulls.review",
+      "title": "Alterne entre github.com e Diffwise",
       "intro": "Um bookmarklet é um favorito que executa um pequeno script. Funciona em qualquer navegador, sem instalar extensões, e abre a página atual no outro site.",
       "bar": "Mostre a barra de favoritos, por exemplo com {shortcut}.",
       "drag": "Arraste este botão para a barra de favoritos:",
-      "use": "Em uma página de pull request, commit ou comparação no github.com, clique no favorito para abri-la no pulls.review. Clique de novo para voltar."
-    },
-    "actions": {
-      "title": "Análise automática com GitHub Actions",
-      "intro": "Deixe a CI analisar cada pull request uma vez, assim que ele é aberto ou atualizado. Todos que abrem o PR, aqui ou no painel do github.com, veem na hora o mesmo resumo agrupado. Ninguém precisa da própria chave de modelo, e pull requests de forks também recebem.",
-      "secret": "Adicione sua chave de modelo como secret do repositório, por exemplo {name}.",
-      "workflow": "Adicione este workflow ao repositório:",
-      "result": "Abra ou atualize um pull request para testar. A análise chega como comentário, e novas execuções em um PR sem mudanças pulam a chamada ao modelo.",
-      "options": "O {provider} é inferido a partir da chave. Defina {provider}, {model} ou {locale} para substituí-lo. Veja o {readme} para todas as opções."
-    },
-    "cli": {
-      "title": "Revise mudanças locais do git com a CLI",
-      "intro": "Revise sua própria mudança antes de qualquer outra pessoa. A CLI abre no pulls.review sua branch, um commit ou o trabalho ainda sem commit, para você ver como a mudança se lê, agrupada e resumida, antes do push ou de abrir um PR.",
-      "branch": "Em um repositório git, rode isto para revisar sua branch atual em relação à branch padrão:",
-      "target": "Ou escolha o que revisar:",
-      "browser": "Ela abre {url} no navegador para visualizar suas mudanças locais. Confirme a aba com o código de uso único exibido no terminal. Lá você também pode escolher outras branches ou commits para comparar."
+      "use": "Em uma página de pull request, commit ou comparação no github.com, clique no favorito para abri-la no Diffwise. Clique de novo para voltar."
     }
   },
   "load": {
@@ -116,9 +97,11 @@
     "ai": "IA",
     "by": "por",
     "sharedBy": "Vendo a análise de IA compartilhada por",
+    "feedbackUseful": "Análise útil",
+    "feedbackNotUseful": "Não útil",
     "sharedAnalysis": "Vendo a análise compartilhada",
     "reviewedOf": "/ {total} revisados",
-    "openInSite": "Abrir no pulls.review"
+    "openInSite": "Abrir no Diffwise"
   },
   "commits": {
     "count": "{n} commit | {n} commits",
@@ -131,6 +114,24 @@
   "embed": {
     "reviewChanges": "Revisar alterações",
     "updateUserscript": "Atualizar userscript"
+  },
+  "automation": {
+    "title": "Automação",
+    "enabled": "Ativado",
+    "disabled": "Desativado",
+    "usage": "{runs}/{budget} execuções este mês",
+    "usageUnlimited": "{runs} execuções este mês",
+    "empty": "Nenhuma análise do servidor ainda."
+  },
+  "inbox": {
+    "title": "Caixa de revisão",
+    "needsReview": "Aguardando minha revisão",
+    "assigned": "Atribuídos a mim",
+    "authored": "Criados por mim",
+    "mentioned": "Menções",
+    "signIn": "Entre com o GitHub para ver sua caixa de revisão.",
+    "empty": "Nada aguardando. Tudo tranquilo.",
+    "loadFailed": "Não foi possível carregar sua caixa"
   },
   "pulls": {
     "loading": "Carregando pull requests…",
@@ -149,6 +150,11 @@
     "groups": "{n} grupo | {n} grupos",
     "viewedHint": "Visto neste navegador",
     "aiAvailable": "Análise de IA disponível",
+    "analysisRunning": "Análise de IA em execução",
+    "analysisReady": "Análise de IA pronta",
+    "analysisStale": "A análise de IA pode estar desatualizada",
+    "analysisFailed": "Falha na análise de IA",
+    "analysisCritical": "{n} crítico | {n} críticos",
     "sort": {
       "label": "Ordenar",
       "recently-updated": "Atualizados recentemente",
@@ -176,6 +182,9 @@
     "failedTitle": "A análise de IA falhou: {message}",
     "reanalyze": "Analisar novamente",
     "withAi": "Analisar com IA",
+    "remote": "Analisar no servidor",
+    "remoteTitle": "Executar a análise no servidor com sua chave de API sincronizada; o resultado é salvo neste site",
+    "remoteQueued": "Na fila do servidor",
     "statusTitle": "Análise de IA",
     "starting": "Iniciando…",
     "thinking": "Pensando… (etapa {step})",
@@ -354,18 +363,13 @@
     "autoFetchFullFileHint": "Detecta erros de sintaxe no conteúdo parcial e carrega a versão completa.",
     "language": "Idioma",
     "token": {
-      "label": "Token de acesso pessoal do GitHub",
-      "optional": "Opcional para repositórios públicos; obrigatório para repositórios privados ou para deixar revisões.",
-      "scopes": "Revisões precisam do escopo {repo} (token clássico) ou {fineGrained} (token granular)",
-      "storedLocally": "Armazenado apenas neste navegador.",
-      "generate": "Gerar um no GitHub →",
-      "fineGrained": "Token granular (sem escopos clássicos)",
-      "updated": "Atualizado",
-      "expires": "Expira",
-      "neverExpires": "Nunca expira",
-      "change": "Alterar token",
-      "checking": "Verificando token…",
-      "couldNotVerify": "Não foi possível verificar este token."
+      "label": "GitHub",
+      "checking": "Verificando o login…",
+      "signIn": "Entrar com GitHub",
+      "signInHint": "Autorize o GitHub App Diffwise a acessar repos privados e deixar reviews. As solicitações ao GitHub passam por este site; nenhum token do GitHub é salvo no seu navegador.",
+      "signOut": "Sair",
+      "viaApp": "GitHub App",
+      "embedAnonymous": "Esta visão incorporada carrega repositórios públicos anonimamente. Abra diffwise.shyim.de e entre com o GitHub para repositórios privados e reviews."
     },
     "tabs": {
       "appearance": "Aparência",
@@ -393,12 +397,8 @@
       "embedUnavailable": "Os recursos de IA não estão disponíveis no modo incorporado",
       "embedReason": "A rígida CSP do github.com bloqueia as solicitações de que os recursos de IA precisam aqui. {link} para usá-los.",
       "goToWebsite": "Acesse o site",
-      "agent": "Agente",
-      "agentNeedsCli": "Agentes locais rodam na CLI do pulls.review: inicie-a em um repositório com `npx pulls.review` e escolha um lá.",
-      "agentDetecting": "Procurando CLIs de agentes…",
-      "agentNone": "Nenhuma CLI de agente encontrada nesta máquina.",
-      "agentHint": "Um agente de código instalado nesta máquina, com sua própria conta: {claude}, {codex}, {opencode} ou {pi}. Ele lê o patch e o repositório, nunca escreve.",
-      "agentPick": "Escolha um agente…"
+      "cloudDescription": "Configure um provedor de modelo para ativar resumos gerados por IA. As configurações são salvas criptografadas por trás do seu login do GitHub e armazenadas em cache neste navegador.",
+      "signInRequiredHint": "Entre com o GitHub antes de adicionar uma chave de provedor. Suas configurações de IA serão sincronizadas criptografadas com sua conta."
     },
     "models": {
       "placeholder": "id do modelo",
@@ -407,8 +407,7 @@
       "noMatch": "Nenhum modelo correspondente",
       "useCustom": "Usar “{id}”",
       "free": "Grátis",
-      "priceTitle": "Entrada {input}/M · Saída {output}/M tokens",
-      "agentDefault": "Padrão do agente"
+      "priceTitle": "Entrada {input}/M · Saída {output}/M tokens"
     }
   },
   "rules": {
@@ -422,34 +421,10 @@
     "generated": { "label": "Gerados", "summary": "Alterações em arquivos gerados ou de build." }
   },
   "errors": {
-    "tokenRequired": "É necessário um token do GitHub para escrever neste pull request.",
     "diffNotLoaded": "O diff ainda não terminou de carregar.",
-    "noViewer": "Não foi possível determinar o usuário do GitHub deste token.",
+    "noViewer": "Não foi possível determinar o usuário do GitHub conectado.",
     "tokenRejected": "O GitHub rejeitou este token (401). Verifique se ele foi colado por completo e não foi revogado.",
-    "tooLarge": "A análise é grande demais para ser compartilhada como comentário ({n} caracteres)."
-  },
-  "local": {
-    "loading": "Carregando alterações locais…",
-    "loadFailed": "Não foi possível carregar estas alterações",
-    "auth": {
-      "title": "Digite o código do seu terminal",
-      "hint": "O pulls.review exibiu um código de 6 dígitos no terminal em que está rodando.",
-      "invalid": "Esse código não funcionou. Confira o terminal e tente novamente.",
-      "submit": "Continuar"
-    },
-    "picker": {
-      "tagline": "Revise suas branches locais, intervalos e alterações não commitadas como um pull request: agrupados, resumidos, um escopo por vez.",
-      "title": "Revisar alterações locais",
-      "base": "Base",
-      "head": "Head",
-      "compare": "Comparar",
-      "shortcuts": "Atalhos",
-      "worktree": "Alterações não commitadas",
-      "recentCommits": "Commits recentes",
-      "branches": "Branches",
-      "against": "em relação a {base}",
-      "current": "Branch atual",
-      "github": "Ou um pull request, comparação ou commit do GitHub"
-    }
+    "tooLarge": "A análise é grande demais para ser compartilhada como comentário ({n} caracteres).",
+    "signInRequired": "Entre com o GitHub para escrever neste pull request."
   }
 }

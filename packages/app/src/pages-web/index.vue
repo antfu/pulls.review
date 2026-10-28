@@ -236,7 +236,7 @@ useDocumentTitle(() => t('landing.documentTitle'), ' - ')
             </div>
           </div>
           <div class="mt-auto flex gap-2">
-            <ActionButton href="https://pulls.review/pulls-review-github.user.js" icon="i-ph:download-duotone">
+            <ActionButton href="https://diffwise.shyim.de/pulls-review-github.user.js" icon="i-ph:download-duotone">
               {{ $t('landing.installUserscript') }}
             </ActionButton>
             <ActionButton icon="i-ph:book-open-duotone" @click="guide = 'userscript'">
@@ -260,44 +260,6 @@ useDocumentTitle(() => t('landing.documentTitle'), ' - ')
           <div class="mt-auto flex gap-2">
             <BookmarkletButton />
             <ActionButton icon="i-ph:book-open-duotone" @click="guide = 'bookmarklet'">
-              {{ $t('landing.viewGuide') }}
-            </ActionButton>
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-4 border border-base rounded-lg p-5">
-          <div class="flex items-start gap-3">
-            <span class="i-ph:lightning-duotone mt-0.5 shrink-0 text-xl color-accent-orange" aria-hidden="true" />
-            <div class="flex-1">
-              <h2 class="font-semibold">
-                {{ $t('landing.actionsTitle') }}
-              </h2>
-              <p class="text-sm op-fade">
-                {{ $t('landing.actionsDescription') }}
-              </p>
-            </div>
-          </div>
-          <div class="mt-auto flex">
-            <ActionButton icon="i-ph:book-open-duotone" @click="guide = 'actions'">
-              {{ $t('landing.viewGuide') }}
-            </ActionButton>
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-4 border border-base rounded-lg p-5">
-          <div class="flex items-start gap-3">
-            <span class="i-ph:terminal-window-duotone mt-0.5 shrink-0 text-xl color-accent-teal" aria-hidden="true" />
-            <div class="flex-1">
-              <h2 class="font-semibold">
-                {{ $t('landing.cliTitle') }}
-              </h2>
-              <p class="text-sm op-fade">
-                {{ $t('landing.cliDescription') }}
-              </p>
-            </div>
-          </div>
-          <div class="mt-auto flex">
-            <ActionButton icon="i-ph:book-open-duotone" @click="guide = 'cli'">
               {{ $t('landing.viewGuide') }}
             </ActionButton>
           </div>

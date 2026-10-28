@@ -6,21 +6,23 @@
   "description": "Review pull requests with grouped, summarized, and beautiful diffs.",
   "author": "Anthony Fu <hi@antfu.me>",
   "license": "MIT",
-  "homepage": "https://pulls.review",
+  "homepage": "https://diffwise.shyim.de",
   "scripts": {
-    "build": "pnpm run build:embed && vite build",
-    "build:embed": "vite build --config vite.config.embed.ts",
-    "dev": "vite",
+    "build": "pnpm run build:embed && nuxt build",
+    "build:embed": "nuxt prepare && vite build --config vite.config.embed.ts",
+    "dev": "nuxt dev --dotenv ../../.env",
     "play:embed": "pnpm run build:embed && vite --open /playgrounds/embed/",
-    "preview": "vite preview",
-    "typecheck": "vue-tsc --noEmit",
+    "preview": "nuxt preview",
+    "typecheck": "nuxt typecheck && tsc --noEmit -p tsconfig.server.json",
     "test": "vitest run",
     "storybook": "storybook dev -p 6006",
-    "storybook:build": "storybook build",
-    "build:local": "vite build --config vite.config.local.ts"
+    "storybook:build": "storybook build"
   },
   "dependencies": {
-    "@pulls.review/core": "workspace:^"
+    "@pulls.review/core": "workspace:^",
+    "@pulls.review/server": "workspace:^",
+    "better-auth": "catalog:server",
+    "nuxt": "catalog:build"
   },
   "devDependencies": {
     "@antfu/design": "catalog:frontend",
@@ -40,6 +42,7 @@
     "@storybook/vue3-vite": "catalog:storybook",
     "@tanstack/vue-virtual": "catalog:frontend",
     "@types/node": "catalog:dev",
+    "@unocss/nuxt": "catalog:build",
     "@unocss/reset": "catalog:build",
     "@vitejs/plugin-vue": "catalog:build",
     "@vue/test-utils": "catalog:testing",
@@ -47,7 +50,6 @@
     "animejs": "catalog:frontend",
     "beautiful-mermaid": "catalog:frontend",
     "colorjs.io": "catalog:frontend",
-    "devframe": "catalog:frontend",
     "fake-indexeddb": "catalog:testing",
     "fzf": "catalog:frontend",
     "happy-dom": "catalog:testing",
