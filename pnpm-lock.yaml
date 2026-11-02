@@ -249,11 +249,11 @@ catalogs:
       specifier: ^1.3.0
       version: 1.3.0
     '@pierre/diffs':
-      specifier: ^1.6.0
-      version: 1.6.0
+      specifier: ^1.6.1
+      version: 1.6.1
     '@pierre/theming':
       specifier: ^1.0.1
-      version: 1.0.1
+      version: 1.0.2
     '@shikijs/engine-javascript':
       specifier: ^4.5.0
       version: 4.5.0
@@ -479,10 +479,10 @@ importers:
         version: 1.2.5
       '@pierre/diffs':
         specifier: catalog:frontend
-        version: 1.6.0(@shikijs/themes@4.5.0)
+        version: 1.6.1(@shikijs/themes@4.5.0)
       '@pierre/theming':
         specifier: catalog:frontend
-        version: 1.0.1(@pierre/theme@2.0.0)(@shikijs/themes@4.5.0)(shiki@4.5.0)
+        version: 1.0.2(@pierre/theme@2.0.0)(@shikijs/themes@4.5.0)(shiki@4.5.0)
       '@shikijs/engine-javascript':
         specifier: catalog:frontend
         version: 4.5.0
@@ -2011,8 +2011,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@pierre/diffs@1.6.0':
-    resolution: {integrity: sha512-bO8sUiwF7Y1VU3DpYc0jwJz8SVhL53Qp9S9sUaHZJWznuQv9xRLgaeX4yNBysiA7uY70R2Aq7kCcTwPfW89GzQ==}
+  '@pierre/diffs@1.6.1':
+    resolution: {integrity: sha512-XTfLW4bFETyosZfFNUoyRh1zPE4tmAijOoxdHx4X805tlaq/7/fuQXIiJSm21+jLkDo8vn5elQ+2O4YtMTKM0Q==}
     peerDependencies:
       react: ^18.3.1 || ^19.0.0
       react-dom: ^18.3.1 || ^19.0.0
@@ -2022,15 +2022,15 @@ packages:
       react-dom:
         optional: true
 
-  '@pierre/highlights@0.1.3':
-    resolution: {integrity: sha512-fI7BQu1IRtxBQthK8+Z0aEADcxHBEHSZnWUmE/gKvn7BfwPcaBkh9OiXi4eEQBf4MrtzUNaYTOXJTW4yWUD9QQ==}
+  '@pierre/highlights@0.2.0':
+    resolution: {integrity: sha512-hTpcOU1EzDAP4bYtEhxmMu2jwMvtkUydRUBUpWMSHTs3dw0IaC3Ld5ansMy18L0GE3b6Vfl2OGkLK+pWWpnBmw==}
 
   '@pierre/theme@2.0.0':
     resolution: {integrity: sha512-yNDd9GYLQl1mEUJR8AneJ5e4ohLIHQd/wZLWr4fagt78vS2RwwZNW530vVgHqXFAyFVcFlRmGUD5ramXH46OXw==}
     engines: {vscode: ^1.0.0}
 
-  '@pierre/theming@1.0.1':
-    resolution: {integrity: sha512-WCI5Qd7iprDpISL9fBYOLe8RV53+b7mFNA3bPzl60/2CKCSrsKN8zEcep6Y3BAzvARlmca50zGjDodqPGiTUKA==}
+  '@pierre/theming@1.0.2':
+    resolution: {integrity: sha512-RmXLLqtx31UGcR8kZyO5hGAQ1EXz6loT1Cu0BFAGsbnBboIxp2BlomkLfWyvdT4WZXnBGyu25onL1gKpFQuSUw==}
     peerDependencies:
       '@pierre/theme': ^1.1.0 || ^2.0.0
       '@shikijs/themes': ^3.0.0 || ^4.0.0
@@ -3739,19 +3739,6 @@ packages:
 
   h3@1.15.11:
     resolution: {integrity: sha512-L3THSe2MPeBwgIZVSH5zLdBBU90TOxarvhK9d04IDY2AmVS8j2Jz2LIWtwsGOU3lu2I5jCN7FNvVfY2+XyF+mg==}
-
-  h3@2.0.5:
-    resolution: {integrity: sha512-AkTYaK8XhWlAAOhzEz8I6FAkhFPMrDYVq/PIV3GvJxtKiFmVyVDAAdGuNGMTHRrI3A6up3s1bND/dDPlQHlx6w==}
-    engines: {node: '>=20.19.0'}
-    hasBin: true
-    peerDependencies:
-      crossws: ^0.4.12
-      ocache: '>=0.3.0'
-    peerDependenciesMeta:
-      crossws:
-        optional: true
-      ocache:
-        optional: true
 
   h3@2.0.7:
     resolution: {integrity: sha512-00SVloxtViij9/JBsc/Ayd9H7GLXWB0KRfkReWG0dDwuUFKUKRrNGM3Csu+KZgppi5DD8Y1KpnfjtudWaRCoiQ==}
@@ -5837,7 +5824,7 @@ snapshots:
       '@modelcontextprotocol/client': 2.3.1
       '@modelcontextprotocol/server': 2.3.1
       devframe: 1.2.6(@devframes/agentic@1.2.5)(cac@7.1.0)(srvx@1.0.6)
-      h3: 2.0.5(crossws@0.4.15(srvx@1.0.6))
+      h3: 2.0.7(crossws@0.4.15(srvx@1.0.6))
       pathe: 2.0.3
     transitivePeerDependencies:
       - crossws
@@ -6572,11 +6559,11 @@ snapshots:
   '@oxfmt/binding-win32-x64-msvc@0.35.0':
     optional: true
 
-  '@pierre/diffs@1.6.0(@shikijs/themes@4.5.0)':
+  '@pierre/diffs@1.6.1(@shikijs/themes@4.5.0)':
     dependencies:
-      '@pierre/highlights': 0.1.3
+      '@pierre/highlights': 0.2.0
       '@pierre/theme': 2.0.0
-      '@pierre/theming': 1.0.1(@pierre/theme@2.0.0)(@shikijs/themes@4.5.0)(shiki@4.5.0)
+      '@pierre/theming': 1.0.2(@pierre/theme@2.0.0)(@shikijs/themes@4.5.0)(shiki@4.5.0)
       diff: 9.0.0
       hast-util-to-html: 9.0.5
       lru_map: 0.4.1
@@ -6584,11 +6571,11 @@ snapshots:
     transitivePeerDependencies:
       - '@shikijs/themes'
 
-  '@pierre/highlights@0.1.3': {}
+  '@pierre/highlights@0.2.0': {}
 
   '@pierre/theme@2.0.0': {}
 
-  '@pierre/theming@1.0.1(@pierre/theme@2.0.0)(@shikijs/themes@4.5.0)(shiki@4.5.0)':
+  '@pierre/theming@1.0.2(@pierre/theme@2.0.0)(@shikijs/themes@4.5.0)(shiki@4.5.0)':
     optionalDependencies:
       '@pierre/theme': 2.0.0
       '@shikijs/themes': 4.5.0
@@ -7800,7 +7787,7 @@ snapshots:
   devframe@1.2.6(@devframes/agentic@1.2.5)(cac@7.1.0)(srvx@1.0.6):
     dependencies:
       crossws: 0.4.15(srvx@1.0.6)
-      h3: 2.0.5(crossws@0.4.15(srvx@1.0.6))
+      h3: 2.0.7(crossws@0.4.15(srvx@1.0.6))
       nostics: 1.3.0
       pathe: 2.0.3
     optionalDependencies:
@@ -8438,13 +8425,6 @@ snapshots:
       radix3: 1.1.2
       ufo: 1.6.4
       uncrypto: 0.1.3
-
-  h3@2.0.5(crossws@0.4.15(srvx@1.0.6)):
-    dependencies:
-      rou3: 1.0.0
-      srvx: 1.0.6
-    optionalDependencies:
-      crossws: 0.4.15(srvx@1.0.6)
 
   h3@2.0.7(crossws@0.4.15(srvx@1.0.6)):
     dependencies:
