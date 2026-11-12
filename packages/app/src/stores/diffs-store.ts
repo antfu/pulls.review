@@ -2,6 +2,7 @@ import type { CacheRepositories, LlmSession, PrCacheEntry } from '@pulls.review/
 import type { DiffSource, DiffsPayload, FileChange, GroupedResult, GroupSource, ReviewData } from '@pulls.review/core/types'
 import type { LlmRunner } from '../analyze/llm-runner'
 import type { DiffsStore, DiffsStoreLlm } from './types'
+import { analysisIdentity } from '@pulls.review/core/cache'
 import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef, watch } from 'vue'
 import { resolveAdapter, ruleBasedAdapter } from '../analyze'
 import { resolveGroups } from '../components/diff/group-utils'
@@ -166,6 +167,25 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
     : undefined
 
   /**
+   * The same commits read through another ref - a compare range that became a pull
+   * request, one commit reached from two views - have already been analyzed once.
+   * Adopt that result instead of paying for a near-identical run whose grouping would
+   * differ, and keep it under this ref too so it survives the analysis cache's eviction.
+   */
+  async function inheritAnalysis(target: DiffsPayload) {
+    // A result generated here always wins: it was analyzed against this very diff.
+    if (analyzedBy.value.llm || analyzedBy.value['web-llm'])
+      return
+    const identity = analysisIdentity(target)
+    const inherited = identity && await cache.analyses.get(identity)
+    if (!inherited || inherited.source === 'rule-based' || inherited.source === 'none')
+      return
+    analyzedBy.value = { ...analyzedBy.value, [inherited.source]: inherited }
+    if (cacheKey.value)
+      await cache.diffs.setAnalyzedResult(cacheKey.value, inherited.source, inherited)
+  }
+
+  /**
    * Installs a diff plus whatever was persisted for it. The AI result and chat session
    * are kept on purpose: `resolveGroups` reconciles them against the newer diff, so a
    * refresh never throws away a paid analysis.
@@ -176,6 +196,7 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
     changedSinceReviewed.value = new Set(entry.changedSinceReviewed)
     analyzedBy.value = { ...entry.analyzedBy, 'rule-based': await ruleBasedAdapter.analyze(entry.diff) }
     llmSession.value = entry.llmSession as LlmSession | undefined
+    await inheritAnalysis(entry.diff)
     await loadReviewed()
   }
 

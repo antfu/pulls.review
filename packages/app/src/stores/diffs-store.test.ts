@@ -270,6 +270,84 @@ describe('createDiffsStore over any source', () => {
   })
 })
 
+describe('createDiffsStore analysis inheritance', () => {
+  const analysis = { source: 'llm' as const, groups: [], schemaVersion: 1, generatedAt: '2026-01-01T00:00:00.000Z' }
+
+  /** Two refs that resolve to the same commits are the same diff (a compare range and its PR). */
+  function sourceAt(key: string, base: string, head: string): DiffSource {
+    return {
+      key: async () => key,
+      fetch: async () => ({
+        ref: { kind: 'github-compare', owner: 'o', repo: 'r', base: 'main', head: 'feat' },
+        title: key,
+        base: { sha: base, ref: 'main' },
+        head: { sha: head, ref: 'feat' },
+        files: [],
+      }),
+    }
+  }
+
+  it('adopts an analysis made for the same commits under another ref, without running again', async () => {
+    runLlmAnalysisMock.mockResolvedValue({ result: analysis, transcript: transcript() })
+
+    const compare = createDiffsStore(sourceAt('github:o/r@main...feat', 'base1', 'head1'), { cache, llm })
+    await compare.load()
+    await compare.llm!.reanalyze()
+    expect(runLlmAnalysisMock).toHaveBeenCalledTimes(1)
+
+    const pullRequest = createDiffsStore(sourceAt('github:o/r#1', 'base1', 'head1'), { cache, llm })
+    await pullRequest.load()
+
+    expect(pullRequest.aiResult).toEqual(analysis)
+    expect(pullRequest.grouped?.source).toBe('llm')
+    expect(runLlmAnalysisMock).toHaveBeenCalledTimes(1)
+    // Persisted under this ref too, so the result survives the analysis cache evicting it.
+    expect((await cache.diffs.get('github:o/r#1'))?.analyzedBy.llm).toEqual(analysis)
+  })
+
+  it('inherits nothing across different commits', async () => {
+    runLlmAnalysisMock.mockResolvedValue({ result: analysis, transcript: transcript() })
+
+    const compare = createDiffsStore(sourceAt('github:o/r@main...feat', 'base1', 'head1'), { cache, llm })
+    await compare.load()
+    await compare.llm!.reanalyze()
+
+    const moved = createDiffsStore(sourceAt('github:o/r#2', 'base1', 'head2'), { cache, llm })
+    await moved.load()
+
+    expect(moved.aiResult).toBeUndefined()
+  })
+
+  it('keeps a result generated for this very diff over an inherited one', async () => {
+    await cache.analyses.set('base1...head1', analysis)
+
+    const store = createDiffsStore(sourceAt('github:o/r#1', 'base1', 'head1'), { cache, llm })
+    await store.load()
+    expect(store.aiResult).toEqual(analysis)
+
+    const own = { ...analysis, generatedAt: '2026-02-02T00:00:00.000Z' }
+    await cache.diffs.setAnalyzedResult('github:o/r#1', 'llm', own)
+
+    const reopened = createDiffsStore(sourceAt('github:o/r#1', 'base1', 'head1'), { cache, llm })
+    await reopened.load()
+    expect(reopened.aiResult).toEqual(own)
+  })
+
+  it('adopts an inherited result where analysis cannot run, which is how the embed is built', async () => {
+    runLlmAnalysisMock.mockResolvedValue({ result: analysis, transcript: transcript() })
+    const compare = createDiffsStore(sourceAt('github:o/r@main...feat', 'base1', 'head1'), { cache, llm })
+    await compare.load()
+    await compare.llm!.reanalyze()
+
+    // `EmbedPrView` builds the store without an `llm` runner: it can never analyze, only show what is cached.
+    const embed = createDiffsStore(sourceAt('github:o/r#1', 'base1', 'head1'), { cache })
+    await embed.load()
+
+    expect(embed.llm).toBeUndefined()
+    expect(embed.aiResult).toEqual(analysis)
+  })
+})
+
 describe('createDiffsStore credentials', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
