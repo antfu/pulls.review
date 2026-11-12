@@ -160,6 +160,22 @@ describe('diff cache', () => {
     expect(back!.sharedComment).toEqual({ id: 1, url: 'u' })
   })
 
+  it('records the head an analysis was produced for, and keeps it across a refetch', async () => {
+    const { cache } = cacheWith()
+    await cache.put(makeEntry('a', 'sha-a', 1000))
+    const llm = { source: 'llm' as const, groups: [], schemaVersion: 1, generatedAt: 'now' }
+
+    await cache.setAnalyzedResult('a', 'llm', llm, 'sha-a')
+    expect((await cache.get('a'))!.analyzedHeadSha).toBe('sha-a')
+
+    // A refetch replaces the diff and its head but must keep the result and the head it describes.
+    await cache.putDiff('a', { ...makeEntry('a', 'sha-b', 2000).diff }, 'sha-b')
+    const back = await cache.get('a')
+    expect(back!.analyzedBy.llm).toEqual(llm)
+    expect(back!.analyzedHeadSha).toBe('sha-a')
+    expect(back!.headSha).toBe('sha-b')
+  })
+
   it('evicts the least-recently-viewed entries once the entry-count budget is exceeded', async () => {
     const { cache } = cacheWith({ maxEntries: 2 })
     await cache.put(makeEntry('old', 'sha-old', 1000))

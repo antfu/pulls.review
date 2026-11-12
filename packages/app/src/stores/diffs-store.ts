@@ -29,6 +29,8 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
   const { cache } = opts
   const diff = ref<DiffsPayload>()
   const analyzedBy = ref<Partial<Record<GroupSource, GroupedResult>>>({})
+  /** The head commit the current AI result was produced for; `putDiff` keeps it across a refetch. */
+  const analyzedHeadSha = ref<string>()
   const isLoading = ref(false)
   const error = ref<Error>()
   const isStale = ref(false)
@@ -65,6 +67,17 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
   // diff, so the header/view never lose their data just from switching modes.
   const grouped = computed(() => analyzedBy.value[analyzeMode.value] ?? analyzedBy.value['rule-based'])
   const aiResult = computed(() => analyzedBy.value.llm ?? analyzedBy.value['web-llm'])
+  /**
+   * The analysis shown is about earlier commits than the ones rendered: `putDiff` keeps a
+   * paid result across a refetch (`resolveGroups` reconciles it), so the view has to say
+   * so instead of passing it off as a reading of the current diff. Shared results are
+   * reported by the shared banner, which knows the head their author analyzed.
+   */
+  const analysisStale = computed(() => {
+    const analyzed = analyzedHeadSha.value
+    const current = diff.value?.head?.sha
+    return analyzed !== undefined && current !== undefined && analyzed !== current && !aiResult.value?.sharedBy
+  })
   const groups = computed(() => diff.value && grouped.value ? resolveGroups(grouped.value.groups, diff.value.files) : [])
 
   // The flag is a compile-time literal: with it off, this `import()` is dead code and the
@@ -79,7 +92,10 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
           diff,
           session: llmSession,
           getCacheKey: () => cacheKey.value,
-          setResult: result => analyzedBy.value = { ...analyzedBy.value, llm: result },
+          setResult: (result) => {
+            analyzedBy.value = { ...analyzedBy.value, llm: result }
+            analyzedHeadSha.value = diff.value?.head?.sha
+          },
           showLlmResult: () => setAnalyzeMode('llm'),
         })
       })
@@ -147,6 +163,8 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
     analyzedBy.value = { ...analyzedBy.value, [source]: result }
     llmSession.value = undefined
     analyzeMode.value = source
+    // A shared result describes whatever head its author analyzed, which the shared
+    // banner reports on its own; the local per-head check does not apply to it.
     if (cacheKey.value) {
       await cache.diffs.setAnalyzedResult(cacheKey.value, source, result)
       await cache.diffs.setLlmSession(cacheKey.value, undefined)
@@ -170,11 +188,12 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
    * are kept on purpose: `resolveGroups` reconciles them against the newer diff, so a
    * refresh never throws away a paid analysis.
    */
-  async function install(key: string, entry: Pick<PrCacheEntry, 'diff' | 'analyzedBy' | 'llmSession' | 'changedSinceReviewed'>) {
+  async function install(key: string, entry: Pick<PrCacheEntry, 'diff' | 'analyzedBy' | 'analyzedHeadSha' | 'llmSession' | 'changedSinceReviewed'>) {
     diff.value = entry.diff
     cacheKey.value = key
     changedSinceReviewed.value = new Set(entry.changedSinceReviewed)
     analyzedBy.value = { ...entry.analyzedBy, 'rule-based': await ruleBasedAdapter.analyze(entry.diff) }
+    analyzedHeadSha.value = entry.analyzedHeadSha
     llmSession.value = entry.llmSession as LlmSession | undefined
     await loadReviewed()
   }
@@ -302,6 +321,7 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
     changedSinceReviewed,
     groups,
     aiResult,
+    analysisStale,
     analyzeMode,
     setAnalyzeMode,
     ui,

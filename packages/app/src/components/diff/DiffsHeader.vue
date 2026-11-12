@@ -156,6 +156,10 @@ function scrollToGroup(key: string) {
             {{ aiResult.sharedBy }}
           </template>
         </span>
+        <span v-if="store.analysisStale && store.analyzeMode !== 'rule-based'" class="flex items-center gap-1.5 border border-base rounded px2 text-amber-700 dark:text-amber-400" :title="$t('share.staleTitle')">
+          <span class="i-ph:warning-circle-duotone shrink-0" aria-hidden="true" />
+          {{ $t('share.staleTitle') }}
+        </span>
         <DiffAnalyzeButton v-if="store.llm" :store="store" :document="document" />
         <DiffShareButton v-if="canShareResult" :store="store" :document="document" />
         <DiffPrMeta v-if="showGroupSidebar" class="ml-auto" :store="store" :document="document" />

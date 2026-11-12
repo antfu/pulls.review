@@ -47,7 +47,7 @@ export function createLlmStore(opts: LlmStoreOptions): DiffsStoreLlm {
     opts.setResult(result)
     const key = opts.getCacheKey()
     if (key)
-      await opts.cache.diffs.setAnalyzedResult(key, 'llm', result)
+      await opts.cache.diffs.setAnalyzedResult(key, 'llm', result, opts.diff.value?.head?.sha)
   }
 
   const chat = useLlmChat({

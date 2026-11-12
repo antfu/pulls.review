@@ -158,6 +158,12 @@ export interface DiffsStore {
   readonly groups: ResolvedGroupWithChildren[]
   /** The AI (`llm`/`web-llm`) result for the current diff, locally generated or loaded from a shared comment (`sharedBy` set). */
   readonly aiResult: GroupedResult | undefined
+  /**
+   * The AI result shown was produced for earlier commits than the ones rendered (or the
+   * reverse of a refetch): the view must say so rather than present it as current.
+   * Always `false` for a shared result, which the shared banner reports separately.
+   */
+  readonly analysisStale: boolean
   readonly analyzeMode: GroupSource
   /** Switches the active grouping. `none`/`rule-based` analyze immediately (free, instant); `llm` only switches the view - `llm.reanalyze` actually runs it. */
   setAnalyzeMode: (mode: GroupSource) => Promise<void>
