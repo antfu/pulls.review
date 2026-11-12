@@ -223,6 +223,28 @@ describe('createDiffsStore over any source', () => {
     expect(store.isStale).toBe(false)
   })
 
+  it('flags an analysis that was produced for earlier commits than the ones shown', async () => {
+    const head = { sha: 'a' }
+    const source = fakeSource(head)
+    const store = createDiffsStore(source, { cache, llm })
+    await store.load()
+
+    const analysis = { source: 'llm' as const, groups: [], schemaVersion: 1, generatedAt: '2026-01-01T00:00:00.000Z' }
+    runLlmAnalysisMock.mockResolvedValue({ result: analysis, transcript: transcript() })
+    await store.llm!.reanalyze()
+    expect(store.analysisStale).toBe(false)
+
+    // `putDiff` keeps the paid result, so the view has to say it predates the new head.
+    head.sha = 'b'
+    await store.refresh()
+    expect(store.aiResult).toEqual(analysis)
+    expect(store.analysisStale).toBe(true)
+
+    runLlmAnalysisMock.mockResolvedValue({ result: { ...analysis, generatedAt: '2026-02-02T00:00:00.000Z' }, transcript: transcript() })
+    await store.llm!.reanalyze()
+    expect(store.analysisStale).toBe(false)
+  })
+
   it('never checks staleness for a source without a fingerprint', async () => {
     const { fingerprint: _, ...source } = fakeSource({ sha: 'a' })
     await createDiffsStore(source, { cache, llm }).load()

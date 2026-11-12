@@ -281,8 +281,9 @@ flat key-value, so there's no native "object store" split):
 
 - `pr-meta:*` + `pr-body:*` — one cached diff, split in two documents under the
   same key. The meta half holds what eviction, the recent lists and per-view
-  bookkeeping need (`headSha`, title, counts, file shas, `lastViewedAt`, size,
-  shared comment, `changedSinceReviewed`), so none of them reads a whole diff;
+  bookkeeping need (`headSha`, `analyzedHeadSha`, title, counts, file shas,
+  `lastViewedAt`, size, shared comment, `changedSinceReviewed`), so none of them
+  reads a whole diff;
   the body holds the raw diff, the `llm`/`web-llm` `GroupedResult`s, the review
   snapshot and the `llmSession` chat transcript (counted toward the size
   budget). Keyed by the diff's id, `github:{owner}/{repo}#{number}` for github

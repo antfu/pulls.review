@@ -32,7 +32,7 @@ export interface DiffCache {
   putDiff: (key: string, diff: DiffsPayload, headSha: string) => Promise<PrCacheEntry>
   touch: (key: string) => Promise<void>
   setChangedSinceReviewed: (key: string, paths: string[]) => Promise<void>
-  setAnalyzedResult: (key: string, source: PersistedGroupSource, result: GroupedResult) => Promise<void>
+  setAnalyzedResult: (key: string, source: PersistedGroupSource, result: GroupedResult, analyzedHeadSha?: string) => Promise<void>
   setLlmSession: (key: string, session: LlmSession | undefined) => Promise<void>
   setSharedComment: (key: string, sharedComment: PrCacheEntry['sharedComment']) => Promise<void>
   setReviewData: (key: string, reviews: ReviewData) => Promise<void>
@@ -48,7 +48,7 @@ export function computeEntrySizeBytes(diff: DiffsPayload, analyzedBy: PrCacheBod
 }
 
 function split(entry: PrCacheEntry): { meta: PrCacheMeta, body: PrCacheBody } {
-  const { diff, analyzedBy, reviews, llmSession, ...rest } = entry
+  const { diff, analyzedBy, reviews, llmSession, analyzedHeadSha, ...rest } = entry
   const meta: PrCacheMeta = {
     ...rest,
     ref: diff.ref,
@@ -59,13 +59,14 @@ function split(entry: PrCacheEntry): { meta: PrCacheMeta, body: PrCacheBody } {
     additions: diff.files.reduce((sum, file) => sum + file.additions, 0),
     deletions: diff.files.reduce((sum, file) => sum + file.deletions, 0),
     fileShas: diff.files.map(file => file.sha),
+    analyzedHeadSha,
   }
   return { meta, body: { diff, analyzedBy, reviews, llmSession } }
 }
 
 function join(meta: PrCacheMeta, body: PrCacheBody): PrCacheEntry {
-  const { key, headSha, lastViewedAt, sizeBytes, sharedComment, changedSinceReviewed } = meta
-  return { key, headSha, lastViewedAt, sizeBytes, sharedComment, changedSinceReviewed, ...body }
+  const { key, headSha, lastViewedAt, sizeBytes, sharedComment, changedSinceReviewed, analyzedHeadSha } = meta
+  return { key, headSha, lastViewedAt, sizeBytes, sharedComment, changedSinceReviewed, analyzedHeadSha, ...body }
 }
 
 /**
@@ -212,7 +213,20 @@ export function createDiffCache(storage: Storage, reviewMarks: ReviewMarks, budg
     touch: key => updateMeta(key, meta => ({ ...meta, lastViewedAt: Date.now() })),
     setChangedSinceReviewed: (key, paths) => updateMeta(key, meta => ({ ...meta, changedSinceReviewed: paths })),
     setSharedComment: (key, sharedComment) => updateMeta(key, meta => ({ ...meta, sharedComment })),
-    setAnalyzedResult: (key, source, result) => updateBody(key, body => ({ ...body, analyzedBy: { ...body.analyzedBy, [source]: result } })),
+    /**
+     * Records the result and the head commit it analyzed. `putDiff` keeps both across a
+     * refetch, so the stored head is what lets the view say the analysis is behind.
+     */
+    async setAnalyzedResult(key, source, result, analyzedHeadSha) {
+      await exclusive(key, async () => {
+        const entry = await get(key)
+        if (!entry)
+          return
+        const analyzedBy = { ...entry.analyzedBy, [source]: result }
+        await write({ ...entry, analyzedBy, analyzedHeadSha: analyzedHeadSha ?? entry.analyzedHeadSha })
+      })
+      await enforceBudget()
+    },
     setReviewData: (key, reviews) => updateBody(key, body => ({ ...body, reviews })),
     async setLlmSession(key, session) {
       await exclusive(key, async () => {

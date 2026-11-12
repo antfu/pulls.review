@@ -52,6 +52,13 @@ export const PrCacheMetaSchema = v.object({
    * reviewed, then changed in later commits. Cleared per path when it's marked again.
    */
   changedSinceReviewed: v.optional(v.array(v.string())),
+  /**
+   * The head commit the `llm`/`web-llm` result was produced for. `putDiff` keeps the
+   * result across a refetch, so without this the view cannot tell the analysis it still
+   * shows from one that talks about the current commits. Absent on entries written
+   * before it existed, which read as "unknown" rather than "current".
+   */
+  analyzedHeadSha: v.optional(v.string()),
 })
 export type PrCacheMeta = v.InferOutput<typeof PrCacheMetaSchema>
 
@@ -65,7 +72,7 @@ export const PrCacheBodySchema = v.object({
 export type PrCacheBody = v.InferOutput<typeof PrCacheBodySchema>
 
 /** One cached diff as callers see it; stored as a `PrCacheMeta` plus a `PrCacheBody`. */
-export type PrCacheEntry = Pick<PrCacheMeta, 'key' | 'headSha' | 'lastViewedAt' | 'sizeBytes' | 'sharedComment' | 'changedSinceReviewed'> & PrCacheBody
+export type PrCacheEntry = Pick<PrCacheMeta, 'key' | 'headSha' | 'lastViewedAt' | 'sizeBytes' | 'sharedComment' | 'changedSinceReviewed' | 'analyzedHeadSha'> & PrCacheBody
 
 /**
  * Per-file "reviewed" mark, keyed by the file's `sha` (see FileChangeSchema) rather

@@ -157,6 +157,8 @@ export function createMockDiffsStore(input: {
   isLoading?: boolean
   error?: Error
   isStale?: boolean
+  /** Renders the "analyzed before the latest commits" state (`DiffsStore.analysisStale`). */
+  analysisStale?: boolean
   isSetup?: boolean
   llm?: boolean
   isAnalyzing?: boolean
@@ -196,6 +198,8 @@ export function createMockDiffsStore(input: {
   const hasAiResult = ref(grouped.value?.source === 'llm')
   const isSetup = computed(() => input.isSetup ?? true)
   const aiResult = computed(() => hasAiResult.value ? grouped.value : undefined)
+  // A story can show the "analyzed before the latest commits" state without faking the cache.
+  const analysisStale = input.analysisStale ?? false
   const groups = computed(() => diff.value && grouped.value ? resolveGroups(grouped.value.groups, diff.value.files) : [])
   // A local ref, not the app's real `state/layout.ts` singleton - a story/test's layout
   // choice shouldn't leak into (or be affected by) the real app's persisted preference.
@@ -262,6 +266,7 @@ export function createMockDiffsStore(input: {
     changedSinceReviewed,
     groups,
     aiResult,
+    analysisStale,
     analyzeMode,
     setAnalyzeMode,
     ui,
