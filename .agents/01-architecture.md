@@ -266,7 +266,7 @@ text, and is also the key for persisted review state (see below).
 ## Caching (`@pulls.review/core/cache`, unstorage)
 
 Persistence is a set of repositories in core (`DiffCache`, `ReviewMarks`,
-`FileContentCache`, `PullRequestListCache`, built together by
+`FileContentCache`, `PullRequestListCache`, `AnalysisCache`, built together by
 `createCacheRepositories(storage)`) over any
 [`unstorage`](https://github.com/unjs/unstorage) `Storage`, so the backend can
 be swapped (IndexedDB in the browser, `memory` in tests, a server-side driver
@@ -305,6 +305,17 @@ flat key-value, so there's no native "object store" split):
   with it. A refetch replaces the entry's diff but keeps its AI result and
   session — `resolveGroups` reconciles them against the new diff, so a paid
   analysis is never thrown away by new commits.
+- `analysis:*` — a paid AI result, keyed by the commits it analyzed
+  (`analysis:{base...head}`), not by the ref that named them. A pull request and
+  the compare range of its own branches resolve to the same `base...head` (both
+  providers use the merge base), so analyzing either answers the other: opening
+  the other ref adopts the result instead of spending a second model call whose
+  grouping would differ. A result produced for the current ref always wins over
+  an inherited one, and an adopted result is written to this ref's `analyzedBy`
+  too, so it survives this cache's own eviction. `analysisIdentity` is
+  `undefined` for a diff with no commits (a paste), which keeps an analysis from
+  ever being reused for content it did not see. Bounded by entry count only
+  (50), evicted oldest-first.
 - `review:*` — per-file "reviewed" marks, keyed by `review:{FileChange.sha}`,
   not by path or PR. This is deliberate: if a PR gets new commits and a
   file's `sha` is unchanged, its reviewed mark MUST survive; only files whose

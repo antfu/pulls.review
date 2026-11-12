@@ -4,6 +4,7 @@ import type { DiffsPayload, GroupedResult } from '@pulls.review/core/types'
 import type { Ref } from 'vue'
 import type { LlmRunner } from '../analyze/llm-runner'
 import type { DiffsStoreLlm, LlmProgress } from './types'
+import { analysisIdentity } from '@pulls.review/core/cache'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { useLlmChat } from '../composables/useLlmChat'
 import { describeProgress, localizeError } from '../i18n/core-messages'
@@ -45,6 +46,12 @@ export function createLlmStore(opts: LlmStoreOptions): DiffsStoreLlm {
 
   async function setResult(result: GroupedResult) {
     opts.setResult(result)
+    const currentDiff = opts.diff.value
+    const identity = currentDiff && analysisIdentity(currentDiff)
+    // Keyed by the commits too, so the same diff opened under another ref - the compare
+    // range of a branch that later becomes a pull request - already has this result.
+    if (identity)
+      await opts.cache.analyses.set(identity, result)
     const key = opts.getCacheKey()
     if (key)
       await opts.cache.diffs.setAnalyzedResult(key, 'llm', result)
