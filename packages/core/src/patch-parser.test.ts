@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parsePatch } from './patch-parser'
+import { computeContentHash, parsePatch } from './patch-parser'
 
 const GIT_DIFF_FIXTURE = `diff --git a/src/foo.ts b/src/foo.ts
 index e69de29..4b825dc 100644
@@ -98,6 +98,82 @@ describe('parsePatch', () => {
     expect(file.sha).toMatch(/^[0-9a-f]{64}$/)
     const again = await parsePatch(POSIX_DIFF_FIXTURE)
     expect(again[0]!.sha).toBe(file.sha)
+  })
+
+  it('keeps header-like SQL lines in their hunk and still recognizes the next file', async () => {
+    const sql = [
+      '--- old.sql',
+      '+++ new.sql',
+      '@@ -1,2 +1,2 @@',
+      '--- old comment',
+      '+++ new comment',
+      ' SELECT 1;',
+      '',
+    ].join('\n')
+    const files = await parsePatch(sql + POSIX_DIFF_FIXTURE)
+    expect(files.map(f => [f.path, f.additions, f.deletions])).toEqual([
+      ['new.sql', 1, 1],
+      ['new.txt', 1, 1],
+    ])
+    expect(files[0]!.hunks[0]!.patch).toBe('--- old comment\n+++ new comment\n SELECT 1;')
+    expect(files[1]!.sha).toBe(await computeContentHash(POSIX_DIFF_FIXTURE))
+  })
+
+  it('excludes the format-patch envelope and signature from review data', async () => {
+    const patch = [
+      'From 1234567 Mon Sep 17 00:00:00 2001',
+      'Subject: [PATCH] add a note',
+      '',
+      'An earlier suggestion was:',
+      '---',
+      ' example.txt | 2 +-',
+      ' 1 file changed, 1 insertion(+), 1 deletion(-)',
+      '',
+      'diff --git a/example.txt b/example.txt',
+      '--- a/example.txt',
+      '+++ b/example.txt',
+      '@@ -1 +1 @@',
+      '-old',
+      '+example',
+      '---',
+      ' note.txt | 1 +',
+      ' 1 file changed, 1 insertion(+)',
+      '',
+      'diff --git a/note.txt b/note.txt',
+      'index abc1234..def5678 100644',
+      '--- a/note.txt',
+      '+++ b/note.txt',
+      '@@ -1 +1,2 @@',
+      ' first',
+      '+second',
+      '-- ',
+      '2.55.0',
+      '',
+    ].join('\n')
+    const files = await parsePatch(patch)
+    expect(files.map(f => [f.path, f.additions, f.deletions])).toEqual([['note.txt', 1, 0]])
+    expect(files[0]!.hunks[0]!.patch).toBe(' first\n+second')
+  })
+
+  it('ignores recursive diff command lines between files', async () => {
+    const first = '--- before/a\n+++ after/a\n@@ -1 +1 @@\n-old\n+new\n'
+    const second = '--- before/b\n+++ after/b\n@@ -1 +1 @@\n-x\n+y\n'
+    const files = await parsePatch(`diff -ru before/a after/a\n${first}diff -ru before/b after/b\n${second}`)
+    expect(files.map(f => [f.path, f.hunks[0]?.patch])).toEqual([
+      ['after/a', '-old\n+new'],
+      ['after/b', '-x\n+y'],
+    ])
+  })
+
+  it('returns no review files for a directory comparison containing only unique entries', async () => {
+    expect(await parsePatch('Only in before: old.txt\nOnly in after: new.txt\n')).toEqual([])
+  })
+
+  it('keeps missing-newline markers on both sides and reads successive hunks', async () => {
+    const marker = '\\ No newline at end of file'
+    const body = `-last\n${marker}\n+replacement\n${marker}`
+    const files = await parsePatch(`--- old\n+++ new\n@@ -1 +1 @@\n-old\n+new\n@@ -12 +12 @@\n${body}\n`)
+    expect(files[0]!.hunks.map(hunk => hunk.patch)).toEqual(['-old\n+new', body])
   })
 
   it('reads paths git had to quote, in the header and in renames', async () => {

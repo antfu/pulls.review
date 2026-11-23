@@ -2,6 +2,7 @@ import type { CacheRepositories, LlmSession, PrCacheEntry } from '@pulls.review/
 import type { DiffSource, DiffsPayload, FileChange, GroupedResult, GroupSource, ReviewData } from '@pulls.review/core/types'
 import type { LlmRunner } from '../analyze/llm-runner'
 import type { DiffsStore, DiffsStoreLlm } from './types'
+import { fileReviewKey } from '@pulls.review/core/types'
 import { computed, getCurrentScope, onScopeDispose, reactive, ref, shallowRef, watch } from 'vue'
 import { resolveAdapter, ruleBasedAdapter } from '../analyze'
 import { resolveGroups } from '../components/diff/group-utils'
@@ -88,20 +89,20 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
   async function loadReviewed() {
     if (!diff.value)
       return
-    reviewed.value = await cache.reviewMarks.get(diff.value.files.map(file => file.sha))
+    reviewed.value = await cache.reviewMarks.get(diff.value.files.map(fileReviewKey))
   }
 
-  async function setReviewed(shas: string[], isReviewed: boolean) {
-    await cache.reviewMarks.set(shas, isReviewed)
+  async function setReviewed(keys: string[], isReviewed: boolean) {
+    await cache.reviewMarks.set(keys, isReviewed)
     const next = new Set(reviewed.value)
-    for (const sha of shas)
-      isReviewed ? next.add(sha) : next.delete(sha)
+    for (const key of keys)
+      isReviewed ? next.add(key) : next.delete(key)
     reviewed.value = next
 
     // Either direction is the user's explicit verdict on the file's current content,
     // so the "changed since you reviewed it" flag has served its purpose.
-    const touched = new Set(shas)
-    const paths = diff.value?.files.filter(file => touched.has(file.sha)).map(file => file.path) ?? []
+    const touched = new Set(keys)
+    const paths = diff.value?.files.filter(file => touched.has(fileReviewKey(file))).map(file => file.path) ?? []
     if (!paths.some(path => changedSinceReviewed.value.has(path)))
       return
     const remaining = new Set(changedSinceReviewed.value)
@@ -192,9 +193,8 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
       await runAnalysis(mode)
   }
 
-  async function fetchFresh() {
-    const key = await source.key()
-    await analyzeAndStore(key, await source.fetch())
+  async function fetchFresh(key: string, previous?: DiffsPayload) {
+    await analyzeAndStore(key, await source.fetch(previous))
   }
 
   async function checkStaleness(cachedHeadSha: string) {
@@ -222,7 +222,7 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
     try {
       const key = await source.key()
       const cached = await cache.diffs.get(key)
-      if (cached) {
+      if (cached && cached.diff.cacheVersion === source.cacheVersion) {
         cachedReviewData = cached.reviews
         cachedSharedComment = cached.sharedComment
         await cache.diffs.touch(key)
@@ -230,7 +230,7 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
         void checkStaleness(cached.headSha)
       }
       else {
-        await fetchFresh()
+        await fetchFresh(key, cached?.diff)
       }
       // Threads and shared analyses load after (and independently of) the diff -
       // a failure there never blocks the diff view itself.
@@ -250,7 +250,9 @@ export function createDiffsStore(source: DiffSource, opts: DiffsStoreOptions): D
     isLoading.value = true
     error.value = undefined
     try {
-      await fetchFresh()
+      const key = await source.key()
+      const previous = diff.value ?? (source.cacheVersion !== undefined ? (await cache.diffs.get(key))?.diff : undefined)
+      await fetchFresh(key, previous)
       isStale.value = false
       void reviews?.load()
       void shared?.discover()

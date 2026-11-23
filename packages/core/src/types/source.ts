@@ -61,7 +61,9 @@ export function staticCredentials(githubToken?: string): Credentials {
 export interface DiffSource {
   /** Cache key, known before fetching (a paste hashes its text). */
   key: () => Promise<string>
-  fetch: () => Promise<DiffsPayload>
+  /** A version change requires fetching again even for an immutable source such as a paste. */
+  cacheVersion?: number
+  fetch: (previous?: DiffsPayload) => Promise<DiffsPayload>
   /** Cheap probe compared against the cached diff's head sha to detect new commits. */
   fingerprint?: () => Promise<string>
   /** A file's full content at one of the diff's `base`/`head` shas; `undefined` when the file doesn't exist there. */

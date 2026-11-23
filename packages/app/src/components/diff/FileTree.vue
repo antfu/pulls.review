@@ -5,6 +5,7 @@ import type { DiffsStore } from '../../stores/types'
 import type { ResolvedNote } from './group-utils'
 import DisplayFileIcon from '@antfu/design/components/Display/DisplayFileIcon.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
+import { fileReviewKey } from '@pulls.review/core/types'
 import { useVirtualizer } from '@tanstack/vue-virtual'
 import { computed, useTemplateRef } from 'vue'
 import CriticalMark from './CriticalMark.vue'
@@ -36,7 +37,7 @@ const emit = defineEmits<{
 const rows = computed(() => fileRows(props.files, props.missing ?? [], props.layout))
 
 function folderStatus(files: FileChange[]): 'reviewed' | 'partial' | 'unreviewed' {
-  const reviewedCount = files.filter(file => props.store.reviewed.has(file.sha)).length
+  const reviewedCount = files.filter(file => props.store.reviewed.has(fileReviewKey(file))).length
   if (reviewedCount === 0)
     return 'unreviewed'
   return reviewedCount === files.length ? 'reviewed' : 'partial'
@@ -82,7 +83,7 @@ const virtualizer = useVirtualizer(computed(() => ({
           <ReviewCheckbox
             :status="folderStatus(row.row.files!)"
             :aria-label="$t('file.markFolderReviewed', { name: row.row.name })"
-            @update="store.setReviewed(row.row.files!.map(file => file.sha), $event)"
+            @update="store.setReviewed(row.row.files!.map(fileReviewKey), $event)"
           />
           <DisplayFileIcon directory :path="row.row.name" class="op-fade" />
           <span class="truncate op-fade">{{ row.row.name }}</span>
@@ -91,7 +92,7 @@ const virtualizer = useVirtualizer(computed(() => ({
           <ReviewCheckbox
             :status="reviewStatus(store, row.row.file)"
             :aria-label="$t('file.markReviewed')"
-            @update="store.setReviewed([row.row.file.sha], $event)"
+            @update="store.setReviewed([fileReviewKey(row.row.file)], $event)"
           />
           <button
             type="button"

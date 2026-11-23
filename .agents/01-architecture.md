@@ -261,7 +261,7 @@ blob shas even as plain text), falling back to a computed SHA-256 hash of the
 patch content only when no such line exists (e.g. a plain POSIX `diff -u`
 paste). This is the key primitive that lets the app tell whether a file
 actually changed between two fetches of the same PR without diffing patch
-text, and is also the key for persisted review state (see below).
+text, and normally keys persisted review state (see below).
 
 ## Caching (`@pulls.review/core/cache`, unstorage)
 
@@ -299,22 +299,29 @@ flat key-value, so there's no native "object store" split):
   (banner checkbox or Settings) — the app MUST NOT re-run a paid LLM analysis
   on refetch, and MUST NOT silently go stale. `paste` entries have no live
   source, so no staleness check applies; if evicted, `/upload` simply has
-  nothing to show until the user pastes again.
+  nothing to show until the user pastes again. Reimporting the same bytes with a
+  newer paste parser reparses the diff in the same cache entry.
   Only results that cost a model call are persisted: `rule-based` and `none`
   MUST be recomputed from the diff on every load, so they can never disagree
   with it. A refetch replaces the entry's diff but keeps its AI result and
   session — `resolveGroups` reconciles them against the new diff, so a paid
   analysis is never thrown away by new commits.
-- `review:*` — per-file "reviewed" marks, keyed by `review:{FileChange.sha}`,
-  not by path or PR. This is deliberate: if a PR gets new commits and a
+- `review:*` — per-file "reviewed" marks, keyed by `review:{fileReviewKey(file)}`. Usually the key is
+  the blob or chunk SHA. This is deliberate: if a PR gets new commits and a
   file's `sha` is unchanged, its reviewed mark MUST survive; only files whose
-  `sha` changed lose their mark. Pruned opportunistically whenever the diff cache
-  evicts, by walking the remaining entries' shas. Which of those files *had*
-  been reviewed is remembered on the cached diff as `changedSinceReviewed`
-  (paths): `putDiff` flags every path whose outgoing `sha` carried a mark and
-  whose incoming `sha` differs, and the flag survives further commits until
+  `sha` changed lose their mark. On a paste parser upgrade, files with the
+  same displayed patch keep their review key. New or corrected files get a
+  paste-specific key so a shared blob mark cannot hide changes in the patch.
+  A fresh import derives the same scoped key for a hunk with corrected boundaries,
+  including when the user imports it again after eviction. Marks are pruned on
+  eviction by walking the remaining entries' review keys. Which of those files
+  *had* been reviewed is remembered on the cached diff as `changedSinceReviewed`
+  (paths): `putDiff` flags each unambiguous path whose outgoing review key carried a mark and
+  whose incoming key differs, and the flag survives further commits until
   the user marks the file again (`DiffsStore.setReviewed`), which is how the
   view shows "reviewed, but changed since" instead of plain "unreviewed".
+  If either version repeats the path, its file checkboxes still use their review
+  keys and the path-level changed flag is omitted.
 - `file-content:*` — a file's full raw content at a specific ref, fetched
   on demand by `FileDiff.vue`'s "load full file" action through
   `DiffsStore.fileContent` (present only when the source has `loadFile`;

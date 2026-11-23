@@ -20,6 +20,24 @@ describe('paste source', () => {
     expect(diff.files[0]!.path).toBe('README.md')
   })
 
+  it('isolates only hunks followed by mail headers in a series without signatures', async () => {
+    const message = [
+      'From abcd123 Mon Sep 17 00:00:00 2001',
+      'Subject: [PATCH] update README',
+      '',
+      '---',
+      ' README.md | 1 +',
+      ' 1 file changed, 1 insertion(+)',
+      '',
+      PATCH_TEXT,
+    ].join('\n')
+    const source = createPasteSource(message + message)
+    const { files } = await source.fetch()
+    expect(files.map(f => f.sha)).toEqual(['4b825dc', '4b825dc'])
+    expect(files[0]!.reviewKey).toBeDefined()
+    expect(files[1]!.reviewKey).toBeUndefined()
+  })
+
   it('uses a supplied title when given', async () => {
     expect((await createPasteSource(PATCH_TEXT, 'My diff').fetch()).title).toBe('My diff')
   })

@@ -1,4 +1,5 @@
 import type { DiffCategory, DiffGroup, DiffGroupLeaf, DiffSide, FileChange, LineNote } from '@pulls.review/core/types'
+import { fileReviewKey } from '@pulls.review/core/types'
 import { t } from '../../i18n'
 
 /** A note resolved against its file: `anchor` is set only for a line note whose line a hunk actually shows. */
@@ -128,7 +129,7 @@ export function groupProgress(group: ResolvedGroupWithChildren, reviewed: Set<st
   const files = [...group.files, ...group.children.flatMap(child => child.files)]
   if (files.length === 0)
     return 1
-  return files.filter(file => reviewed.has(file.sha)).length / files.length
+  return files.filter(file => reviewed.has(fileReviewKey(file))).length / files.length
 }
 
 /** Totals a group's own +/- counts with its children's, for display alongside `countGroupFiles`. */

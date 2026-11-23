@@ -36,63 +36,144 @@ const RENAME_TO_RE = /^rename to (.+)$/
 const COPY_FROM_RE = /^copy from (.+)$/
 const COPY_TO_RE = /^copy to (.+)$/
 
-interface ParsedChunk {
+interface HunkSection {
+  hunks: DiffHunk[]
+  /** A reader that extended hunks up to the next header saw different text. */
+  boundedDifferently: boolean
+}
+
+interface ParsedChunk extends HunkSection {
   path: string
   previousPath?: string
   status: FileChangeStatus
   isBinary: boolean
   oldIndexSha?: string
   newIndexSha?: string
-  hunks: DiffHunk[]
+}
+
+/** The declared old/new ranges delimit the body even when its text resembles a file header. */
+function hunkEnd(lines: string[], start: number, header: RegExpExecArray): number {
+  let oldLeft = Number(header[2] ?? 1)
+  let newLeft = Number(header[4] ?? 1)
+  let i = start
+  for (; i < lines.length; i++) {
+    const line = lines[i]!
+    // A missing-newline annotation belongs to the preceding line on either side.
+    if (line.startsWith('\\ '))
+      continue
+    // Git can suppress the space prefix on empty context lines.
+    const emptyContext = (line === '' || line === '\r') && i < lines.length - 1
+    if (line.startsWith('-') && oldLeft > 0) {
+      oldLeft--
+    }
+    else if (line.startsWith('+') && newLeft > 0) {
+      newLeft--
+    }
+    else if ((line.startsWith(' ') || emptyContext) && oldLeft > 0 && newLeft > 0) {
+      oldLeft--
+      newLeft--
+    }
+    else {
+      break
+    }
+  }
+  return i
+}
+
+/** A format-patch commit message can quote another diff before Git's separator and diffstat. */
+function stripMailPreambles(text: string): string {
+  const mailHeader = /(?=^From [\da-f]+ Mon Sep 17 00:00:00 2001$)/m
+  if (!text.startsWith('From ') || !mailHeader.test(text))
+    return text
+
+  return text.split(mailHeader).map((message) => {
+    const lines = message.split('\n')
+    let patchStart = 0
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i]!
+      const hunk = HUNK_HEADER_RE.exec(line)
+      if (hunk) {
+        i = hunkEnd(lines, i + 1, hunk) - 1
+      }
+      else if (line === '---' && lines[i + 1]?.startsWith(' ')) {
+        let end = i + 1
+        while (lines[end]?.startsWith(' '))
+          end++
+        if (lines[end] === '' && lines[end + 1]?.startsWith('diff --git '))
+          patchStart = end + 1
+      }
+    }
+    // The last separator outside a hunk belongs to this message. Earlier ones
+    // can be part of a quoted patch. Keep the mbox line between unsigned emails.
+    return patchStart ? [lines[0], ...lines.slice(patchStart)].join('\n') : message
+  }).join('')
 }
 
 function splitFileChunks(text: string): { chunks: string[], isGitDiff: boolean } {
+  text = stripMailPreambles(text)
   if (/^diff --git /m.test(text)) {
-    const chunks = text.split(/(?=^diff --git )/m).filter(chunk => chunk.trim().length > 0)
+    const chunks = text.split(/(?=^diff --git )/m).filter(chunk => chunk.startsWith('diff --git '))
     return { chunks, isGitDiff: true }
   }
 
-  // Best-effort fallback for a plain POSIX `diff -u` with no git extended headers
-  // and thus no rename detection.
-  const chunks = text.split(/(?=^--- )/m).filter(chunk => chunk.trim().length > 0)
+  const chunks: string[] = []
+  const lines = text.split('\n')
+  let start: number | undefined
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!
+    if (line.startsWith('--- ') && lines[i + 1]?.startsWith('+++ ')) {
+      if (start !== undefined)
+        chunks.push(`${lines.slice(start, i).join('\n')}\n`)
+      start = i
+      i++
+    }
+    else if (start !== undefined) {
+      const header = HUNK_HEADER_RE.exec(line)
+      if (header)
+        i = hunkEnd(lines, i + 1, header) - 1
+    }
+  }
+  // Keep the raw file chunk, including its final line ending, for existing content hashes.
+  if (start !== undefined)
+    chunks.push(lines.slice(start).join('\n'))
+  else if (lines.some(line => line.trim() && !/^Only in .+: .+$/.test(line)))
+    chunks.push(text)
   return { chunks, isGitDiff: false }
 }
 
 /** Parses `@@ ... @@` hunk blocks out of a list of diff lines (with or without a leading `diff --git`/`---`/`+++` preamble). */
-export function parseHunks(lines: string[]): DiffHunk[] {
+function parseHunkSection(lines: string[], posix = false): HunkSection {
+  let boundedDifferently = false
   const hunks: DiffHunk[] = []
-  let i = 0
-  while (i < lines.length) {
-    const line = lines[i]!
-    const match = HUNK_HEADER_RE.exec(line)
+  for (let i = 0; i < lines.length; i++) {
+    const header = lines[i]!
+    const match = HUNK_HEADER_RE.exec(header)
     if (!match) {
-      i++
+      if (hunks.length && header !== '')
+        boundedDifferently = true
       continue
     }
-    const header = line
-    const oldStart = Number(match[1])
-    const oldLines = match[2] === undefined ? 1 : Number(match[2])
-    const newStart = Number(match[3])
-    const newLines = match[4] === undefined ? 1 : Number(match[4])
-    i++
-    const bodyLines: string[] = []
-    while (i < lines.length && !HUNK_HEADER_RE.test(lines[i]!)) {
-      bodyLines.push(lines[i]!)
-      i++
-    }
-    // Drop a single trailing empty string produced by a final newline split.
-    while (bodyLines.length > 0 && bodyLines[bodyLines.length - 1] === '')
-      bodyLines.pop()
+    const end = hunkEnd(lines, i + 1, match)
+    const body = lines.slice(i + 1, end)
+    // Older imports split even within a POSIX hunk at "--- " and trimmed
+    // trailing blank context lines from each hunk.
+    if ((posix && body.some(line => line.startsWith('--- '))) || (body.length > 1 && body.at(-1) === ''))
+      boundedDifferently = true
     hunks.push({
       header,
-      oldStart,
-      oldLines,
-      newStart,
-      newLines,
-      patch: bodyLines.join('\n'),
+      oldStart: Number(match[1]),
+      oldLines: Number(match[2] ?? 1),
+      newStart: Number(match[3]),
+      newLines: Number(match[4] ?? 1),
+      patch: body.join('\n'),
     })
+    i = end - 1
   }
-  return hunks
+  return { hunks, boundedDifferently }
+}
+
+export function parseHunks(lines: string[]): DiffHunk[] {
+  return parseHunkSection(lines).hunks
 }
 
 export function countChanges(hunks: DiffHunk[]): { additions: number, deletions: number } {
@@ -183,7 +264,9 @@ function parseGitChunk(chunk: string): ParsedChunk {
   const headerPath = quoted === undefined ? GIT_DIFF_HEADER_RE.exec(header)?.[1] ?? '' : unquoteGitPath(`"${quoted}"`)
   const preamble = parseGitPreamble(lines)
   const { status, path, previousPath } = resolveGitStatusAndPath(preamble, headerPath)
-  const hunks = preamble.isBinary || preamble.hunkStartIndex === -1 ? [] : parseHunks(lines.slice(preamble.hunkStartIndex))
+  const section = preamble.isBinary || preamble.hunkStartIndex === -1
+    ? { hunks: [], boundedDifferently: false }
+    : parseHunkSection(lines.slice(preamble.hunkStartIndex))
 
   return {
     path,
@@ -192,7 +275,7 @@ function parseGitChunk(chunk: string): ParsedChunk {
     isBinary: preamble.isBinary,
     oldIndexSha: preamble.oldIndexSha,
     newIndexSha: preamble.newIndexSha,
-    hunks,
+    ...section,
   }
 }
 
@@ -204,8 +287,8 @@ function parsePosixChunk(chunk: string): ParsedChunk {
   const path = newPathLine === '/dev/null' ? oldPathLine : newPathLine
   const status: FileChangeStatus = oldPathLine === '/dev/null' ? 'added' : newPathLine === '/dev/null' ? 'removed' : 'modified'
   const hunkStartIndex = lines.findIndex(line => line.startsWith('@@ '))
-  const hunks = hunkStartIndex === -1 ? [] : parseHunks(lines.slice(hunkStartIndex))
-  return { path, status, isBinary: false, hunks }
+  const section = hunkStartIndex === -1 ? { hunks: [], boundedDifferently: false } : parseHunkSection(lines.slice(hunkStartIndex), true)
+  return { path, status, isBinary: false, ...section }
 }
 
 /** SHA-256 hex digest of arbitrary text: the same primitive `parsePatch` uses for its content-hash sha fallback, reused as the `paste` provider's cache key. */
@@ -218,12 +301,13 @@ export async function computeContentHash(text: string): Promise<string> {
 /**
  * Parses unified-diff / git-extended-diff text (the format shared by GitHub's
  * `.diff` endpoint, `git diff` output, and plain `diff -u`) into canonical
- * `FileChange`s.
+ * `FileChange`s. A paste can scope review marks for files whose hunk boundaries
+ * changed, even when the same blob also occurs in other sources.
  */
-export async function parsePatch(text: string): Promise<FileChange[]> {
+export async function parsePatch(text: string, reviewScope?: string): Promise<FileChange[]> {
   const { chunks, isGitDiff } = splitFileChunks(text)
 
-  return Promise.all(chunks.map(async (chunk) => {
+  return Promise.all(chunks.map(async (chunk, index) => {
     const parsed = isGitDiff ? parseGitChunk(chunk) : parsePosixChunk(chunk)
     const { additions, deletions } = countChanges(parsed.hunks)
 
@@ -246,6 +330,7 @@ export async function parsePatch(text: string): Promise<FileChange[]> {
       deletions,
       isBinary: parsed.isBinary,
       sha,
+      ...(reviewScope && parsed.boundedDifferently && { reviewKey: `${reviewScope}:${index}` }),
       hunks: parsed.hunks,
     } satisfies FileChange
   }))

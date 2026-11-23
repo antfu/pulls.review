@@ -1,6 +1,7 @@
 import type { AgentMessage } from '@earendil-works/pi-agent-core'
 import type { CommentThread, DiffsPayload, GroupedResult, GroupSource, PendingReview, ReviewDraftTarget, ReviewSummary, ReviewVerdict } from '@pulls.review/core/types'
 import type { DiffsStore, DiffsStoreReviews, DiffsStoreShared, LlmProgress, SharedAnalysisCandidate } from './types'
+import { fileReviewKey } from '@pulls.review/core/types'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { resolveGroups } from '../components/diff/group-utils'
 
@@ -218,15 +219,15 @@ export function createMockDiffsStore(input: {
   async function load() {}
   async function refresh() {}
 
-  async function setReviewed(shas: string[], isReviewed: boolean) {
+  async function setReviewed(keys: string[], isReviewed: boolean) {
     const next = new Set(reviewed.value)
-    for (const sha of shas)
-      isReviewed ? next.add(sha) : next.delete(sha)
+    for (const key of keys)
+      isReviewed ? next.add(key) : next.delete(key)
     reviewed.value = next
-    const touched = new Set(shas)
+    const touched = new Set(keys)
     const remaining = new Set(changedSinceReviewed.value)
     for (const file of diff.value?.files ?? []) {
-      if (touched.has(file.sha))
+      if (touched.has(fileReviewKey(file)))
         remaining.delete(file.path)
     }
     changedSinceReviewed.value = remaining
