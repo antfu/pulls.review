@@ -87,10 +87,25 @@ function stripMailPreambles(text: string): string {
     return text
 
   return text.split(mailHeader).map((message) => {
-    const stat = /^---\n(?: [^\n]*\n)+\n(?=diff --git )/m.exec(message)
-    // Keep the actual mbox separator between adjacent patches. It ends the
-    // preceding hunk even if the sender generated the series without a signature.
-    return stat ? message.slice(0, message.indexOf('\n') + 1) + message.slice(stat.index + stat[0].length) : message
+    const lines = message.split('\n')
+    let patchStart = 0
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i]!
+      const hunk = HUNK_HEADER_RE.exec(line)
+      if (hunk) {
+        i = hunkEnd(lines, i + 1, hunk) - 1
+      }
+      else if (line === '---' && lines[i + 1]?.startsWith(' ')) {
+        let end = i + 1
+        while (lines[end]?.startsWith(' '))
+          end++
+        if (lines[end] === '' && lines[end + 1]?.startsWith('diff --git '))
+          patchStart = end + 1
+      }
+    }
+    // The last separator outside a hunk belongs to this message. Earlier ones
+    // can be part of a quoted patch. Keep the mbox line between unsigned emails.
+    return patchStart ? [lines[0], ...lines.slice(patchStart)].join('\n') : message
   }).join('')
 }
 
