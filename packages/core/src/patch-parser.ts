@@ -46,51 +46,84 @@ interface ParsedChunk {
   hunks: DiffHunk[]
 }
 
+/** The declared old/new ranges delimit the body even when its text resembles a file header. */
+function hunkEnd(lines: string[], start: number, header: RegExpExecArray): number {
+  let oldLeft = Number(header[2] ?? 1)
+  let newLeft = Number(header[4] ?? 1)
+  let i = start
+  for (; i < lines.length; i++) {
+    const line = lines[i]!
+    // A missing-newline annotation belongs to the preceding line on either side.
+    if (line.startsWith('\\ '))
+      continue
+    // Git can suppress the space prefix on empty context lines.
+    const emptyContext = (line === '' || line === '\r') && i < lines.length - 1
+    if (line.startsWith('-') && oldLeft > 0) {
+      oldLeft--
+    }
+    else if (line.startsWith('+') && newLeft > 0) {
+      newLeft--
+    }
+    else if ((line.startsWith(' ') || emptyContext) && oldLeft > 0 && newLeft > 0) {
+      oldLeft--
+      newLeft--
+    }
+    else {
+      break
+    }
+  }
+  return i
+}
+
 function splitFileChunks(text: string): { chunks: string[], isGitDiff: boolean } {
   if (/^diff --git /m.test(text)) {
-    const chunks = text.split(/(?=^diff --git )/m).filter(chunk => chunk.trim().length > 0)
+    const chunks = text.split(/(?=^diff --git )/m).filter(chunk => chunk.startsWith('diff --git '))
     return { chunks, isGitDiff: true }
   }
 
-  // Best-effort fallback for a plain POSIX `diff -u` with no git extended headers
-  // and thus no rename detection.
-  const chunks = text.split(/(?=^--- )/m).filter(chunk => chunk.trim().length > 0)
+  const chunks: string[] = []
+  const lines = text.split('\n')
+  let start: number | undefined
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!
+    if (line.startsWith('--- ') && lines[i + 1]?.startsWith('+++ ')) {
+      if (start !== undefined)
+        chunks.push(`${lines.slice(start, i).join('\n')}\n`)
+      start = i
+      i++
+    }
+    else if (start !== undefined) {
+      const header = HUNK_HEADER_RE.exec(line)
+      if (header)
+        i = hunkEnd(lines, i + 1, header) - 1
+    }
+  }
+  // Keep the raw file chunk, including its final line ending, for existing content hashes.
+  if (start !== undefined)
+    chunks.push(lines.slice(start).join('\n'))
+  else if (text.trim())
+    chunks.push(text)
   return { chunks, isGitDiff: false }
 }
 
 /** Parses `@@ ... @@` hunk blocks out of a list of diff lines (with or without a leading `diff --git`/`---`/`+++` preamble). */
 export function parseHunks(lines: string[]): DiffHunk[] {
   const hunks: DiffHunk[] = []
-  let i = 0
-  while (i < lines.length) {
-    const line = lines[i]!
-    const match = HUNK_HEADER_RE.exec(line)
-    if (!match) {
-      i++
+  for (let i = 0; i < lines.length; i++) {
+    const header = lines[i]!
+    const match = HUNK_HEADER_RE.exec(header)
+    if (!match)
       continue
-    }
-    const header = line
-    const oldStart = Number(match[1])
-    const oldLines = match[2] === undefined ? 1 : Number(match[2])
-    const newStart = Number(match[3])
-    const newLines = match[4] === undefined ? 1 : Number(match[4])
-    i++
-    const bodyLines: string[] = []
-    while (i < lines.length && !HUNK_HEADER_RE.test(lines[i]!)) {
-      bodyLines.push(lines[i]!)
-      i++
-    }
-    // Drop a single trailing empty string produced by a final newline split.
-    while (bodyLines.length > 0 && bodyLines[bodyLines.length - 1] === '')
-      bodyLines.pop()
+    const end = hunkEnd(lines, i + 1, match)
     hunks.push({
       header,
-      oldStart,
-      oldLines,
-      newStart,
-      newLines,
-      patch: bodyLines.join('\n'),
+      oldStart: Number(match[1]),
+      oldLines: Number(match[2] ?? 1),
+      newStart: Number(match[3]),
+      newLines: Number(match[4] ?? 1),
+      patch: lines.slice(i + 1, end).join('\n'),
     })
+    i = end - 1
   }
   return hunks
 }
