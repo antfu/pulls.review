@@ -124,6 +124,13 @@ describe('parsePatch', () => {
       'From 1234567 Mon Sep 17 00:00:00 2001',
       'Subject: [PATCH] add a note',
       '',
+      'An earlier suggestion was:',
+      'diff --git a/example.txt b/example.txt',
+      '--- a/example.txt',
+      '+++ b/example.txt',
+      '@@ -1 +1 @@',
+      '-old',
+      '+example',
       '---',
       ' note.txt | 1 +',
       ' 1 file changed, 1 insertion(+)',
@@ -152,6 +159,10 @@ describe('parsePatch', () => {
       ['after/a', '-old\n+new'],
       ['after/b', '-x\n+y'],
     ])
+  })
+
+  it('returns no review files for a directory comparison containing only unique entries', async () => {
+    expect(await parsePatch('Only in before: old.txt\nOnly in after: new.txt\n')).toEqual([])
   })
 
   it('keeps missing-newline markers on both sides and reads successive hunks', async () => {

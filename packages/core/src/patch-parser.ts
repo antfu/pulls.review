@@ -75,7 +75,20 @@ function hunkEnd(lines: string[], start: number, header: RegExpExecArray): numbe
   return i
 }
 
+/** A format-patch commit message can quote another diff before Git's separator and diffstat. */
+function stripMailPreambles(text: string): string {
+  const mailHeader = /^From [\da-f]+ Mon Sep 17 00:00:00 2001$/m
+  if (!text.startsWith('From ') || !mailHeader.test(text))
+    return text
+
+  return text.split(mailHeader).map((message) => {
+    const stat = /^---\n(?: [^\n]*\n)+\n(?=diff --git )/m.exec(message)
+    return stat ? message.slice(stat.index + stat[0].length) : message
+  }).join('')
+}
+
 function splitFileChunks(text: string): { chunks: string[], isGitDiff: boolean } {
+  text = stripMailPreambles(text)
   if (/^diff --git /m.test(text)) {
     const chunks = text.split(/(?=^diff --git )/m).filter(chunk => chunk.startsWith('diff --git '))
     return { chunks, isGitDiff: true }
@@ -101,7 +114,7 @@ function splitFileChunks(text: string): { chunks: string[], isGitDiff: boolean }
   // Keep the raw file chunk, including its final line ending, for existing content hashes.
   if (start !== undefined)
     chunks.push(lines.slice(start).join('\n'))
-  else if (text.trim())
+  else if (lines.some(line => line.trim() && !/^Only in .+: .+$/.test(line)))
     chunks.push(text)
   return { chunks, isGitDiff: false }
 }
