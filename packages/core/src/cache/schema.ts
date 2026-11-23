@@ -41,14 +41,14 @@ export const PrCacheMetaSchema = v.object({
   pullRequestState: v.optional(PullRequestStateSchema),
   additions: v.number(),
   deletions: v.number(),
-  /** Every file's `sha`, for review-mark counts and pruning orphaned marks. */
+  /** Every file's review key, for review-mark counts and pruning orphaned marks. */
   fileShas: v.array(v.string()),
   lastViewedAt: v.number(), // for LRU
   sizeBytes: v.number(), // approx, for budget accounting
   /** The viewer's own shared-analysis PR comment, reused (PATCHed) on later shares. */
   sharedComment: v.optional(v.object({ id: v.number(), url: v.string() })),
   /**
-   * Paths whose reviewed `sha` was replaced by a refetch (see `putDiff`): the file was
+   * Paths whose review key carried a mark and changed during a refetch (see `putDiff`): the file was
    * reviewed, then changed in later commits. Cleared per path when it's marked again.
    */
   changedSinceReviewed: v.optional(v.array(v.string())),
@@ -68,15 +68,11 @@ export type PrCacheBody = v.InferOutput<typeof PrCacheBodySchema>
 export type PrCacheEntry = Pick<PrCacheMeta, 'key' | 'headSha' | 'lastViewedAt' | 'sizeBytes' | 'sharedComment' | 'changedSinceReviewed'> & PrCacheBody
 
 /**
- * Per-file "reviewed" mark, keyed by the file's `sha` (see FileChangeSchema) rather
- * than by path or PR, so if a PR gets new commits and a given file's `sha` is
- * unchanged, its reviewed mark survives; only files whose `sha` actually changed
- * lose their mark. Also lets review state outlive any single cached PR entry: the
- * same file content reviewed in one PR context still registers as reviewed if
- * referenced again (e.g. a rebase, or the same file touched in a later PR).
+ * A review mark follows fileReviewKey(file). This normally shares marks for the
+ * same blob across PRs. A reparsed paste can carry a separate review identity.
  */
 export const FileReviewStateSchema = v.object({
-  sha: v.string(), // primary key, same sha as FileChange.sha
+  sha: v.string(), // persisted field name for the review key
   reviewedAt: v.number(), // epoch ms
 })
 export type FileReviewState = v.InferOutput<typeof FileReviewStateSchema>

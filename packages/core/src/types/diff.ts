@@ -25,11 +25,18 @@ export const FileChangeSchema = v.object({
   // of the patch text. Lets the cache tell which files actually changed between
   // two fetches without diffing patch text. See app/patch-parser for the rules.
   sha: v.string(),
+  /** Review identity after migrating a cached patch, when the blob or chunk SHA alone would give the wrong mark. */
+  reviewKey: v.optional(v.string()),
   hunks: v.array(DiffHunkSchema), // empty if binary or truncated
   /** The patch was too large to keep: counts stand, hunks are dropped (load the full file instead). */
   truncated: v.optional(v.literal(true)),
 })
 export type FileChange = v.InferOutput<typeof FileChangeSchema>
+
+/** Review marks normally follow the blob across sources. */
+export function fileReviewKey(file: FileChange): string {
+  return file.reviewKey ?? file.sha
+}
 
 export const PullRequestStateSchema = v.picklist(['open', 'closed', 'merged', 'draft'])
 export type PullRequestState = v.InferOutput<typeof PullRequestStateSchema>
@@ -66,6 +73,8 @@ const RefSchema = v.object({
  */
 export const DiffsPayloadSchema = v.object({
   ref: SourceRefSchema,
+  /** Format of the source's cached data, when the source versions its normalization. */
+  cacheVersion: v.optional(v.number()),
   title: v.string(), // "Pasted diff" default for paste, no PR title available
   /** Short identifier shown after the title and linked to `url`, e.g. `#123`. */
   label: v.optional(v.string()),

@@ -5,6 +5,7 @@ import type { DiffsPayload } from '../types/diff'
 import type { ReviewMarks } from './review-marks'
 import type { LlmSession, PersistedGroupSource, PrCacheBody, PrCacheEntry, PrCacheMeta } from './schema'
 import * as v from 'valibot'
+import { fileReviewKey } from '../types/diff'
 import { isListed } from '../types/source'
 import { PrCacheBodySchema, PrCacheMetaSchema } from './schema'
 
@@ -58,7 +59,7 @@ function split(entry: PrCacheEntry): { meta: PrCacheMeta, body: PrCacheBody } {
     pullRequestState: diff.pullRequest?.state,
     additions: diff.files.reduce((sum, file) => sum + file.additions, 0),
     deletions: diff.files.reduce((sum, file) => sum + file.deletions, 0),
-    fileShas: diff.files.map(file => file.sha),
+    fileShas: diff.files.map(fileReviewKey),
   }
   return { meta, body: { diff, analyzedBy, reviews, llmSession } }
 }
@@ -167,18 +168,18 @@ export function createDiffCache(storage: Storage, reviewMarks: ReviewMarks, budg
   }
 
   /**
-   * Paths of `diff` whose previous `sha` was reviewed but has since changed, plus the
+   * Paths of `diff` whose previous review key carried a mark and has since changed, plus the
    * still-present paths already flagged on `existing` - a flag only clears when the
    * user marks the file again (`setChangedSinceReviewed`), not by further commits.
    */
   async function changedSinceReviewed(existing: PrCacheEntry, diff: DiffsPayload): Promise<string[]> {
-    const previousSha = new Map(existing.diff.files.map(file => [file.path, file.sha]))
-    const reviewed = await reviewMarks.get([...previousSha.values()])
+    const previousKeys = new Map(existing.diff.files.map(file => [file.path, fileReviewKey(file)]))
+    const reviewed = await reviewMarks.get([...previousKeys.values()])
     const flagged = new Set(existing.changedSinceReviewed)
     return diff.files
       .filter((file) => {
-        const previous = previousSha.get(file.path)
-        return flagged.has(file.path) || (previous !== undefined && previous !== file.sha && reviewed.has(previous))
+        const previous = previousKeys.get(file.path)
+        return flagged.has(file.path) || (previous !== undefined && previous !== fileReviewKey(file) && reviewed.has(previous))
       })
       .map(file => file.path)
   }

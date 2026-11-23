@@ -7,6 +7,7 @@ import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
 import { FileDiff as PierreFileDiff, VirtualizedFileDiff } from '@pierre/diffs'
+import { fileReviewKey } from '@pulls.review/core/types'
 import { useIntersectionObserver } from '@vueuse/core'
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
 import { autoFetchFullFile } from '../../state/auto-fetch-full-file'
@@ -423,7 +424,7 @@ defineExpose({
         <ReviewCheckbox
           :status="status"
           :aria-label="$t('file.markReviewed')"
-          @update="store.setReviewed([file.sha], $event)"
+          @update="store.setReviewed([fileReviewKey(file)], $event)"
         />
         <DisplayFilePath :path="file.path" class="min-w-0" />
         <TestMark v-if="isTest" />
@@ -462,7 +463,7 @@ defineExpose({
         <span class="i-ph:warning-circle-duotone shrink-0" aria-hidden="true" />
         {{ $t('file.changedSinceReviewed') }}
       </span>
-      <ActionButton size="sm" @click="store.setReviewed([file.sha], true)">
+      <ActionButton size="sm" @click="store.setReviewed([fileReviewKey(file)], true)">
         {{ $t('file.markReviewed') }}
       </ActionButton>
     </div>

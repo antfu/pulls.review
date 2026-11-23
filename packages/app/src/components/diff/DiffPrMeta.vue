@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DiffsStore } from '../../stores/types'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
+import { fileReviewKey } from '@pulls.review/core/types'
 import { computed, ref } from 'vue'
 import DiffReviewButton from './DiffReviewButton.vue'
 import DiffStats from './DiffStats.vue'
@@ -15,7 +16,7 @@ const props = defineProps<{
 // `store.diff` is guaranteed set - `DiffsPage` only renders the header once it is.
 const files = computed(() => props.store.diff!.files)
 const totalFiles = computed(() => files.value.length)
-const reviewedCount = computed(() => files.value.filter(file => props.store.reviewed.has(file.sha)).length)
+const reviewedCount = computed(() => files.value.filter(file => props.store.reviewed.has(fileReviewKey(file))).length)
 const additions = computed(() => files.value.reduce((sum, file) => sum + file.additions, 0))
 const deletions = computed(() => files.value.reduce((sum, file) => sum + file.deletions, 0))
 const progress = computed(() => totalFiles.value === 0 ? 1 : reviewedCount.value / totalFiles.value)

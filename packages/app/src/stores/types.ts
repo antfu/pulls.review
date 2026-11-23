@@ -150,8 +150,8 @@ export interface DiffsStore {
   readonly isStale: boolean
   readonly reviewed: Set<string>
   /**
-   * Paths reviewed at an earlier `sha` that later commits replaced. Only meaningful for
-   * a path whose current `sha` is not in `reviewed` (see `reviewStatus`).
+   * Paths reviewed before their content changed. Only meaningful for
+   * a path whose current review key is not in `reviewed` (see `reviewStatus`).
    */
   readonly changedSinceReviewed: Set<string>
   /** Each group's `filePaths` resolved into real `FileChange`s, `[]` until `diff`/`grouped` are both loaded. */
@@ -176,6 +176,6 @@ export interface DiffsStore {
   readonly fileContent?: DiffsStoreFileContent
   load: () => Promise<void>
   refresh: () => Promise<void>
-  /** Marks (or unmarks) files by `sha`; either way clears their `changedSinceReviewed` flag. */
-  setReviewed: (shas: string[], reviewed: boolean) => Promise<void>
+  /** Marks (or unmarks) files by `fileReviewKey(file)`; either way clears their `changedSinceReviewed` flag. */
+  setReviewed: (keys: string[], reviewed: boolean) => Promise<void>
 }

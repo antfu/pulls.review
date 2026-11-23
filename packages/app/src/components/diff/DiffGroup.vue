@@ -5,6 +5,7 @@ import type { ResolvedGroupWithChildren } from './group-utils'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
 import { Markdown } from '@comark/vue'
+import { fileReviewKey } from '@pulls.review/core/types'
 import { computed, nextTick, ref } from 'vue'
 import { scrollToFile } from '../../composables/scrollToFile'
 import { useDragResize } from '../../composables/useDragResize'
@@ -44,7 +45,7 @@ const totalAdded = computed(() => stats.value.added)
 const totalDeleted = computed(() => stats.value.deleted)
 const reviewedCount = computed(() => {
   const files = [...props.group.files, ...props.group.children.flatMap(child => child.files)]
-  return files.filter(file => props.store.reviewed.has(file.sha)).length
+  return files.filter(file => props.store.reviewed.has(fileReviewKey(file))).length
 })
 
 // Each child group collapses independently of its parent and of its siblings.

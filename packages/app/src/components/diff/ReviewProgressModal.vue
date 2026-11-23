@@ -2,6 +2,7 @@
 import type { DiffsStore } from '../../stores/types'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import DisplayFilePath from '@antfu/design/components/Display/DisplayFilePath.vue'
+import { fileReviewKey } from '@pulls.review/core/types'
 import { computed } from 'vue'
 import { scrollToFile } from '../../composables/scrollToFile'
 import AppModal from '../AppModal.vue'
@@ -24,12 +25,12 @@ const rows = computed(() => (props.store.diff?.files ?? [])
 
 const reviewedCount = computed(() => rows.value.filter(row => row.status === 'reviewed').length)
 
-function shasWhere(reviewed: boolean) {
-  return rows.value.filter(row => (row.status === 'reviewed') === reviewed).map(row => row.file.sha)
+function keysWhere(reviewed: boolean) {
+  return rows.value.filter(row => (row.status === 'reviewed') === reviewed).map(row => fileReviewKey(row.file))
 }
 
 async function invert() {
-  const [toUnmark, toMark] = [shasWhere(true), shasWhere(false)]
+  const [toUnmark, toMark] = [keysWhere(true), keysWhere(false)]
   await props.store.setReviewed(toUnmark, false)
   await props.store.setReviewed(toMark, true)
 }
@@ -53,13 +54,13 @@ function jumpTo(sha: string) {
   >
     <div class="flex flex-col gap-3">
       <div class="flex flex-wrap gap-2">
-        <ActionButton size="sm" icon="i-ph:checks" :disabled="reviewedCount === rows.length" @click="store.setReviewed(shasWhere(false), true)">
+        <ActionButton size="sm" icon="i-ph:checks" :disabled="reviewedCount === rows.length" @click="store.setReviewed(keysWhere(false), true)">
           {{ $t('reviewProgress.markAll') }}
         </ActionButton>
         <ActionButton size="sm" icon="i-ph:arrows-left-right" :disabled="rows.length === 0" @click="invert">
           {{ $t('reviewProgress.invert') }}
         </ActionButton>
-        <ActionButton size="sm" icon="i-ph:arrow-counter-clockwise" :disabled="reviewedCount === 0 && store.changedSinceReviewed.size === 0" @click="store.setReviewed(rows.map(row => row.file.sha), false)">
+        <ActionButton size="sm" icon="i-ph:arrow-counter-clockwise" :disabled="reviewedCount === 0 && store.changedSinceReviewed.size === 0" @click="store.setReviewed(rows.map(row => fileReviewKey(row.file)), false)">
           {{ $t('reviewProgress.reset') }}
         </ActionButton>
       </div>
@@ -68,7 +69,7 @@ function jumpTo(sha: string) {
           <ReviewCheckbox
             :status="status"
             :aria-label="$t('file.markReviewed')"
-            @update="store.setReviewed([file.sha], $event)"
+            @update="store.setReviewed([fileReviewKey(file)], $event)"
           />
           <button type="button" class="min-w-0 flex-1 text-left" @click="jumpTo(file.sha)">
             <DisplayFilePath :path="file.path" class="min-w-0" />

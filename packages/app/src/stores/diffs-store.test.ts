@@ -5,7 +5,7 @@ import type { LlmRunner } from '../analyze/llm-runner'
 import { createCacheRepositories } from '@pulls.review/core/cache'
 import { createGithubPullRequestSource } from '@pulls.review/core/github'
 import { createPasteSource } from '@pulls.review/core/paste'
-import { serializeRef } from '@pulls.review/core/types'
+import { fileReviewKey, serializeRef } from '@pulls.review/core/types'
 import { createStorage } from 'unstorage'
 import memoryDriver from 'unstorage/drivers/memory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -33,6 +33,83 @@ beforeEach(() => {
 })
 
 describe('createDiffsStore review marks', () => {
+  it('reparses a legacy paste and keeps marks only for the same reviewed patch', async () => {
+    // Two files can share a blob. The old parser attached the mail signature
+    // to the last file and counted it as a deletion.
+    const patch = [
+      'Subject: [PATCH] update both files',
+      PATCH_TEXT.trimEnd().replaceAll('a.ts', 'other.ts'),
+      PATCH_TEXT.trimEnd(),
+      '-- ',
+      '2.55.0',
+      '',
+    ].join('\n')
+    const source = createPasteSource(patch)
+    const key = await source.key()
+    const current = await source.fetch()
+    const [other, last] = current.files
+    const legacy = {
+      ...current,
+      cacheVersion: undefined,
+      files: [
+        { ...other!, path: '', sha: 'preamble', additions: 0, deletions: 0, hunks: [] },
+        other!,
+        { ...last!, deletions: 2, hunks: last!.hunks.map(h => ({ ...h, patch: `${h.patch}\n-- \n2.55.0` })) },
+      ],
+    }
+    await cache.diffs.putDiff(key, legacy, '')
+    const analysis = { source: 'llm' as const, groups: [], schemaVersion: 1, generatedAt: 'before the upgrade' }
+    await cache.diffs.setAnalyzedResult(key, 'llm', analysis)
+    await cache.reviewMarks.set(['111', 'preamble'], true)
+
+    const migrated = createDiffsStore(source, { cache })
+    await migrated.load()
+    expect(migrated.diff!.files.map(f => [f.path, f.additions, f.deletions])).toEqual([['other.ts', 1, 1], ['a.ts', 1, 1]])
+    const [unchanged, corrected] = migrated.diff!.files
+    expect(unchanged!.sha).toBe(corrected!.sha)
+    expect(migrated.reviewed.has(fileReviewKey(unchanged!))).toBe(true)
+    const correctedKey = fileReviewKey(corrected!)
+    expect(migrated.reviewed.has(correctedKey)).toBe(false)
+    expect(migrated.changedSinceReviewed).toEqual(new Set(['a.ts']))
+    expect((await cache.diffs.listRecent(1))[0]?.fileShas).toEqual(['111', correctedKey])
+    expect(migrated.aiResult).toEqual(analysis)
+
+    await migrated.setReviewed([correctedKey], true)
+    const reopened = createDiffsStore(createPasteSource(patch), { cache })
+    await reopened.load()
+    expect(reopened.reviewed).toEqual(new Set(['111', correctedKey]))
+    expect(reopened.changedSinceReviewed.size).toBe(0)
+    await reopened.setReviewed([correctedKey], false)
+    await reopened.refresh()
+    expect(reopened.reviewed).toEqual(new Set(['111']))
+    expect(await cache.reviewMarks.get(['111', 'preamble'])).toEqual(new Set(['111', 'preamble']))
+  })
+
+  it('refreshes a legacy POSIX patch before loading and retains the unaffected file mark', async () => {
+    const sqlHeader = '--- before.sql\n+++ after.sql\n@@ -1 +1 @@\n'
+    const sqlBody = '--- old comment\n+++ new comment\n'
+    const other = '--- before.txt\n+++ after.txt\n@@ -1 +1 @@\n-old\n+new\n'
+    const source = createPasteSource(sqlHeader + sqlBody + other)
+    const key = await source.key()
+    // The legacy splitter treated the SQL body as another file. Cache its
+    // three original chunks independently to reproduce that stored shape.
+    const chunks = await Promise.all([sqlHeader, sqlBody, other].map(chunk => createPasteSource(chunk).fetch()))
+    const legacy = {
+      ...await source.fetch(),
+      cacheVersion: undefined,
+      files: chunks.flatMap(diff => diff.files),
+    }
+    await cache.diffs.putDiff(key, legacy, '')
+    await cache.reviewMarks.set(legacy.files.map(file => file.sha), true)
+
+    const store = createDiffsStore(source, { cache })
+    await store.refresh()
+    expect(store.diff!.files.map(file => file.path)).toEqual(['after.sql', 'after.txt'])
+    expect(store.diff!.files[0]!.hunks[0]!.patch).toBe(sqlBody.trimEnd())
+    expect(store.reviewed).toEqual(new Set([legacy.files[2]!.sha]))
+    expect(store.changedSinceReviewed).toEqual(new Set(['after.sql']))
+  })
+
   it('loads the changed-since-reviewed flags from the cache and clears them on marking', async () => {
     const seed = createDiffsStore(createPasteSource(PATCH_TEXT), { cache, llm })
     await seed.load()
