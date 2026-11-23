@@ -316,10 +316,12 @@ flat key-value, so there's no native "object store" split):
   including when the user imports it again after eviction. Marks are pruned on
   eviction by walking the remaining entries' review keys. Which of those files
   *had* been reviewed is remembered on the cached diff as `changedSinceReviewed`
-  (paths): `putDiff` flags every path whose outgoing review key carried a mark and
+  (paths): `putDiff` flags each unambiguous path whose outgoing review key carried a mark and
   whose incoming key differs, and the flag survives further commits until
   the user marks the file again (`DiffsStore.setReviewed`), which is how the
   view shows "reviewed, but changed since" instead of plain "unreviewed".
+  If either version repeats the path, its file checkboxes still use their review
+  keys and the path-level changed flag is omitted.
 - `file-content:*` — a file's full raw content at a specific ref, fetched
   on demand by `FileDiff.vue`'s "load full file" action through
   `DiffsStore.fileContent` (present only when the source has `loadFile`;

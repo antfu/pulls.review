@@ -127,12 +127,37 @@ describe('createDiffsStore review marks', () => {
     const key = await source.key()
     const legacy = { ...await source.fetch(), cacheVersion: undefined }
     await cache.diffs.putDiff(key, legacy, '')
-    await cache.reviewMarks.set(['111'], true)
+    await cache.reviewMarks.set(['333'], true)
 
     const store = createDiffsStore(source, { cache })
     await store.load()
     expect(store.diff!.files.map(fileReviewKey)).toEqual(['111', '333'])
-    expect(store.reviewed).toEqual(new Set(['111']))
+    expect(store.reviewed).toEqual(new Set(['333']))
+    expect(store.changedSinceReviewed.size).toBe(0)
+  })
+
+  it.each(['111', '333'])('keeps a corrected hunk with blob %s pending when it matches an earlier patch of the same path', async (sha) => {
+    const repeatedPatch = PATCH_TEXT.replace('000..111', `222..${sha}`)
+    const source = createPasteSource(`${PATCH_TEXT}${repeatedPatch}-- \n2.55.0\n`)
+    const key = await source.key()
+    const current = await source.fetch()
+    const [first, last] = current.files
+    const legacy = {
+      ...current,
+      cacheVersion: undefined,
+      files: [first!, { ...last!, reviewKey: undefined, deletions: 2, hunks: last!.hunks.map(h => ({ ...h, patch: `${h.patch}\n-- \n2.55.0` })) }],
+    }
+    await cache.diffs.putDiff(key, legacy, '')
+    await cache.reviewMarks.set(['111'], true)
+
+    const store = createDiffsStore(source, { cache })
+    await store.load()
+    const [firstKey, correctedKey] = store.diff!.files.map(fileReviewKey)
+    expect(firstKey).toBe('111')
+    expect(correctedKey).toBe(fileReviewKey(last!))
+    expect(store.reviewed.has(firstKey!)).toBe(true)
+    expect(store.reviewed.has(correctedKey!)).toBe(false)
+    expect(store.changedSinceReviewed.size).toBe(0)
   })
 
   it('refreshes a legacy POSIX patch before loading and retains the unaffected file mark', async () => {

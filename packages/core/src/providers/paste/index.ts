@@ -1,6 +1,7 @@
 import type { FileChange } from '../../types/diff'
 import type { DiffSource } from '../../types/source'
 import { computeContentHash, parsePatch } from '../../patch-parser'
+import { repeatedFilePaths } from '../../review-paths'
 import { fileReviewKey } from '../../types/diff'
 import { serializeRef } from '../../types/source'
 
@@ -13,6 +14,7 @@ function reviewContent(file: FileChange): string {
 }
 
 function restoreReviewKeys(files: FileChange[], previous: FileChange[], scope: string): FileChange[] {
+  const repeated = repeatedFilePaths(previous, files)
   const prior = new Map<string, FileChange[]>()
   for (const file of previous) {
     const content = reviewContent(file)
@@ -23,9 +25,13 @@ function restoreReviewKeys(files: FileChange[], previous: FileChange[], scope: s
       prior.set(content, [file])
   }
   return files.map((file, index) => {
+    // A corrected hunk can now look exactly like another occurrence, including
+    // its blob. Keep the key the parser assigned to this occurrence.
+    if (file.reviewKey && repeated.has(file.path))
+      return file
     const matches = prior.get(reviewContent(file))
     // A patch series can show the same hunk for different blobs at one path.
-    const match = matches?.find(old => old.sha === file.sha) ?? (matches?.length === 1 ? matches[0] : undefined)
+    const match = matches?.find(old => old.sha === file.sha) ?? (repeated.has(file.path) ? undefined : matches?.[0])
     const key = match ? fileReviewKey(match) : `${scope}:${index}`
     return key === fileReviewKey(file) ? file : { ...file, reviewKey: key }
   })

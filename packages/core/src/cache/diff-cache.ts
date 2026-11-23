@@ -5,6 +5,7 @@ import type { DiffsPayload } from '../types/diff'
 import type { ReviewMarks } from './review-marks'
 import type { LlmSession, PersistedGroupSource, PrCacheBody, PrCacheEntry, PrCacheMeta } from './schema'
 import * as v from 'valibot'
+import { repeatedFilePaths } from '../review-paths'
 import { fileReviewKey } from '../types/diff'
 import { isListed } from '../types/source'
 import { PrCacheBodySchema, PrCacheMetaSchema } from './schema'
@@ -173,11 +174,14 @@ export function createDiffCache(storage: Storage, reviewMarks: ReviewMarks, budg
    * user marks the file again (`setChangedSinceReviewed`), not by further commits.
    */
   async function changedSinceReviewed(existing: PrCacheEntry, diff: DiffsPayload): Promise<string[]> {
+    const repeated = repeatedFilePaths(existing.diff.files, diff.files)
     const previousKeys = new Map(existing.diff.files.map(file => [file.path, fileReviewKey(file)]))
     const reviewed = await reviewMarks.get([...previousKeys.values()])
     const flagged = new Set(existing.changedSinceReviewed)
     return diff.files
       .filter((file) => {
+        if (repeated.has(file.path))
+          return false
         const previous = previousKeys.get(file.path)
         return flagged.has(file.path) || (previous !== undefined && previous !== fileReviewKey(file) && reviewed.has(previous))
       })
