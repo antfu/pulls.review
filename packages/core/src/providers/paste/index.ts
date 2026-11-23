@@ -12,11 +12,22 @@ function reviewContent(file: FileChange): string {
   return JSON.stringify([file.path, file.previousPath, file.status, file.additions, file.deletions, file.isBinary, file.truncated, file.hunks])
 }
 
-function restoreReviewKeys(files: FileChange[], previous: FileChange[], hash: string): FileChange[] {
-  const prior = new Map(previous.map(file => [reviewContent(file), fileReviewKey(file)]))
+function restoreReviewKeys(files: FileChange[], previous: FileChange[], scope: string): FileChange[] {
+  const prior = new Map<string, FileChange[]>()
+  for (const file of previous) {
+    const content = reviewContent(file)
+    const matches = prior.get(content)
+    if (matches)
+      matches.push(file)
+    else
+      prior.set(content, [file])
+  }
   return files.map((file, index) => {
-    const key = prior.get(reviewContent(file)) ?? `paste:${hash}:v${CACHE_VERSION}:${index}`
-    return key === file.sha ? file : { ...file, reviewKey: key }
+    const matches = prior.get(reviewContent(file))
+    // A patch series can show the same hunk for different blobs at one path.
+    const match = matches?.find(old => old.sha === file.sha) ?? (matches?.length === 1 ? matches[0] : undefined)
+    const key = match ? fileReviewKey(match) : `${scope}:${index}`
+    return key === fileReviewKey(file) ? file : { ...file, reviewKey: key }
   })
 }
 
@@ -36,9 +47,12 @@ export function createPasteSource(text: string, title?: string): DiffSource {
         files = cached.files
       }
       else {
-        files = await parsePatch(text)
+        // Derive isolated keys from the input even after eviction. A cached
+        // file with identical review content can carry its original mark forward.
+        const scope = `paste:${contentHash}:v${CACHE_VERSION}`
+        files = await parsePatch(text, scope)
         if (cached)
-          files = restoreReviewKeys(files, cached.files, contentHash)
+          files = restoreReviewKeys(files, cached.files, scope)
       }
       return {
         cacheVersion: CACHE_VERSION,

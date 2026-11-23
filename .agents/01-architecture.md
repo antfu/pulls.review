@@ -312,8 +312,10 @@ flat key-value, so there's no native "object store" split):
   `sha` changed lose their mark. On a paste parser upgrade, files with the
   same displayed patch keep their review key. New or corrected files get a
   paste-specific key so a shared blob mark cannot hide changes in the patch.
-  Marks are pruned on eviction by walking the remaining entries' review keys. Which of those files *had*
-  been reviewed is remembered on the cached diff as `changedSinceReviewed`
+  A fresh import derives the same scoped key for a hunk with corrected boundaries,
+  including when the user imports it again after eviction. Marks are pruned on
+  eviction by walking the remaining entries' review keys. Which of those files
+  *had* been reviewed is remembered on the cached diff as `changedSinceReviewed`
   (paths): `putDiff` flags every path whose outgoing review key carried a mark and
   whose incoming key differs, and the flag survives further commits until
   the user marks the file again (`DiffsStore.setReviewed`), which is how the

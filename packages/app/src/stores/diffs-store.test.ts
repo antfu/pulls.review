@@ -54,7 +54,7 @@ describe('createDiffsStore review marks', () => {
       files: [
         { ...other!, path: '', sha: 'preamble', additions: 0, deletions: 0, hunks: [] },
         other!,
-        { ...last!, deletions: 2, hunks: last!.hunks.map(h => ({ ...h, patch: `${h.patch}\n-- \n2.55.0` })) },
+        { ...last!, reviewKey: undefined, deletions: 2, hunks: last!.hunks.map(h => ({ ...h, patch: `${h.patch}\n-- \n2.55.0` })) },
       ],
     }
     await cache.diffs.putDiff(key, legacy, '')
@@ -83,6 +83,56 @@ describe('createDiffsStore review marks', () => {
     await reopened.refresh()
     expect(reopened.reviewed).toEqual(new Set(['111']))
     expect(await cache.reviewMarks.get(['111', 'preamble'])).toEqual(new Set(['111', 'preamble']))
+  })
+
+  it('keeps a corrected mail hunk pending after eviction when another source still references its blob', async ({ onTestFinished }) => {
+    let now = 0
+    const clock = vi.spyOn(Date, 'now').mockImplementation(() => ++now)
+    onTestFinished(() => clock.mockRestore())
+    cache = createCacheRepositories(createStorage({ driver: memoryDriver() }), { maxEntries: 2 })
+    const source = createPasteSource(`${PATCH_TEXT}-- \n2.55.0\n`)
+    const key = await source.key()
+    const fresh = await source.fetch()
+    const file = fresh.files[0]!
+    const legacy = {
+      ...fresh,
+      cacheVersion: undefined,
+      files: [{ ...file, reviewKey: undefined, deletions: 2, hunks: file.hunks.map(h => ({ ...h, patch: `${h.patch}\n-- \n2.55.0` })) }],
+    }
+    await cache.diffs.putDiff(key, legacy, '')
+    await cache.reviewMarks.set([file.sha], true)
+    const migrated = createDiffsStore(source, { cache })
+    await migrated.load()
+    const migratedKey = fileReviewKey(migrated.diff!.files[0]!)
+    expect(migrated.reviewed.size).toBe(0)
+
+    // A separate clean patch retains the shared blob mark across LRU pruning.
+    const other = createDiffsStore(createPasteSource(PATCH_TEXT), { cache })
+    await other.load()
+    const filler = createPasteSource(PATCH_TEXT.replace('000..111', '000..222'))
+    await createDiffsStore(filler, { cache }).load()
+    expect(await cache.diffs.get(key)).toBeUndefined()
+    await other.load()
+    expect(other.reviewed).toEqual(new Set([file.sha]))
+
+    const reimported = createDiffsStore(source, { cache })
+    await reimported.load()
+    expect(fileReviewKey(reimported.diff!.files[0]!)).toBe(migratedKey)
+    expect(reimported.reviewed.size).toBe(0)
+    expect(await cache.reviewMarks.get([file.sha])).toEqual(new Set([file.sha]))
+  })
+
+  it('preserves independent marks for repeated patches of the same path with different blobs', async () => {
+    const source = createPasteSource(PATCH_TEXT + PATCH_TEXT.replace('000..111', '222..333'))
+    const key = await source.key()
+    const legacy = { ...await source.fetch(), cacheVersion: undefined }
+    await cache.diffs.putDiff(key, legacy, '')
+    await cache.reviewMarks.set(['111'], true)
+
+    const store = createDiffsStore(source, { cache })
+    await store.load()
+    expect(store.diff!.files.map(fileReviewKey)).toEqual(['111', '333'])
+    expect(store.reviewed).toEqual(new Set(['111']))
   })
 
   it('refreshes a legacy POSIX patch before loading and retains the unaffected file mark', async () => {
