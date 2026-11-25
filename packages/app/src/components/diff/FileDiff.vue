@@ -40,6 +40,13 @@ const props = defineProps<{
 
 const status = computed(() => reviewStatus(props.store, props.file))
 const isReviewed = computed(() => status.value === 'reviewed')
+const reviewToggleClass = computed(() => {
+  if (status.value === 'reviewed')
+    return 'btn-action-active'
+  if (status.value === 'changed')
+    return 'op100! border-orange-500/50! text-orange-700 dark:text-orange-400'
+  return ''
+})
 const isCritical = computed(() => fileIsCritical(props.notes))
 const isTest = computed(() => isTestFile(props.file.path))
 const fileNotes = computed(() => props.notes?.filter(note => !note.anchor) ?? [])
@@ -420,11 +427,6 @@ defineExpose({
       @click.self="collapsed = !collapsed"
     >
       <div class="min-w-0 flex items-center gap-2 text-sm">
-        <ReviewCheckbox
-          :status="status"
-          :aria-label="$t('file.markReviewed')"
-          @update="store.setReviewed([file.sha], $event)"
-        />
         <DisplayFilePath :path="file.path" class="min-w-0" />
         <TestMark v-if="isTest" />
         <CriticalMark v-if="isCritical" />
@@ -447,6 +449,14 @@ defineExpose({
           :tooltip="$t('file.loadFull')"
           @click="loadFullFile"
         />
+        <!-- A labeled button-sized target on the right (like GitHub's "Viewed"), not a bare 16px box. -->
+        <label
+          class="btn-action-sm my--1 cursor-pointer select-none"
+          :class="reviewToggleClass"
+        >
+          <ReviewCheckbox :status="status" @update="store.setReviewed([file.sha], $event)" />
+          <span>{{ $t('file.reviewed') }}</span>
+        </label>
         <ActionIconButton
           compact
           :icon="collapsed ? 'i-ph:caret-right' : 'i-ph:caret-down'"
