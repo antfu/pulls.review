@@ -233,6 +233,7 @@
     "layoutTree": "Dateien als Baum anzeigen",
     "layoutList": "Dateien als Liste anzeigen",
     "markReviewed": "Als reviewt markieren",
+    "reviewed": "Reviewt",
     "markFolderReviewed": "Alle Dateien in {name} als reviewt markieren",
     "changedSinceReviewed": "Diese Datei wurde bereits reviewt, hat sich aber in späteren Commits geändert",
     "resolved": "{n} gelöst",

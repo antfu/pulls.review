@@ -233,6 +233,7 @@
     "layoutTree": "Mostrar arquivos como árvore",
     "layoutList": "Mostrar arquivos como lista",
     "markReviewed": "Marcar como revisado",
+    "reviewed": "Revisado",
     "markFolderReviewed": "Marcar todos os arquivos em {name} como revisados",
     "changedSinceReviewed": "Este arquivo já foi revisado, mas mudou em commits posteriores",
     "resolved": "{n} resolvidos",
