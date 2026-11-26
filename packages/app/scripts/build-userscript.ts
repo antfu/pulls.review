@@ -54,9 +54,10 @@ export async function buildUserscript() {
 // ==/UserScript==
 
 ;(() => {
-  // Mount the pulls.review embed panel Web Component from pulls.review
-  if (!document.querySelector('pulls-review-embed-panel'))
-    document.body.appendChild(document.createElement('pulls-review-embed-panel'))
+  // Mount the pulls.review embed panel from pulls.review. Not as its custom element:
+  // that never renders when Firefox runs this in a content-script sandbox.
+  if (!document.querySelector('#pulls-review-embed'))
+    PullsReviewEmbed.mountEmbedPanel()
 })()
 `
 
